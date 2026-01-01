@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相逢 Xiangfeng V2 - 探索</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;350;400;500;600;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        xf: {
+                            bg: '#E1E4EA',
+                            surface: '#D2C3D5',
+                            primary: '#6A5B8A',
+                            accent: '#3A3C6E',
+                            info: '#4A6FA5',
+                            soft: '#A5C1D6',
+                            dark: '#25263D',
+                            light: '#F7F9FC',
+                            medium: '#8C8EA9',
+                            success: '#4CAF50',
+                            warning: '#FF9800',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(165, 193, 214, 0.3)',
+                        'glow': '0 0 15px rgba(106, 91, 138, 0.5)',
+                        'elevated': '0 15px 35px -10px rgba(58, 60, 110, 0.15)',
+                        'deep': '0 8px 25px -5px rgba(58, 60, 110, 0.2)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulse-subtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slide-up 0.3s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'pulse-subtle': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        },
+                        'slide-up': {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 基础优化 - 完全保持草图样式 */
+        body {
+            font-weight: 400;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            letter-spacing: 0.02em;
+            font-feature-settings: "kern" 1;
+            color: #25263D;
+        }
+
+        /* 增强对比度的文本颜色类 */
+        .text-contrast-high {
+            color: #25263D;
+        }
+
+        .text-contrast-medium {
+            color: #3A3C6E;
+        }
+
+        .text-contrast-low {
+            color: #6A5B8A;
+        }
+
+        .text-contrast-muted {
+            color: #8C8EA9;
+        }
+
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 导航栏激活指示器 */
+        .nav-active-indicator {
+            position: absolute;
+            left: 0;
+            height: 60%;
+            width: 4px;
+            background-color: #3A3C6E;
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+            transition: opacity 0.3s ease, height 0.3s ease;
+        }
+
+        .nav-item.active .nav-active-indicator {
+            opacity: 1;
+            height: 80%;
+        }
+
+        /* ============ 完全保持草图精细化样式 ============ */
+
+        /* 优化按钮按压效果 */
+        button:active,
+        .cursor-pointer:active {
+            transform: scale(0.985);
+            transition-duration: 50ms;
+        }
+
+        /* 卡片悬停的优雅抬起与阴影扩散 */
+        article,
+        .break-inside-avoid,
+        .card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        article:hover,
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(58, 60, 110, 0.18);
+        }
+
+        /* 图标悬停的弹性效果 */
+        i[data-lucide] {
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .group:hover i[data-lucide] {
+            transform: scale(1.15);
+        }
+
+        /* 为文章简介添加更优雅的行高与字重 */
+        .line-clamp-3 {
+            line-height: 1.8;
+        }
+
+        /* 为标签添加更精致的渐变边框效果 */
+        .tag {
+            border: 1.5px solid rgba(165, 193, 214, 0.3);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        .tag:hover {
+            border-color: #4A6FA5;
+            background-color: #4A6FA5;
+            color: white;
+        }
+
+        /* 登录输入框的聚焦态升级 */
+        input:focus,
+        textarea:focus,
+        select:focus {
+            background: white;
+            border-color: #6A5B8A;
+            box-shadow: 0 0 0 3px rgba(106, 91, 138, 0.15),
+                inset 0 1px 4px rgba(0, 0, 0, 0.05);
+            outline: none;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+
+        /* 优雅的淡入动画 */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优雅的页面切换过渡 */
+        .view-transition {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* 优雅的加载指示器 */
+        .loading-dots:after {
+            content: '.';
+            animation: loadingDots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes loadingDots {
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
+        }
+
+        /* 增强对比度：深色背景上的文字 */
+        .dark-bg-text {
+            color: #F7F9FC;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-bg-subtext {
+            color: rgba(247, 249, 252, 0.85);
+        }
+
+        /* 层次提升：添加轻微的文本阴影提升可读性 */
+        .text-layer-1 {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .text-layer-2 {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 卡片背景增强 */
+        .card-bg {
+            background: linear-gradient(145deg, #ffffff, #f5f7fa);
+            border: 1px solid rgba(225, 228, 234, 0.8);
+        }
+
+        /* 侧边栏背景层次 */
+        .sidebar-bg {
+            background: linear-gradient(180deg, #F7F9FC 0%, #E8EBF2 100%);
+            border-right: 1px solid rgba(210, 195, 213, 0.3);
+        }
+
+        /* 探索页面简化样式 */
+        .explore-hero {
+            background: linear-gradient(135deg, #3A3C6E 0%, #6A5B8A 100%);
+        }
+
+        /* 探索路径简化 */
+        .explore-path-simple {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 12px 0;
+        }
+
+        .path-node-simple {
+            padding: 8px 16px;
+            background: rgba(247, 249, 252, 0.8);
+            border-radius: 12px;
+            white-space: nowrap;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .path-node-simple.active {
+            background: #3A3C6E;
+            color: white;
+        }
+
+        .path-node-simple:hover:not(.active) {
+            background: rgba(247, 249, 252, 0.95);
+            transform: translateY(-2px);
+        }
+
+        /* 哲学卡片样式 */
+        .philosophy-card {
+            background: linear-gradient(135deg, #E8EBF2 0%, #F7F9FC 100%);
+            border: 1px solid rgba(165, 193, 214, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .philosophy-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(106, 91, 138, 0.05) 0%, rgba(165, 193, 214, 0.05) 100%);
+            animation: float 20s ease-in-out infinite alternate;
+        }
+
+        .philosophy-text {
+            font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
+            letter-spacing: 0.03em;
+            line-height: 1.6;
+        }
+
+        /* 简洁卡片样式 */
+        .explore-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid rgba(225, 228, 234, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .explore-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(58, 60, 110, 0.12);
+        }
+
+        /* 探索过滤器 */
+        .filter-pill {
+            padding: 8px 16px;
+            background: rgba(247, 249, 252, 0.8);
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .filter-pill.active {
+            background: #3A3C6E;
+            color: white;
+        }
+
+        .filter-pill:hover:not(.active) {
+            background: rgba(247, 249, 252, 0.95);
+            border-color: rgba(165, 193, 214, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-xf-light text-xf-dark antialiased h-screen overflow-hidden font-sans selection:bg-xf-soft/50">
+
+    <!-- 主应用界面 -->
+    <div id="app-view" class="flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden view-transition">
+
+        <!-- 左侧边栏 - 简化版 -->
+        <aside
+            class="w-[80px] xl:w-[220px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300">
+            <!-- 用户头像区域 - 添加用户名显示 -->
+            <div class="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3">
+                <div class="relative cursor-pointer" onclick="toggleProfileMenu()">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7" alt="Avatar"
+                        class="w-10 h-10 rounded-full shadow-sm ring-2 ring-white">
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+                    </div>
+                </div>
+
+                <!-- 用户名显示 - 仅在 xl 屏幕以上显示 -->
+                <div class="hidden xl:block pt-1">
+                    <div class="font-medium text-xf-dark text-sm mb-0.5">梦话</div>
+                    <div class="text-xs text-xf-primary">免费版</div>
+                </div>
+            </div>
+
+            <!-- 导航菜单 - 简化 -->
+            <nav class="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
+                <a href="./首页.html" onclick="switchTab('home', this)"
+                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="home" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">首页</span>
+                </a>
+                <a href="./探索.html" onclick="switchTab('explore', this)"
+                    class="nav-item active flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-accent font-semibold transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="compass" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">探索</span>
+                </a>
+                <a href="./发布卡片.html" onclick="switchTab('publish', this)"
+                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="edit-3" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">发布</span>
+                </a>
+            </nav>
+
+            <!-- 品牌信息 - 简化 -->
+            <div class="mt-auto pt-6 border-t border-xf-bg/40 text-center">
+                <div class="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">© 2024 相逢</div>
+                <div class="text-xs text-xf-primary font-medium xl:hidden">相</div>
+            </div>
+        </aside>
+
+        <!-- 主内容区域 - 探索页面 -->
+        <main class="flex-1 h-full overflow-y-auto no-scrollbar px-6 md:px-10 pt-8 pb-20 relative scroll-smooth"
+            id="main-scroll">
+
+            <!-- 探索页面内容 -->
+            <div id="tab-explore" class="max-w-4xl mx-auto fade-in-up">
+                <!-- 探索标题 -->
+                <div class="mb-10">
+                    <h1 class="text-3xl font-serif text-xf-accent font-bold text-layer-1 mb-8">探索新内容</h1>
+                    
+                    <!-- 搜索区域 -->
+                    <div class="mb-8">
+                        <div class="relative">
+                            <i data-lucide="search"
+                                class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-xf-primary"></i>
+                            <input type="text" placeholder="搜索话题、文章或思考者..."
+                                class="w-full pl-12 pr-5 py-3.5 rounded-xl bg-white border border-xf-bg/60 focus:border-xf-primary outline-none text-xf-dark text-layer-1">
+                        </div>
+                    </div>
+
+                    <!-- 探索路径 -->
+                    <div class="mb-8">
+                        <div class="explore-path-simple">
+                            <div class="path-node-simple active" onclick="selectExplorePath('recommended')">为你推荐</div>
+                            <div class="path-node-simple" onclick="selectExplorePath('trending')">热门趋势</div>
+                            <div class="path-node-simple" onclick="selectExplorePath('editor')">编辑精选</div>
+                            <div class="path-node-simple" onclick="selectExplorePath('new')">新发现</div>
+                            <div class="path-node-simple" onclick="selectExplorePath('following')">关注动态</div>
+                        </div>
+                    </div>
+
+                    <!-- 内容过滤器 -->
+                    <div class="mb-8">
+                        <div class="flex flex-wrap gap-2">
+                            <div class="filter-pill active" onclick="selectFilter('all')">全部</div>
+                            <div class="filter-pill" onclick="selectFilter('articles')">文章</div>
+                            <div class="filter-pill" onclick="selectFilter('discussions')">讨论</div>
+                            <div class="filter-pill" onclick="selectFilter('thinkers')">思考者</div>
+                            <div class="filter-pill" onclick="selectFilter('communities')">社群</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 探索内容网格 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- 探索卡片 1 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('article', 1)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Sophia&backgroundColor=E1E4EA"
+                                    class="w-10 h-10 rounded-full">
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">Sophia Chen</h4>
+                                    <p class="text-sm text-xf-primary">哲学研究者 • 3小时前</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-primary/10 text-xf-primary text-xs rounded-full font-medium">哲学</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            《倦怠社会》与现代性困境</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            韩炳哲在《倦怠社会》中提出了"功绩社会"的概念，指出现代社会将自我剥削包装成自我实现。这种"过度积极"的文化不仅导致心理疲惫...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    15分钟
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    24条评论
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-primary hover:bg-xf-primary/90 text-white rounded-lg text-xs font-medium transition-all"
+                                onclick="exploreItem('article', 1); event.stopPropagation();">
+                                阅读文章
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 探索卡片 2 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('discussion', 1)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-xf-accent to-xf-primary flex items-center justify-center text-white text-sm font-bold">
+                                    哲
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">哲学沉思录社群</h4>
+                                    <p class="text-sm text-xf-primary">讨论社群 • 活跃中</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-info/10 text-xf-info text-xs rounded-full font-medium">在线</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            存在主义与日常生活</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            社群成员正在探讨萨特、加缪的存在主义思想如何帮助我们面对现代社会的意义危机。从"存在先于本质"到"荒谬的应对"...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    8人参与
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    42条消息
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-info hover:bg-xf-info/90 text-white rounded-lg text-xs font-medium transition-all">
+                                加入讨论
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 探索卡片 3 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('thinker', 1)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Liam&backgroundColor=D2C3D5"
+                                    class="w-10 h-10 rounded-full">
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">Liam Zhang</h4>
+                                    <p class="text-sm text-xf-primary">认知科学家 • 昨天活跃</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-primary/10 text-xf-primary text-xs rounded-full font-medium">科学</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            注意力与认知科学</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            基于最新的认知科学研究，探讨注意力系统的运作机制，分享如何在数字干扰环境中训练"深度注意力"...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                                    12篇文章
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    456关注
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-primary hover:bg-xf-primary/90 text-white rounded-lg text-xs font-medium transition-all"
+                                onclick="exploreItem('thinker', 1); event.stopPropagation();">
+                                关注思考者
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 探索卡片 4 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('article', 2)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Alex&backgroundColor=F0E6EF"
+                                    class="w-10 h-10 rounded-full">
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">Alex Wang</h4>
+                                    <p class="text-sm text-xf-primary">心理学研究者 • 1天前</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-primary/10 text-xf-primary text-xs rounded-full font-medium">心理学</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            正念冥想对焦虑缓解的实证研究</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            基于最新的心理学研究，探讨正念冥想如何影响大脑结构，以及其在焦虑管理中的应用效果...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    12分钟
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                    89点赞
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-primary hover:bg-xf-primary/90 text-white rounded-lg text-xs font-medium transition-all"
+                                onclick="exploreItem('article', 2); event.stopPropagation();">
+                                阅读文章
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 探索卡片 5 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('discussion', 2)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-xf-warning to-orange-400 flex items-center justify-center text-white text-sm font-bold">
+                                    科
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">科技伦理圈</h4>
+                                    <p class="text-sm text-xf-primary">热点讨论 • 趋势中</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-warning/10 text-xf-warning text-xs rounded-full font-medium">热门</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            AI时代的人文关怀</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            在人工智能快速发展的背景下，如何确保技术进步不偏离人文价值，构建负责任的AI生态系统...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    32人参与
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    128条消息
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-info hover:bg-xf-info/90 text-white rounded-lg text-xs font-medium transition-all">
+                                加入讨论
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 探索卡片 6 -->
+                    <div class="card-bg rounded-2xl p-6 group cursor-pointer" onclick="exploreItem('community', 1)">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center text-white text-sm font-bold">
+                                    简
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xf-dark">数字极简实践</h4>
+                                    <p class="text-sm text-xf-primary">生活方式社群 • 上周成立</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 bg-xf-success/10 text-xf-success text-xs rounded-full font-medium">新</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-4 group-hover:text-xf-accent transition-colors text-layer-1">
+                            远离数字干扰，重获专注力</h3>
+                        <p class="text-xf-dark/70 text-sm mb-6 font-normal line-clamp-3">
+                            分享数字极简的实践经验，探讨如何在信息过载的时代保持深度思考能力和内心平静...</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-sm text-xf-medium">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                    203成员
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="star" class="w-4 h-4"></i>
+                                    4.8评分
+                                </span>
+                            </div>
+                            <button
+                                class="px-4 py-1.5 bg-xf-primary hover:bg-xf-primary/90 text-white rounded-lg text-xs font-medium transition-all"
+                                onclick="exploreItem('community', 1); event.stopPropagation();">
+                                加入社群
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加载更多 -->
+                <div class="mt-12 text-center">
+                    <button
+                        class="px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all flex items-center gap-2 mx-auto"
+                        onclick="loadMoreExplore()">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        加载更多内容
+                    </button>
+                </div>
+
+                <!-- 探索提示 -->
+                <div class="mt-12 p-5 bg-xf-light/50 rounded-xl border border-xf-bg/40">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-xf-warning mt-0.5"></i>
+                        <div>
+                            <h4 class="font-medium text-xf-dark text-sm mb-1">探索提示</h4>
+                            <p class="text-xs text-xf-primary">使用搜索功能或点击标签发现感兴趣的内容。关注你喜欢的思考者，系统会为你推荐更多相关内容。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 简化右侧边栏 - 可折叠 -->
+        <aside
+            class="hidden lg:flex w-[300px] flex-shrink-0 card-bg h-full p-6 pt-10 flex-col border-l border-xf-bg/50 backdrop-blur-sm"
+            id="right-sidebar">
+
+            <!-- 热门标签 -->
+            <div class="mb-10">
+                <h3 class="text-sm font-bold text-xf-primary mb-4 flex items-center gap-2">
+                    <i data-lucide="hash" class="w-4 h-4"></i>
+                    热门标签
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('cognitive-science')">#认知科学</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('existentialism')">#存在主义</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('deep-writing')">#深度写作</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('ai-ethics')">#AI伦理</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('digital-minimalism')">#数字极简</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('mindfulness')">#正念冥想</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('philosophy')">#哲学</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('psychology')">#心理学</span>
+                    <span class="tag px-3 py-1.5 text-xs text-xf-dark font-medium cursor-pointer"
+                        onclick="searchTag('technology')">#科技</span>
+                </div>
+            </div>
+
+            <!-- 推荐思考者 -->
+            <div class="mb-10">
+                <h3 class="text-sm font-bold text-xf-primary mb-4 flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    推荐思考者
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onclick="viewThinker(1)">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Taylor&backgroundColor=A5C1D6"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-xf-dark text-sm">Taylor Liu</h4>
+                            <p class="text-xs text-xf-primary">科技伦理学者</p>
+                        </div>
+                        <button class="text-xs px-2 py-1 bg-xf-primary/10 text-xf-primary rounded">关注</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onclick="viewThinker(2)">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Jordan&backgroundColor=E1E4EA"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-xf-dark text-sm">Jordan Lee</h4>
+                            <p class="text-xs text-xf-primary">文学评论家</p>
+                        </div>
+                        <button class="text-xs px-2 py-1 bg-xf-primary/10 text-xf-primary rounded">关注</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onclick="viewThinker(3)">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=Riley&backgroundColor=D2C3D5"
+                            class="w-8 h-8 rounded-full">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-xf-dark text-sm">Riley Zhang</h4>
+                            <p class="text-xs text-xf-primary">社会学研究者</p>
+                        </div>
+                        <button class="text-xs px-2 py-1 bg-xf-primary/10 text-xf-primary rounded">关注</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 探索统计 -->
+            <div class="mt-auto p-4 bg-xf-light/50 rounded-xl">
+                <h4 class="font-medium text-xf-dark text-sm mb-2">探索统计</h4>
+                <div class="flex items-center justify-between text-xs text-xf-primary">
+                    <span>今日新内容</span>
+                    <span class="font-bold text-xf-accent">42</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-xf-primary mt-2">
+                    <span>本周活跃社群</span>
+                    <span class="font-bold text-xf-accent">18</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-xf-primary mt-2">
+                    <span>新加入思考者</span>
+                    <span class="font-bold text-xf-accent">7</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 移动端侧边栏切换按钮 -->
+        <button
+            class="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 bg-white shadow-soft rounded-full flex items-center justify-center text-xf-primary"
+            onclick="toggleSidebar()">
+            <i data-lucide="sidebar" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <script>
+        // 初始化图标
+        lucide.createIcons();
+
+        // 页面加载后的优雅浮现效果
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainApp = document.getElementById('app-view');
+            if (mainApp && !mainApp.classList.contains('hidden')) {
+                mainApp.style.opacity = '0';
+                mainApp.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    mainApp.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    mainApp.style.opacity = '1';
+                    mainApp.style.transform = 'translateY(0)';
+                }, 100);
+            }
+
+            // 初始化探索路径
+            initExplorePath();
+            // 初始化过滤器
+            initFilters();
+
+            // 为所有可点击元素添加按下效果
+            document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+                el.addEventListener('mousedown', function () {
+                    this.style.transform = 'scale(0.98)';
+                });
+                el.addEventListener('mouseup', function () {
+                    this.style.transform = '';
+                });
+                el.addEventListener('mouseleave', function () {
+                    this.style.transform = '';
+                });
+            });
+        });
+
+        // 切换主界面 Tabs
+        function switchTab(tabName, clickedElement) {
+            // 隐藏所有内容
+            ['home', 'explore', 'crossover', 'publish', 'community', 'following'].forEach(id => {
+                const el = document.getElementById('tab-' + id);
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('fade-in-up');
+                }
+            });
+
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active', 'text-xf-accent');
+                el.classList.add('text-xf-primary');
+            });
+            if (clickedElement) {
+                clickedElement.classList.add('active', 'text-xf-accent');
+                clickedElement.classList.remove('text-xf-primary');
+            }
+
+            // 显示目标内容并添加淡入动画
+            const targetTab = document.getElementById('tab-' + tabName);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                targetTab.classList.add('fade-in-up');
+            }
+
+            // 滚动回顶部
+            document.getElementById('main-scroll').scrollTop = 0;
+        }
+
+        // 初始化探索路径
+        function initExplorePath() {
+            document.querySelectorAll('.path-node-simple').forEach(node => {
+                node.addEventListener('click', function () {
+                    // 移除所有激活状态
+                    document.querySelectorAll('.path-node-simple').forEach(n => {
+                        n.classList.remove('active');
+                    });
+
+                    // 激活当前节点
+                    this.classList.add('active');
+
+                    // 获取模式名称
+                    const modeName = this.textContent;
+                    showToast(`切换到${modeName}`, 'info');
+                    
+                    // 这里可以添加实际的内容切换逻辑
+                    // filterExploreContent(this.dataset.mode);
+                });
+            });
+        }
+
+        // 初始化过滤器
+        function initFilters() {
+            document.querySelectorAll('.filter-pill').forEach(filter => {
+                filter.addEventListener('click', function () {
+                    // 如果是"全部"过滤器，只激活它一个
+                    if (this.textContent === '全部') {
+                        document.querySelectorAll('.filter-pill').forEach(f => {
+                            f.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    } else {
+                        // 移除"全部"的激活状态
+                        document.querySelectorAll('.filter-pill').forEach(f => {
+                            if (f.textContent === '全部') {
+                                f.classList.remove('active');
+                            }
+                        });
+                        
+                        // 切换当前过滤器的激活状态
+                        this.classList.toggle('active');
+                        
+                        // 如果没有激活的过滤器，激活"全部"
+                        const activeFilters = document.querySelectorAll('.filter-pill.active');
+                        if (activeFilters.length === 0) {
+                            document.querySelector('.filter-pill').classList.add('active');
+                        }
+                    }
+                    
+                    // 这里可以添加实际的过滤逻辑
+                    // applyContentFilter();
+                });
+            });
+        }
+
+        // 选择探索路径
+        function selectExplorePath(path) {
+            showToast(`切换到${path === 'recommended' ? '为你推荐' : 
+                      path === 'trending' ? '热门趋势' :
+                      path === 'editor' ? '编辑精选' :
+                      path === 'new' ? '新发现' : '关注动态'}`, 'info');
+        }
+
+        // 选择过滤器
+        function selectFilter(filter) {
+            showToast(`筛选: ${filter === 'all' ? '全部' :
+                     filter === 'articles' ? '文章' :
+                     filter === 'discussions' ? '讨论' :
+                     filter === 'thinkers' ? '思考者' : '社群'}`, 'info');
+        }
+
+        // 探索项目
+        function exploreItem(type, id) {
+            if (type === 'article') {
+                showToast('正在加载文章...', 'info');
+                setTimeout(() => {
+                    window.location.href = `文章.html?id=${id}`;
+                }, 500);
+            } else if (type === 'discussion') {
+                showToast('正在加入讨论...', 'info');
+                setTimeout(() => {
+                    window.location.href = `讨论.html?id=${id}`;
+                }, 500);
+            } else if (type === 'thinker') {
+                showToast('正在查看思考者...', 'info');
+                setTimeout(() => {
+                    window.location.href = `思考者.html?id=${id}`;
+                }, 500);
+            } else if (type === 'community') {
+                showToast('正在查看社群...', 'info');
+                setTimeout(() => {
+                    window.location.href = `社群.html?id=${id}`;
+                }, 500);
+            }
+        }
+
+        // 搜索标签
+        function searchTag(tag) {
+            const tagNames = {
+                'cognitive-science': '认知科学',
+                'existentialism': '存在主义',
+                'deep-writing': '深度写作',
+                'ai-ethics': 'AI伦理',
+                'digital-minimalism': '数字极简',
+                'mindfulness': '正念冥想',
+                'philosophy': '哲学',
+                'psychology': '心理学',
+                'technology': '科技'
+            };
+            
+            showToast(`搜索标签: #${tagNames[tag]}`, 'info');
+            // 实际应用中，这里应该执行搜索并过滤内容
+        }
+
+        // 查看思考者
+        function viewThinker(id) {
+            showToast('正在查看思考者主页...', 'info');
+            setTimeout(() => {
+                window.location.href = `思考者.html?id=${id}`;
+            }, 500);
+        }
+
+        // 加载更多探索内容
+        function loadMoreExplore() {
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+
+            // 显示加载状态
+            button.innerHTML = '<span class="loading-dots">加载中</span>';
+            button.disabled = true;
+
+            // 模拟加载延迟
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                showToast('已加载更多探索内容', 'success');
+            }, 1000);
+        }
+
+        // 切换侧边栏（移动端）
+        function toggleSidebar() {
+            const sidebar = document.getElementById('right-sidebar');
+            if (sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
+        }
+
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            // 创建Toast元素
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-soft animate-slide-up ${type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+                type === 'warning' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                    'bg-blue-100 text-blue-800 border border-blue-200'
+                }`;
+            toast.textContent = message;
+
+            // 添加到页面
+            document.body.appendChild(toast);
+
+            // 3秒后移除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

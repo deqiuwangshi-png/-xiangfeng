@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《倦怠社会》与现代性困境 - 相逢</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --xf-bg: #E1E4EA;
+            --xf-surface: #D2C3D5;
+            --xf-primary: #6A5B8A;
+            --xf-accent: #3A3C6E;
+            --xf-info: #4A6FA5;
+            --xf-soft: #A5C1D6;
+            --xf-dark: #25263D;
+            --xf-light: #F7F9FC;
+            --xf-medium: #8C8EA9;
+            --xf-success: #4CAF50;
+            --xf-warning: #FF9800;
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--xf-dark);
+            background-color: #f9fafb;
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        /* 暗色模式样式 */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .nav-minimal {
+            background: rgba(18, 18, 18, 0.92);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-mode .share-menu {
+            background: #1e1e1e;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-mode .reading-mode {
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .reading-mode p:first-of-type {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode .article-meta {
+            color: #9ca3af;
+            border-bottom-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 抖音风格垂直功能栏 */
+        .douyin-sidebar {
+            position: fixed;
+            right: 24px;
+            bottom: 100px;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 60px;
+        }
+        
+        /* 抖音风格功能按钮 */
+        .douyin-action-btn {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(225, 228, 234, 0.6);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .douyin-action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            border-color: var(--xf-primary);
+        }
+        
+        .douyin-action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 抖音风格图标 */
+        .douyin-icon {
+            width: 22px;
+            height: 22px;
+            color: var(--xf-dark);
+            transition: all 0.3s ease;
+        }
+        
+        .douyin-action-btn:hover .douyin-icon {
+            color: var(--xf-primary);
+        }
+        
+        .douyin-action-btn.active .douyin-icon {
+            color: #FF2442;
+        }
+        
+        /* 抖音风格计数 */
+        .douyin-count {
+            position: absolute;
+            bottom: -18px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+            white-space: nowrap;
+        }
+        
+        /* 点赞动画效果 */
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.3); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
+        }
+        
+        .douyin-action-btn.liked .douyin-icon {
+            animation: heartBeat 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+            color: #FF2442;
+            fill: #FF2442;
+        }
+        
+        /* 收藏动画效果 */
+        @keyframes bookmarkPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .douyin-action-btn.bookmarked .douyin-icon {
+            animation: bookmarkPop 0.4s ease;
+            color: #FF9800;
+            fill: #FF9800;
+        }
+        
+        /* 分享动画效果 */
+        @keyframes shareSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(180deg); }
+        }
+        
+        .douyin-action-btn.shared .douyin-icon {
+            animation: shareSpin 0.5s ease;
+        }
+        
+        /* 评论按钮特殊样式 */
+        .douyin-action-btn.comments-btn {
+            background: var(--xf-primary);
+            border-color: var(--xf-primary);
+        }
+        
+        .douyin-action-btn.comments-btn .douyin-icon {
+            color: white;
+        }
+        
+        .douyin-action-btn.comments-btn:hover {
+            background: var(--xf-accent);
+            border-color: var(--xf-accent);
+        }
+        
+        /* 主容器布局 */
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* 文章内容容器 */
+        .article-container {
+            min-width: 0;
+            padding: 2rem 0 4rem;
+        }
+        
+        /* 纯净阅读模式 */
+        .reading-mode {
+            font-size: 1.125rem;
+            line-height: 1.9;
+            color: #374151;
+            letter-spacing: 0.01em;
+            text-align: justify;
+            max-width: 100%;
+        }
+        
+        .reading-mode p {
+            margin-bottom: 1.8rem;
+            text-indent: 2em;
+            hyphens: auto;
+        }
+        
+        .reading-mode p:first-of-type {
+            text-indent: 0;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: #4b5563;
+        }
+        
+        .reading-mode p:first-of-type::first-letter {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--xf-primary);
+            float: left;
+            line-height: 0.85;
+            margin: 0.1em 0.1em 0 0;
+            padding-right: 0.05em;
+        }
+        
+        /* 标题样式优化 */
+        .reading-mode h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--xf-dark);
+            margin: 3rem 0 1.5rem 0;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(106, 91, 138, 0.15);
+            position: relative;
+            text-indent: 0;
+        }
+        
+        .reading-mode h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--xf-primary), var(--xf-accent));
+        }
+        
+        /* 重要文本高亮 */
+        .important-text {
+            background: linear-gradient(120deg, rgba(106, 91, 138, 0.08) 0%, rgba(106, 91, 138, 0.03) 100%);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 500;
+            border-left: 2px solid var(--xf-primary);
+            text-indent: 0;
+            margin: 1.5rem 0;
+        }
+        
+        /* 导航栏优化 */
+        .nav-minimal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+        
+        .nav-minimal .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* 返回首页按钮样式 */
+        .nav-home-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(106, 91, 138, 0.1);
+            border: 1px solid rgba(106, 91, 138, 0.2);
+            border-radius: 8px;
+            color: var(--xf-primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 1rem;
+        }
+        
+        .nav-home-btn:hover {
+            background: rgba(106, 91, 138, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(106, 91, 138, 0.1);
+        }
+        
+        .nav-home-btn i {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* 阅读进度条 */
+        .reading-progress {
+            position: fixed;
+            top: 52px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(37, 38, 61, 0.08);
+            z-index: 99;
+        }
+        
+        .reading-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--xf-primary), var(--xf-accent));
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+        
+        /* 文章元信息 */
+        .article-meta {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        
+        /* 章节分隔线 */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(106, 91, 138, 0.1), transparent);
+            margin: 3rem 0;
+        }
+        
+        /* 文章结束标记 */
+        .article-end {
+            text-align: center;
+            margin: 4rem 0 2.5rem;
+            color: #9ca3af;
+            font-style: italic;
+            position: relative;
+        }
+        
+        .article-end::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(156, 163, 175, 0.2);
+            z-index: -1;
+        }
+        
+        .article-end span {
+            background: #f9fafb;
+            padding: 0 1.5rem;
+            font-size: 1rem;
+        }
+        
+        /* 分享菜单 - 优化后的样式 */
+        .share-menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .share-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            padding: 1rem;
+            min-width: 180px;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+        
+        .share-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* 分享菜单小箭头 */
+        .share-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            transform: rotate(45deg);
+            border-left: 1px solid rgba(229, 231, 235, 0.8);
+            border-top: 1px solid rgba(229, 231, 235, 0.8);
+            z-index: -1;
+        }
+        
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .share-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .share-option:hover {
+            background: rgba(106, 91, 138, 0.05);
+        }
+        
+        .share-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .share-text {
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        
+        /* 暗色模式下的抖音侧边栏 */
+        body.dark-mode .douyin-action-btn {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        body.dark-mode .douyin-icon {
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .douyin-count {
+            color: #b0b0b0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        body.dark-mode .douyin-action-btn.comments-btn {
+            background: var(--xf-primary);
+        }
+        
+        /* 暗色模式分享菜单 */
+        body.dark-mode .share-menu {
+            background: #1e1e1e;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-mode .share-menu::before {
+            background: #1e1e1e;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-mode .share-text {
+            color: #e0e0e0;
+        }
+        
+        /* ====== 评论组件样式 - 优化版 ====== */
+        /* 评论遮罩层 - 改为透明，不移除文章模糊 */
+        .comments-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0); /* 完全透明，不遮挡文章 */
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none; /* 允许点击穿透到文章 */
+        }
+        
+        .comments-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto; /* 激活时允许点击关闭评论 */
+        }
+        
+        /* 评论面板容器 */
+        .comments-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            bottom: 0;
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow: hidden;
+        }
+        
+        .comments-panel.active {
+            right: 0;
+        }
+        
+        /* 暗色模式评论面板 */
+        body.dark-mode .comments-panel {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        /* 评论面板头部 */
+        .comments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .comments-header {
+            border-bottom-color: #333;
+        }
+        
+        .comments-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .comments-count {
+            background: var(--xf-primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+        
+        .close-comments {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-comments:hover {
+            background: #e5e7eb;
+            transform: rotate(90deg);
+        }
+        
+        body.dark-mode .close-comments {
+            background: #333;
+        }
+        
+        body.dark-mode .close-comments:hover {
+            background: #444;
+        }
+        
+        /* 评论列表容器 */
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            padding-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* 单条评论样式 */
+        .comment-item {
+            display: flex;
+            gap: 0.875rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        body.dark-mode .comment-item {
+            border-bottom-color: #333;
+        }
+        
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .comment-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--xf-primary), var(--xf-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .comment-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .comment-time {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        
+        body.dark-mode .comment-time {
+            color: #888;
+        }
+        
+        .comment-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+            word-break: break-word;
+        }
+        
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        
+        .comment-action {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            user-select: none;
+        }
+        
+        body.dark-mode .comment-action {
+            color: #aaa;
+        }
+        
+        .comment-action:hover {
+            color: var(--xf-primary);
+        }
+        
+        .comment-action.liked {
+            color: #FF2442;
+        }
+        
+        .comment-action-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* 评论输入区域 */
+        .comment-input-area {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            flex-shrink: 0;
+        }
+        
+        body.dark-mode .comment-input-area {
+            background: #1a1a1a;
+            border-top-color: #333;
+        }
+        
+        .comment-input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+        
+        .comment-input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 24px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        
+        .comment-input:focus {
+            border-color: var(--xf-primary);
+        }
+        
+        body.dark-mode .comment-input {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        .comment-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        body.dark-mode .comment-input::placeholder {
+            color: #777;
+        }
+        
+        .send-comment-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--xf-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .send-comment-btn:hover {
+            background: var(--xf-accent);
+            transform: scale(1.05);
+        }
+        
+        .send-comment-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 空状态 */
+        .comments-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .comments-empty-icon {
+            width: 64px;
+            height: 64px;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+        
+        body.dark-mode .comments-empty {
+            color: #888;
+        }
+        
+        body.dark-mode .comments-empty-icon {
+            color: #444;
+        }
+        
+        /* 加载更多 */
+        .load-more-comments {
+            text-align: center;
+            padding: 1rem;
+            color: var(--xf-primary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .load-more-comments:hover {
+            color: var(--xf-accent);
+        }
+        
+        /* 输入框字符计数 */
+        .comment-char-count {
+            position: absolute;
+            right: 80px;
+            bottom: 30px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+        
+        .comment-char-count.warning {
+            color: #ff9800;
+        }
+        
+        .comment-char-count.error {
+            color: #f44336;
+        }
+        
+        /* 防抖样式 */
+        .debouncing {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        /* 滚动锁定 */
+        body.no-scroll {
+            overflow: hidden;
+        }
+        
+        /* 全局Toast样式 */
+        .custom-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 10000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: toastSlideIn 0.3s ease, toastSlideOut 0.3s ease 2.7s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+        
+        /* 文章内容在评论面板打开时的样式 */
+        body.comments-open .main-container {
+            transform: translateX(-180px); /* 向左移动，为评论面板腾出空间 */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        /* 调整侧边栏在评论打开时的位置 */
+        body.comments-open .douyin-sidebar {
+            right: calc(420px + 24px); /* 评论面板宽度 + 原右边距 */
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- 阅读进度条 -->
+    <div class="reading-progress">
+        <div class="reading-progress-fill" id="progressFill"></div>
+    </div>
+    
+    <!-- 简洁导航栏 -->
+    <nav class="nav-minimal">
+        <div class="nav-content">
+            <div class="flex items-center space-x-3">
+                <a href="首页.html" class="flex items-center space-x-2 no-underline">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-xf-primary to-xf-accent flex items-center justify-center text-white font-bold">相</div>
+                    <span class="text-lg font-bold text-gray-900 hidden sm:block">相逢</span>
+                </a>
+                
+                <!-- 返回首页按钮 -->
+                <button class="nav-home-btn" onclick="goToHomePage()">
+                    <i data-lucide="home"></i>
+                    <span>返回首页</span>
+                </button>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleFontSize()" class="p-2 rounded-lg hover:bg-gray-100 transition" title="调整字体">
+                    <i data-lucide="type" class="w-4 h-4 text-gray-700"></i>
+                </button>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 transition" title="切换主题">
+                    <i data-lucide="moon" class="w-4 h-4 text-gray-700"></i>
+                </button>
+                <button onclick="goToHomePage()" class="p-2 rounded-lg hover:bg-gray-100 transition" title="返回首页">
+                    <i data-lucide="x" class="w-4 h-4 text-gray-700"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 抖音风格垂直功能栏 -->
+    <div class="douyin-sidebar" id="douyinSidebar">
+        <!-- 点赞按钮 -->
+        <div class="douyin-action-btn" id="douyinLikeBtn" onclick="toggleLike()">
+            <i data-lucide="heart" class="douyin-icon"></i>
+            <span class="douyin-count" id="douyinLikeCount">243</span>
+        </div>
+        
+        <!-- 评论按钮 -->
+        <div class="douyin-action-btn comments-btn" onclick="toggleCommentsPanel()">
+            <i data-lucide="message-circle" class="douyin-icon"></i>
+            <span class="douyin-count" id="douyinCommentCount">24</span>
+        </div>
+        
+        <!-- 分享按钮和菜单容器 -->
+        <div class="share-menu-container">
+            <div class="douyin-action-btn" id="douyinShareBtn" onclick="toggleShareMenu()">
+                <i data-lucide="share-2" class="douyin-icon"></i>
+                <span class="douyin-count">分享</span>
+            </div>
+            
+            <!-- 分享菜单 -->
+            <div class="share-menu" id="shareMenu">
+                <div class="share-options">
+                    <div class="share-option" onclick="shareToWechat()">
+                        <i data-lucide="message-circle" class="share-icon"></i>
+                        <span class="share-text">微信好友</span>
+                    </div>
+                    <div class="share-option" onclick="shareToWeibo()">
+                        <i data-lucide="share" class="share-icon"></i>
+                        <span class="share-text">微博</span>
+                    </div>
+                    <div class="share-option" onclick="copyArticleLink()">
+                        <i data-lucide="link" class="share-icon"></i>
+                        <span class="share-text">复制链接</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 收藏按钮 -->
+        <div class="douyin-action-btn" id="douyinBookmarkBtn" onclick="toggleBookmark()">
+            <i data-lucide="bookmark" class="douyin-icon"></i>
+            <span class="douyin-count">收藏</span>
+        </div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <div class="main-container pt-14 pb-6">
+        <!-- 文章主体 -->
+        <div class="article-container">
+            <!-- 文章标题区域 -->
+            <div class="mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                    《倦怠社会》与现代性困境：当积极成为新的压迫
+                </h1>
+                
+                <div class="article-meta">
+                    <span class="mr-3">Sophia Chen</span>
+                    <span class="mr-3">哲学研究者</span>
+                    <span>约15分钟阅读</span>
+                </div>
+            </div>
+            
+            <!-- 文章正文 -->
+            <div class="reading-mode">
+                <p>在韩炳哲的《倦怠社会》中，作者提出了"功绩社会"的概念，指出现代社会将自我剥削包装成自我实现。这种"过度积极"的文化不仅导致心理疲惫，更消解了深度思考的可能性。在当代社会中，我们不断被告知要"积极向上"、"追求卓越"、"实现自我价值"。这些话语看似充满正能量，但在韩炳哲看来，它们构成了新型的压迫形式。传统规训社会通过"你不可以"来限制个体，而现代功绩社会则通过"你可以"来激励个体进行自我剥削。</p>
+                
+                <p>功绩社会的个体既是施暴者，也是受害者。我们不再需要外部的监督者，因为我们内在的驱动已经足够强大。智能手机成为新的鞭子，社交媒体成为新的竞技场，点赞和关注成为新的奖章。我们自愿加班，自愿学习新技能，自愿参加各种自我提升课程，因为我们害怕落后，害怕被淘汰。</p>
+                
+                <div class="important-text">
+                    韩炳哲在《倦怠社会》中写道："功绩主体虽然摆脱了规训社会的约束，却陷入了更深的自我剥削。这种剥削以自由和自我实现为名，实际上剥夺了主体真正的自由。"
+                </div>
+                
+                <h2 id="section1">从规训社会到功绩社会的转变</h2>
+                
+                <p>福柯分析了规训社会的运作机制，监狱、学校、医院、工厂都是规训的场所。这些机构通过空间分配、时间控制、身体训练等手段，生产出"驯服的身体"。规训社会的逻辑是"你不应该"：你不应该懒惰，你不应该反抗，你不应该偏离规范。</p>
+                
+                <p>然而，韩炳哲指出，21世纪的社会已经转变为功绩社会。功绩社会的逻辑不再是"你不应该"，而是"你可以"：你可以成功，你可以幸福，你可以实现所有梦想。这种转变看似是解放，实则是更深的奴役。因为当失败时，我们不再能归咎于外部限制，而只能责怪自己不够努力。</p>
+                
+                <h2 id="section2">积极性的暴政</h2>
+                
+                <p>韩炳哲使用"积极性的暴政"这一概念来描述功绩社会的核心特征。在传统社会中，疾病和痛苦被视为需要消除的异常状态。但在功绩社会中，甚至连抑郁和倦怠也被重新定义为"需要克服的障碍"。</p>
+                
+                <p>抑郁症患者常常听到这样的建议："你要积极一点"、"你要振作起来"。这些建议本身构成了压力，因为它们暗示疾病是个人选择的结果。如果患者无法"积极起来"，就会产生更深的罪恶感和失败感。</p>
+                
+                <div class="important-text">
+                    这种积极性的暴政不仅影响心理健康，也影响认知方式。深度思考需要时间、闲暇和注意力，但在功绩社会中，这些都成为稀缺资源。
+                </div>
+                
+                <div class="section-divider"></div>
+                
+                <h2 id="section3">倦怠作为反抗形式</h2>
+                
+                <p>有趣的是，韩炳哲并不将倦怠完全视为负面现象。他区分了两种倦怠：一种是个体在功绩社会压力下的衰竭；另一种则是可能开启新生活方式的"倦怠"。</p>
+                
+                <p>第一种倦怠是疲惫的倦怠，它使人无力行动，陷入抑郁。第二种倦怠则是"完成"的倦怠，它使人从功绩社会的逻辑中解脱出来，重新发现存在的深度。</p>
+                
+                <p>这种区分提示我们，倦怠可能是一种身体和心灵的自我保护机制。当外部要求超过承受极限时，倦怠迫使我们停下来，重新评估生活的方向。在这个意义上，倦怠不是需要治疗的疾病，而是需要倾听的信号。</p>
+                
+                <h2 id="section4">走向深度生活的可能</h2>
+                
+                <p>那么，如何抵抗功绩社会的逻辑？韩炳哲的建议不是简单地"做更少"，而是"不同地做"。他提倡回归"深度无聊"和"深度注意力"，这些被功绩社会边缘化的经验模式。</p>
+                
+                <p>深度无聊不是简单的无所事事，而是允许思想自由漫游的状态。在这种状态下，创造力得以萌芽，自我得以重新发现。深度注意力则是对抗多任务处理的文化，专注于单一任务，沉浸在思考或创造的过程中。</p>
+                
+                <h2 id="section5">结语：在倦怠社会中寻找意义</h2>
+                
+                <p>韩炳哲的《倦怠社会》为我们提供了理解当代生活困境的重要视角。它揭示了表面上自由、积极的现代生活背后的压迫机制，并指出了可能的出路。</p>
+                
+                <p>在功绩社会的逻辑中，我们被鼓励不断追求更多：更多成就、更多体验、更多连接。但或许，真正的丰富不在于加法，而在于减法；不在于拥有更多选择，而在于更深刻地体验有限的选择。</p>
+                
+                <p>倦怠社会的出路不是回到规训社会，而是创造一种新的生活形式，其中积极与消极、行动与休息、成就与存在之间达到平衡。这需要勇气抵抗主流文化的压力，也需要智慧区分真正的自我实现与自我剥削。</p>
+                
+                <div class="article-end">
+                    <span>在每个人都忙于"成为更好的自己"的时代，或许最大的反叛就是允许自己"只是存在"。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 评论组件 -->
+    <div class="comments-overlay" id="commentsOverlay" onclick="closeCommentsPanel()"></div>
+    
+    <div class="comments-panel" id="commentsPanel">
+        <div class="comments-header">
+            <div class="comments-title">
+                <span>评论</span>
+                <span class="comments-count" id="commentsCount">24</span>
+            </div>
+            <div class="close-comments" onclick="closeCommentsPanel()">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </div>
+        </div>
+        
+        <div class="comments-list" id="commentsList">
+            <!-- 评论通过JS动态生成 -->
+        </div>
+        
+        <div class="comment-input-area">
+            <div class="comment-input-wrapper">
+                <textarea 
+                    class="comment-input" 
+                    id="commentInput" 
+                    placeholder="写下你的评论..." 
+                    rows="1"
+                    maxlength="500"
+                    oninput="handleCommentInput(this)"
+                ></textarea>
+                <span class="comment-char-count" id="charCount">0/500</span>
+                <button class="send-comment-btn" id="sendCommentBtn" onclick="sendComment()" disabled>
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== 全局变量和初始化 ======
+        let isLiked = false;
+        let isBookmarked = false;
+        let likeCount = 243;
+        let commentsData = [];
+        let currentCommentId = 1;
+        let commentsPanelOpen = false;
+        let isShareMenuOpen = false;
+        let fontSizeLevel = 1;
+        let debounceTimer = null;
+        
+        // 字体大小配置
+        const fontSizeClasses = ['text-base', 'text-lg', 'text-xl'];
+        const sizeNames = ['标准', '大', '特大'];
+        
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initReadingProgress();
+            initFunctionButtons();
+            initComments();
+            initFontSize();
+            initDarkMode();
+            updateReadingTime();
+            
+            // 修复事件冒泡问题
+            const commentsPanel = document.getElementById('commentsPanel');
+            commentsPanel.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // 点击页面其他地方关闭分享菜单
+            document.addEventListener('click', function(event) {
+                const shareMenu = document.getElementById('shareMenu');
+                const shareBtn = document.getElementById('douyinShareBtn');
+                const shareContainer = document.querySelector('.share-menu-container');
+                
+                if (!shareMenu || !shareBtn || !shareContainer) return;
+                
+                // 检查点击是否在分享菜单或分享按钮之外
+                if (!shareContainer.contains(event.target)) {
+                    closeShareMenu();
+                }
+            });
+            
+            // 初始化图标
+            lucide.createIcons();
+        });
+        
+        // ====== 核心功能函数 ======
+        
+        // 返回首页
+        function goToHomePage() {
+            window.location.href = '首页.html';
+        }
+        
+        // 阅读进度
+        function initReadingProgress() {
+            window.addEventListener('scroll', updateProgress);
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            const scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+            const progress = Math.min(100, Math.max(0, scrollPercent));
+            
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+        
+        // 初始化功能按钮状态
+        function initFunctionButtons() {
+            // 从本地存储获取状态
+            try {
+                isLiked = localStorage.getItem('article_liked') === 'true';
+                isBookmarked = localStorage.getItem('article_bookmarked') === 'true';
+            } catch (e) {
+                console.warn('无法读取本地存储:', e);
+            }
+            
+            // 更新按钮状态
+            updateLikeButton(isLiked);
+            updateBookmarkButton(isBookmarked);
+        }
+        
+        // 点赞功能
+        function toggleLike() {
+            // 防抖处理
+            if (debounceTimer) return;
+            
+            debounceTimer = setTimeout(() => {
+                debounceTimer = null;
+            }, 300);
+            
+            const likeBtn = document.getElementById('douyinLikeBtn');
+            
+            if (isLiked) {
+                // 取消点赞
+                likeCount--;
+                isLiked = false;
+                localStorage.setItem('article_liked', 'false');
+                showToast('已取消点赞', 'info');
+            } else {
+                // 点赞
+                likeCount++;
+                isLiked = true;
+                localStorage.setItem('article_liked', 'true');
+                showToast('点赞成功', 'success');
+                
+                // 点赞动画
+                likeBtn.classList.add('liked');
+                setTimeout(() => {
+                    likeBtn.classList.remove('liked');
+                }, 800);
+            }
+            
+            // 更新点赞计数显示
+            updateLikeCount();
+            updateLikeButton(isLiked);
+        }
+        
+        function updateLikeCount() {
+            const element = document.getElementById('douyinLikeCount');
+            if (element) element.textContent = likeCount;
+        }
+        
+        function updateLikeButton(isActive) {
+            const likeBtn = document.getElementById('douyinLikeBtn');
+            const likeIcon = likeBtn.querySelector('i');
+            
+            if (isActive) {
+                likeIcon.setAttribute('data-lucide', 'heart');
+                likeIcon.style.fill = '#FF2442';
+                likeIcon.style.color = '#FF2442';
+            } else {
+                likeIcon.setAttribute('data-lucide', 'heart');
+                likeIcon.style.fill = 'none';
+                likeIcon.style.color = '';
+            }
+            lucide.createIcons();
+        }
+        
+        // 收藏功能
+        function toggleBookmark() {
+            // 防抖处理
+            if (debounceTimer) return;
+            
+            debounceTimer = setTimeout(() => {
+                debounceTimer = null;
+            }, 300);
+            
+            const bookmarkBtn = document.getElementById('douyinBookmarkBtn');
+            
+            if (isBookmarked) {
+                // 取消收藏
+                isBookmarked = false;
+                localStorage.setItem('article_bookmarked', 'false');
+                showToast('已取消收藏', 'info');
+            } else {
+                // 收藏
+                isBookmarked = true;
+                localStorage.setItem('article_bookmarked', 'true');
+                showToast('收藏成功', 'success');
+                
+                // 收藏动画
+                bookmarkBtn.classList.add('bookmarked');
+                setTimeout(() => {
+                    bookmarkBtn.classList.remove('bookmarked');
+                }, 400);
+            }
+            
+            updateBookmarkButton(isBookmarked);
+        }
+        
+        function updateBookmarkButton(isActive) {
+            const bookmarkBtn = document.getElementById('douyinBookmarkBtn');
+            const bookmarkIcon = bookmarkBtn.querySelector('i');
+            
+            if (isActive) {
+                bookmarkIcon.setAttribute('data-lucide', 'bookmark');
+                bookmarkIcon.style.fill = '#FF9800';
+                bookmarkIcon.style.color = '#FF9800';
+            } else {
+                bookmarkIcon.setAttribute('data-lucide', 'bookmark');
+                bookmarkIcon.style.fill = 'none';
+                bookmarkIcon.style.color = '';
+            }
+            lucide.createIcons();
+        }
+        
+        // ====== 评论组件功能 ======
+        
+        // 初始化评论
+        function initComments() {
+            // 从本地存储加载评论数据
+            try {
+                const savedComments = localStorage.getItem('article_comments');
+                const savedLikes = localStorage.getItem('comment_likes');
+                
+                if (savedComments) {
+                    commentsData = JSON.parse(savedComments);
+                } else {
+                    // 初始化示例评论数据
+                    commentsData = getSampleComments();
+                    saveCommentsToStorage();
+                }
+                
+                if (savedLikes) {
+                    const commentLikes = JSON.parse(savedLikes);
+                    // 将点赞状态应用到评论数据
+                    commentsData.forEach(comment => {
+                        if (commentLikes[comment.id]) {
+                            comment.liked = commentLikes[comment.id].liked;
+                            comment.likes = commentLikes[comment.id].likes || comment.likes;
+                        }
+                    });
+                }
+                
+            } catch (e) {
+                console.warn('无法读取评论数据:', e);
+                commentsData = getSampleComments();
+            }
+            
+            // 更新当前评论ID
+            if (commentsData.length > 0) {
+                currentCommentId = Math.max(...commentsData.map(c => c.id)) + 1;
+            }
+            
+            renderComments();
+            updateCommentCount();
+            
+            // 输入框事件监听
+            const commentInput = document.getElementById('commentInput');
+            commentInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendComment();
+                }
+            });
+            
+            // 输入框自动调整高度
+            commentInput.addEventListener('input', function() {
+                autoResizeTextarea(this);
+                updateCharCount();
+            });
+            
+            updateCharCount();
+        }
+        
+        // 获取示例评论
+        function getSampleComments() {
+            return [
+                {
+                    id: 1,
+                    author: "深度思考者",
+                    avatarText: "深",
+                    content: "这篇文章深刻揭示了现代社会的困境。我们确实生活在一种新的压迫形式下，它以自由和自我实现的名义存在。",
+                    time: "2小时前",
+                    likes: 12,
+                    liked: false
+                },
+                {
+                    id: 2,
+                    author: "哲学爱好者",
+                    avatarText: "哲",
+                    content: "韩炳哲的功绩社会概念确实很有启发。我们不仅被外部规则约束，更重要的是被内在的'应该'驱动。",
+                    time: "5小时前",
+                    likes: 8,
+                    liked: true
+                },
+                {
+                    id: 3,
+                    author: "心理探索者",
+                    avatarText: "心",
+                    content: "对'积极性的暴政'深有体会。有时候，允许自己'不积极'也是一种勇气。",
+                    time: "昨天",
+                    likes: 15,
+                    liked: false
+                },
+                {
+                    id: 4,
+                    author: "倦怠体验者",
+                    avatarText: "倦",
+                    content: "读完这篇文章，终于明白为什么总是感到疲惫。原来不是我不够努力，而是社会机制的问题。",
+                    time: "2天前",
+                    likes: 23,
+                    liked: false
+                },
+                {
+                    id: 5,
+                    author: "社会观察员",
+                    avatarText: "社",
+                    content: "从规训社会到功绩社会的转变分析得太好了。我们看似更自由，实则被更隐形的力量控制。",
+                    time: "3天前",
+                    likes: 7,
+                    liked: false
+                }
+            ];
+        }
+        
+        // 渲染评论列表
+        function renderComments() {
+            const commentsList = document.getElementById('commentsList');
+            
+            if (!commentsList) return;
+            
+            if (commentsData.length === 0) {
+                commentsList.innerHTML = `
+                    <div class="comments-empty">
+                        <i data-lucide="message-square" class="comments-empty-icon"></i>
+                        <p>还没有评论，快来发表第一条评论吧！</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            let commentsHTML = '';
+            
+            commentsData.forEach(comment => {
+                commentsHTML += `
+                    <div class="comment-item" data-id="${comment.id}">
+                        <div class="comment-avatar">${comment.avatarText}</div>
+                        <div class="comment-content">
+                            <div class="comment-header">
+                                <span class="comment-author">${comment.author}</span>
+                                <span class="comment-time">${comment.time}</span>
+                            </div>
+                            <div class="comment-text">${escapeHtml(comment.content)}</div>
+                            <div class="comment-actions">
+                                <div class="comment-action ${comment.liked ? 'liked' : ''}" onclick="toggleCommentLike(${comment.id})">
+                                    <i data-lucide="${comment.liked ? 'heart' : 'heart'}" class="comment-action-icon"></i>
+                                    <span>${comment.likes}</span>
+                                </div>
+                                <div class="comment-action" onclick="replyToComment(${comment.id})">
+                                    <i data-lucide="corner-up-left" class="comment-action-icon"></i>
+                                    <span>回复</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (commentsData.length > 5) {
+                commentsHTML += `
+                    <div class="load-more-comments" onclick="loadMoreComments()">
+                        加载更多评论
+                    </div>
+                `;
+            }
+            
+            commentsList.innerHTML = commentsHTML;
+            lucide.createIcons();
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 切换评论点赞
+        function toggleCommentLike(commentId) {
+            const comment = commentsData.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            const commentElement = document.querySelector(`.comment-item[data-id="${commentId}"] .comment-action`);
+            
+            if (!commentElement) return;
+            
+            if (comment.liked) {
+                // 取消点赞
+                comment.likes--;
+                comment.liked = false;
+                commentElement.classList.remove('liked');
+            } else {
+                // 点赞
+                comment.likes++;
+                comment.liked = true;
+                commentElement.classList.add('liked');
+                
+                // 点赞动画
+                commentElement.style.animation = 'none';
+                setTimeout(() => {
+                    commentElement.style.animation = 'heartBeat 0.8s cubic-bezier(0.215, 0.61, 0.355, 1)';
+                }, 10);
+            }
+            
+            // 更新显示
+            const likeCountElement = commentElement.querySelector('span');
+            if (likeCountElement) {
+                likeCountElement.textContent = comment.likes;
+            }
+            
+            // 保存到本地存储
+            saveCommentLikes();
+            saveCommentsToStorage();
+            
+            // 更新图标
+            const likeIcon = commentElement.querySelector('i');
+            likeIcon.setAttribute('data-lucide', 'heart');
+            if (comment.liked) {
+                likeIcon.style.fill = '#FF2442';
+                likeIcon.style.color = '#FF2442';
+            } else {
+                likeIcon.style.fill = 'none';
+                likeIcon.style.color = '';
+            }
+        }
+        
+        // 保存评论点赞状态
+        function saveCommentLikes() {
+            try {
+                const commentLikes = {};
+                commentsData.forEach(comment => {
+                    commentLikes[comment.id] = {
+                        liked: comment.liked,
+                        likes: comment.likes
+                    };
+                });
+                localStorage.setItem('comment_likes', JSON.stringify(commentLikes));
+            } catch (e) {
+                console.warn('无法保存评论点赞状态:', e);
+            }
+        }
+        
+        // 回复评论
+        function replyToComment(commentId) {
+            const comment = commentsData.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            const commentInput = document.getElementById('commentInput');
+            commentInput.value = `@${comment.author} `;
+            commentInput.focus();
+            
+            showToast(`回复 ${comment.author}`, 'info');
+        }
+        
+        // 发送评论
+        function sendComment() {
+            const commentInput = document.getElementById('commentInput');
+            const commentText = commentInput.value.trim();
+            
+            if (!commentText) {
+                showToast('请输入评论内容', 'warning');
+                return;
+            }
+            
+            if (commentText.length > 500) {
+                showToast('评论不能超过500字', 'warning');
+                return;
+            }
+            
+            // 创建新评论
+            const newComment = {
+                id: currentCommentId++,
+                author: "我",
+                avatarText: "我",
+                content: commentText,
+                time: "刚刚",
+                likes: 0,
+                liked: false
+            };
+            
+            // 添加到评论列表开头
+            commentsData.unshift(newComment);
+            
+            // 保存到本地存储
+            saveCommentsToStorage();
+            
+            // 重新渲染评论
+            renderComments();
+            
+            // 清空输入框
+            commentInput.value = '';
+            autoResizeTextarea(commentInput);
+            updateCharCount();
+            
+            // 更新评论数量
+            updateCommentCount();
+            
+            // 显示成功消息
+            showToast('评论发布成功', 'success');
+            
+            // 滚动到最新评论
+            const commentsList = document.getElementById('commentsList');
+            if (commentsList.firstChild) {
+                commentsList.scrollTop = 0;
+            }
+            
+            // 禁用发送按钮
+            document.getElementById('sendCommentBtn').disabled = true;
+        }
+        
+        // 处理评论输入
+        function handleCommentInput(textarea) {
+            autoResizeTextarea(textarea);
+            updateCharCount();
+            
+            const commentText = textarea.value.trim();
+            const sendBtn = document.getElementById('sendCommentBtn');
+            sendBtn.disabled = !commentText || commentText.length > 500;
+        }
+        
+        // 更新字符计数
+        function updateCharCount() {
+            const commentInput = document.getElementById('commentInput');
+            const charCount = document.getElementById('charCount');
+            const length = commentInput.value.length;
+            
+            charCount.textContent = `${length}/500`;
+            
+            charCount.className = 'comment-char-count';
+            if (length > 450) {
+                charCount.classList.add('warning');
+            }
+            if (length > 500) {
+                charCount.classList.add('error');
+            }
+        }
+        
+        // 自动调整输入框高度
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            const newHeight = Math.min(textarea.scrollHeight, 120);
+            textarea.style.height = newHeight + 'px';
+        }
+        
+        // 加载更多评论
+        function loadMoreComments() {
+            showToast('正在加载更多评论...', 'info');
+            
+            setTimeout(() => {
+                const newComments = [
+                    {
+                        id: currentCommentId++,
+                        author: "思考者A",
+                        avatarText: "A",
+                        content: "深度无聊的概念很有意思，现代社会确实缺少这种状态。",
+                        time: "1周前",
+                        likes: 3,
+                        liked: false
+                    },
+                    {
+                        id: currentCommentId++,
+                        author: "读者B",
+                        avatarText: "B",
+                        content: "文章很有启发性，让我们重新思考什么是真正的自由。",
+                        time: "1周前",
+                        likes: 5,
+                        liked: false
+                    }
+                ];
+                
+                commentsData.push(...newComments);
+                saveCommentsToStorage();
+                renderComments();
+                updateCommentCount();
+                
+                showToast('已加载更多评论', 'success');
+            }, 800);
+        }
+        
+        // 保存评论到本地存储
+        function saveCommentsToStorage() {
+            try {
+                localStorage.setItem('article_comments', JSON.stringify(commentsData));
+            } catch (e) {
+                console.warn('无法保存评论数据:', e);
+            }
+        }
+        
+        // 更新评论数量
+        function updateCommentCount() {
+            const count = commentsData.length;
+            
+            const countElements = [
+                document.getElementById('douyinCommentCount'),
+                document.getElementById('commentsCount')
+            ];
+            
+            countElements.forEach(el => {
+                if (el) el.textContent = count;
+            });
+        }
+        
+        // 切换评论面板
+        function toggleCommentsPanel() {
+            if (commentsPanelOpen) {
+                closeCommentsPanel();
+            } else {
+                openCommentsPanel();
+            }
+        }
+        
+        // 打开评论面板
+        function openCommentsPanel() {
+            // 先关闭分享菜单
+            closeShareMenu();
+            
+            const overlay = document.getElementById('commentsOverlay');
+            const panel = document.getElementById('commentsPanel');
+            
+            // 为body添加特殊类，调整文章位置
+            document.body.classList.add('comments-open');
+            
+            // 显示遮罩层（透明，仅用于点击关闭）
+            overlay.classList.add('active');
+            panel.classList.add('active');
+            
+            // 锁定滚动
+            document.body.classList.add('no-scroll');
+            
+            commentsPanelOpen = true;
+            
+            // 聚焦到评论输入框
+            setTimeout(() => {
+                const commentInput = document.getElementById('commentInput');
+                commentInput.focus();
+            }, 300);
+        }
+        
+        // 关闭评论面板
+        function closeCommentsPanel() {
+            const overlay = document.getElementById('commentsOverlay');
+            const panel = document.getElementById('commentsPanel');
+            
+            // 移除body的特殊类，恢复文章位置
+            document.body.classList.remove('comments-open');
+            
+            overlay.classList.remove('active');
+            panel.classList.remove('active');
+            
+            // 恢复滚动
+            document.body.classList.remove('no-scroll');
+            
+            commentsPanelOpen = false;
+        }
+        
+        // ====== 分享功能 - 已修复 ======
+        
+        function toggleShareMenu() {
+            // 先关闭评论面板
+            if (commentsPanelOpen) {
+                closeCommentsPanel();
+            }
+            
+            const shareBtn = document.getElementById('douyinShareBtn');
+            const shareMenu = document.getElementById('shareMenu');
+            
+            if (!shareMenu) return;
+            
+            // 添加动画类
+            shareBtn.classList.add('shared');
+            
+            if (isShareMenuOpen) {
+                closeShareMenu();
+            } else {
+                openShareMenu();
+            }
+            
+            // 移除动画类
+            setTimeout(() => {
+                shareBtn.classList.remove('shared');
+            }, 500);
+        }
+        
+        function openShareMenu() {
+            const shareMenu = document.getElementById('shareMenu');
+            if (!shareMenu) return;
+            
+            // 获取分享按钮位置
+            const shareBtn = document.getElementById('douyinShareBtn');
+            const btnRect = shareBtn.getBoundingClientRect();
+            
+            // 确保菜单在视口内
+            const menuHeight = 180; // 预估菜单高度
+            const viewportHeight = window.innerHeight;
+            
+            // 计算最佳位置
+            let topPosition = btnRect.top + btnRect.height + 10;
+            
+            // 如果菜单会超出视口底部，则向上调整
+            if (topPosition + menuHeight > viewportHeight - 20) {
+                topPosition = viewportHeight - menuHeight - 20;
+            }
+            
+            // 设置菜单位置
+            shareMenu.style.top = `${topPosition}px`;
+            shareMenu.style.left = 'auto';
+            shareMenu.style.right = `${window.innerWidth - btnRect.right + 20}px`;
+            shareMenu.style.bottom = 'auto';
+            
+            // 显示菜单
+            shareMenu.classList.add('active');
+            isShareMenuOpen = true;
+        }
+        
+        function closeShareMenu() {
+            const shareMenu = document.getElementById('shareMenu');
+            if (!shareMenu) return;
+            
+            // 重置所有样式
+            shareMenu.style.top = '';
+            shareMenu.style.right = '';
+            shareMenu.style.bottom = '';
+            shareMenu.style.left = '';
+            shareMenu.style.position = '';
+            
+            // 隐藏菜单
+            shareMenu.classList.remove('active');
+            isShareMenuOpen = false;
+            
+            // 确保分享按钮的动画类被移除
+            const shareBtn = document.getElementById('douyinShareBtn');
+            if (shareBtn) {
+                shareBtn.classList.remove('shared');
+            }
+        }
+        
+        function shareToWechat() {
+            showToast('请使用微信扫描二维码分享', 'info');
+            closeShareMenu();
+        }
+        
+        function shareToWeibo() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            const weiboUrl = `https://service.weibo.com/share/share.php?url=${url}&title=${title}`;
+            window.open(weiboUrl, '_blank', 'noopener,noreferrer');
+            closeShareMenu();
+        }
+        
+        function copyArticleLink() {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    showToast('链接已复制到剪贴板', 'success');
+                    closeShareMenu();
+                })
+                .catch(() => {
+                    showToast('复制失败，请手动复制', 'warning');
+                    closeShareMenu();
+                });
+        }
+        
+        // ====== 其他功能 ======
+        
+        // 字体大小调整
+        function initFontSize() {
+            try {
+                const savedSize = localStorage.getItem('fontSizeLevel');
+                if (savedSize !== null) {
+                    fontSizeLevel = parseInt(savedSize);
+                    applyFontSize();
+                }
+            } catch (e) {
+                console.warn('无法读取字体大小设置:', e);
+            }
+        }
+        
+        function toggleFontSize() {
+            fontSizeLevel = (fontSizeLevel + 1) % 3;
+            applyFontSize();
+            
+            try {
+                localStorage.setItem('fontSizeLevel', fontSizeLevel.toString());
+            } catch (e) {
+                console.warn('无法保存字体大小设置:', e);
+            }
+            
+            showToast(`字体大小: ${sizeNames[fontSizeLevel]}`, 'info');
+        }
+        
+        function applyFontSize() {
+            const articleContent = document.querySelector('.reading-mode');
+            if (!articleContent) return;
+            
+            fontSizeClasses.forEach(cls => articleContent.classList.remove(cls));
+            articleContent.classList.add(fontSizeClasses[fontSizeLevel]);
+        }
+        
+        // 暗色模式
+        function initDarkMode() {
+            try {
+                const isDark = localStorage.getItem('darkMode') === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    updateDarkModeIcon(true);
+                }
+            } catch (e) {
+                console.warn('无法读取主题设置:', e);
+            }
+        }
+        
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            
+            try {
+                localStorage.setItem('darkMode', isDark.toString());
+            } catch (e) {
+                console.warn('无法保存主题设置:', e);
+            }
+            
+            updateDarkModeIcon(isDark);
+            showToast(isDark ? '已切换到暗色模式' : '已切换到亮色模式', 'info');
+        }
+        
+        function updateDarkModeIcon(isDark) {
+            const themeButton = document.querySelector('button[title="切换主题"]');
+            if (!themeButton) return;
+            
+            const moonIcon = themeButton.querySelector('i');
+            if (!moonIcon) return;
+            
+            if (isDark) {
+                moonIcon.setAttribute('data-lucide', 'sun');
+            } else {
+                moonIcon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+        
+        // 更新阅读时间
+        function updateReadingTime() {
+            const articleContent = document.querySelector('.reading-mode');
+            if (!articleContent) return;
+            
+            const text = articleContent.textContent;
+            const wordCount = text.trim().split(/\s+/).length;
+            const readingTime = Math.ceil(wordCount / 250);
+            
+            const readTimeElement = document.querySelector('.article-meta span:last-child');
+            if (readTimeElement) {
+                readTimeElement.textContent = `约${readingTime}分钟阅读`;
+            }
+        }
+        
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            // 移除现有的Toast
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // 创建Toast元素
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+                type === 'warning' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                'bg-blue-100 text-blue-800 border border-blue-200'
+            }`;
+            toast.textContent = message;
+            
+            // 添加到页面
+            document.body.appendChild(toast);
+            
+            // 4秒后自动移除（包含动画时间）
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区准则 - 相逢 Xiangfeng</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;350;400;500;600;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        xf: {
+                            bg: '#E1E4EA',
+                            surface: '#D2C3D5',
+                            primary: '#6A5B8A',
+                            accent: '#3A3C6E',
+                            info: '#4A6FA5',
+                            soft: '#A5C1D6',
+                            dark: '#25263D',
+                            light: '#F7F9FC',
+                            medium: '#8C8EA9',
+                            success: '#4CAF50',
+                            warning: '#FF9800',
+                            community: '#5D6CC0',
+                            harmony: '#7B9EA8',
+                            respect: '#9C89B8',
+                            safety: '#EF9A9A',
+                            integrity: '#80CBC4'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(165, 193, 214, 0.3)',
+                        'glow': '0 0 15px rgba(106, 91, 138, 0.5)',
+                        'elevated': '0 15px 35px -10px rgba(58, 60, 110, 0.15)',
+                        'deep': '0 8px 25px -5px rgba(58, 60, 110, 0.2)',
+                        'card': '0 2px 12px rgba(0, 0, 0, 0.08)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulse-subtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slide-up 0.3s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'pulse-subtle': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        },
+                        'slide-up': {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 基础优化 */
+        body { 
+            font-weight: 400;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4, h5, h6 { 
+            letter-spacing: 0.02em;
+            font-feature-settings: "kern" 1;
+            color: #25263D;
+        }
+        
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+        }
+
+        /* 社区准则特色样式 */
+        .principle-card {
+            transition: all 0.3s ease;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .principle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(93, 108, 192, 0.2);
+        }
+        
+        .principle-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 侧边导航激活状态 */
+        .side-nav-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .side-nav-item.active {
+            color: #3A3C6E;
+            font-weight: 600;
+        }
+        .side-nav-item.active:before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background-color: #3A3C6E;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* 准则内容样式 */
+        .guideline-section {
+            scroll-margin-top: 2rem;
+        }
+        .guideline-section h3 {
+            border-bottom: 2px solid #E1E4EA;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .guideline-content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .guideline-content li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .guideline-content li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #6A5B8A;
+            font-weight: bold;
+        }
+        
+        /* 鼓励与禁止样式 */
+        .encouraged-box {
+            background-color: rgba(128, 203, 196, 0.1);
+            border-left: 4px solid #80CBC4;
+            padding: 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1.5rem 0;
+        }
+        .prohibited-box {
+            background-color: rgba(239, 154, 154, 0.1);
+            border-left: 4px solid #EF9A9A;
+            padding: 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1.5rem 0;
+        }
+        
+        /* 打印优化 */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                font-size: 12pt;
+                line-height: 1.5;
+            }
+            .guideline-section {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .principle-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+            }
+        }
+        
+        /* 社区氛围视觉元素 */
+        .community-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-xf-light text-xf-dark antialiased font-sans selection:bg-xf-soft/50">
+
+    <!-- 导航栏 -->
+    <nav class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 no-print">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg rotate-12 opacity-90"></div>
+                <span class="font-serif text-xl font-bold text-xf-accent">相逢</span>
+            </a>
+
+            <!-- 桌面导航菜单 -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="about.html" class="text-xf-primary hover:text-xf-accent font-medium transition-colors">关于我们</a>
+                <a href="index.html#features" class="text-xf-primary hover:text-xf-accent font-medium transition-colors">特色功能</a>
+                <a href="index.html#pricing" class="text-xf-primary hover:text-xf-accent font-medium transition-colors">定价</a>
+                <a href="#contact" class="text-xf-primary hover:text-xf-accent font-medium transition-colors">联系我们</a>
+            </div>
+
+            <!-- 行动按钮 -->
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="px-6 py-2.5 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98">
+                    返回
+                </a>
+                <!-- 移动端菜单按钮 -->
+                <button id="mobile-menu-btn" class="md:hidden text-xf-primary">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 shadow-elevated no-print">
+            <div class="flex flex-col p-6 space-y-4">
+                <a href="about.html" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">关于我们</a>
+                <a href="index.html#features" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">特色功能</a>
+                <a href="index.html#pricing" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">定价</a>
+                <a href="#contact" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">联系我们</a>
+                <div class="pt-4 border-t border-xf-bg/30">
+                    <a href="index.html" class="w-full py-3 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md text-center block">
+                        返回
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="container mx-auto px-6 py-12">
+        <div class="flex flex-col lg:flex-row gap-10">
+            <!-- 左侧导航 -->
+            <aside class="lg:w-1/4 no-print">
+                <div class="sticky top-24 bg-white rounded-2xl p-6 shadow-soft">
+                    <h3 class="text-lg font-bold text-xf-accent mb-6 font-serif">准则导航</h3>
+                    <nav class="space-y-4">
+                        <a href="#introduction" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('introduction')">引言与愿景</a>
+                        <a href="#principles" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('principles')">社区核心原则</a>
+                        <a href="#content-guidelines" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('content-guidelines')">内容创作指南</a>
+                        <a href="#interaction" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('interaction')">互动交流准则</a>
+                        <a href="#prohibited" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('prohibited')">禁止行为</a>
+                        <a href="#reporting" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('reporting')">举报与执行</a>
+                        <a href="#faq" class="side-nav-item block text-xf-primary hover:text-xf-accent transition-colors" onclick="setActiveNav('faq')">常见问题</a>
+                    </nav>
+                    
+                    <div class="mt-10 pt-6 border-t border-xf-bg/30">
+                        <div class="flex items-center gap-3 text-sm text-xf-primary mb-2">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                            <span>最后更新：2024年3月25日</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-xf-primary">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span>阅读时间：约8分钟</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-xf-light rounded-xl">
+                        <h4 class="text-sm font-bold text-xf-primary mb-2">相关文档</h4>
+                        <div class="space-y-2">
+                            <a href="terms.html" class="flex items-center gap-2 text-sm text-xf-info hover:text-xf-accent transition-colors">
+                                <i data-lucide="file-text" class="w-3 h-3"></i>
+                                <span>服务条款</span>
+                            </a>
+                            <a href="privacy.html" class="flex items-center gap-2 text-sm text-xf-info hover:text-xf-accent transition-colors">
+                                <i data-lucide="shield" class="w-3 h-3"></i>
+                                <span>隐私政策</span>
+                            </a>
+                            <a href="cookies.html" class="flex items-center gap-2 text-sm text-xf-info hover:text-xf-accent transition-colors">
+                                <i data-lucide="cookie" class="w-3 h-3"></i>
+                                <span>Cookie政策</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gradient-to-br from-xf-harmony/10 to-xf-community/10 rounded-xl">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="heart" class="w-4 h-4 text-xf-harmony"></i>
+                            <span class="text-sm font-bold text-xf-harmony">社区氛围</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            <span class="community-badge bg-xf-harmony/20 text-xf-harmony">深度思考</span>
+                            <span class="community-badge bg-xf-respect/20 text-xf-respect">相互尊重</span>
+                            <span class="community-badge bg-xf-integrity/20 text-xf-integrity">真诚交流</span>
+                            <span class="community-badge bg-xf-community/20 text-xf-community">共同成长</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧主要内容 -->
+            <main class="lg:w-3/4">
+                <!-- 页眉 -->
+                <div class="mb-12">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-xf-community/10 to-xf-harmony/10 backdrop-blur-sm rounded-full mb-6">
+                        <i data-lucide="users" class="w-4 h-4 text-xf-community"></i>
+                        <span class="text-sm font-medium text-xf-community">社区指引</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-serif font-bold text-xf-accent mb-6">相逢社区准则</h1>
+                    <p class="text-lg text-xf-medium leading-relaxed">
+                        相逢是一个深度思考者社群，我们致力于创建一个尊重、安全、富有成效的交流环境。本准则旨在帮助我们共同维护这个独特的空间，让每个人都能在这里自由思考、深度交流、共同成长。
+                    </p>
+                </div>
+
+                <!-- 引言与愿景 -->
+                <section id="introduction" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">1. 引言与愿景</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <div class="bg-gradient-to-r from-xf-community/5 to-xf-harmony/5 rounded-2xl p-8 mb-8">
+                            <div class="flex items-start gap-6">
+                                <div class="w-16 h-16 rounded-2xl bg-white shadow-card flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="compass" class="w-8 h-8 text-xf-community"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-xf-dark mb-4">我们的愿景</h3>
+                                    <p class="text-xf-medium leading-relaxed">
+                                        在信息过载的时代，创造一个专注于深度思考、跨学科交流和真诚对话的空间。我们希望相逢不仅是观点的交换场所，更是思维碰撞、认知升级的成长平台。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p>
+                            本社区准则适用于所有相逢用户，包括网站、移动应用以及所有相关服务中的互动。通过使用我们的服务，您同意遵守这些准则。
+                        </p>
+                        
+                        <div class="encouraged-box">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-xf-integrity mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="font-medium text-xf-dark mb-1">我们的承诺</p>
+                                    <p class="text-xf-medium text-sm">
+                                        我们将努力营造一个包容、尊重的环境，保护所有用户的安全和隐私，促进建设性对话。同时，我们期待每位成员都能为这个社区贡献自己独特的声音和智慧。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 社区核心原则 -->
+                <section id="principles" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">2. 社区核心原则</h2>
+                    
+                    <div class="guideline-content">
+                        <p class="mb-8">
+                            相逢社区建立在以下五个核心原则之上。这些原则指导着我们的所有互动和内容创作：
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                            <!-- 原则1：尊重与包容 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-respect/10">
+                                    <i data-lucide="heart" class="w-8 h-8 text-xf-respect"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">尊重与包容</h3>
+                                <p class="text-xf-medium text-sm">
+                                    尊重不同背景、观点和经历。我们鼓励多元思考，反对任何形式的歧视、骚扰或人身攻击。
+                                </p>
+                            </div>
+                            
+                            <!-- 原则2：深度与真诚 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-integrity/10">
+                                    <i data-lucide="brain" class="w-8 h-8 text-xf-integrity"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">深度与真诚</h3>
+                                <p class="text-xf-medium text-sm">
+                                    追求有深度、有见地的交流。分享真实思考，提供有价值的信息和见解，而非表面化的回应。
+                                </p>
+                            </div>
+                            
+                            <!-- 原则3：建设性对话 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-harmony/10">
+                                    <i data-lucide="message-circle" class="w-8 h-8 text-xf-harmony"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">建设性对话</h3>
+                                <p class="text-xf-medium text-sm">
+                                    即使意见不同，也能进行有建设性的讨论。专注于观点本身，而非表达观点的人。
+                                </p>
+                            </div>
+                            
+                            <!-- 原则4：安全与隐私 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-safety/10">
+                                    <i data-lucide="shield" class="w-8 h-8 text-xf-safety"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">安全与隐私</h3>
+                                <p class="text-xf-medium text-sm">
+                                    保护个人隐私，不分享他人敏感信息。共同维护一个安全、可信的交流环境。
+                                </p>
+                            </div>
+                            
+                            <!-- 原则5：共同成长 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-community/10">
+                                    <i data-lucide="users" class="w-8 h-8 text-xf-community"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">共同成长</h3>
+                                <p class="text-xf-medium text-sm">
+                                    我们在这里相互学习、启发和成长。乐于分享知识，也开放接受新观点和新信息。
+                                </p>
+                            </div>
+                            
+                            <!-- 原则6：责任与担当 -->
+                            <div class="principle-card bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <div class="principle-icon bg-xf-primary/10">
+                                    <i data-lucide="award" class="w-8 h-8 text-xf-primary"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-xf-dark mb-3">责任与担当</h3>
+                                <p class="text-xf-medium text-sm">
+                                    对自己发布的内容负责，帮助维护社区环境。遇到问题积极举报，而非以恶制恶。
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="prohibited-box">
+                            <p class="font-medium text-xf-dark mb-1">请注意</p>
+                            <p class="text-xf-medium text-sm">
+                                违反这些核心原则的行为可能会受到警告、内容删除、临时限制或永久封禁等处理。处理方式将根据违规的严重程度和频率而定。
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 内容创作指南 -->
+                <section id="content-guidelines" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">3. 内容创作指南</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <p>
+                            高质量的内容是相逢社区的核心。无论是文章、评论还是讨论，我们都鼓励您创作和分享有价值的内容。
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <!-- 鼓励的内容类型 -->
+                            <div class="encouraged-box">
+                                <h4 class="text-lg font-bold text-xf-dark mb-4 flex items-center gap-2">
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-xf-integrity"></i>
+                                    鼓励的内容
+                                </h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-xf-integrity mt-0.5"></i>
+                                        <span>原创的深度思考、读书笔记、学习心得</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-xf-integrity mt-0.5"></i>
+                                        <span>基于事实和逻辑的见解与分析</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-xf-integrity mt-0.5"></i>
+                                        <span>跨学科的知识连接与洞察</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-xf-integrity mt-0.5"></i>
+                                        <span>有建设性的问题与讨论</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <i data-lucide="check" class="w-4 h-4 text-xf-integrity mt-0.5"></i>
+                                        <span>有帮助的资源分享与推荐</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 内容质量标准 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-4 flex items-center gap-2">
+                                    <i data-lucide="star" class="w-5 h-5 text-xf-warning"></i>
+                                    内容质量标准
+                                </h4>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-xf-warning mt-1.5"></div>
+                                        <span><strong>相关性：</strong>与深度思考、认知升级相关</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-xf-warning mt-1.5"></div>
+                                        <span><strong>原创性：</strong>分享个人真实思考与见解</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-xf-warning mt-1.5"></div>
+                                        <span><strong>深度：</strong>提供有见地、有内容的价值</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-xf-warning mt-1.5"></div>
+                                        <span><strong>准确性：</strong>事实准确，引用注明来源</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <div class="w-2 h-2 rounded-full bg-xf-warning mt-1.5"></div>
+                                        <span><strong>尊重性：</strong>尊重他人，即使观点不同</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">3.1 内容归属与引用</h3>
+                        
+                        <p>
+                            我们尊重知识产权，请您：
+                        </p>
+                        
+                        <ul>
+                            <li>分享原创内容，或获得明确授权的内容</li>
+                            <li>引用他人观点或作品时，注明来源</li>
+                            <li>不将他人的作品当作自己的发布</li>
+                            <li>如有疑问，选择不发布而非冒险侵权</li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">3.2 内容真实性</h3>
+                        
+                        <p>
+                            相逢社区重视真实性与可信度：
+                        </p>
+                        
+                        <ul>
+                            <li>分享基于事实的信息，而非谣言或未经证实的内容</li>
+                            <li>区分事实与观点，明确标注个人见解</li>
+                            <li>不故意传播虚假或误导性信息</li>
+                            <li>如有错误，及时更正并说明</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 互动交流准则 -->
+                <section id="interaction" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">4. 互动交流准则</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <p>
+                            良好的互动是社区活力的源泉。相逢鼓励有深度、有建设性的交流。
+                        </p>
+                        
+                        <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="text-center">
+                                    <div class="w-12 h-12 rounded-xl bg-xf-harmony/10 flex items-center justify-center mx-auto mb-4">
+                                        <i data-lucide="message-square" class="w-6 h-6 text-xf-harmony"></i>
+                                    </div>
+                                    <h4 class="font-bold text-xf-dark mb-2">对话态度</h4>
+                                    <p class="text-sm text-xf-medium">保持开放心态，愿意倾听不同观点</p>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <div class="w-12 h-12 rounded-xl bg-xf-integrity/10 flex items-center justify-center mx-auto mb-4">
+                                        <i data-lucide="thumbs-up" class="w-6 h-6 text-xf-integrity"></i>
+                                    </div>
+                                    <h4 class="font-bold text-xf-dark mb-2">反馈方式</h4>
+                                    <p class="text-sm text-xf-medium">提供建设性反馈，而非简单否定</p>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <div class="w-12 h-12 rounded-xl bg-xf-respect/10 flex items-center justify-center mx-auto mb-4">
+                                        <i data-lucide="user-check" class="w-6 h-6 text-xf-respect"></i>
+                                    </div>
+                                    <h4 class="font-bold text-xf-dark mb-2">分歧处理</h4>
+                                    <p class="text-sm text-xf-medium">就事论事，不进行人身攻击</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mb-4">4.1 评论与回复指南</h3>
+                        
+                        <p>
+                            在评论和回复时，我们建议：
+                        </p>
+                        
+                        <ul>
+                            <li><strong>先理解后回应：</strong>确保你理解了对方的观点再回复</li>
+                            <li><strong>具体而非笼统：</strong>针对具体观点或内容进行回应</li>
+                            <li><strong>对事不对人：</strong>批评观点，而非表达观点的人</li>
+                            <li><strong>提供依据：</strong>分享你的思考过程或信息来源</li>
+                            <li><strong>知道何时停止：</strong>如果对话不再有建设性，适时停止</li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">4.2 私信交流</h3>
+                        
+                        <p>
+                            私信交流同样需要遵守社区准则：
+                        </p>
+                        
+                        <ul>
+                            <li>尊重他人隐私，不未经同意分享私信内容</li>
+                            <li>不发送骚扰性、威胁性或不受欢迎的信息</li>
+                            <li>如收到不当私信，请使用举报功能</li>
+                            <li>私信不是商业推广的渠道</li>
+                        </ul>
+                        
+                        <div class="encouraged-box">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="lightbulb" class="w-5 h-5 text-xf-integrity mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="font-medium text-xf-dark mb-1">对话的艺术</p>
+                                    <p class="text-xf-medium text-sm">
+                                        最有价值的对话往往发生在观点不同但有共同求知欲的人之间。我们鼓励您以"我想理解你的观点"而非"我要证明你错了"的心态参与讨论。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 禁止行为 -->
+                <section id="prohibited" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">5. 禁止行为</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <p>
+                            为确保社区安全与和谐，以下行为在相逢社区严格禁止：
+                        </p>
+                        
+                        <div class="prohibited-box">
+                            <h4 class="text-lg font-bold text-xf-dark mb-4 flex items-center gap-2">
+                                <i data-lucide="ban" class="w-5 h-5 text-xf-safety"></i>
+                                严格禁止的行为
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-bold text-xf-dark mb-2">内容相关</h5>
+                                    <ul class="space-y-1 text-sm">
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>发布仇恨、歧视或暴力内容</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>传播虚假信息或谣言</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>发布色情或露骨内容</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>侵犯他人知识产权</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h5 class="font-bold text-xf-dark mb-2">行为相关</h5>
+                                    <ul class="space-y-1 text-sm">
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>骚扰、欺凌或威胁他人</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>冒充他人或虚假身份</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>垃圾信息或商业推广</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <i data-lucide="x" class="w-3 h-3 text-xf-safety mt-0.5 flex-shrink-0"></i>
+                                            <span>恶意举报或滥用功能</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">5.1 零容忍政策</h3>
+                        
+                        <p>
+                            以下行为将导致<strong>立即永久封禁</strong>，恕不警告：
+                        </p>
+                        
+                        <ul>
+                            <li>发布儿童性虐待材料或相关内容</li>
+                            <li>宣扬恐怖主义或极端主义</li>
+                            <li>威胁他人生命安全或煽动暴力</li>
+                            <li>系统性骚扰或恶意攻击他人</li>
+                            <li>创建多个账户以规避封禁</li>
+                        </ul>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">5.2 灰色地带与判断</h3>
+                        
+                        <p>
+                            有些内容或行为可能处于灰色地带。在这种情况下，我们将考虑：
+                        </p>
+                        
+                        <ul>
+                            <li><strong>意图：</strong>发布者的意图是建设性的还是恶意的？</li>
+                            <li><strong>背景：</strong>内容在特定讨论中的背景和目的</li>
+                            <li><strong>影响：</strong>对社区氛围和他人的实际影响</li>
+                            <li><strong>模式：</strong>是偶发行为还是模式性行为？</li>
+                        </ul>
+                        
+                        <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30 mt-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-xf-harmony/10 flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="scale" class="w-6 h-6 text-xf-harmony"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-xf-dark mb-2">公平与透明</h4>
+                                    <p class="text-xf-medium">
+                                        我们承诺在处理违规行为时保持公平和透明。如果您认为处理不当，可以通过合法渠道申诉。但我们保留根据社区最佳利益做出最终决定的权利。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 举报与执行 -->
+                <section id="reporting" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">6. 举报与执行</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <p>
+                            维护社区环境是每位成员的责任。如果您发现违规内容或行为，请帮助我们进行处理。
+                        </p>
+                        
+                        <div class="bg-white rounded-2xl p-8 shadow-card border border-xf-bg/30">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 class="text-xl font-bold text-xf-dark mb-6">如何举报</h3>
+                                    
+                                    <div class="space-y-6">
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-10 h-10 rounded-lg bg-xf-safety/10 flex items-center justify-center flex-shrink-0">
+                                                <i data-lucide="flag" class="w-5 h-5 text-xf-safety"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">内容举报</h4>
+                                                <p class="text-sm text-xf-medium">在内容旁点击"举报"按钮，选择举报原因</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-10 h-10 rounded-lg bg-xf-community/10 flex items-center justify-center flex-shrink-0">
+                                                <i data-lucide="user-x" class="w-5 h-5 text-xf-community"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">用户举报</h4>
+                                                <p class="text-sm text-xf-medium">访问用户个人资料，点击"举报用户"</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-10 h-10 rounded-lg bg-xf-primary/10 flex items-center justify-center flex-shrink-0">
+                                                <i data-lucide="mail" class="w-5 h-5 text-xf-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">邮件举报</h4>
+                                                <p class="text-sm text-xf-medium">发送邮件至 safety@xiangfeng.com</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-xl font-bold text-xf-dark mb-6">举报后流程</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="flex items-start">
+                                            <div class="w-6 h-6 rounded-full bg-xf-community text-white flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0">1</div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">审核评估</h4>
+                                                <p class="text-sm text-xf-medium">我们的团队将审核举报内容，通常需要24小时内</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <div class="w-6 h-6 rounded-full bg-xf-community text-white flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0">2</div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">采取措施</h4>
+                                                <p class="text-sm text-xf-medium">如确认违规，将根据严重程度采取相应措施</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start">
+                                            <div class="w-6 h-6 rounded-full bg-xf-community text-white flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0">3</div>
+                                            <div>
+                                                <h4 class="font-bold text-xf-dark mb-1">隐私保护</h4>
+                                                <p class="text-sm text-xf-medium">您的举报信息将被保密，不会向被举报者透露</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold text-xf-dark mt-8 mb-4">6.1 违规处理措施</h3>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse">
+                                <thead>
+                                    <tr class="bg-xf-light">
+                                        <th class="text-left p-3 border border-xf-bg">违规类型</th>
+                                        <th class="text-left p-3 border border-xf-bg">首次违规</th>
+                                        <th class="text-left p-3 border border-xf-bg">重复违规</th>
+                                        <th class="text-left p-3 border border-xf-bg">严重违规</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="p-3 border border-xf-bg">轻度不当内容</td>
+                                        <td class="p-3 border border-xf-bg">内容删除 + 私信提醒</td>
+                                        <td class="p-3 border border-xf-bg">7天限制发帖</td>
+                                        <td class="p-3 border border-xf-bg">30天限制发帖</td>
+                                    </tr>
+                                    <tr class="bg-white">
+                                        <td class="p-3 border border-xf-bg">骚扰或人身攻击</td>
+                                        <td class="p-3 border border-xf-bg">警告 + 内容删除</td>
+                                        <td class="p-3 border border-xf-bg">14天账户限制</td>
+                                        <td class="p-3 border border-xf-bg">永久封禁</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 border border-xf-bg">发布虚假信息</td>
+                                        <td class="p-3 border border-xf-bg">内容删除 + 标注</td>
+                                        <td class="p-3 border border-xf-bg">30天限制发帖</td>
+                                        <td class="p-3 border border-xf-bg">永久封禁</td>
+                                    </tr>
+                                    <tr class="bg-white">
+                                        <td class="p-3 border border-xf-bg">垃圾信息/推广</td>
+                                        <td class="p-3 border border-xf-bg">内容删除 + 警告</td>
+                                        <td class="p-3 border border-xf-bg">永久封禁</td>
+                                        <td class="p-3 border border-xf-bg">立即永久封禁</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="encouraged-box">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="alert-circle" class="w-5 h-5 text-xf-integrity mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="font-medium text-xf-dark mb-1">举报责任</p>
+                                    <p class="text-xf-medium text-sm">
+                                        请负责任地使用举报功能。恶意举报或滥用举报系统可能被视为违规行为。举报时请尽可能提供详细信息，帮助我们准确评估情况。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 常见问题 -->
+                <section id="faq" class="guideline-section mb-16">
+                    <h2 class="text-3xl font-serif font-bold text-xf-accent mb-8">7. 常见问题</h2>
+                    
+                    <div class="guideline-content space-y-6">
+                        <div class="space-y-6">
+                            <!-- 问题1 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-3">如果我只是表达了不同意见，会被处罚吗？</h4>
+                                <p class="text-xf-medium">
+                                    不会。表达不同意见是深度讨论的重要组成部分。我们鼓励建设性的意见交流，只要讨论是基于尊重和事实，而非人身攻击或恶意诋毁。
+                                </p>
+                            </div>
+                            
+                            <!-- 问题2 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-3">什么算是"仇恨言论"？</h4>
+                                <p class="text-xf-medium">
+                                    基于种族、民族、国籍、宗教、性别、性取向、残疾等特征攻击或贬低个人或群体的言论。这包括直接攻击、暗示性贬低，或传播相关刻板印象。
+                                </p>
+                            </div>
+                            
+                            <!-- 问题3 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-3">我可以讨论敏感话题吗？</h4>
+                                <p class="text-xf-medium">
+                                    可以，但需要以尊重、建设性的方式进行。敏感话题的讨论应当基于事实，避免情绪化攻击，并考虑对他人可能造成的影响。如果话题可能触发创伤，请添加内容警告。
+                                </p>
+                            </div>
+                            
+                            <!-- 问题4 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-3">如果我被错误处罚了怎么办？</h4>
+                                <p class="text-xf-medium">
+                                    您可以通过发送邮件至 appeal@xiangfeng.com 进行申诉。请提供您的用户名、处罚内容以及您认为处罚不当的理由。我们将在7个工作日内回复。
+                                </p>
+                            </div>
+                            
+                            <!-- 问题5 -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-xf-bg/30">
+                                <h4 class="text-lg font-bold text-xf-dark mb-3">准则会更新吗？</h4>
+                                <p class="text-xf-medium">
+                                    会的。随着社区发展和新情况的出现，我们可能会更新准则。重大变更将提前通知用户。您可以定期查看此页面了解最新版本。
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-xf-community/10 to-xf-harmony/10 rounded-2xl p-8 text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-white shadow-card flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="message-circle-heart" class="w-8 h-8 text-xf-community"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-xf-dark mb-3">有更多问题？</h3>
+                            <p class="text-xf-medium mb-4">
+                                如果您对社区准则有任何疑问或建议，欢迎联系我们。
+                            </p>
+                            <a href="mailto:community@xiangfeng.com" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-xf-community to-xf-harmony text-white rounded-xl font-medium hover:opacity-90 transition-all">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                                community@xiangfeng.com
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 准则确认 -->
+                <div class="border-t border-xf-bg/50 pt-8 mt-12">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                        <div>
+                            <h4 class="text-xl font-serif font-bold text-xf-accent mb-2">生效与确认</h4>
+                            <p class="text-xf-medium">本社区准则最后更新于2024年3月25日，自该日起生效。</p>
+                            <p class="text-sm text-xf-medium mt-2">通过使用相逢服务，您确认已阅读、理解并同意遵守这些准则。</p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <button onclick="acceptGuidelines()" class="px-6 py-3 bg-gradient-to-r from-xf-community to-xf-harmony hover:from-xf-community/90 hover:to-xf-harmony/90 text-white rounded-xl font-medium transition-all flex items-center gap-2">
+                                <i data-lucide="hand-heart" class="w-5 h-5"></i>
+                                我承诺遵守准则
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-xf-dark text-white pt-12 pb-8 mt-20 no-print">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+                <!-- Logo和描述 -->
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg"></div>
+                        <span class="font-serif text-2xl font-bold text-white">相逢</span>
+                    </div>
+                    <p class="text-white/70 max-w-md mb-6">相逢是一个深度思考者社群，致力于连接不同领域的思考者，促进跨界交流与认知升级。</p>
+                </div>
+                
+                <!-- 快速链接 -->
+                <div>
+                    <h4 class="font-bold text-lg mb-6">法律条款</h4>
+                    <ul class="space-y-3">
+                        <li><a href="terms.html" class="text-white/70 hover:text-white transition">服务条款</a></li>
+                        <li><a href="privacy.html" class="text-white/70 hover:text-white transition">隐私政策</a></li>
+                        <li><a href="cookies.html" class="text-white/70 hover:text-white transition">Cookie政策</a></li>
+                        <li><a href="community-guidelines.html" class="text-white/70 hover:text-white transition">社区准则</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 产品 -->
+                <div>
+                    <h4 class="font-bold text-lg mb-6">快速链接</h4>
+                    <ul class="space-y-3">
+                        <li><a href="index.html" class="text-white/70 hover:text-white transition">首页</a></li>
+                        <li><a href="about.html" class="text-white/70 hover:text-white transition">关于我们</a></li>
+                        <li><a href="about.html#blog" class="text-white/70 hover:text-white transition">博客</a></li>
+                        <li><a href="about.html#careers" class="text-white/70 hover:text-white transition">加入我们</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-white/10 text-center">
+                <p class="text-white/50 text-sm">© 2024 相逢 Xiangfeng. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化图标
+        lucide.createIcons();
+        
+        // 页面加载效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为导航链接添加滚动激活
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // 设置初始激活的导航项
+            setActiveNav('introduction');
+            
+            // 为所有可点击元素添加按下效果
+            document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+                el.addEventListener('mousedown', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                el.addEventListener('mouseup', function() {
+                    this.style.transform = '';
+                });
+                el.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // 更新最后更新日期为当天
+            const today = new Date();
+            const formattedDate = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日';
+            document.querySelectorAll('.last-updated').forEach(el => {
+                el.textContent = formattedDate;
+            });
+        });
+        
+        // 设置激活的导航项
+        function setActiveNav(sectionId) {
+            // 移除所有激活状态
+            document.querySelectorAll('.side-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 添加当前激活状态
+            const activeItem = document.querySelector(`a[href="#${sectionId}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+        
+        // 更新激活的导航链接（滚动时）
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 150;
+                if (window.scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            if (current) {
+                setActiveNav(current);
+            }
+        }
+        
+        // 切换移动端菜单
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('mobile-menu-btn');
+            const icon = btn.querySelector('i[data-lucide]');
+            
+            menu.classList.toggle('hidden');
+            
+            if (menu.classList.contains('hidden')) {
+                icon.setAttribute('data-lucide', 'menu');
+            } else {
+                icon.setAttribute('data-lucide', 'x');
+            }
+            
+            lucide.createIcons();
+        }
+        
+        // 点击外部关闭移动菜单
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('mobile-menu-btn');
+            
+            if (!menu.classList.contains('hidden') && 
+                !menu.contains(event.target) && 
+                !btn.contains(event.target)) {
+                toggleMobileMenu();
+            }
+        });
+        
+        // 接受准则
+        function acceptGuidelines() {
+            if (confirm('您确认已阅读、理解并同意遵守相逢社区准则的全部内容吗？')) {
+                // 在实际应用中，这里会设置Cookie或向服务器发送接受准则的状态
+                alert('感谢您承诺遵守我们的社区准则！让我们一起营造良好的交流环境。');
+                // 可以跳转到应用页面
+                // window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
