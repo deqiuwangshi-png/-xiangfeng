@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相逢 Xiangfeng V2 - 草稿管理</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;350;400;500;600;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        xf: {
+                            bg: '#E1E4EA',
+                            surface: '#D2C3D5',
+                            primary: '#6A5B8A',
+                            accent: '#3A3C6E',
+                            info: '#4A6FA5',
+                            soft: '#A5C1D6',
+                            dark: '#25263D',
+                            light: '#F7F9FC',
+                            medium: '#8C8EA9',
+                            success: '#4CAF50',
+                            warning: '#FF9800',
+                            danger: '#EF4444',
+                            subtle: '#F0F2F7',
+                            border: '#E5E7EB'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(165, 193, 214, 0.3)',
+                        'glow': '0 0 15px rgba(106, 91, 138, 0.5)',
+                        'elevated': '0 15px 35px -10px rgba(58, 60, 110, 0.15)',
+                        'deep': '0 8px 25px -5px rgba(58, 60, 110, 0.2)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulse-subtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slide-up 0.3s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-in': 'slideIn 0.4s ease-out',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'pulse-subtle': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        },
+                        'slide-up': {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 },
+                        },
+                        slideIn: {
+                            '0%': { opacity: 0, transform: 'translateX(-20px)' },
+                            '100%': { opacity: 1, transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 基础优化 - 保持与发布页面一致的样式 */
+        body {
+            font-weight: 400;
+            -webkit-tap-highlight-color: transparent;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            letter-spacing: 0.02em;
+            font-feature-settings: "kern" 1;
+            color: #25263D;
+        }
+
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 导航栏激活指示器 */
+        .nav-active-indicator {
+            position: absolute;
+            left: 0;
+            height: 60%;
+            width: 4px;
+            background-color: #3A3C6E;
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+            transition: opacity 0.3s ease, height 0.3s ease;
+        }
+
+        .nav-item.active .nav-active-indicator {
+            opacity: 1;
+            height: 80%;
+        }
+
+        /* ============ 草稿管理页面特定样式 ============ */
+
+        /* 卡片悬停效果 */
+        .draft-card {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .draft-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(58, 60, 110, 0.15);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-draft {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+        }
+
+        .status-pending {
+            background-color: rgba(74, 111, 165, 0.1);
+            color: #4A6FA5;
+        }
+
+        .status-published {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .status-archived {
+            background-color: rgba(140, 142, 169, 0.1);
+            color: #8C8EA9;
+        }
+
+        /* 操作按钮悬停效果 */
+        .action-btn {
+            transition: all 0.2s ease;
+            border-radius: 10px;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(106, 91, 138, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* 选择框样式 */
+        .select-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid #D1D5DB;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .select-checkbox.selected {
+            background-color: #6A5B8A;
+            border-color: #6A5B8A;
+        }
+
+        .select-checkbox.selected::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 分页器样式 */
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(.disabled) {
+            background-color: rgba(106, 91, 138, 0.08);
+        }
+
+        .pagination-btn.active {
+            background-color: #6A5B8A;
+            color: white;
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 空状态样式 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(106, 91, 138, 0.1) 0%, rgba(165, 193, 214, 0.1) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 筛选器样式 */
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: #F7F9FC;
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .filter-chip:hover {
+            border-color: #6A5B8A;
+            color: #6A5B8A;
+        }
+
+        .filter-chip.active {
+            background-color: #6A5B8A;
+            color: white;
+            border-color: #6A5B8A;
+        }
+
+        /* 搜索框样式 */
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+            background-color: white;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #6A5B8A;
+            box-shadow: 0 0 0 3px rgba(106, 91, 138, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+        }
+
+        /* 批量操作栏 */
+        .batch-actions-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(58, 60, 110, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 50;
+            border: 1px solid rgba(106, 91, 138, 0.1);
+            backdrop-filter: blur(10px);
+            animation: slide-up 0.3s ease-out;
+        }
+
+        /* 渐变背景装饰 */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(106, 91, 138, 0.02) 0%, rgba(58, 60, 110, 0.03) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 侧边栏背景层次 */
+        .sidebar-bg {
+            background: linear-gradient(180deg, #F7F9FC 0%, #E8EBF2 100%);
+            border-right: 1px solid rgba(210, 195, 213, 0.3);
+        }
+
+        /* 卡片内容截断 */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 动画效果 */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .draft-card {
+                margin: 0 0.5rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .batch-actions-bar {
+                width: calc(100% - 2rem);
+                padding: 0.75rem 1rem;
+            }
+
+            .empty-state {
+                padding: 3rem 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .filter-chips {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .filter-chips::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-xf-dark antialiased font-sans min-h-screen">
+
+    <!-- 主应用界面 -->
+    <div id="app-view" class="flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden view-transition">
+
+        <!-- 左侧边栏 - 与发布页面保持一致 -->
+        <aside
+            class="w-[80px] xl:w-[220px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300">
+            <!-- 用户头像区域 -->
+            <div class="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3">
+                <div class="relative cursor-pointer" onclick="toggleProfileMenu()">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7" alt="Avatar"
+                        class="w-10 h-10 rounded-full shadow-sm ring-2 ring-white">
+                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
+                    </div>
+                </div>
+
+                <!-- 用户名显示 - 仅在 xl 屏幕以上显示 -->
+                <div class="hidden xl:block pt-1">
+                    <div class="font-medium text-xf-dark text-sm mb-0.5">梦话</div>
+                    <div class="text-xs text-xf-primary">免费版</div>
+                </div>
+
+                <div id="profile-dropdown"
+                    class="hidden absolute top-16 left-0 w-48 card-bg backdrop-blur-md rounded-2xl shadow-deep py-2 z-50 border border-xf-bg/50 origin-top-left transition-all fade-in-up">
+                    <a href="/个人.html"
+                        class="flex items-center gap-3 px-5 py-3 text-sm text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent transition"><i
+                            data-lucide="user" class="w-4 h-4"></i> 个人主页</a>
+                    <a href="/设置.html"
+                        class="flex items-center gap-3 px-5 py-3 text-sm text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent transition"><i
+                            data-lucide="settings" class="w-4 h-4"></i> 设置</a>
+                    <div class="h-px bg-xf-bg/80 my-2 mx-4"></div>
+                    <a href="/登录.html"
+                        class="flex items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50/50 transition"><i
+                            data-lucide="log-out" class="w-4 h-4"></i> 退出登录</a>
+                </div>
+            </div>
+
+            <!-- 导航菜单 -->
+            <nav class="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
+                <a href="./首页.html"
+                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="home" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">首页</span>
+                </a>
+                <a href="./探索.html"
+                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="compass" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">探索</span>
+                </a>
+                <a href="./发布.html"
+                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="edit-3" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">发布</span>
+                </a>
+                <a href="./草稿管理.html"
+                    class="nav-item active flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-accent font-semibold transition-all relative group">
+                    <div class="nav-active-indicator"></div>
+                    <i data-lucide="folder" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                    <span class="text-lg tracking-wider hidden xl:inline">草稿</span>
+                </a>
+            </nav>
+
+            <!-- 品牌信息 -->
+            <div class="mt-auto pt-6 border-t border-xf-bg/40 text-center">
+                <div class="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">© 2024 相逢</div>
+                <div class="text-xs text-xf-primary font-medium xl:hidden">相</div>
+            </div>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth"
+            id="main-scroll">
+            
+            <!-- 渐变背景装饰 -->
+            <div class="gradient-bg"></div>
+
+            <!-- 顶部栏 -->
+            <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-xf-border/50">
+                <div class="max-w-6xl mx-auto px-4 py-3">
+                    <div class="flex items-center justify-between">
+                        <!-- 左侧：标题 -->
+                        <div class="flex items-center gap-2">
+                            <div class="text-sm font-medium text-xf-primary bg-xf-subtle px-3 py-1.5 rounded-lg">
+                                草稿管理
+                            </div>
+                            <span class="text-sm text-xf-medium ml-2" id="draft-count">12 篇草稿</span>
+                        </div>
+                        
+                        <!-- 右侧：操作按钮 -->
+                        <div class="flex items-center gap-3">
+                            <button onclick="clearAllDrafts()" class="text-sm text-xf-danger hover:text-red-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span class="hidden sm:inline">清空草稿</span>
+                            </button>
+                            <button onclick="newDraft()" class="bg-xf-primary text-white px-4 py-1.5 rounded-lg hover:bg-xf-accent transition-colors flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>新建草稿</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 主内容区域 -->
+            <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 fade-in">
+                <!-- 筛选和搜索栏 -->
+                <div class="mb-6 slide-in">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                        <!-- 筛选器 -->
+                        <div class="flex items-center gap-2 filter-chips">
+                            <div class="text-sm font-medium text-xf-dark mr-2">状态:</div>
+                            <button class="filter-chip active" data-filter="all" onclick="filterDrafts('all')">
+                                全部
+                            </button>
+                            <button class="filter-chip" data-filter="draft" onclick="filterDrafts('draft')">
+                                草稿
+                            </button>
+                            <button class="filter-chip" data-filter="pending" onclick="filterDrafts('pending')">
+                                待修改
+                            </button>
+                            <button class="filter-chip" data-filter="published" onclick="filterDrafts('published')">
+                                已发布
+                            </button>
+                            <button class="filter-chip" data-filter="archived" onclick="filterDrafts('archived')">
+                                已归档
+                            </button>
+                        </div>
+                        
+                        <!-- 搜索框 -->
+                        <div class="search-container">
+                            <i data-lucide="search" class="w-4 h-4 search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="search-input"
+                                class="search-input"
+                                placeholder="搜索草稿标题或内容..."
+                                oninput="searchDrafts()"
+                            >
+                        </div>
+                    </div>
+                    
+                    <!-- 批量操作提示 -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="select-checkbox" id="select-all-checkbox" onclick="toggleSelectAll()"></div>
+                            <span class="text-sm text-xf-medium">全选</span>
+                        </div>
+                        <div class="text-sm text-xf-medium hidden md:block">
+                            <span id="selected-count">0</span> 篇选中
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 草稿列表 -->
+                <div class="space-y-4" id="drafts-container">
+                    <!-- 草稿卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 空状态 -->
+                <div id="empty-state" class="hidden">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i data-lucide="folder-open" class="w-10 h-10 text-xf-primary"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-xf-dark mb-2">暂无草稿</h3>
+                        <p class="text-xf-medium mb-4">创建你的第一篇草稿，开始记录灵感</p>
+                        <button onclick="newDraft()" class="bg-xf-primary text-white px-4 py-2 rounded-lg hover:bg-xf-accent transition-colors flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>新建草稿</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 分页器 -->
+                <div class="mt-8 flex items-center justify-center" id="pagination-container">
+                    <div class="flex items-center gap-1">
+                        <button class="pagination-btn disabled" id="prev-page">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        </button>
+                        
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <span class="px-2 text-xf-medium">...</span>
+                        <button class="pagination-btn">8</button>
+                        
+                        <button class="pagination-btn" id="next-page">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div class="batch-actions-bar hidden" id="batch-actions-bar">
+                <div class="text-sm font-medium text-xf-dark">
+                    <span id="batch-selected-count">0</span> 篇草稿已选中
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="batchDeleteDrafts()" class="action-btn p-2 text-xf-danger hover:bg-red-50">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="batchPublishDrafts()" class="action-btn p-2 text-xf-success hover:bg-green-50">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="batchArchiveDrafts()" class="action-btn p-2 text-xf-medium hover:bg-xf-subtle">
+                        <i data-lucide="archive" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="clearSelection()" class="text-sm text-xf-medium hover:text-xf-dark px-3 py-1.5">
+                        取消选择
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- 移动端侧边栏切换按钮 -->
+        <button
+            class="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 bg-white shadow-soft rounded-full flex items-center justify-center text-xf-primary"
+            onclick="toggleSidebar()">
+            <i data-lucide="sidebar" class="w-5 h-5"></i>
+        </button>
+    </div>
+
+    <script>
+        // 初始化图标
+        lucide.createIcons();
+        
+        // 草稿数据
+        const draftData = [
+            {
+                id: 1,
+                title: "人工智能在医疗诊断中的应用",
+                excerpt: "本文探讨了人工智能技术如何改善医疗诊断的准确性和效率，特别是在影像识别和疾病预测方面的应用...",
+                content: "随着人工智能技术的快速发展，医疗行业正在经历一场深刻的变革。AI技术不仅提高了诊断的准确性，还大幅提升了医疗服务的效率。在医学影像分析方面，深度学习算法已经能够识别X光、CT和MRI图像中的异常，其准确率甚至超过了经验丰富的放射科医生。",
+                lastUpdated: "2023-10-15 14:30",
+                created: "2023-10-10 09:15",
+                status: "draft",
+                tags: ["科技", "医疗", "AI"],
+                wordCount: 1245,
+                selected: false
+            },
+            {
+                id: 2,
+                title: "可持续发展与绿色能源的未来",
+                excerpt: "分析全球绿色能源发展趋势，以及可持续发展战略对经济和社会的影响...",
+                content: "面对气候变化和环境退化的严峻挑战，全球各国正在加速向绿色能源转型。太阳能、风能等可再生能源的成本持续下降，使得清洁能源在经济上越来越具有竞争力。",
+                lastUpdated: "2023-10-18 10:22",
+                created: "2023-10-12 16:45",
+                status: "pending",
+                tags: ["环境", "能源", "经济"],
+                wordCount: 856,
+                selected: false
+            },
+            {
+                id: 3,
+                title: "远程办公对工作效率的影响研究",
+                excerpt: "基于对500名远程工作者的调查，分析远程办公对员工生产力和工作满意度的影响...",
+                content: "疫情加速了远程办公的普及，许多公司开始重新评估传统办公模式。本研究通过对500名远程工作者的调查，分析了远程办公对员工生产力和工作满意度的影响。",
+                lastUpdated: "2023-10-20 08:45",
+                created: "2023-10-05 11:30",
+                status: "published",
+                tags: ["职场", "管理", "调研"],
+                wordCount: 2103,
+                selected: false
+            },
+            {
+                id: 4,
+                title: "区块链技术及其在金融领域的应用",
+                excerpt: "介绍区块链技术的基本原理，并探讨其在支付、跨境汇款和智能合约等金融场景中的应用...",
+                content: "区块链是一种分布式账本技术，以其去中心化、不可篡改和透明的特点，正在重塑金融行业的运作方式。在支付领域，区块链可以实现快速、低成本的跨境转账，避免了传统银行体系中繁琐的中介环节。",
+                lastUpdated: "2023-10-22 16:10",
+                created: "2023-10-15 14:20",
+                status: "draft",
+                tags: ["区块链", "金融", "科技"],
+                wordCount: 1789,
+                selected: false
+            },
+            {
+                id: 5,
+                title: "心理健康在现代社会的重要性",
+                excerpt: "探讨现代社会中心理健康问题的普遍性，以及提高心理健康意识和提供支持的方法...",
+                content: "随着生活节奏加快和社会压力增大，心理健康问题日益普遍。世界卫生组织的数据显示，全球约有10亿人患有精神障碍，但大多数没有得到适当的治疗和支持。",
+                lastUpdated: "2023-10-25 11:05",
+                created: "2023-10-18 09:40",
+                status: "pending",
+                tags: ["健康", "心理", "社会"],
+                wordCount: 932,
+                selected: false
+            },
+            {
+                id: 6,
+                title: "数字化转型对企业竞争力的影响",
+                excerpt: "分析数字化转型如何重塑企业运营模式，提升市场竞争力...",
+                content: "在数字化时代，企业必须适应新技术变革，通过数字化转型提升运营效率和市场竞争力。本文分析了数字化转型的关键要素和实施路径。",
+                lastUpdated: "2023-10-28 09:15",
+                created: "2023-10-22 14:30",
+                status: "archived",
+                tags: ["商业", "技术", "转型"],
+                wordCount: 1543,
+                selected: false
+            },
+            {
+                id: 7,
+                title: "城市绿化与居民幸福感的关系研究",
+                excerpt: "通过对多个城市居民的调查，研究城市绿化覆盖率与居民幸福感之间的相关性...",
+                content: "城市绿化不仅改善了生态环境，还对居民的心理健康产生积极影响。本研究通过调查多个城市的居民，分析了绿化覆盖率与幸福感指数之间的关系。",
+                lastUpdated: "2023-10-30 13:45",
+                created: "2023-10-25 10:20",
+                status: "draft",
+                tags: ["城市", "环境", "心理"],
+                wordCount: 1120,
+                selected: false
+            },
+            {
+                id: 8,
+                title: "未来教育模式的变革与创新",
+                excerpt: "探讨人工智能、虚拟现实等技术如何改变传统教育模式，实现个性化学习...",
+                content: "随着人工智能和虚拟现实技术的发展，教育领域正在经历一场深刻变革。个性化学习、沉浸式体验和自适应教学系统正在重新定义教育的未来。",
+                lastUpdated: "2023-11-02 16:30",
+                created: "2023-10-28 11:10",
+                status: "published",
+                tags: ["教育", "科技", "创新"],
+                wordCount: 1987,
+                selected: false
+            }
+        ];
+
+        // 页面状态
+        let selectedDrafts = [];
+        let currentFilter = "all";
+        let searchQuery = "";
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        
+        // 页面加载后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载后的优雅浮现效果
+            const mainApp = document.getElementById('app-view');
+            if (mainApp && !mainApp.classList.contains('hidden')) {
+                mainApp.style.opacity = '0';
+                mainApp.style.transform = 'translateY(10px)';
+                setTimeout(() => {
+                    mainApp.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    mainApp.style.opacity = '1';
+                    mainApp.style.transform = 'translateY(0)';
+                }, 100);
+            }
+
+            // 为所有可点击元素添加按下效果
+            document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+                el.addEventListener('mousedown', function () {
+                    this.style.transform = 'scale(0.98)';
+                });
+                el.addEventListener('mouseup', function () {
+                    this.style.transform = '';
+                });
+                el.addEventListener('mouseleave', function () {
+                    this.style.transform = '';
+                });
+            });
+
+            // 初始化草稿列表
+            renderDraftList();
+            
+            // 更新草稿计数
+            updateDraftCount();
+            
+            // 更新分页器
+            updatePagination();
+            
+            // 监听搜索输入
+            document.getElementById('search-input').addEventListener('input', searchDrafts);
+        });
+        
+        // 渲染草稿列表
+        function renderDraftList() {
+            const container = document.getElementById('drafts-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 过滤草稿
+            let filteredDrafts = filterDraftsByStatus(draftData, currentFilter);
+            filteredDrafts = searchDraftsByQuery(filteredDrafts, searchQuery);
+            
+            // 分页
+            const totalPages = Math.ceil(filteredDrafts.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedDrafts = filteredDrafts.slice(startIndex, endIndex);
+            
+            if (paginatedDrafts.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            let html = '';
+            paginatedDrafts.forEach(draft => {
+                const statusText = getStatusText(draft.status);
+                const statusClass = `status-${draft.status}`;
+                const selectedClass = draft.selected ? 'selected' : '';
+                
+                html += `
+                    <div class="draft-card bg-white border border-xf-border rounded-2xl p-5 hover:shadow-elevated transition-all">
+                        <div class="flex items-start gap-4">
+                            <!-- 选择框 -->
+                            <div class="pt-1">
+                                <div class="select-checkbox ${selectedClass}" onclick="toggleSelectDraft(${draft.id})"></div>
+                            </div>
+                            
+                            <!-- 内容区域 -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-3">
+                                    <h3 class="text-lg font-semibold text-xf-dark line-clamp-1">${draft.title}</h3>
+                                    <div class="flex items-center gap-2">
+                                        <span class="status-badge ${statusClass}">${statusText}</span>
+                                        <span class="text-xs text-xf-medium">${draft.wordCount} 字</span>
+                                    </div>
+                                </div>
+                                
+                                <p class="text-xf-medium mb-4 line-clamp-2">${draft.excerpt}</p>
+                                
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                    <div class="flex flex-wrap gap-2">
+                                        ${draft.tags.map(tag => `
+                                            <span class="text-xs text-xf-primary bg-xf-subtle px-2 py-1 rounded">${tag}</span>
+                                        `).join('')}
+                                    </div>
+                                    
+                                    <div class="text-sm text-xf-medium">
+                                        更新于 ${draft.lastUpdated}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 操作按钮 -->
+                            <div class="flex items-center gap-1">
+                                <button onclick="editDraft(${draft.id})" class="action-btn p-2 text-xf-primary hover:bg-xf-subtle" title="编辑">
+                                    <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="previewDraft(${draft.id})" class="action-btn p-2 text-xf-info hover:bg-blue-50" title="预览">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                ${draft.status === 'draft' ? `
+                                    <button onclick="publishDraft(${draft.id})" class="action-btn p-2 text-xf-success hover:bg-green-50" title="发布">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                    </button>
+                                ` : ''}
+                                <button onclick="deleteDraft(${draft.id})" class="action-btn p-2 text-xf-danger hover:bg-red-50" title="删除">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // 更新选中计数
+            updateSelectedCount();
+        }
+        
+        // 根据状态过滤草稿
+        function filterDraftsByStatus(drafts, status) {
+            if (status === "all") return drafts;
+            return drafts.filter(draft => draft.status === status);
+        }
+        
+        // 根据搜索查询过滤草稿
+        function searchDraftsByQuery(drafts, query) {
+            if (!query) return drafts;
+            
+            const lowerQuery = query.toLowerCase();
+            return drafts.filter(draft => 
+                draft.title.toLowerCase().includes(lowerQuery) || 
+                draft.excerpt.toLowerCase().includes(lowerQuery) ||
+                draft.content.toLowerCase().includes(lowerQuery) ||
+                draft.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+            );
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                draft: "草稿",
+                pending: "待修改",
+                published: "已发布",
+                archived: "已归档"
+            };
+            return statusMap[status] || status;
+        }
+        
+        // 更新草稿计数
+        function updateDraftCount() {
+            const filteredDrafts = filterDraftsByStatus(draftData, currentFilter);
+            const searchedDrafts = searchDraftsByQuery(filteredDrafts, searchQuery);
+            const countElement = document.getElementById('draft-count');
+            
+            countElement.textContent = `${searchedDrafts.length} 篇草稿`;
+        }
+        
+        // 更新选中计数
+        function updateSelectedCount() {
+            selectedDrafts = draftData.filter(draft => draft.selected);
+            const selectedCount = selectedDrafts.length;
+            
+            // 更新页面显示
+            document.getElementById('selected-count').textContent = selectedCount;
+            document.getElementById('batch-selected-count').textContent = selectedCount;
+            
+            // 显示/隐藏批量操作栏
+            const batchBar = document.getElementById('batch-actions-bar');
+            if (selectedCount > 0) {
+                batchBar.classList.remove('hidden');
+            } else {
+                batchBar.classList.add('hidden');
+            }
+            
+            // 更新全选框状态
+            const allSelected = draftData.length > 0 && draftData.every(draft => draft.selected);
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+            if (allSelected) {
+                selectAllCheckbox.classList.add('selected');
+            } else {
+                selectAllCheckbox.classList.remove('selected');
+            }
+        }
+        
+        // 更新分页器
+        function updatePagination() {
+            const filteredDrafts = filterDraftsByStatus(draftData, currentFilter);
+            const searchedDrafts = searchDraftsByQuery(filteredDrafts, searchQuery);
+            const totalPages = Math.ceil(searchedDrafts.length / itemsPerPage);
+            
+            const paginationContainer = document.getElementById('pagination-container');
+            
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                return;
+            }
+            
+            paginationContainer.classList.remove('hidden');
+            
+            let paginationHtml = `
+                <div class="flex items-center gap-1">
+                    <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="changePage(${currentPage - 1})">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+            `;
+            
+            // 生成页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    paginationHtml += `
+                        <button class="pagination-btn ${currentPage === i ? 'active' : ''}" onclick="changePage(${i})">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationHtml += `<span class="px-2 text-xf-medium">...</span>`;
+                }
+            }
+            
+            paginationHtml += `
+                    <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="changePage(${currentPage + 1})">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            
+            paginationContainer.innerHTML = paginationHtml;
+        }
+        
+        // 切换筛选器
+        function filterDrafts(status) {
+            currentFilter = status;
+            currentPage = 1;
+            
+            // 更新筛选器按钮状态
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-filter') === status) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderDraftList();
+            updateDraftCount();
+            updatePagination();
+        }
+        
+        // 搜索草稿
+        function searchDrafts() {
+            searchQuery = document.getElementById('search-input').value;
+            currentPage = 1;
+            
+            renderDraftList();
+            updateDraftCount();
+            updatePagination();
+        }
+        
+        // 切换选择草稿
+        function toggleSelectDraft(draftId) {
+            const draft = draftData.find(d => d.id === draftId);
+            if (draft) {
+                draft.selected = !draft.selected;
+                renderDraftList();
+            }
+        }
+        
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const filteredDrafts = filterDraftsByStatus(draftData, currentFilter);
+            const searchedDrafts = searchDraftsByQuery(filteredDrafts, searchQuery);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedDrafts = searchedDrafts.slice(startIndex, endIndex);
+            
+            const allSelected = paginatedDrafts.every(draft => draft.selected);
+            
+            paginatedDrafts.forEach(draft => {
+                draft.selected = !allSelected;
+            });
+            
+            renderDraftList();
+        }
+        
+        // 清除选择
+        function clearSelection() {
+            draftData.forEach(draft => {
+                draft.selected = false;
+            });
+            
+            renderDraftList();
+        }
+        
+        // 切换页面
+        function changePage(page) {
+            const filteredDrafts = filterDraftsByStatus(draftData, currentFilter);
+            const searchedDrafts = searchDraftsByQuery(filteredDrafts, searchQuery);
+            const totalPages = Math.ceil(searchedDrafts.length / itemsPerPage);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderDraftList();
+            updatePagination();
+        }
+        
+        // 编辑草稿
+        function editDraft(draftId) {
+            showMessage(`正在打开草稿 ${draftId} 进行编辑`, 'info');
+            // 实际应用中这里会跳转到编辑器页面
+            // window.location.href = `./发布.html?draft=${draftId}`;
+        }
+        
+        // 预览草稿
+        function previewDraft(draftId) {
+            showMessage(`正在预览草稿 ${draftId}`, 'info');
+            // 实际应用中这里会打开预览窗口或跳转到预览页面
+        }
+        
+        // 发布草稿
+        function publishDraft(draftId) {
+            const draft = draftData.find(d => d.id === draftId);
+            if (draft) {
+                draft.status = 'published';
+                showMessage(`草稿 "${draft.title}" 已发布`, 'success');
+                renderDraftList();
+                updateDraftCount();
+            }
+        }
+        
+        // 删除草稿
+        function deleteDraft(draftId) {
+            if (!confirm('确定要删除这篇草稿吗？此操作不可撤销。')) return;
+            
+            const index = draftData.findIndex(d => d.id === draftId);
+            if (index !== -1) {
+                draftData.splice(index, 1);
+                showMessage('草稿已删除', 'success');
+                renderDraftList();
+                updateDraftCount();
+                updatePagination();
+            }
+        }
+        
+        // 批量删除草稿
+        function batchDeleteDrafts() {
+            const selectedCount = selectedDrafts.length;
+            if (selectedCount === 0) return;
+            
+            if (!confirm(`确定要删除选中的 ${selectedCount} 篇草稿吗？此操作不可撤销。`)) return;
+            
+            // 删除选中的草稿
+            selectedDrafts.forEach(draft => {
+                const index = draftData.findIndex(d => d.id === draft.id);
+                if (index !== -1) {
+                    draftData.splice(index, 1);
+                }
+            });
+            
+            showMessage(`已删除 ${selectedCount} 篇草稿`, 'success');
+            clearSelection();
+            renderDraftList();
+            updateDraftCount();
+            updatePagination();
+        }
+        
+        // 批量发布草稿
+        function batchPublishDrafts() {
+            const selectedCount = selectedDrafts.length;
+            if (selectedCount === 0) return;
+            
+            selectedDrafts.forEach(draft => {
+                draft.status = 'published';
+            });
+            
+            showMessage(`已发布 ${selectedCount} 篇草稿`, 'success');
+            clearSelection();
+            renderDraftList();
+            updateDraftCount();
+        }
+        
+        // 批量归档草稿
+        function batchArchiveDrafts() {
+            const selectedCount = selectedDrafts.length;
+            if (selectedCount === 0) return;
+            
+            selectedDrafts.forEach(draft => {
+                draft.status = 'archived';
+            });
+            
+            showMessage(`已归档 ${selectedCount} 篇草稿`, 'success');
+            clearSelection();
+            renderDraftList();
+            updateDraftCount();
+        }
+        
+        // 清空所有草稿
+        function clearAllDrafts() {
+            if (draftData.length === 0) {
+                showMessage('没有草稿可清空', 'warning');
+                return;
+            }
+            
+            if (!confirm('确定要清空所有草稿吗？此操作不可撤销。')) return;
+            
+            // 在实际应用中，这里会清空数据
+            // draftData.length = 0;
+            
+            showMessage('已清空所有草稿', 'success');
+            renderDraftList();
+            updateDraftCount();
+            updatePagination();
+        }
+        
+        // 新建草稿
+        function newDraft() {
+            showMessage('正在创建新草稿...', 'info');
+            // 实际应用中这里会跳转到编辑器页面
+            // window.location.href = './发布.html';
+        }
+        
+        // 切换个人下拉菜单
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profile-dropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        // 点击外部关闭下拉
+        document.addEventListener('click', function (event) {
+            const profileGroup = document.querySelector('.relative.cursor-pointer');
+            const menu = document.getElementById('profile-dropdown');
+            if (profileGroup && !profileGroup.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // 切换侧边栏（移动端）
+        function toggleSidebar() {
+            const sidebar = document.querySelector('aside');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'info', duration = 3000) {
+            // 移除现有的消息
+            const existingMessage = document.querySelector('.message-toast');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 创建消息元素
+            const messageElement = document.createElement('div');
+            messageElement.className = `message-toast fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
+                type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' :
+                type === 'warning' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
+                type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' :
+                'bg-blue-50 text-blue-800 border border-blue-200'
+            }`;
+            
+            // 添加图标
+            let iconName = 'info';
+            if (type === 'success') iconName = 'check-circle';
+            if (type === 'warning') iconName = 'alert-circle';
+            if (type === 'error') iconName = 'x-circle';
+            
+            messageElement.innerHTML = `
+                <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                <span>${message}</span>
+            `;
+            
+            // 添加到页面
+            document.body.appendChild(messageElement);
+            lucide.createIcons();
+            
+            // 添加淡入动画
+            setTimeout(() => {
+                messageElement.style.opacity = '1';
+                messageElement.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            
+            // 定时移除
+            setTimeout(() => {
+                messageElement.style.opacity = '0';
+                messageElement.style.transform = 'translateX(-50%) translateY(-10px)';
+                messageElement.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 300);
+            }, duration);
+        }
+    </script>
+</body>
+
+</html>

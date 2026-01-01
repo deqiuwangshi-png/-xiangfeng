@@ -1,0 +1,154 @@
+/**
+ * 全局CSS样式文件
+ * 包含Tailwind CSS基础样式和自定义样式
+ */
+
+/* 导入Tailwind CSS层 */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* 基础优化样式 */
+@layer base {
+  body {
+    font-weight: 400;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+  
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+/* 组件样式 */
+@layer components {
+  /* 按钮样式 */
+  .btn-primary {
+    @apply bg-xf-primary hover:bg-xf-accent text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-xf-soft hover:bg-xf-info text-xf-dark font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+  
+  /* 卡片样式 */
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 border border-xf-soft;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+  }
+  
+  /* 表单样式 */
+  .form-input {
+    @apply w-full px-3 py-2 border border-xf-soft rounded-lg focus:ring-2 focus:ring-xf-primary focus:border-transparent outline-none transition-all duration-200;
+  }
+  
+  /* 文本样式 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-xf-primary to-xf-accent bg-clip-text text-transparent;
+  }
+}
+
+/* 工具类样式 */
+@layer utilities {
+  /* 玻璃拟态效果 */
+  .glass {
+    @apply backdrop-blur-md bg-white/30 border border-white/20 shadow-xl;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-md bg-xf-dark/30 border border-white/10 shadow-xl;
+  }
+  
+  /* 动画延迟 */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  
+  /* 文字阴影 */
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 渐变背景 */
+  .bg-gradient-xf {
+    @apply bg-gradient-to-br from-xf-bg via-xf-surface to-xf-soft;
+  }
+  
+  /* 响应式隐藏 */
+  .mobile-hidden {
+    @apply hidden sm:block;
+  }
+  
+  .desktop-hidden {
+    @apply block sm:hidden;
+  }
+}
+
+/* 自定义动画 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .glass {
+    background: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  .glass-dark {
+    background: rgba(37, 38, 61, 0.8) !important;
+  }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
