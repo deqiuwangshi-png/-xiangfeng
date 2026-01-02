@@ -6,11 +6,12 @@
 'use client';
 
 import { useState } from 'react';
-import { FormInput } from './FormInput';
-import { FormCheckbox } from './FormCheckbox';
-import { AuthButton } from './AuthButton';
 
-export function LoginForm() {
+interface LoginFormProps {
+  onSwitchToRegister: () => void;
+}
+
+export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -26,66 +27,67 @@ export function LoginForm() {
     setTimeout(() => {
       setIsLoading(false);
       console.log('登录数据:', formData);
-    }, 2000);
+      alert('登录成功！在实际应用中这里会跳转到主应用页面。');
+    }, 1500);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <FormInput
-        type="email"
-        placeholder="请输入邮箱地址"
-        value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        required
-        icon="✉️"
-      />
-      
-      <FormInput
-        type="password"
-        placeholder="请输入密码"
-        value={formData.password}
-        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-        required
-        icon="🔒"
-      />
-
-      <div className="flex items-center justify-between">
-        <FormCheckbox
-          checked={formData.rememberMe}
-          onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
-          label="记住我"
+      {/* 邮箱输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">账号</label>
+        <input
+          type="email"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="your@email.com"
+          required
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         />
-        <a href="#" className="text-sm text-xf-primary hover:text-xf-accent">
-          忘记密码？
+      </div>
+      
+      {/* 密码输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">密码</label>
+        <input
+          type="password"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="••••••••"
+          required
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        />
+      </div>
+      
+      {/* 记住我和忘记密码 */}
+      <div className="flex items-center justify-between text-sm">
+        <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
+          <input
+            type="checkbox"
+            className="custom-checkbox w-4 h-4 rounded border-xf-bg bg-xf-light checked:bg-xf-accent checked:border-xf-accent transition-all"
+            checked={formData.rememberMe}
+            onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
+          />
+          <span>记住我</span>
+        </label>
+        <a href="#" className="text-xf-info hover:text-xf-accent transition font-medium">忘记密码?</a>
+      </div>
+      
+      {/* 登录按钮 */}
+      <button
+        type="submit"
+        className="w-full bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide"
+        disabled={isLoading}
+      >
+        {isLoading ? <span className="loading-dots">登录中</span> : '登 录'}
+      </button>
+      
+      {/* 注册引导 */}
+      <div className="mt-8 flex justify-between text-sm text-xf-medium px-2">
+        <span className="text-xf-primary">新用户?</span>
+        <a href="#" className="hover:text-xf-accent transition font-medium text-xf-info" onClick={onSwitchToRegister}>
+          注册新账号 →
         </a>
-      </div>
-
-      <AuthButton type="submit" isLoading={isLoading} loadingText="登录中...">
-        登录
-      </AuthButton>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-xf-soft"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white/80 text-xf-medium">或者</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          className="flex items-center justify-center px-4 py-2 border border-xf-soft rounded-lg hover:bg-xf-light transition-colors"
-        >
-          <span className="text-sm">GitHub</span>
-        </button>
-        <button
-          type="button"
-          className="flex items-center justify-center px-4 py-2 border border-xf-soft rounded-lg hover:bg-xf-light transition-colors"
-        >
-          <span className="text-sm">Google</span>
-        </button>
       </div>
     </form>
   );

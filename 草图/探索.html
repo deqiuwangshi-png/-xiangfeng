@@ -367,53 +367,11 @@
     <!-- 主应用界面 -->
     <div id="app-view" class="flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden view-transition">
 
-        <!-- 左侧边栏 - 简化版 -->
-        <aside
-            class="w-[80px] xl:w-[220px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300">
-            <!-- 用户头像区域 - 添加用户名显示 -->
-            <div class="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3">
-                <div class="relative cursor-pointer" onclick="toggleProfileMenu()">
-                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7" alt="Avatar"
-                        class="w-10 h-10 rounded-full shadow-sm ring-2 ring-white">
-                    <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full">
-                    </div>
-                </div>
-
-                <!-- 用户名显示 - 仅在 xl 屏幕以上显示 -->
-                <div class="hidden xl:block pt-1">
-                    <div class="font-medium text-xf-dark text-sm mb-0.5">梦话</div>
-                    <div class="text-xs text-xf-primary">免费版</div>
-                </div>
-            </div>
-
-            <!-- 导航菜单 - 简化 -->
-            <nav class="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
-                <a href="./首页.html" onclick="switchTab('home', this)"
-                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
-                    <div class="nav-active-indicator"></div>
-                    <i data-lucide="home" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
-                    <span class="text-lg tracking-wider hidden xl:inline">首页</span>
-                </a>
-                <a href="./探索.html" onclick="switchTab('explore', this)"
-                    class="nav-item active flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-accent font-semibold transition-all relative group">
-                    <div class="nav-active-indicator"></div>
-                    <i data-lucide="compass" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
-                    <span class="text-lg tracking-wider hidden xl:inline">探索</span>
-                </a>
-                <a href="./发布卡片.html" onclick="switchTab('publish', this)"
-                    class="nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 text-xf-primary hover:text-xf-accent transition-all relative group">
-                    <div class="nav-active-indicator"></div>
-                    <i data-lucide="edit-3" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
-                    <span class="text-lg tracking-wider hidden xl:inline">发布</span>
-                </a>
-            </nav>
-
-            <!-- 品牌信息 - 简化 -->
-            <div class="mt-auto pt-6 border-t border-xf-bg/40 text-center">
-                <div class="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">© 2024 相逢</div>
-                <div class="text-xs text-xf-primary font-medium xl:hidden">相</div>
-            </div>
-        </aside>
+        <!-- 覆盖层 - 用于移动端侧边栏 -->
+        <div id="nav-overlay" class="nav-overlay"></div>
+        
+        <!-- 左侧边栏 - 引用组件 -->
+        <div id="nav-component-container"></div>
 
         <!-- 主内容区域 - 探索页面 -->
         <main class="flex-1 h-full overflow-y-auto no-scrollbar px-6 md:px-10 pt-8 pb-20 relative scroll-smooth"
@@ -807,16 +765,26 @@
             </div>
         </aside>
 
-        <!-- 移动端侧边栏切换按钮 -->
-        <button
-            class="lg:hidden fixed bottom-6 right-6 z-40 w-12 h-12 bg-white shadow-soft rounded-full flex items-center justify-center text-xf-primary"
-            onclick="toggleSidebar()">
-            <i data-lucide="sidebar" class="w-5 h-5"></i>
-        </button>
+
     </div>
 
+    <!-- 引用导航栏组件 -->
+    <link rel="stylesheet" href="./components/nav-component.css">
+    <script src="./components/nav-component.js"></script>
+    
     <script>
         // 初始化图标
+        // 加载导航栏组件
+        function loadNavComponent() {
+            fetch('./components/nav-component.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('nav-component-container').innerHTML = html;
+                    // 初始化导航栏组件
+                    initNavComponent();
+                })
+                .catch(error => console.error('加载导航栏组件失败:', error));
+        }
         lucide.createIcons();
 
         // 页面加载后的优雅浮现效果
@@ -1058,7 +1026,62 @@
                 }, 300);
             }, 3000);
         }
-    </script>
+    }
+    
+    // 初始化图标
+    lucide.createIcons();
+
+    // 加载导航栏组件
+    function loadNavComponent() {
+        fetch('./components/nav-component.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('nav-component-container').innerHTML = html;
+                // 初始化导航栏组件
+                initNavComponent();
+            })
+            .catch(error => console.error('加载导航栏组件失败:', error));
+    }
+
+    // 页面加载后的优雅浮现效果
+    document.addEventListener('DOMContentLoaded', function () {
+        const mainApp = document.getElementById('app-view');
+        if (mainApp && !mainApp.classList.contains('hidden')) {
+            mainApp.style.opacity = '0';
+            mainApp.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                mainApp.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                mainApp.style.opacity = '1';
+                mainApp.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // 为所有可点击元素添加按下效果
+        document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+            el.addEventListener('mousedown', function () {
+                this.style.transform = 'scale(0.98)';
+            });
+            el.addEventListener('mouseup', function () {
+                this.style.transform = '';
+            });
+            el.addEventListener('mouseleave', function () {
+                this.style.transform = '';
+            });
+        });
+        
+        // 初始化探索路径
+        initExplorePath();
+        // 初始化过滤器
+        initFilters();
+        
+        // 加载导航栏组件
+        loadNavComponent();
+    });
+</script>
+
+<!-- 引用导航栏组件 -->
+<link rel="stylesheet" href="./components/nav-component.css">
+<script src="./components/nav-component.js"></script>
 </body>
 
 </html>

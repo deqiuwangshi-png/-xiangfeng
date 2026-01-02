@@ -1,31 +1,17 @@
-'use client';
+/**
+ * 动态背景组件
+ * 基于登录注册页.html设计
+ * 实现浮动的渐变圆形背景效果
+ */
 
 export function AnimatedBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* 背景渐变 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-xf-primary/20 via-xf-secondary/20 to-xf-accent/20" />
+    <>
+      {/* 左上角浮动背景 */}
+      <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-xf-soft to-xf-surface blur-[120px] opacity-60 animate-pulse-subtle"></div>
       
-      {/* 动态形状 */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-xf-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-xf-secondary/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-      <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-xf-accent/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
-      
-      {/* 装饰性粒子 */}
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-xf-primary/20 rounded-full animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`
-            }}
-          />
-        ))}
-      </div>
-    </div>
+      {/* 右下角浮动背景 */}
+      <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] rounded-full bg-gradient-to-tl from-xf-primary/30 to-xf-accent/20 blur-[100px] opacity-50 animate-float"></div>
+    </>
   );
 }

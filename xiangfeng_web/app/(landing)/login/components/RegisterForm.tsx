@@ -6,100 +6,118 @@
 'use client';
 
 import { useState } from 'react';
-import { FormInput } from './FormInput';
-import { FormCheckbox } from './FormCheckbox';
-import { AuthButton } from './AuthButton';
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  onSwitchToLogin: () => void;
+}
+
+export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
+    username: '',
     password: '',
     confirmPassword: '',
-    agreeToTerms: false
+    agreeTerms: false
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      alert('密码不匹配');
-      return;
-    }
-    
-    if (!formData.agreeToTerms) {
-      alert('请同意服务条款');
-      return;
-    }
-
     setIsLoading(true);
     
     // 模拟注册逻辑
     setTimeout(() => {
       setIsLoading(false);
       console.log('注册数据:', formData);
-    }, 2000);
+      alert('注册成功！请使用新账号登录。');
+      onSwitchToLogin();
+    }, 1500);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <FormInput
-        type="text"
-        placeholder="请输入用户名"
-        value={formData.username}
-        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-        required
-        icon="👤"
-      />
+      {/* 邮箱输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">邮箱</label>
+        <input
+          type="email"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="your@email.com"
+          required
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        />
+      </div>
       
-      <FormInput
-        type="email"
-        placeholder="请输入邮箱地址"
-        value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        required
-        icon="✉️"
-      />
+      {/* 用户名输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">用户名</label>
+        <input
+          type="text"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="选择用户名"
+          required
+          value={formData.username}
+          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+        />
+      </div>
       
-      <FormInput
-        type="password"
-        placeholder="请输入密码"
-        value={formData.password}
-        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-        required
-        icon="🔒"
-      />
+      {/* 密码输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">密码</label>
+        <input
+          type="password"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="••••••••"
+          required
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+        />
+      </div>
       
-      <FormInput
-        type="password"
-        placeholder="请确认密码"
-        value={formData.confirmPassword}
-        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-        required
-        icon="🔐"
-      />
-
-      <FormCheckbox
-        checked={formData.agreeToTerms}
-        onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
-        label={
-          <span>
-            我已阅读并同意
-            <a href="/terms" className="text-xf-primary hover:text-xf-accent mx-1">
-              服务条款
-            </a>
-            和
-            <a href="/privacy" className="text-xf-primary hover:text-xf-accent mx-1">
-              隐私政策
-            </a>
-          </span>
-        }
-      />
-
-      <AuthButton type="submit" isLoading={isLoading} loadingText="注册中...">
-        注册
-      </AuthButton>
+      {/* 确认密码输入框 */}
+      <div>
+        <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">确认密码</label>
+        <input
+          type="password"
+          className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+          placeholder="••••••••"
+          required
+          value={formData.confirmPassword}
+          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+        />
+      </div>
+      
+      {/* 服务条款复选框 */}
+      <div className="flex items-center justify-between text-sm">
+        <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
+          <input
+            type="checkbox"
+            className="custom-checkbox w-4 h-4 rounded border-xf-bg bg-xf-light checked:bg-xf-accent checked:border-xf-accent transition-all"
+            checked={formData.agreeTerms}
+            onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
+            required
+          />
+          <span>我已阅读并同意服务条款</span>
+        </label>
+      </div>
+      
+      {/* 注册按钮 */}
+      <button
+        type="submit"
+        className="w-full bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide"
+        disabled={isLoading}
+      >
+        {isLoading ? <span className="loading-dots">注册中</span> : '注册'}
+      </button>
+      
+      {/* 登录引导 */}
+      <div className="mt-8 flex justify-between text-sm text-xf-medium px-2">
+        <span className="text-xf-primary">已有账号?</span>
+        <a href="#" className="hover:text-xf-accent transition font-medium text-xf-info" onClick={onSwitchToLogin}>
+          立即登录 →
+        </a>
+      </div>
     </form>
   );
 }

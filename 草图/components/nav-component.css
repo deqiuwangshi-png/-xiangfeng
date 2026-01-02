@@ -1,0 +1,160 @@
+/* 导航栏组件样式 */
+/* 基础样式 */
+.sidebar-bg {
+    background: linear-gradient(180deg, #F7F9FC 0%, #E8EBF2 100%);
+    border-right: 1px solid rgba(210, 195, 213, 0.3);
+}
+
+/* 导航栏激活指示器 */
+.nav-active-indicator {
+    position: absolute;
+    left: 0;
+    height: 60%;
+    width: 4px;
+    background-color: #3A3C6E;
+    border-radius: 0 4px 4px 0;
+    opacity: 0;
+    transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+.nav-item.active .nav-active-indicator {
+    opacity: 1;
+    height: 80%;
+}
+
+/* 优化按钮按压效果 */
+button:active,
+.cursor-pointer:active {
+    transform: scale(0.985);
+    transition-duration: 50ms;
+}
+
+/* 图标悬停的弹性效果 */
+i[data-lucide] {
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.group:hover i[data-lucide] {
+    transform: scale(1.15);
+}
+
+/* 淡入动画 */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    #nav-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    #nav-sidebar.open {
+        transform: translateX(0);
+    }
+
+    #mobile-sidebar-toggle {
+        display: flex;
+    }
+}
+
+@media (min-width: 769px) {
+    #mobile-sidebar-toggle {
+        display: none;
+    }
+}
+
+/* 覆盖层 */
+#nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 45;
+    display: none;
+}
+
+#nav-overlay.active {
+    display: block;
+}
+
+/* 卡片背景增强 */
+.card-bg {
+    background: linear-gradient(145deg, #ffffff, #f5f7fa);
+    border: 1px solid rgba(225, 228, 234, 0.8);
+}
+
+/* 阴影效果 */
+.shadow-deep {
+    box-shadow: 0 8px 25px -5px rgba(58, 60, 110, 0.2);
+}
+
+/* 隐藏滚动条但保留功能 */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 增强对比度的文本颜色类 */
+.text-xf-dark {
+    color: #25263D;
+}
+
+.text-xf-primary {
+    color: #6A5B8A;
+}
+
+.text-xf-accent {
+    color: #3A3C6E;
+}
+
+.text-xf-medium {
+    color: #8C8EA9;
+}
+
+/* 背景颜色类 */
+.bg-xf-bg {
+    background-color: #E1E4EA;
+}
+
+.bg-xf-light {
+    background-color: #F7F9FC;
+}
+
+.bg-xf-subtle {
+    background-color: rgba(165, 193, 214, 0.1);
+}
+
+/* 边框颜色类 */
+.border-xf-bg {
+    border-color: #E1E4EA;
+}
+
+/* 阴影类 */
+.shadow-soft {
+    box-shadow: 0 4px 20px -2px rgba(165, 193, 214, 0.3);
+}
