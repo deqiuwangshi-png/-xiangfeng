@@ -5,7 +5,8 @@
 
 'use client';
 
-import { GitMerge, Menu, Brain, Users, Sword, Calendar, Check, X, Twitter, Instagram, Github } from 'lucide-react';
+import { Menu, Brain, Users, Sword, Calendar, Check, X, Twitter, Instagram, Github } from 'lucide-react';
+import { Logo } from '@/src/components/brand/Logo';
 
 export default function LandingPage() {
   // 移动端菜单切换函数
@@ -21,14 +22,8 @@ export default function LandingPage() {
       {/* 导航栏 */}
       <nav className="fixed top-0 z-50 w-full h-16 glass border-b border-xf-bg/30 transition-all duration-300 will-change-transform">
         <div className="container mx-auto px-6 flex justify-between items-center h-full">
-          {/* Logo - 已添加图标 */}
-          <div className="flex items-center gap-3">
-            <div className="logo-icon w-8 h-8 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center animate-logo-pulse">
-              {/* 使用 "git-merge" 图标，象征连接和相遇 */}
-              <GitMerge className="w-4.5 h-4.5 text-white lucide-icon" />
-            </div>
-            <span className="font-serif text-xl font-bold text-gradient">相逢</span>
-          </div>
+          {/* 官网唯一标识 */}
+          <Logo size="md" showText={true} />
 
           {/* 桌面导航菜单 */}
           <div className="hidden md:flex items-center gap-8">
@@ -112,9 +107,7 @@ export default function LandingPage() {
                     <div className="p-6 md:p-8">
                       <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
-                          <div className="logo-icon w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-xl flex items-center justify-center">
-                            <GitMerge className="w-6 h-6 text-white lucide-icon" />
-                          </div>
+                          <Logo size="md" showText={false} />
                           <div>
                             <div className="h-3 w-24 bg-xf-primary/30 rounded-full mb-2"></div>
                             <div className="h-2 w-16 bg-xf-medium/20 rounded-full"></div>
@@ -470,10 +463,7 @@ export default function LandingPage() {
             {/* Logo和描述 */}
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <div className="logo-icon w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center">
-                  <GitMerge className="w-6 h-6 text-white lucide-icon" />
-                </div>
-                <span className="font-serif text-2xl font-bold text-white">相逢</span>
+                <Logo size="md" showText={true} className="text-white" />
               </div>
               <p className="text-white/70 max-w-md mb-6">相逢是一个深度思考者社群，致力于连接不同领域的思考者，促进跨界交流与认知升级。</p>
               <div className="flex gap-4">

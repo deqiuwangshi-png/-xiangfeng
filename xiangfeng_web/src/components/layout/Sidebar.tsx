@@ -6,8 +6,10 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Home, Compass, Edit3, User, Settings, LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface SidebarProps {
   activeTab?: 'home' | 'explore' | 'publish';
@@ -17,18 +19,33 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // 创建ref用于访问DOM元素
+  const profileRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // 防抖函数
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(null, args), delay);
+    };
+  };
 
   // 检测窗口尺寸，设置移动端标志
   useEffect(() => {
-    const handleResize = () => {
+    // 使用防抖处理resize事件
+    const debouncedHandleResize = debounce(() => {
       setIsMobile(window.innerWidth < 1280); // xl breakpoint
-    };
+    }, 100);
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
+    debouncedHandleResize();
+    window.addEventListener('resize', debouncedHandleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', debouncedHandleResize);
     };
   }, []);
 
@@ -45,8 +62,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
   // 点击外部关闭下拉菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const profileGroup = document.querySelector('.relative.cursor-pointer');
-      if (profileGroup && !profileGroup.contains(event.target as Node)) {
+      // 使用ref替代document.querySelector
+      const isClickOutsideProfile = profileRef.current && !profileRef.current.contains(event.target as Node);
+      const isClickOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(event.target as Node);
+      
+      if (profileMenuOpen && isClickOutsideProfile && isClickOutsideDropdown) {
         closeProfileMenu();
       }
     };
@@ -56,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [profileMenuOpen]);
 
   // 切换标签
   const switchTab = (tabName: 'home' | 'explore' | 'publish') => {
@@ -68,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
 
   // 导航菜单项配置
   const navItems = [
-    { id: 'home', label: '首页', icon: <Home className="w-5 h-5 transition-transform group-hover:scale-110" />, href: '/', tab: 'home' as const },
+    { id: 'home', label: '首页', icon: <Home className="w-5 h-5 transition-transform group-hover:scale-110" />, href: '/home', tab: 'home' as const },
     { id: 'explore', label: '探索', icon: <Compass className="w-5 h-5 transition-transform group-hover:scale-110" />, href: '/explore', tab: 'explore' as const },
     { id: 'publish', label: '发布', icon: <Edit3 className="w-5 h-5 transition-transform group-hover:scale-110" />, href: '/publish', tab: 'publish' as const },
   ];
@@ -79,13 +99,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
     >
       {/* 用户头像区域 */}
       <div className="mb-8 pl-2 flex items-center justify-center xl:justify-start xl:items-start gap-4 xl:gap-3 relative">
-        <div className="relative cursor-pointer" onClick={toggleProfileMenu}>
-          <img
+        <div className="relative cursor-pointer" onClick={toggleProfileMenu} ref={profileRef}>
+            <img
             src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7"
             alt="Avatar"
             className="w-10 h-10 rounded-full shadow-sm ring-2 ring-white"
-          />
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+            />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
         </div>
 
         {/* 用户名显示 - 仅在 xl 屏幕以上显示 */}
@@ -98,30 +118,34 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
         {profileMenuOpen && (
           <div
             id="profile-dropdown"
+            ref={dropdownRef}
             className="absolute top-16 left-0 w-48 card-bg backdrop-blur-md rounded-2xl shadow-deep py-2 z-50 border border-xf-bg/50 origin-top-left transition-all fade-in-up"
           >
-            <a
+            <Link
               href="/profile"
               className="flex items-center gap-3 px-5 py-3 text-sm text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent transition"
+              onClick={closeProfileMenu}
             >
               <User className="w-4 h-4" />
               个人主页
-            </a>
-            <a
+            </Link>
+            <Link
               href="/settings"
               className="flex items-center gap-3 px-5 py-3 text-sm text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent transition"
+              onClick={closeProfileMenu}
             >
               <Settings className="w-4 h-4" />
               设置
-            </a>
+            </Link>
             <div className="h-px bg-xf-bg/80 my-2 mx-4"></div>
-            <a
+            <Link
               href="/login"
               className="flex items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50/50 transition"
+              onClick={closeProfileMenu}
             >
               <LogOut className="w-4 h-4" />
               退出登录
-            </a>
+            </Link>
           </div>
         )}
       </div>
@@ -129,24 +153,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
       {/* 导航菜单 */}
       <nav className="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
         {navItems.map((item) => (
-          <a
+          <Link
             key={item.id}
             href={item.href}
-            onClick={(e) => {
-              e.preventDefault(); // 阻止默认导航行为
-              window.location.href = item.href; // 使用正确的路由跳转
+            onClick={() => {
               switchTab(item.tab);
             }}
-            className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${
-              activeTab === item.tab
+            className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${activeTab === item.tab
                 ? 'text-xf-accent font-semibold'
-                : 'text-xf-primary hover:text-xf-accent'
-            }`}
+                : 'text-xf-primary hover:text-xf-accent'}`}
           >
             <div className="nav-active-indicator"></div>
             {item.icon}
             <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>
-          </a>
+          </Link>
         ))}
       </nav>
 
