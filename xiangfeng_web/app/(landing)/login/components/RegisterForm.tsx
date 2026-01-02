@@ -97,7 +97,7 @@ export function RegisterForm() {
         }
       />
 
-      <AuthButton type="submit" isLoading={isLoading}>
+      <AuthButton type="submit" isLoading={isLoading} loadingText="注册中...">
         注册
       </AuthButton>
     </form>

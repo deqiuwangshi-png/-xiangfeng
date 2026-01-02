@@ -1,19 +1,91 @@
 /**
  * 全局CSS样式文件
  * 包含Tailwind CSS基础样式和自定义样式
+ * Tailwind CSS v4 配置
  */
 
-/* 导入Tailwind CSS层 */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+/* Tailwind CSS v4 基础导入和主题配置 */
+@import "tailwindcss";
+
+/* 自定义颜色主题 */
+@theme {
+  --color-xf-bg: #E1E4EA;
+  --color-xf-surface: #D2C3D5;
+  --color-xf-primary: #6A5B8A;
+  --color-xf-accent: #3A3C6E;
+  --color-xf-info: #4A6FA5;
+  --color-xf-soft: #A5C1D6;
+  --color-xf-dark: #25263D;
+  --color-xf-light: #F7F9FC;
+  --color-xf-medium: #8C8EA9;
+  --color-xf-success: #4CAF50;
+  --color-xf-warning: #FF9800;
+  
+  /* 字体配置 */
+  --font-family-sans: "Noto Sans SC", sans-serif;
+  --font-family-serif: "Noto Serif SC", serif;
+  
+  /* 动画配置 */
+  --animate-fade-in: fadeIn 1s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-subtle: pulseSubtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-scale-in: scaleIn 0.5s ease-out;
+  --animate-gradient-shift: gradientShift 8s ease infinite;
+  --animate-logo-spin: logoSpin 8s ease-in-out infinite;
+  --animate-logo-pulse: logoPulse 3s ease-in-out infinite;
+  
+  /* 间距配置 */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  
+  /* 最大宽度配置 */
+  --max-width-8xl: 88rem;
+  --max-width-9xl: 96rem;
+  
+  /* 字体大小配置 */
+  --font-size-xs: 0.75rem;
+  --font-size-xs--line-height: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-sm--line-height: 1.25rem;
+  --font-size-base: 1rem;
+  --font-size-base--line-height: 1.5rem;
+  --font-size-lg: 1.125rem;
+  --font-size-lg--line-height: 1.75rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xl--line-height: 1.75rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-2xl--line-height: 2rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-3xl--line-height: 2.25rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-4xl--line-height: 2.5rem;
+  --font-size-5xl: 3rem;
+  --font-size-5xl--line-height: 1;
+  --font-size-6xl: 3.75rem;
+  --font-size-6xl--line-height: 1;
+  --font-size-7xl: 4.5rem;
+  --font-size-7xl--line-height: 1;
+  --font-size-8xl: 6rem;
+  --font-size-8xl--line-height: 1;
+  
+  /* 阴影配置 */
+  --shadow-soft: 0 4px 20px -2px rgba(165, 193, 214, 0.3);
+  --shadow-glow: 0 0 15px rgba(106, 91, 138, 0.5);
+  --shadow-elevated: 0 15px 35px -10px rgba(58, 60, 110, 0.15);
+  --shadow-deep: 0 8px 25px -5px rgba(58, 60, 110, 0.2);
+  --shadow-2xl: 0 25px 50px -12px rgba(58, 60, 110, 0.25);
+}
 
 /* 基础优化样式 */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     font-weight: 400;
     -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
     overflow-x: hidden;
   }
   
@@ -41,20 +113,20 @@
 @layer components {
   /* 按钮样式 */
   .btn-primary {
-    @apply bg-xf-primary hover:bg-xf-accent text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white font-medium py-2 px-4 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98;
   }
   
   .btn-secondary {
-    @apply bg-xf-soft hover:bg-xf-info text-xf-dark font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-white hover:bg-xf-light border border-xf-bg/60 hover:border-xf-primary/30 text-xf-primary font-medium py-2 px-4 rounded-xl transition-all shadow-md hover:shadow-lg;
   }
   
   /* 卡片样式 */
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6 border border-xf-soft;
+    @apply bg-white rounded-3xl p-8 shadow-soft transition-all duration-400 cubic-bezier(0.175, 0.885, 0.32, 1.1);
   }
   
-  .card-hover {
-    @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+  .card:hover {
+    @apply transform -translate-y-2 shadow-elevated;
   }
   
   /* 表单样式 */
@@ -66,17 +138,74 @@
   .text-gradient {
     @apply bg-gradient-to-r from-xf-primary to-xf-accent bg-clip-text text-transparent;
   }
+  
+  /* 标签样式 */
+  .tag {
+    @apply inline-flex items-center gap-2 px-3 py-1 border border-xf-soft/30 rounded-full text-xs font-medium transition-all duration-200 bg-white/80;
+  }
+  
+  .tag:hover {
+    @apply border-xf-primary bg-xf-primary text-white;
+  }
+  
+  /* 导航激活指示器 */
+  .nav-active-indicator {
+    @apply relative inline-block;
+  }
+  
+  .nav-active-indicator:after {
+    @apply content-[''] absolute bottom-[-4px] left-0 w-0 h-[2px] bg-xf-primary transition-all duration-300;
+  }
+  
+  .nav-active-indicator.active:after {
+    @apply w-full;
+  }
+  
+  /* Logo样式 */
+  .logo-icon {
+    @apply relative flex items-center justify-center;
+  }
+  
+  .logo-icon::before {
+    @apply content-[''] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[130%] h-[130%] rounded-2xl bg-radial-gradient(ellipse_at_center,_rgba(255,255,255,0.3)_0%,_rgba(255,255,255,0)_70%) opacity-0 transition-all duration-300;
+  }
+  
+  .logo-icon:hover::before {
+    @apply opacity-1;
+  }
+  
+  /* 装饰性形状 */
+  .blob {
+    @apply rounded-full animate-[blobAnimation_20s_ease-in-out_infinite];
+  }
+  
+  /* 卡片悬停效果 */
+  .card-hover {
+    @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+  }
 }
 
 /* 工具类样式 */
 @layer utilities {
   /* 玻璃拟态效果 */
   .glass {
-    @apply backdrop-blur-md bg-white/30 border border-white/20 shadow-xl;
+    @apply backdrop-blur-md bg-white/90 border border-white/20 shadow-xl;
   }
   
   .glass-dark {
     @apply backdrop-blur-md bg-xf-dark/30 border border-white/10 shadow-xl;
+  }
+  
+  /* 文本对比度类 */
+  .text-contrast-high { @apply text-xf-dark; }
+  .text-contrast-medium { @apply text-xf-accent; }
+  .text-contrast-low { @apply text-xf-primary; }
+  .text-contrast-muted { @apply text-xf-medium; }
+  
+  /* 隐藏滚动条但保留功能 */
+  .no-scrollbar::-webkit-scrollbar { @apply hidden; }
+  .no-scrollbar {
+    @apply -ms-overflow-style-none scrollbar-width-none;
   }
   
   /* 动画延迟 */
@@ -85,6 +214,11 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
+  .delay-600 { animation-delay: 600ms; }
+  .delay-700 { animation-delay: 700ms; }
+  .delay-800 { animation-delay: 800ms; }
+  .delay-900 { animation-delay: 900ms; }
+  .delay-1000 { animation-delay: 1000ms; }
   
   /* 文字阴影 */
   .text-shadow {
@@ -100,6 +234,15 @@
     @apply bg-gradient-to-br from-xf-bg via-xf-surface to-xf-soft;
   }
   
+  .gradient-bg {
+    @apply bg-gradient-to-br from-xf-soft/30 via-xf-primary/10 to-xf-accent/20 bg-[length:400%_400%] animate-gradient-shift;
+  }
+  
+  /* 网格背景 */
+  .grid-bg {
+    @apply bg-[linear-gradient(rgba(225,228,234,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(225,228,234,0.1)_1px,transparent_1px)] bg-[size:40px_40px];
+  }
+  
   /* 响应式隐藏 */
   .mobile-hidden {
     @apply hidden sm:block;
@@ -108,12 +251,22 @@
   .desktop-hidden {
     @apply block sm:hidden;
   }
+  
+  /* 视图过渡 */
+  .view-transition {
+    @apply transition-opacity duration-500 transition-transform duration-500;
+  }
+  
+  /* 选择高亮 */
+  .selection-soft {
+    @apply selection:bg-xf-soft/50;
+  }
 }
 
 /* 自定义动画 */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-15px); }
 }
 
 @keyframes fadeIn {
@@ -122,8 +275,53 @@
 }
 
 @keyframes slideUp {
-  0% { transform: translateY(30px); opacity: 0; }
+  0% { transform: translateY(20px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scaleIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes logoSpin {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  50% { transform: rotate(180deg); }
+  75% { transform: rotate(270deg); }
+}
+
+@keyframes logoPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes blobAnimation {
+  0%, 100% { border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%; }
+  25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+  50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+  75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
 }
 
 /* 打印样式 */

@@ -60,7 +60,7 @@ export function LoginForm() {
         </a>
       </div>
 
-      <AuthButton type="submit" isLoading={isLoading}>
+      <AuthButton type="submit" isLoading={isLoading} loadingText="登录中...">
         登录
       </AuthButton>
 
