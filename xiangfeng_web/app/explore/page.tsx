@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import Sidebar from '@/components/Layout/Sidebar';
+import Sidebar from '@/src/components/layout/Sidebar';
 import { Search, Clock, MessageSquare, Users, Heart, Star, Plus, Lightbulb } from 'lucide-react';
 
 const ExplorePage = () => {

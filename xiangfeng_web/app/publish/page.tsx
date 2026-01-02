@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Sidebar from '@/components/Layout/Sidebar';
+import Sidebar from '@/src/components/layout/Sidebar';
 import { Save, Send, Bold, Italic, Underline, Heading, Quote, Code, Link, Image, List, ListOrdered, Minus, Eraser, Undo, Redo, ArrowUpToLine, Maximize, ChevronDown, ChevronUp } from 'lucide-react';
 
 const PublishPage = () => {
@@ -102,7 +102,7 @@ const PublishPage = () => {
     const toolbarLeft = editorCenter - toolbarRect.width / 2;
     
     if (toolbarRef.current) {
-      toolbarRef.current.style.left = `${editorLeft}px`;
+      toolbarRef.current.style.left = `${toolbarLeft}px`;
       toolbarRef.current.style.transform = 'translateX(0)';
     }
   };
@@ -363,7 +363,7 @@ const PublishPage = () => {
                 id="title-input"
                 className="editor-title"
                 placeholder="为你的文章起一个引人入胜的标题"
-                autocomplete="off"
+                autoComplete="off"
                 spellCheck="false"
                 maxLength={100}
                 value={title}
@@ -378,7 +378,7 @@ const PublishPage = () => {
                 id="content-textarea"
                 className="editor-content"
                 placeholder="开始书写你的故事...（支持Markdown格式）"
-                autocomplete="off"
+                autoComplete="off"
                 spellCheck="true"
                 rows={30}
                 maxLength={20000}

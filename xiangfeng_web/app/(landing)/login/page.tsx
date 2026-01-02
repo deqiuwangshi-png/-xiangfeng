@@ -36,7 +36,7 @@ export default function LoginPage() {
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     
     checkboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
+      checkbox.addEventListener('change', function(this: HTMLInputElement) {
         if (this.checked) {
           this.style.backgroundImage = `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolyline points="20 6 9 17 4 12"%3E%3C/polyline%3E%3C/svg%3E')`;
           this.style.backgroundSize = '12px';
