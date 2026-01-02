@@ -107,6 +107,25 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+  
+  /* 英雄区域滚动条 */
+  section.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  section.overflow-y-auto::-webkit-scrollbar-track {
+    background: rgba(225, 228, 234, 0.3);
+    border-radius: 3px;
+  }
+  
+  section.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: rgba(106, 91, 138, 0.5);
+    border-radius: 3px;
+  }
+  
+  section.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(106, 91, 138, 0.7);
+  }
 }
 
 /* 组件样式 */
@@ -126,7 +145,7 @@
   }
   
   .card:hover {
-    @apply transform -translate-y-2 shadow-elevated;
+    @apply transform -translate-y-8 shadow-elevated;
   }
   
   /* 表单样式 */

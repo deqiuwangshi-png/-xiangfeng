@@ -19,8 +19,8 @@ export default function LandingPage() {
   return (
     <div id="landing-view" className="min-h-screen flex flex-col bg-xf-light text-xf-dark antialiased font-sans selection-soft overflow-x-hidden">
       {/* 导航栏 */}
-      <nav className="sticky top-0 z-50 w-full glass border-b border-xf-bg/30">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <nav className="fixed top-0 z-50 w-full h-16 glass border-b border-xf-bg/30 transition-all duration-300 will-change-transform">
+        <div className="container mx-auto px-6 flex justify-between items-center h-full">
           {/* Logo - 已添加图标 */}
           <div className="flex items-center gap-3">
             <div className="logo-icon w-8 h-8 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center animate-logo-pulse">
@@ -50,13 +50,13 @@ export default function LandingPage() {
           </div>
 
           {/* 移动端菜单 */}
-          <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full glass-dark backdrop-blur-md border-b border-white/10 shadow-elevated">
+          <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 shadow-elevated">
             <div className="flex flex-col p-6 space-y-4">
-              <a href="#features" className="text-white hover:text-xf-soft font-medium py-2" onClick={toggleMobileMenu}>特色功能</a>
-              <a href="#how-it-works" className="text-white hover:text-xf-soft font-medium py-2" onClick={toggleMobileMenu}>如何运作</a>
-              <a href="#community" className="text-white hover:text-xf-soft font-medium py-2" onClick={toggleMobileMenu}>社群</a>
-              <a href="#pricing" className="text-white hover:text-xf-soft font-medium py-2" onClick={toggleMobileMenu}>定价</a>
-              <div className="pt-4 border-t border-white/10">
+              <a href="#features" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>特色功能</a>
+              <a href="#how-it-works" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>如何运作</a>
+              <a href="#community" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>社群</a>
+              <a href="#pricing" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>定价</a>
+              <div className="pt-4 border-t border-xf-bg/30">
                 <a href="/login" className="w-full py-3 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md block text-center">
                   立即体验
                 </a>
@@ -67,13 +67,13 @@ export default function LandingPage() {
       </nav>
 
       {/* 英雄区域 */}
-      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-32">
+      <section className="relative overflow-hidden h-[calc(100vh-64px)] overflow-y-auto pb-20 md:pb-32">
         {/* 背景装饰 */}
         <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-xf-soft/30 to-xf-primary/10 rounded-full blur-3xl animate-pulse-subtle"></div>
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-tr from-xf-surface/20 to-xf-accent/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] grid-bg opacity-20"></div>
 
-        <div className="container mx-auto px-6 relative z-10">
+        <div className="container mx-auto px-6 relative z-10 pt-8">
           <div className="max-w-4xl mx-auto text-center">
             {/* 标签 */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-xf-light/80 backdrop-blur-sm rounded-full mb-8 animate-fade-in">
@@ -84,7 +84,7 @@ export default function LandingPage() {
             {/* 主标题 */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 animate-fade-in" style={{animationDelay: "0.1s"}}>
               <span className="text-xf-accent">不止相遇</span>
-              <span className="block mt-2 text-xf-dark">更是<span className="text-gradient">改变</span></span>
+              <span className="block mt-2 text-xf-dark">更是<span className="text-xf-primary">改变</span></span>
             </h1>
 
             {/* 副标题 */}
@@ -151,8 +151,8 @@ export default function LandingPage() {
               </div>
               
               {/* 装饰元素 */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full bg-gradient-to-br from-xf-soft/40 to-xf-primary/20 animate-float"></div>
-              <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-gradient-to-tr from-xf-surface/40 to-xf-accent/20 animate-float" style={{animationDelay: "1s"}}></div>
+              <div className="absolute -top-4 -right-4 w-24 h-24 blob bg-gradient-to-br from-xf-soft/40 to-xf-primary/20"></div>
+              <div className="absolute -bottom-4 -left-4 w-20 h-20 blob bg-gradient-to-tr from-xf-surface/40 to-xf-accent/20"></div>
             </div>
           </div>
         </div>
@@ -454,13 +454,10 @@ export default function LandingPage() {
               <p className="text-lg text-xf-medium mb-8 max-w-2xl mx-auto">加入相逢，与深度思考者一起探索未知，突破认知边界</p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/login" className="btn-primary px-8 py-4 text-lg rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-98">
-                  开启深度之旅
-                </a>
-                <a href="#" className="btn-secondary px-8 py-4 text-lg rounded-2xl">
-                  了解更多
-                </a>
-              </div>
+              <a href="#" className="btn-secondary px-8 py-4 text-lg rounded-2xl">
+                了解更多
+              </a>
+            </div>
             </div>
           </div>
         </div>
@@ -474,11 +471,7 @@ export default function LandingPage() {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
                 <div className="logo-icon w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-white lucide-icon">
-                    <circle cx="18" cy="18" r="3"/>
-                    <circle cx="6" cy="6" r="3"/>
-                    <path d="M6 21V9a9 9 0 0 0 9 9"/>
-                  </svg>
+                  <GitMerge className="w-6 h-6 text-white lucide-icon" />
                 </div>
                 <span className="font-serif text-2xl font-bold text-white">相逢</span>
               </div>
