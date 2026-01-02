@@ -6,12 +6,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
 }
 
 export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     username: '',
@@ -29,8 +31,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
     setTimeout(() => {
       setIsLoading(false);
       console.log('注册数据:', formData);
-      alert('注册成功！请使用新账号登录。');
-      onSwitchToLogin();
+      router.push('/home');
     }, 1500);
   };
 

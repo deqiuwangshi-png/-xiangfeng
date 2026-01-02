@@ -6,8 +6,8 @@
 'use client';
 
 import { useState } from 'react';
-import Sidebar from '@/components/Layout/Sidebar';
-import { RefreshCw, Share2, Heart, MessageSquare, Clock, Eye } from 'lucide-react';
+import Sidebar from '@/src/components/layout/Sidebar';
+import { RefreshCw, Share2, Heart, MessageSquare, Clock, Eye, User } from 'lucide-react';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'explore' | 'publish'>('home');

@@ -6,12 +6,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
 }
 
 export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -27,7 +29,7 @@ export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     setTimeout(() => {
       setIsLoading(false);
       console.log('登录数据:', formData);
-      alert('登录成功！在实际应用中这里会跳转到主应用页面。');
+      router.push('/home');
     }, 1500);
   };
 
