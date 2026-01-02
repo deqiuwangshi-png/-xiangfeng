@@ -36,8 +36,8 @@ export const Logo = ({ size = 'md', showText = true, className = '' }: LogoProps
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {/* 官网唯一图标容器 */}
-      <div className={`${sizeClasses[size]} bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center animate-logo-pulse`}>
+      {/* 官网唯一图标容器 - 使用浅色背景增强LOGO辨识度 */}
+      <div className={`${sizeClasses[size]} bg-white rounded-lg flex items-center justify-center animate-logo-pulse shadow-md border border-xf-soft/30`}>
         {/* 使用 Image 组件加载 SVG 文件 */}
         <Image 
           src="/LOGO.svg" 
