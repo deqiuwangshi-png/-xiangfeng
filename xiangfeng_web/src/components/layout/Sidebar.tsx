@@ -78,7 +78,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
       className="w-[80px] xl:w-[220px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300"
     >
       {/* 用户头像区域 */}
-      <div className="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3 relative">
+      <div className="mb-8 pl-2 flex items-center justify-center xl:justify-start xl:items-start gap-4 xl:gap-3 relative">
         <div className="relative cursor-pointer" onClick={toggleProfileMenu}>
           <img
             src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7"
@@ -132,7 +132,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
           <a
             key={item.id}
             href={item.href}
-            onClick={() => switchTab(item.tab)}
+            onClick={(e) => {
+              e.preventDefault(); // 阻止默认导航行为
+              window.location.href = item.href; // 使用正确的路由跳转
+              switchTab(item.tab);
+            }}
             className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${
               activeTab === item.tab
                 ? 'text-xf-accent font-semibold'

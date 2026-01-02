@@ -72,11 +72,11 @@ const HomePage = () => {
                 <div className="flex items-start gap-4">
                   <i data-lucide="quote" className="w-8 h-8 text-xf-primary/40 flex-shrink-0 mt-1"></i>
                   <div>
-                    <p className="philosophy-text text-2xl font-serif text-xf-accent font-medium leading-relaxed mb-6">
+                    <p className="philosophy-text text-2xl font-serif text-contrast-medium font-medium leading-relaxed mb-6">
                       人生已过半，昨日依附青山。光阴如梭，岁月如歌，唯愿此心常在，与世长存。
                     </p>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-xf-primary italic">—— 山中答问 · 禅意随想</p>
+                      <p className="text-sm text-contrast-low italic">—— 山中答问 · 禅意随想</p>
                       <button
                         className="text-xs px-4 py-2 bg-white/50 hover:bg-white/80 text-xf-primary rounded-full border border-xf-bg/60 transition-all"
                         onClick={sharePhilosophy}

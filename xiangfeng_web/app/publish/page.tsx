@@ -527,5 +527,4 @@ const PublishPage = () => {
     </div>
   );
 };
-
 export default PublishPage;

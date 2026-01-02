@@ -122,6 +122,55 @@
   .text-gradient {
     @apply bg-gradient-to-r from-xf-primary to-xf-accent bg-clip-text text-transparent;
   }
+  
+  /* 对比度文本样式 */
+  .text-contrast-high {
+    color: #25263D;
+  }
+  
+  .text-contrast-medium {
+    color: #3A3C6E;
+  }
+  
+  .text-contrast-low {
+    color: #6A5B8A;
+  }
+  
+  .text-contrast-muted {
+    color: #8C8EA9;
+  }
+  
+  /* 侧边栏样式 */
+  .sidebar-bg {
+    background: linear-gradient(180deg, #F0F3F8 0%, #E1E4EA 100%);
+    border-right: 1px solid rgba(210, 195, 213, 0.4);
+    box-shadow: inset -1px 0px 0px rgba(255, 255, 255, 0.8);
+  }
+  
+  /* 哲学卡片样式 */
+  .philosophy-card {
+    background: linear-gradient(135deg, #E8EBF2 0%, #F7F9FC 100%);
+    border: 1px solid rgba(165, 193, 214, 0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .philosophy-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(106, 91, 138, 0.05) 0%, rgba(165, 193, 214, 0.05) 100%);
+    animation: float 20s ease-in-out infinite alternate;
+  }
+  
+  .philosophy-text {
+    font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
+    letter-spacing: 0.03em;
+    line-height: 1.6;
+  }
 }
 
 /* 工具类样式 */
