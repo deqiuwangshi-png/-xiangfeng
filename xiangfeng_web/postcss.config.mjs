@@ -7,11 +7,15 @@ const config = {
   plugins: {
     // Tailwind CSS v4 使用新的postcss插件
     '@tailwindcss/postcss': {
-      // Tailwind CSS v4 配置选项
+      // Tailwind v4 优化选项
+      optimize: true,
+      minify: process.env.NODE_ENV === 'production'
     },
     
+    // Tailwind CSS v4 已包含自动前缀功能，无需额外配置 autoprefixer
+    // 'autoprefixer': {}, // 已内置，无需显式声明
+    
     // 其他有用的PostCSS插件可以根据需要添加
-    // 'autoprefixer': {}, // Tailwind v4已包含自动前缀
     // 'cssnano': {}, // 生产环境压缩（Next.js会自动处理）
   },
 };

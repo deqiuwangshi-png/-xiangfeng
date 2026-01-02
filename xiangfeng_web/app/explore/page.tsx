@@ -127,7 +127,7 @@ const ExplorePage = () => {
 
             {/* 内容过滤器 */}
             <div className="mb-8">
-              <div className="flex flex-wrap gap-2">
+              <div className="filter-container">
                 <div
                   className={`filter-pill ${activeFilters.includes('all') ? 'active' : ''}`}
                   onClick={() => selectFilter('all')}

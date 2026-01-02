@@ -202,6 +202,83 @@
   .card-hover {
     @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
   }
+  
+  /* 探索路径 */
+  .explore-path-simple {
+    @apply flex items-center gap-3 overflow-x-auto;
+    padding: 12px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .explore-path-simple::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* 路径节点 */
+  .path-node-simple {
+    @apply px-4 py-2.5 rounded-lg bg-white border border-xf-bg/60 text-xf-primary hover:text-xf-accent transition-all duration-300 cursor-pointer;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    background: #FFFFFF;
+    border: 1px solid #F0F2F7;
+    box-shadow: 0 2px 12px rgba(106, 91, 138, 0.08);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    position: relative;
+  }
+  
+  .path-node-simple:hover {
+    @apply transform -translate-y-0.5 bg-white border-xf-primary/30;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.12);
+  }
+  
+  .path-node-simple.active {
+    @apply bg-gradient-to-r from-xf-accent to-xf-primary text-white border-xf-accent;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* 路径节点按下效果 */
+  .path-node-simple:active {
+    @apply transform scale-98;
+    transition-duration: 50ms;
+  }
+  
+  /* 筛选标签 */
+  .filter-pill {
+    @apply px-4 py-1.5 rounded-full bg-white border border-xf-bg/60 text-xf-primary hover:text-xf-accent transition-all duration-300 cursor-pointer;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    background: #FFFFFF;
+    border: 1px solid #F0F2F7;
+    box-shadow: 0 2px 12px rgba(106, 91, 138, 0.08);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    position: relative;
+  }
+  
+  .filter-pill:hover {
+    @apply transform -translate-y-0.5 bg-white border-xf-primary/30;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.12);
+  }
+  
+  .filter-pill.active {
+    @apply bg-gradient-to-r from-xf-accent to-xf-primary text-white border-xf-accent;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* 筛选标签按下效果 */
+  .filter-pill:active {
+    @apply transform scale-98;
+    transition-duration: 50ms;
+  }
+  
+  /* 筛选容器 */
+  .filter-container {
+    @apply flex flex-wrap gap-2 mb-6;
+  }
 }
 
 /* 工具类样式 */
@@ -221,10 +298,46 @@
   .text-contrast-low { @apply text-xf-primary; }
   .text-contrast-muted { @apply text-xf-medium; }
   
-  /* 隐藏滚动条但保留功能 */
-  .no-scrollbar::-webkit-scrollbar { @apply hidden; }
+  /* 隐藏滚动条但保留功能 - 跨浏览器兼容方案 */
   .no-scrollbar {
-    @apply -ms-overflow-style-none scrollbar-width-none;
+    /* Webkit浏览器 (Chrome, Safari, Edge) */
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    
+    /* Firefox */
+    scrollbar-width: none;
+    
+    /* IE/Edge */
+    -ms-overflow-style: none;
+  }
+  
+  /* 主内容区域滚动条隐藏 */
+  #main-scroll {
+    /* Webkit浏览器 */
+    &::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+    
+    /* Firefox */
+    scrollbar-width: none;
+    
+    /* IE/Edge */
+    -ms-overflow-style: none;
+    
+    /* 确保滚动功能正常 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* 平滑滚动 */
+    scroll-behavior: smooth;
+    
+    /* 触摸设备优化 */
+    -webkit-overflow-scrolling: touch;
   }
   
   /* 动画延迟 */
@@ -280,6 +393,8 @@
   .selection-soft {
     @apply selection:bg-xf-soft/50;
   }
+  
+
 }
 
 /* 自定义动画 */

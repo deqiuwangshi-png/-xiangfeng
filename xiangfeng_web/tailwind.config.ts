@@ -18,9 +18,20 @@ const config: Config = {
       backdropBlur: {
         xs: '2px',
       },
+      // 确保与CSS中的@theme配置一致
+      colors: {
+        // 可以在这里添加额外的颜色配置
+      }
     },
   },
   plugins: [],
+  // v4 实验性功能和优化配置
+  experimental: {
+    optimizeUniversalDefaults: true,
+  },
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 }
 
 export default config

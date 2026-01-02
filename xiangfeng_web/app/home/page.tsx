@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import Sidebar from '@/src/components/layout/Sidebar';
-import { RefreshCw, Share2, Heart, MessageSquare, Clock, Eye, User } from 'lucide-react';
+import { RefreshCw, Share2, Heart, MessageSquare, Clock, Eye, User, Plus, Tag, History, Users, SidebarIcon } from 'lucide-react';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'explore' | 'publish'>('home');
@@ -72,11 +72,11 @@ const HomePage = () => {
                 <div className="flex items-start gap-4">
                   <i data-lucide="quote" className="w-8 h-8 text-xf-primary/40 flex-shrink-0 mt-1"></i>
                   <div>
-                    <p className="philosophy-text text-2xl font-serif text-contrast-medium font-medium leading-relaxed mb-6">
+                    <p className="philosophy-text text-2xl font-serif text-xf-accent font-medium leading-relaxed mb-6">
                       人生已过半，昨日依附青山。光阴如梭，岁月如歌，唯愿此心常在，与世长存。
                     </p>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-contrast-low italic">—— 山中答问 · 禅意随想</p>
+                      <p className="text-sm text-xf-primary italic">—— 山中答问 · 禅意随想</p>
                       <button
                         className="text-xs px-4 py-2 bg-white/50 hover:bg-white/80 text-xf-primary rounded-full border border-xf-bg/60 transition-all"
                         onClick={sharePhilosophy}
@@ -173,7 +173,7 @@ const HomePage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 text-sm text-xf-medium">
                     <span className="flex items-center gap-1.5">
-                      <Heart className="w-4 h-4" />
+                      <Users className="w-4 h-4" />
                       15人参与
                     </span>
                     <span className="flex items-center gap-1.5">
@@ -240,7 +240,7 @@ const HomePage = () => {
                 className="px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all flex items-center gap-2 mx-auto"
                 onClick={loadMore}
               >
-                <span className="w-4 h-4 flex items-center justify-center">+</span>
+                <Plus className="w-4 h-4" />
                 加载更多动态
               </button>
             </div>
@@ -281,7 +281,7 @@ const HomePage = () => {
         {/* 关注标签 */}
         <div className="mb-10">
           <h3 className="text-sm font-bold text-xf-primary mb-4 flex items-center gap-2">
-            <span className="w-4 h-4">#</span>
+            <Tag className="w-4 h-4" />
             关注标签
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -321,7 +321,7 @@ const HomePage = () => {
         {/* 最近访问 */}
         <div>
           <h3 className="text-sm font-bold text-xf-primary mb-4 flex items-center gap-2">
-            <span className="w-4 h-4">⏰</span>
+            <History className="w-4 h-4" />
             最近访问
           </h3>
           <div className="space-y-3">
@@ -354,7 +354,7 @@ const HomePage = () => {
           }
         }}
       >
-        <span className="w-5 h-5">☰</span>
+        <SidebarIcon className="w-5 h-5" />
       </button>
     </div>
   );

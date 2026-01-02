@@ -7,6 +7,9 @@
 /* Tailwind CSS v4 基础导入和主题配置 */
 @import "tailwindcss";
 
+/* Tailwind CSS v4 配置指令 */
+@config "../tailwind.config.ts";
+
 /* 自定义颜色主题 */
 @theme {
   --color-xf-bg: #E1E4EA;
@@ -170,6 +173,91 @@
     font-feature-settings: "kern" 1, "liga" 1, "clig" 1;
     letter-spacing: 0.03em;
     line-height: 1.6;
+  }
+  
+  /* 探索路径 */
+  .explore-path-simple {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 12px 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .explore-path-simple::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* 路径节点 */
+  .path-node-simple {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #FFFFFF;
+    border: 1px solid #F0F2F7;
+    color: #6A5B8A;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    box-shadow: 0 2px 12px rgba(106, 91, 138, 0.08);
+    position: relative;
+  }
+  
+  .path-node-simple:hover {
+    transform: translateY(-2px);
+    background: #FFFFFF;
+    border-color: rgba(106, 91, 138, 0.3);
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.12);
+  }
+  
+  .path-node-simple.active {
+    background: linear-gradient(90deg, #3A3C6E, #6A5B8A);
+    color: white;
+    border-color: #3A3C6E;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* 筛选标签 */
+  .filter-pill {
+    padding: 6px 16px;
+    border-radius: 99px;
+    background: #FFFFFF;
+    border: 1px solid #F0F2F7;
+    color: #6A5B8A;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    box-shadow: 0 2px 12px rgba(106, 91, 138, 0.08);
+    position: relative;
+  }
+  
+  .filter-pill:hover {
+    transform: translateY(-2px);
+    background: #FFFFFF;
+    border-color: rgba(106, 91, 138, 0.3);
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.12);
+  }
+  
+  .filter-pill.active {
+    background: linear-gradient(90deg, #3A3C6E, #6A5B8A);
+    color: white;
+    border-color: #3A3C6E;
+    box-shadow: 0 4px 15px rgba(106, 91, 138, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  /* 筛选容器 */
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
   }
 }
 
