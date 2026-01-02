@@ -127,7 +127,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
     const toolbarLeft = editorCenter - toolbarRect.width / 2;
     
     if (toolbarRef.current) {
-      toolbarRef.current.style.left = `${editorLeft}px`;
+      toolbarRef.current.style.left = `${toolbarLeft}px`;
       toolbarRef.current.style.transform = 'translateX(0)';
     }
   };
