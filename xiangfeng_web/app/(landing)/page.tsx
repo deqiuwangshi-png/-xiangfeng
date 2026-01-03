@@ -20,8 +20,8 @@ export default function LandingPage() {
   return (
     <div id="landing-view" className="min-h-screen flex flex-col bg-xf-light text-xf-dark antialiased font-sans selection-soft overflow-x-hidden">
       {/* 导航栏 */}
-      <nav className="fixed top-0 z-50 w-full h-16 glass border-b border-xf-bg/30 transition-all duration-300 will-change-transform">
-        <div className="container mx-auto px-6 flex justify-between items-center h-full">
+      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-xf-bg/30">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           {/* 官网唯一标识 */}
           <Logo size="md" showText={true} />
 
@@ -45,7 +45,7 @@ export default function LandingPage() {
           </div>
 
           {/* 移动端菜单 */}
-          <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 shadow-elevated">
+          <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30">
             <div className="flex flex-col p-6 space-y-4">
               <a href="#features" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>特色功能</a>
               <a href="#how-it-works" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>如何运作</a>
@@ -62,13 +62,13 @@ export default function LandingPage() {
       </nav>
 
       {/* 英雄区域 */}
-      <section className="relative overflow-hidden h-[calc(100vh-64px)] overflow-y-auto pb-20 md:pb-32">
+      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-32">
         {/* 背景装饰 */}
         <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-xf-soft/30 to-xf-primary/10 rounded-full blur-3xl animate-pulse-subtle"></div>
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-tr from-xf-surface/20 to-xf-accent/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] grid-bg opacity-20"></div>
 
-        <div className="container mx-auto px-6 relative z-10 pt-8">
+        <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             {/* 标签 */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-xf-light/80 backdrop-blur-sm rounded-full mb-8 animate-fade-in">
