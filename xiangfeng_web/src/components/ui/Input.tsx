@@ -3,7 +3,7 @@
  * 提供统一的输入框样式
  */
 
-import { InputHTMLAttributes } from 'react';
+import { InputHTMLAttributes, useId } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -19,7 +19,8 @@ export function Input({
   id,
   ...props 
 }: InputProps) {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const inputId = id || `input-${generatedId}`;
   
   return (
     <div className="space-y-1">

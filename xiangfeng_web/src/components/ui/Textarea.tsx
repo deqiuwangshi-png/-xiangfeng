@@ -3,7 +3,7 @@
  * 提供多行文本输入
  */
 
-import { TextareaHTMLAttributes } from 'react';
+import { TextareaHTMLAttributes, useId } from 'react';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -20,7 +20,8 @@ export function Textarea({
   rows = 4,
   ...props 
 }: TextareaProps) {
-  const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const textareaId = id || `textarea-${generatedId}`;
   
   return (
     <div className="space-y-1">

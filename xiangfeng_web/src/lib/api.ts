@@ -5,7 +5,7 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   message?: string;
@@ -61,10 +61,10 @@ export async function get<T>(endpoint: string, params?: Record<string, string>):
 /**
  * POST请求
  * @param {string} endpoint - API端点
- * @param {any} data - 请求数据
+ * @param {Record<string, unknown>} data - 请求数据
  * @returns {Promise<ApiResponse<T>>} API响应
  */
-export async function post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+export async function post<T>(endpoint: string, data?: Record<string, unknown>): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
@@ -74,10 +74,10 @@ export async function post<T>(endpoint: string, data?: any): Promise<ApiResponse
 /**
  * PUT请求
  * @param {string} endpoint - API端点
- * @param {any} data - 请求数据
+ * @param {Record<string, unknown>} data - 请求数据
  * @returns {Promise<ApiResponse<T>>} API响应
  */
-export async function put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+export async function put<T>(endpoint: string, data?: Record<string, unknown>): Promise<ApiResponse<T>> {
   return apiRequest<T>(endpoint, {
     method: 'PUT',
     body: data ? JSON.stringify(data) : undefined,
@@ -95,10 +95,10 @@ export async function del<T>(endpoint: string): Promise<ApiResponse<T>> {
 
 /**
  * 格式化错误消息
- * @param {any} error - 错误对象
+ * @param {unknown} error - 错误对象
  * @returns {string} 格式化后的错误消息
  */
-export function formatError(error: any): string {
+export function formatError(error: unknown): string {
   if (typeof error === 'string') {
     return error;
   }
@@ -107,12 +107,12 @@ export function formatError(error: any): string {
     return error.message;
   }
   
-  if (error?.error) {
-    return error.error;
+  if (error && typeof error === 'object' && 'error' in error) {
+    return String((error as { error: unknown }).error);
   }
   
-  if (error?.message) {
-    return error.message;
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message);
   }
   
   return '未知错误';
@@ -120,17 +120,17 @@ export function formatError(error: any): string {
 
 /**
  * 验证响应数据
- * @param {any} data - 响应数据
+ * @param {unknown} data - 响应数据
  * @param {string[]} requiredFields - 必需字段
  * @returns {boolean} 是否有效
  */
-export function validateResponseData(data: any, requiredFields: string[]): boolean {
+export function validateResponseData(data: unknown, requiredFields: string[]): boolean {
   if (!data || typeof data !== 'object') {
     return false;
   }
   
   return requiredFields.every(field => {
-    const value = data[field];
+    const value = (data as Record<string, unknown>)[field];
     return value !== undefined && value !== null && value !== '';
   });
 }

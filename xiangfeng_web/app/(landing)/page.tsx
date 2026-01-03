@@ -6,7 +6,7 @@
 'use client';
 
 import { Menu, Brain, Users, Sword, Calendar, Check, X, Twitter, Instagram, Github } from 'lucide-react';
-import { Logo } from '@/src/components/brand/Logo';
+import { Logo } from '@/components/brand/Logo';
 
 export default function LandingPage() {
   // 移动端菜单切换函数
@@ -268,7 +268,7 @@ export default function LandingPage() {
                       {/* 评价1 */}
                       <div className="bg-white rounded-2xl p-6 shadow-soft">
                         <div className="flex items-center gap-4 mb-4">
-                          <img src="https://api.dicebear.com/7.x/micah/svg?seed=Sophie&backgroundColor=B6CAD7" className="w-12 h-12 rounded-full" />
+                          <img src="https://api.dicebear.com/7.x/micah/svg?seed=Sophie&backgroundColor=b6cad7" className="w-12 h-12 rounded-full" />
                           <div>
                             <h4 className="font-bold text-xf-dark">Sophie</h4>
                             <p className="text-sm text-xf-medium">哲学研究者</p>
@@ -280,7 +280,7 @@ export default function LandingPage() {
                       {/* 评价2 */}
                       <div className="bg-white rounded-2xl p-6 shadow-soft">
                         <div className="flex items-center gap-4 mb-4">
-                          <img src="https://api.dicebear.com/7.x/micah/svg?seed=Alex&backgroundColor=D2C3D5" className="w-12 h-12 rounded-full" />
+                          <img src="https://api.dicebear.com/7.x/micah/svg?seed=Alex&backgroundColor=d2c3d5" className="w-12 h-12 rounded-full" />
                           <div>
                             <h4 className="font-bold text-xf-dark">Alex</h4>
                             <p className="text-sm text-xf-medium">产品设计师</p>

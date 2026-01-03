@@ -5,8 +5,8 @@
 
 'use client';
 
-import Sidebar from '@/src/components/layout/Sidebar';
-import RightSidebar from '@/src/components/layout/RightSidebar';
+import Sidebar from '@/components/layout/Sidebar';
+import RightSidebar from '@/components/layout/RightSidebar';
 import { usePathname } from 'next/navigation';
 
 export default function MainLayout({

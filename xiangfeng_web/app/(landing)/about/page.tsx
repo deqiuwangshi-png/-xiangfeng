@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Eye, Target, Brain, Users, RefreshCw, Shield, Mail, Github, Twitter, Instagram, Menu, X } from 'lucide-react';
-import { Logo } from '@/src/components/brand/Logo';
+import { Logo } from '@/components/brand/Logo';
 
 // 类型守卫
 const isHTMLElement = (element: Element | null | undefined): element is HTMLElement => {
@@ -377,7 +377,7 @@ export default function AboutPage() {
                 {/* 开发者头像 */}
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=Xiangfeng&backgroundColor=B6CAD7&radius=50" className="w-48 h-48 rounded-2xl shadow-lg" />
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=Xiangfeng&backgroundColor=b6cad7" className="w-48 h-48 rounded-2xl shadow-lg" />
                     <div className="absolute -bottom-4 -right-4 w-16 h-16 blob bg-gradient-to-br from-xf-soft/40 to-xf-primary/20"></div>
                   </div>
                 </div>

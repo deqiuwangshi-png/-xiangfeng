@@ -49,11 +49,11 @@ const EditorToolbar = forwardRef<HTMLDivElement, EditorToolbarProps>(({
       {!collapsed && (
         <>
           <div className="toolbar-group">
-            <button className="editor-btn" onClick={() => onFormatText('bold')} title="加粗">
+            <button className="editor-btn" onClick={() => onFormatText('bold')} title="加粗 (Ctrl+B)">
               <Bold className="w-4 h-4" />
               <span className="tooltip-text">加粗</span>
             </button>
-            <button className="editor-btn" onClick={() => onFormatText('italic')} title="斜体">
+            <button className="editor-btn" onClick={() => onFormatText('italic')} title="斜体 (Ctrl+I)">
               <Italic className="w-4 h-4" />
               <span className="tooltip-text">斜体</span>
             </button>
@@ -83,7 +83,7 @@ const EditorToolbar = forwardRef<HTMLDivElement, EditorToolbarProps>(({
           <div className="toolbar-separator"></div>
           
           <div className="toolbar-group">
-            <button className="editor-btn" onClick={onInsertLink} title="链接">
+            <button className="editor-btn" onClick={onInsertLink} title="链接 (Ctrl+K)">
               <Link className="w-4 h-4" />
               <span className="tooltip-text">链接</span>
             </button>
@@ -112,11 +112,11 @@ const EditorToolbar = forwardRef<HTMLDivElement, EditorToolbarProps>(({
               <Eraser className="w-4 h-4" />
               <span className="tooltip-text">清除格式</span>
             </button>
-            <button className="editor-btn" onClick={onUndo} title="撤销">
+            <button className="editor-btn" onClick={onUndo} title="撤销 (Ctrl+Z)">
               <Undo className="w-4 h-4" />
               <span className="tooltip-text">撤销</span>
             </button>
-            <button className="editor-btn" onClick={onRedo} title="重做">
+            <button className="editor-btn" onClick={onRedo} title="重做 (Ctrl+Y)">
               <Redo className="w-4 h-4" />
               <span className="tooltip-text">重做</span>
             </button>
@@ -129,24 +129,29 @@ const EditorToolbar = forwardRef<HTMLDivElement, EditorToolbarProps>(({
               <ArrowUpToLine className="w-4 h-4" />
               <span className="tooltip-text">跳转到标题</span>
             </button>
-            <button className="editor-btn" onClick={onToggleFullscreen} title="全屏编辑">
+            <button className="editor-btn" onClick={onToggleFullscreen} title="全屏编辑 (F11)">
               <Maximize className="w-4 h-4" />
-              <span className="tooltip-text">{isFullscreen ? '退出全屏' : '全屏'}</span>
+              <span className="tooltip-text" id="fullscreen-text">{isFullscreen ? '退出全屏' : '全屏'}</span>
+            </button>
+            <button className="editor-btn" onClick={onToggleCollapsed} title={collapsed ? '展开工具栏' : '收起工具栏'}>
+              <ChevronDown className="w-4 h-4" id="toggle-icon" />
+              <span className="tooltip-text" id="toggle-text">{collapsed ? '展开' : '收起'}</span>
             </button>
           </div>
         </>
       )}
-      <div className="toolbar-separator"></div>
-      <div className="toolbar-group">
-        <button 
-          className="editor-btn" 
-          onClick={onToggleCollapsed} 
-          title={collapsed ? '展开工具栏' : '收起工具栏'}
-        >
-          {collapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          <span className="tooltip-text">{collapsed ? '展开' : '收起'}</span>
-        </button>
-      </div>
+      {collapsed && (
+        <div className="toolbar-group">
+          <button 
+            className="editor-btn" 
+            onClick={onToggleCollapsed} 
+            title={collapsed ? '展开工具栏' : '收起工具栏'}
+          >
+            <ChevronUp className="w-4 h-4" id="toggle-icon" />
+            <span className="tooltip-text" id="toggle-text">{collapsed ? '展开' : '收起'}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 });

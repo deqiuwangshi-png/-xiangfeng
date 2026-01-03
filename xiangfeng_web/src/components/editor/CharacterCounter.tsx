@@ -29,24 +29,29 @@ const CharacterCounter: React.FC<CharacterCounterProps> = ({
   
   if (totalCharacters === 0) {
     hintText = '建议字数：500-5000字';
+    className = 'character-count';
   } else if (totalCharacters < recommendedMinLength) {
     hintText = '内容较短，建议充实';
+    className = 'character-count warning';
   } else if (totalCharacters < recommendedMaxLength) {
     hintText = '字数合适';
+    className = 'character-count';
   } else if (totalCharacters < recommendedMaxLength * 2) {
     hintText = '字数适中';
+    className = 'character-count';
   } else if (totalCharacters < maxLength * 0.75) {
     hintText = '字数较多，建议精简';
+    className = 'character-count warning';
   } else if (totalCharacters < maxLength) {
     hintText = '接近字数上限';
-    className = 'character-count warning';
+    className = 'character-count error';
   } else {
     hintText = '已超过最大字数限制';
     className = 'character-count error';
   }
 
   return (
-    <div className={className}>
+    <div className={className} id="character-counter">
       <span id="char-count">{totalCharacters}</span> 字
       <span className="hint" id="content-hint">
         {hintText}

@@ -3,7 +3,7 @@
  * 提供下拉选择功能
  */
 
-import { SelectHTMLAttributes } from 'react';
+import { SelectHTMLAttributes, useId } from 'react';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -21,7 +21,8 @@ export function Select({
   id,
   ...props 
 }: SelectProps) {
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = useId();
+  const selectId = id || `select-${generatedId}`;
   
   return (
     <div className="space-y-1">
