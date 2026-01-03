@@ -447,7 +447,7 @@ export default function LandingPage() {
               <p className="text-lg text-xf-medium mb-8 max-w-2xl mx-auto">加入相逢，与深度思考者一起探索未知，突破认知边界</p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a href="#" className="btn-secondary px-8 py-4 text-lg rounded-2xl">
+              <a href="/about" className="btn-secondary px-8 py-4 text-lg rounded-2xl">
                 了解更多
               </a>
             </div>

@@ -158,6 +158,12 @@
     @apply transform -translate-y-8 shadow-elevated;
   }
   
+  /* 按钮按压效果 */
+  button:active, a:active {
+    transform: scale(0.985);
+    transition-duration: 50ms;
+  }
+  
   /* 表单样式 */
   .form-input {
     @apply w-full px-3 py-2 border border-xf-soft rounded-lg focus:ring-2 focus:ring-xf-primary focus:border-transparent outline-none transition-all duration-200;
@@ -288,6 +294,45 @@
   /* 筛选容器 */
   .filter-container {
     @apply flex flex-wrap gap-2 mb-6;
+  }
+  
+  /* 价值卡片 */
+  .value-card {
+    @apply bg-white/80 border border-xf-soft/80 transition-all duration-400 ease;
+  }
+  
+  .value-card:hover {
+    @apply bg-white/100 border-xf-primary/30;
+  }
+  
+  /* 时间线项目 */
+  .timeline-item {
+    @apply relative pl-8;
+  }
+  
+  .timeline-item::before {
+    @apply content-[''] absolute left-0 top-2 w-3 h-3 rounded-full bg-gradient-to-r from-xf-primary to-xf-accent;
+  }
+  
+  .timeline-item::after {
+    @apply content-[''] absolute left-[5.5px] top-5 w-[2px] h-full bg-gradient-to-b from-xf-primary/30 to-xf-accent/20;
+  }
+  
+  .timeline-item:last-child::after {
+    @apply hidden;
+  }
+  
+  /* 开发者卡片 */
+  .developer-card {
+    @apply relative overflow-hidden;
+  }
+  
+  .developer-card::before {
+    @apply content-[''] absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-xf-primary/5 to-transparent opacity-0 transition-opacity duration-300;
+  }
+  
+  .developer-card:hover::before {
+    @apply opacity-1;
   }
 }
 
