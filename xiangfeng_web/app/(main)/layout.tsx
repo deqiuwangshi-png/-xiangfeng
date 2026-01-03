@@ -3,42 +3,34 @@
  * 为所有主应用页面提供统一的布局结构
  */
 
+'use client';
+
+import Sidebar from '@/src/components/layout/Sidebar';
+import RightSidebar from '@/src/components/layout/RightSidebar';
+import { usePathname } from 'next/navigation';
+
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname();
+  
+  // 根据路径决定是否显示右侧边栏，设置页面不显示右侧边栏
+  const showRightSidebar = !pathname.startsWith('/settings');
+  
   return (
-    <div className="min-h-screen bg-xf-bg">
-      {/* 主应用头部导航 */}
-      <header className="bg-white shadow-sm border-b border-xf-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-xf-dark">香枫</h1>
-            </div>
-            <nav className="flex space-x-8">
-              <a href="/dashboard" className="text-xf-medium hover:text-xf-primary">
-                仪表板
-              </a>
-              <a href="/articles" className="text-xf-medium hover:text-xf-primary">
-                文章
-              </a>
-              <a href="/discussions" className="text-xf-medium hover:text-xf-primary">
-                讨论
-              </a>
-              <a href="/profile" className="text-xf-medium hover:text-xf-primary">
-                个人资料
-              </a>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* 主要内容区域 */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div id="app-view" className="flex h-screen w-full max-w-[1600px] mx-auto bg-[var(--color-xf-light)] overflow-hidden view-transition">
+      {/* 左侧边栏 */}
+      <Sidebar />
+      
+      {/* 中间内容区域 */}
+      <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth" id="main-scroll">
         {children}
       </main>
+      
+      {/* 右侧边栏 - 设置页面不显示 */}
+      {showRightSidebar && <RightSidebar />}
     </div>
   );
 }

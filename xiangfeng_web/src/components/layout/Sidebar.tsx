@@ -95,10 +95,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
 
   return (
     <aside
-      className="w-[80px] xl:w-[220px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300"
+      className="w-[80px] xl:w-[260px] flex-shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 sidebar-bg transition-all duration-300"
     >
       {/* 用户头像区域 */}
-      <div className="mb-8 pl-2 flex items-center justify-center xl:justify-start gap-4 xl:gap-3 relative">
+      <div className="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3 relative">
         <div className="relative cursor-pointer" onClick={toggleProfileMenu} ref={profileRef}>
             <img
             src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7"
@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
             </Link>
             <div className="h-px bg-xf-bg/80 my-2 mx-4"></div>
             <Link
-              href="/login"
+              href="/"
               className="flex items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50/50 transition"
               onClick={closeProfileMenu}
             >
@@ -151,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
       </div>
 
       {/* 导航菜单 */}
-      <nav className="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
+      <nav className="flex-1 space-y-1 flex flex-col justify-start">
         {navItems.map((item) => (
           <Link
             key={item.id}
@@ -159,14 +159,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
             onClick={() => {
               switchTab(item.tab);
             }}
-            className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 px-2 transition-all relative group ${activeTab === item.tab
+            className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 pl-2 transition-all relative group ${activeTab === item.tab
                 ? 'text-xf-accent font-semibold'
                 : 'text-xf-primary hover:text-xf-accent'}`}
           >
             <div className="nav-active-indicator"></div>
-            <div className="flex items-center justify-center w-6 h-6">
-              {item.icon}
-            </div>
+            {item.icon}
             <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>
           </Link>
         ))}

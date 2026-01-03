@@ -76,22 +76,22 @@
     overflow-x: hidden;
   }
   
-  /* 自定义滚动条 */
-  ::-webkit-scrollbar {
+  /* 自定义滚动条 - 只在没有no-scrollbar类的元素上生效 */
+  :not(.no-scrollbar)::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   
-  ::-webkit-scrollbar-track {
+  :not(.no-scrollbar)::-webkit-scrollbar-track {
     background: #f1f1f1;
   }
   
-  ::-webkit-scrollbar-thumb {
+  :not(.no-scrollbar)::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
   }
   
-  ::-webkit-scrollbar-thumb:hover {
+  :not(.no-scrollbar)::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
 }
@@ -114,6 +114,12 @@
   
   .card-hover {
     @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* 卡片背景样式 */
+  .card-bg {
+    background: linear-gradient(145deg, #ffffff, #f5f7fa);
+    border: 1px solid rgba(225, 228, 234, 0.8);
   }
   
   /* 表单样式 */
@@ -142,12 +148,196 @@
   .text-contrast-muted {
     color: #8C8EA9;
   }
+
+  /* 文本阴影层次 */
+  .text-layer-1 {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .text-layer-2 {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
   
   /* 侧边栏样式 */
   .sidebar-bg {
-    background: linear-gradient(180deg, #F0F3F8 0%, #E1E4EA 100%);
-    border-right: 1px solid rgba(210, 195, 213, 0.4);
-    box-shadow: inset -1px 0px 0px rgba(255, 255, 255, 0.8);
+    background: linear-gradient(180deg, #F7F9FC 0%, #E8EBF2 100%);
+    border-right: 1px solid rgba(210, 195, 213, 0.3);
+  }
+
+  /* 设置页面特定样式 */
+  .settings-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .settings-nav-item:hover {
+    background: rgba(225, 228, 234, 0.5);
+  }
+  
+  .settings-nav-item.active {
+    background: #3A3C6E;
+    color: white;
+  }
+  
+  .settings-nav-item.active i[data-lucide] {
+    color: white;
+  }
+  
+  .settings-nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .setting-item {
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(225, 228, 234, 0.5);
+  }
+  
+  .setting-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* 开关组件样式 */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E1E4EA;
+    transition: .4s;
+    border-radius: 34px;
+  }
+  
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .toggle-slider {
+    background-color: #3A3C6E;
+  }
+  
+  input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+  }
+
+  /* 个人主页特定样式 */
+  .profile-header-bg {
+    background: linear-gradient(135deg, rgba(106, 91, 138, 0.1) 0%, rgba(58, 60, 110, 0.05) 100%);
+  }
+  
+  .profile-stats-item {
+    transition: all 0.3s ease;
+  }
+  
+  .profile-stats-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px -5px rgba(58, 60, 110, 0.15);
+  }
+  
+  .profile-tab {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .profile-tab:hover {
+    background: rgba(225, 228, 234, 0.5);
+  }
+  
+  .profile-tab.active {
+    background: #3A3C6E;
+    color: white;
+    box-shadow: 0 4px 12px rgba(58, 60, 110, 0.2);
+  }
+  
+  .achievement-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .achievement-badge:hover {
+    transform: scale(1.1) rotate(5deg);
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-left: 24px;
+  }
+  
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #6A5B8A;
+  }
+  
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    width: 2px;
+    height: calc(100% + 16px);
+    background: #E1E4EA;
+    z-index: 1;
+  }
+  
+  .timeline-item:last-child::after {
+    display: none;
+  }
+  
+  .skill-level {
+    height: 6px;
+    border-radius: 3px;
+    background: #E1E4EA;
+    overflow: hidden;
+  }
+  
+  .skill-level-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #6A5B8A, #3A3C6E);
+    transition: width 1.5s ease;
   }
   
   /* 哲学卡片样式 */
@@ -614,6 +804,16 @@
   
   .desktop-hidden {
     @apply block sm:hidden;
+  }
+  
+  /* 隐藏滚动条但保留功能 */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 
