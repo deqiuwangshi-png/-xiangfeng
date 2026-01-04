@@ -8,7 +8,7 @@
 @import "tailwindcss";
 
 /* 自定义颜色主题 */
-@theme {
+:root {
   --color-xf-bg: #E1E4EA;
   --color-xf-surface: #D2C3D5;
   --color-xf-primary: #6A5B8A;
@@ -226,9 +226,206 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  
+
   .explore-path-simple::-webkit-scrollbar {
     display: none;
+  }
+
+  /* 文章页面特有样式 - 匹配HTML草图设计 */
+  
+  /* 抖音风格垂直功能栏 */
+  .douyin-sidebar {
+    position: fixed;
+    right: 24px;
+    bottom: 100px;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 60px;
+  }
+  
+  /* 抖音风格功能按钮 */
+  .douyin-action-btn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(225, 228, 234, 0.6);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  .douyin-action-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    border-color: var(--color-xf-primary);
+  }
+  
+  .douyin-action-btn:active {
+    transform: scale(0.95);
+  }
+  
+  /* 抖音风格图标 */
+  .douyin-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--color-xf-dark);
+    transition: all 0.3s ease;
+  }
+  
+  .douyin-action-btn:hover .douyin-icon {
+    color: var(--color-xf-primary);
+  }
+  
+  .douyin-action-btn.active .douyin-icon {
+    color: #FF2442;
+  }
+  
+  /* 抖音风格计数 */
+  .douyin-count {
+    position: absolute;
+    bottom: -18px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+  }
+  
+  /* 评论按钮特殊样式 */
+  .douyin-action-btn.comments-btn {
+    background: var(--color-xf-primary);
+    border-color: var(--color-xf-primary);
+  }
+  
+  .douyin-action-btn.comments-btn .douyin-icon {
+    color: white;
+  }
+  
+  .douyin-action-btn.comments-btn:hover {
+    background: var(--color-xf-accent);
+    border-color: var(--color-xf-accent);
+  }
+  
+  /* 纯净阅读模式 */
+  .reading-mode {
+    font-size: 1.125rem;
+    line-height: 1.9;
+    color: #374151;
+    letter-spacing: 0.01em;
+    text-align: justify;
+    max-width: 100%;
+  }
+  
+  .reading-mode p {
+    margin-bottom: 1.8rem;
+    text-indent: 2em;
+    hyphens: auto;
+  }
+  
+  .reading-mode p:first-of-type {
+    text-indent: 0;
+    font-size: 1.2rem;
+    line-height: 1.9;
+    color: #4b5563;
+  }
+  
+  .reading-mode p:first-of-type::first-letter {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--color-xf-primary);
+    float: left;
+    line-height: 0.85;
+    margin: 0.1em 0.1em 0 0;
+    padding-right: 0.05em;
+  }
+  
+  /* 标题样式优化 */
+  .reading-mode h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-xf-dark);
+    margin: 3rem 0 1.5rem 0;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(106, 91, 138, 0.15);
+    position: relative;
+    text-indent: 0;
+  }
+  
+  .reading-mode h2::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-xf-primary), var(--color-xf-accent));
+  }
+  
+  /* 重要文本高亮 */
+  .important-text {
+    background: linear-gradient(120deg, rgba(106, 91, 138, 0.08) 0%, rgba(106, 91, 138, 0.03) 100%);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 500;
+    border-left: 2px solid var(--color-xf-primary);
+    text-indent: 0;
+    margin: 1.5rem 0;
+  }
+  
+  /* 导航栏优化 */
+  .nav-minimal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+  }
+  
+  .nav-minimal .nav-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* 返回首页按钮样式 */
+  .nav-home-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(225, 228, 234, 0.6);
+    color: var(--color-xf-primary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .nav-home-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: var(--color-xf-primary);
+    transform: translateY(-1px);
   }
   
   /* 路径节点 */
@@ -247,6 +444,120 @@
   .path-node-simple:hover {
     @apply transform -translate-y-0.5 bg-white border-xf-primary/30;
     box-shadow: 0 4px 15px rgba(106, 91, 138, 0.12);
+  }
+}
+
+/* 动画效果 - 匹配HTML草图设计 */
+/* 点赞动画效果 */
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+
+/* 收藏动画效果 */
+@keyframes bookmarkPop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 分享动画效果 */
+@keyframes shareSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(180deg); }
+}
+
+@layer utilities {
+  .douyin-action-btn.liked .douyin-icon {
+    animation: heartBeat 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+    color: #FF2442;
+    fill: #FF2442;
+  }
+  
+  .douyin-action-btn.bookmarked .douyin-icon {
+    animation: bookmarkPop 0.4s ease;
+    color: #FF9800;
+    fill: #FF9800;
+  }
+  
+  .douyin-action-btn.shared .douyin-icon {
+    animation: shareSpin 0.5s ease;
+  }
+  
+  /* 暗色模式样式 */
+  body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .nav-minimal {
+    background: rgba(18, 18, 18, 0.92);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  body.dark-mode .share-menu {
+    background: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  body.dark-mode .reading-mode {
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .reading-mode p:first-of-type {
+    color: #b0b0b0;
+  }
+  
+  body.dark-mode .article-meta {
+    color: #9ca3af;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  body.dark-mode .douyin-action-btn {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  body.dark-mode .douyin-icon {
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .douyin-count {
+    color: #b0b0b0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  body.dark-mode .douyin-action-btn.comments-btn {
+    background: var(--color-xf-accent);
+    border-color: var(--color-xf-accent);
+  }
+  
+  body.dark-mode .reading-mode h2 {
+    color: #e0e0e0;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  body.dark-mode .reading-mode h2::before {
+    background: linear-gradient(90deg, var(--color-xf-primary), var(--color-xf-accent));
+  }
+  
+  body.dark-mode .important-text {
+    background: linear-gradient(120deg, rgba(106, 91, 138, 0.15) 0%, rgba(106, 91, 138, 0.05) 100%);
+    border-left-color: var(--color-xf-primary);
+  }
+  
+  body.dark-mode .nav-home-btn {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+  }
+  
+  body.dark-mode .nav-home-btn:hover {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: var(--color-xf-primary);
+  }
   }
   
   .path-node-simple.active {
@@ -402,7 +713,7 @@
   .terms-table tr:nth-child(even) {
     @apply bg-xf-light/50;
   }
-},
+}
 
 /* 工具类样式 */
 @layer utilities {

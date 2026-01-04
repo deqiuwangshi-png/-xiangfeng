@@ -28,7 +28,28 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
-    const data = await response.json();
+    
+    // 检查响应是否为JSON格式
+    const contentType = response.headers.get('content-type');
+    let data;
+    
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('JSON解析错误:', jsonError);
+        return {
+          error: '网络错误，请重试',
+          message: '响应格式错误，无法解析JSON',
+        };
+      }
+    } else {
+      // 非JSON响应，返回错误
+      return {
+        error: '网络错误，请重试',
+        message: `响应格式错误，预期JSON格式，但收到${contentType || '未知格式'}`,
+      };
+    }
 
     if (!response.ok) {
       return {

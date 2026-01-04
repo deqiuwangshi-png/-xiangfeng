@@ -40,7 +40,8 @@ const HomePage = () => {
 
   // 查看文章
   const readArticle = (id: number) => {
-    alert(`正在加载文章 ID: ${id}...`);
+    // 跳转到文章详情页
+    window.location.href = `/explore/articles/${id}`;
   };
 
   // 加入讨论
