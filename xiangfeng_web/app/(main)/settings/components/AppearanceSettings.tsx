@@ -124,14 +124,14 @@ const AppearanceSettings: React.FC = () => {
                   <span className="text-xs text-[var(--color-xf-medium)]">{fontSize}px</span>
                 </div>
               </div>
-              <div className="md:w-1/3">
-                <input 
+              <div className="md:w-1/3 bg-[var(--color-xf-medium)]/20 p-4 rounded-xl shadow-soft border border-[var(--color-xf-medium)]/30">
+                <input
                   type="range" 
                   min="12" 
                   max="24" 
                   value={fontSize} 
                   onChange={(e) => setFontSize(Number(e.target.value))}
-                  className="w-full h-2 bg-[var(--color-xf-light)] rounded-lg appearance-none cursor-pointer accent-[var(--color-xf-primary)]"
+                  className="w-full h-2 bg-[var(--color-xf-dark)]/10 rounded-lg appearance-none cursor-pointer accent-[var(--color-xf-primary)] shadow-inner border border-[var(--color-xf-medium)]/40"
                 />
               </div>
             </div>

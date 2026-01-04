@@ -328,7 +328,7 @@
   }
   
   .toggle-slider:before {
-    @apply absolute content-[''] h-[20px] w-[20px] left-2 bottom-2 bg-white transition-all duration-400 rounded-full;
+    @apply absolute content-[''] h-[20px] w-[20px] left-[4px] top-[4px] bg-white transition-all duration-400 rounded-full;
   }
   
   .toggle-switch input:checked + .toggle-slider {
