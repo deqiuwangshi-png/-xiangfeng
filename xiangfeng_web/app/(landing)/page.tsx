@@ -507,8 +507,8 @@ export default function LandingPage() {
               <h4 className="font-bold text-lg mb-6">公司</h4>
               <ul className="space-y-3">
                 <li><a href="/about" className="text-white/70 hover:text-white transition">关于我们</a></li>
-                <li><a href="/blog" className="text-white/70 hover:text-white transition">博客</a></li>
-                <li><a href="/careers" className="text-white/70 hover:text-white transition">加入我们</a></li>
+                <li><a href="/terms" className="text-white/70 hover:text-white transition">服务条款</a></li>
+                <li><a href="/privacy" className="text-white/70 hover:text-white transition">隐私政策</a></li>
                 <li><a href="/contact" className="text-white/70 hover:text-white transition">联系我们</a></li>
               </ul>
             </div>

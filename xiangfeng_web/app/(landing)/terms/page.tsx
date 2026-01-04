@@ -1,3 +1,9 @@
+/**
+ * 服务条款页面
+ * 详细说明平台的服务条款和条件
+ */
+
+
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-xf-bg via-xf-surface to-xf-soft">
@@ -6,7 +12,7 @@ export default function TermsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <div className="text-xl font-bold text-xf-primary">向风</div>
+              <div className="text-xl font-bold text-xf-primary">相逢</div>
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
