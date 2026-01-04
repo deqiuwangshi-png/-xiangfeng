@@ -334,7 +334,75 @@
   .developer-card:hover::before {
     @apply opacity-1;
   }
-}
+
+  /* 侧边导航激活状态 */
+  .side-nav-item {
+    @apply relative transition-all duration-300;
+  }
+  
+  .side-nav-item.active {
+    @apply text-xf-accent font-semibold;
+  }
+  
+  .side-nav-item.active::before {
+    @apply content-[''] absolute left-[-16px] top-1/2 transform -translate-y-1/2 w-1 h-[70%] bg-gradient-to-b from-xf-accent to-xf-primary rounded-r-full;
+  }
+
+  /* 条款内容样式 */
+  .terms-content h3 {
+    @apply border-b-2 border-xf-bg/80 py-0.75 mb-3 mt-6 font-bold text-xf-dark;
+  }
+  
+  .terms-content ul {
+    @apply list-none pl-0;
+  }
+  
+  .terms-content li {
+    @apply relative pl-6 mb-2;
+  }
+  
+  .terms-content li::before {
+    @apply content-['•'] absolute left-0 text-xf-primary font-bold;
+  }
+
+  /* 条款区块样式 */
+  .terms-section {
+    @apply scroll-mt-24;
+  }
+
+  /* 警告提示样式 */
+  .terms-warning {
+    @apply bg-[rgba(255,152,0,0.1)] border-l-4 border-xf-warning p-4 rounded-r-lg my-6;
+  }
+
+  /* 重要条款卡片样式 */
+  .important-clause {
+    @apply bg-[rgba(58,60,110,0.05)] border border-[rgba(58,60,110,0.2)] rounded-lg p-6 my-6;
+  }
+
+  /* 注意事项样式 */
+  .terms-note {
+    @apply bg-[rgba(165,193,214,0.1)] border-l-4 border-xf-info p-4 rounded-r-lg my-6;
+  }
+
+  /* 条款表格样式 */
+  .terms-table {
+    @apply w-full border-collapse my-6;
+  }
+  
+  .terms-table th,
+  .terms-table td {
+    @apply border border-xf-bg/80 p-3 text-left;
+  }
+  
+  .terms-table th {
+    @apply bg-xf-light font-semibold text-xf-dark;
+  }
+  
+  .terms-table tr:nth-child(even) {
+    @apply bg-xf-light/50;
+  }
+},
 
 /* 工具类样式 */
 @layer utilities {

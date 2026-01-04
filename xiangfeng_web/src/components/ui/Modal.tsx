@@ -3,6 +3,8 @@
  * 提供弹出层功能
  */
 
+'use client';
+
 import { ReactNode, useEffect } from 'react';
 
 interface ModalProps {

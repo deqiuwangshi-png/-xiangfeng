@@ -27,6 +27,7 @@ const config: Config = {
           medium: '#8C8EA9',
           success: '#4CAF50',
           warning: '#FF9800',
+          border: '#E1E4EA',
         }
       },
       // 字体配置
@@ -46,6 +47,8 @@ const config: Config = {
         'float': 'float 6s ease-in-out infinite',
         'pulse-subtle': 'pulse-subtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'slide-up': 'slide-up 0.3s ease-out',
+        'fade-in': 'fadeIn 1s ease-out',
+        'fade-in-up': 'fadeInUp 0.4s ease-out',
       },
       // 关键帧配置
       keyframes: {
@@ -60,7 +63,15 @@ const config: Config = {
         'slide-up': {
           '0%': { opacity: 0, transform: 'translateY(20px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
-        }
+        },
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+        fadeInUp: {
+          '0%': { opacity: 0, transform: 'translateY(30px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       // 背景模糊配置
       backdropBlur: {
