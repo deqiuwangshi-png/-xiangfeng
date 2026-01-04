@@ -1,7 +1,6 @@
 'use client';
 
 import { Sparkles, Users, Hash, ArrowUpRight, Clock } from 'lucide-react';
-import Image from 'next/image';
 
 /**
  * 右侧边栏组件
@@ -49,26 +48,20 @@ export default function RightSidebar() {
           <div className="bg-[var(--color-xf-light)]/60 rounded-xl p-4">
             <h4 className="font-medium text-[var(--color-xf-dark)] text-sm mb-1">互相关注</h4>
             <div className="flex items-center gap-2 mt-2">
-              <Image 
+              <img 
                 src="https://api.dicebear.com/7.x/micah/svg?seed=Alice&backgroundColor=e1e4ea" 
                 alt="Alice"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full" 
+                className="w-8 h-8 rounded-full"
               />
-              <Image 
+              <img 
                 src="https://api.dicebear.com/7.x/micah/svg?seed=Bob&backgroundColor=d2c3d5" 
                 alt="Bob"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full" 
+                className="w-8 h-8 rounded-full"
               />
-              <Image 
+              <img 
                 src="https://api.dicebear.com/7.x/micah/svg?seed=Charlie&backgroundColor=a5c1d6" 
                 alt="Charlie"
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded-full" 
+                className="w-8 h-8 rounded-full"
               />
               <div className="w-8 h-8 rounded-full bg-[var(--color-xf-bg)] flex items-center justify-center text-xs text-[var(--color-xf-primary)] font-bold">+12</div>
             </div>

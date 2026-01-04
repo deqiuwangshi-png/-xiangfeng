@@ -8,7 +8,6 @@
 import { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { RefreshCw, Share2, Heart, MessageSquare, Clock, Eye, User, Plus, Tag, History, Users, Menu } from 'lucide-react';
-import Image from 'next/image';
 
 const HomePage = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'explore' | 'publish'>('home');
@@ -107,11 +106,9 @@ const HomePage = () => {
               <div className="card-bg rounded-2xl p-6 group cursor-pointer" onClick={() => readArticle(1)}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <Image
+                    <img
                       src="https://api.dicebear.com/7.x/micah/svg?seed=Sophia&backgroundColor=e1e4ea"
                       alt="Sophia Chen"
-                      width={40}
-                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                     <div>
@@ -195,11 +192,9 @@ const HomePage = () => {
               <div className="card-bg rounded-2xl p-6 group cursor-pointer" onClick={() => readArticle(2)}>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <Image
+                    <img
                       src="https://api.dicebear.com/7.x/micah/svg?seed=Liam&backgroundColor=d2c3d5"
                       alt="Liam Zhang"
-                      width={40}
-                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                     <div>

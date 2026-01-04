@@ -7,8 +7,6 @@
  * @param className - 自定义样式类
  */
 
-import Image from 'next/image';
-
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
@@ -28,23 +26,15 @@ export const Logo = ({ size = 'md', showText = true, className = '' }: LogoProps
     lg: 'text-2xl'
   };
 
-  const iconSizes = {
-    sm: 16,
-    md: 20,
-    lg: 24
-  };
-
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       {/* 官网唯一图标容器 - 使用浅色背景增强LOGO辨识度 */}
       <div className={`${sizeClasses[size]} bg-white rounded-lg flex items-center justify-center animate-logo-pulse shadow-md border border-xf-soft/30`}>
-        {/* 使用 Image 组件加载 SVG 文件 */}
-        <Image 
+        {/* 使用 img 标签加载 SVG 文件 */}
+        <img 
           src="/LOGO.svg" 
           alt="相逢 Logo"
-          width={iconSizes[size]}
-          height={iconSizes[size]}
-          className="text-white"
+          className={`text-white ${sizeClasses[size]}`}
         />
       </div>
       

@@ -10,7 +10,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Home, Compass, Edit3, User, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface SidebarProps {
   activeTab?: 'home' | 'explore' | 'publish';
@@ -101,13 +100,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab = 'home', onTabChange }) =>
       {/* 用户头像区域 */}
       <div className="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3 relative">
         <div className="relative cursor-pointer" onClick={toggleProfileMenu} ref={profileRef}>
-            <Image
+            <img
             src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=b6cad7"
             alt="Avatar"
-            width={40}
-            height={40}
             className="w-10 h-10 rounded-full shadow-sm ring-2 ring-white"
-            />
+          />
             <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
         </div>
 

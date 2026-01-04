@@ -521,8 +521,8 @@
     transition: all 0.3s ease;
   }
 
-  /* 导航栏激活指示器 */
-  .nav-active-indicator {
+  /* 侧边栏导航激活指示器 */
+  .sidebar-nav-active-indicator {
     position: absolute;
     left: 0;
     height: 60%;
@@ -533,7 +533,7 @@
     transition: opacity 0.3s ease, height 0.3s ease;
   }
 
-  .nav-item.active .nav-active-indicator {
+  .nav-item.active .sidebar-nav-active-indicator {
     opacity: 1;
     height: 80%;
   }

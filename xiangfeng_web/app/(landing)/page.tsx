@@ -21,41 +21,53 @@ export default function LandingPage() {
     <div id="landing-view" className="min-h-screen flex flex-col bg-xf-light text-xf-dark antialiased font-sans selection-soft overflow-x-hidden">
       {/* 导航栏 */}
       <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-xf-bg/30">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          {/* 官网唯一标识 */}
-          <Logo size="md" showText={true} />
-
-          {/* 桌面导航菜单 */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">特色功能</a>
-            <a href="#how-it-works" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">如何运作</a>
-            <a href="#community" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">社群</a>
-            <a href="#pricing" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">定价</a>
-          </div>
-
-          {/* 行动按钮 */}
-          <div className="flex items-center gap-4">
-            <a href="/login" className="btn-primary px-6 py-2.5">
-              登录
-            </a>
-            {/* 移动端菜单按钮 */}
-            <button id="mobile-menu-btn" className="md:hidden text-xf-primary" onClick={toggleMobileMenu}>
-              <Menu className="w-6 h-6 lucide-icon" />
-            </button>
-          </div>
-
-          {/* 移动端菜单 */}
-          <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30">
-            <div className="flex flex-col p-6 space-y-4">
-              <a href="#features" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>特色功能</a>
-              <a href="#how-it-works" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>如何运作</a>
-              <a href="#community" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>社群</a>
-              <a href="#pricing" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>定价</a>
-              <div className="pt-4 border-t border-xf-bg/30">
-                <a href="/login" className="w-full py-3 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md block text-center">
-                  立即体验
-                </a>
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            {/* 左侧：Logo和品牌名称 */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center animate-logo-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 3v12" />
+                  <path d="M18 12V3" />
+                  <path d="M6 15a6 6 0 0 0 12 0" />
+                  <path d="M6 9a6 6 0 0 1 12 0" />
+                </svg>
               </div>
+              <span className="font-serif text-xl font-bold text-gradient">相逢</span>
+            </div>
+
+            {/* 中间：桌面导航菜单 */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#features" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">特色功能</a>
+              <a href="#how-it-works" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">如何运作</a>
+              <a href="#community" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">社群</a>
+              <a href="#pricing" className="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">定价</a>
+            </div>
+
+            {/* 右侧：行动按钮 */}
+            <div className="flex items-center gap-4">
+              <a href="/login" className="btn-primary px-6 py-2.5">
+                登录
+              </a>
+              {/* 移动端菜单按钮 */}
+              <button id="mobile-menu-btn" className="md:hidden text-xf-primary" onClick={toggleMobileMenu}>
+                <Menu className="w-6 h-6 lucide-icon" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 移动端菜单 */}
+        <div id="mobile-menu" className="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 shadow-elevated">
+          <div className="flex flex-col p-6 space-y-4">
+            <a href="#features" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>特色功能</a>
+            <a href="#how-it-works" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>如何运作</a>
+            <a href="#community" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>社群</a>
+            <a href="#pricing" className="text-xf-primary hover:text-xf-accent font-medium py-2" onClick={toggleMobileMenu}>定价</a>
+            <div className="pt-4 border-t border-xf-bg/30">
+              <a href="/login" className="w-full py-3 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md block text-center">
+                立即体验
+              </a>
             </div>
           </div>
         </div>

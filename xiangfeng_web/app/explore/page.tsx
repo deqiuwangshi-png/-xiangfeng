@@ -8,7 +8,6 @@
 import { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import { Search, Clock, MessageSquare, Users, Heart, Star, Plus, Lightbulb } from 'lucide-react';
-import Image from 'next/image';
 
 const ExplorePage = () => {
   const [activeTab, setActiveTab] = useState<'home' | 'explore' | 'publish'>('explore');
@@ -116,13 +115,10 @@ const ExplorePage = () => {
             <div className="card-bg rounded-2xl p-6 group cursor-pointer" onClick={() => exploreItem('article', 1)}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <Image
+                  <img
                     src="https://api.dicebear.com/7.x/micah/svg?seed=Sophia&backgroundColor=e1e4ea"
                     alt="Sophia Chen"
-                    width={40}
-                    height={40}
                     className="w-10 h-10 rounded-full"
-                    unoptimized
                   />
                   <div>
                     <h4 className="font-bold text-xf-dark">Sophia Chen</h4>
@@ -208,13 +204,10 @@ const ExplorePage = () => {
             <div className="card-bg rounded-2xl p-6 group cursor-pointer" onClick={() => exploreItem('thinker', 1)}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <Image
+                  <img
                     src="https://api.dicebear.com/7.x/micah/svg?seed=Liam&backgroundColor=d2c3d5"
                     alt="Liam Zhang"
-                    width={40}
-                    height={40}
                     className="w-10 h-10 rounded-full"
-                    unoptimized
                   />
                   <div>
                     <h4 className="font-bold text-xf-dark">Liam Zhang</h4>
@@ -258,13 +251,10 @@ const ExplorePage = () => {
             <div className="card-bg rounded-2xl p-6 group cursor-pointer" onClick={() => exploreItem('article', 2)}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <Image
+                  <img
                     src="https://api.dicebear.com/7.x/micah/svg?seed=Alex&backgroundColor=f0e6ef"
                     alt="Alex Wang"
-                    width={40}
-                    height={40}
                     className="w-10 h-10 rounded-full"
-                    unoptimized
                   />
                   <div>
                     <h4 className="font-bold text-xf-dark">Alex Wang</h4>
@@ -493,13 +483,10 @@ const ExplorePage = () => {
           </h3>
           <div className="space-y-3">
               <div className="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onClick={() => viewThinker(1)}>
-                <Image
+                <img
                   src="https://api.dicebear.com/7.x/micah/svg?seed=Taylor&backgroundColor=a5c1d6"
                   alt="Taylor"
-                  width={32}
-                  height={32}
                   className="w-8 h-8 rounded-full"
-                  unoptimized
                 />
               <div className="flex-1">
                 <h4 className="font-medium text-xf-dark text-sm">Taylor Liu</h4>
@@ -509,13 +496,10 @@ const ExplorePage = () => {
             </div>
 
             <div className="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onClick={() => viewThinker(2)}>
-              <Image
+              <img
                 src="https://api.dicebear.com/7.x/micah/svg?seed=Jordan&backgroundColor=e1e4ea"
                 alt="Jordan Lee"
-                width={32}
-                height={32}
                 className="w-8 h-8 rounded-full"
-                unoptimized
               />
               <div className="flex-1">
                 <h4 className="font-medium text-xf-dark text-sm">Jordan Lee</h4>
@@ -525,13 +509,10 @@ const ExplorePage = () => {
             </div>
 
             <div className="flex items-center gap-3 p-3 hover:bg-xf-light/50 rounded-xl cursor-pointer" onClick={() => viewThinker(3)}>
-              <Image
+              <img
                 src="https://api.dicebear.com/7.x/micah/svg?seed=Riley&backgroundColor=d2c3d5"
                 alt="Riley Zhang"
-                width={32}
-                height={32}
                 className="w-8 h-8 rounded-full"
-                unoptimized
               />
               <div className="flex-1">
                 <h4 className="font-medium text-xf-dark text-sm">Riley Zhang</h4>
