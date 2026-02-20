@@ -6,7 +6,6 @@ import HowItWorksSection from '@/components/marketing/HowItWorksSection'
 import CreatorsSection from '@/components/marketing/CreatorsSection'
 import EconomySection from '@/components/marketing/EconomySection'
 import CTASection from '@/components/marketing/CTASection'
-import ScrollReveal from '@/components/marketing/ScrollReveal'
 
 export default function HomePage() {
   return (
@@ -17,7 +16,6 @@ export default function HomePage() {
       <CreatorsSection />
       <EconomySection />
       <CTASection />
-      <ScrollReveal />
     </>
   )
 }
