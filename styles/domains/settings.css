@@ -1,0 +1,164 @@
+/**
+ * 设置页面样式文件
+ * 
+ * 作用: 提供设置页面特定的样式
+ * 
+ * 样式说明:
+ *   - 严格遵循HTML原型文件样式
+ *   - 使用Tailwind CSS v4语法
+ *   - 像素级还原原型设计
+ *   - 所有间距完全复制原型数值
+ * 
+ * 引入位置: app/(user)/settings/page.tsx
+ * 
+ * 更新时间: 2026-02-20
+ */
+
+/* 优雅的淡入动画 */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 优化按钮按压效果 */
+button:active, .cursor-pointer:active {
+  transform: scale(0.985);
+  transition-duration: 50ms;
+}
+
+
+
+/* 卡片背景增强 */
+.card-bg {
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border: 1px solid rgba(225, 228, 234, 0.8);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+}
+
+/* 层次提升：添加轻微的文本阴影提升可读性 */
+.text-layer-1 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.text-layer-2 {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 设置导航项样式 */
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.settings-nav-item:hover {
+  background: rgba(225, 228, 234, 0.5);
+}
+
+.settings-nav-item.active {
+  background: #3A3C6E;
+  color: white;
+}
+
+.settings-nav-item.active i[data-lucide] {
+  color: white;
+}
+
+.settings-nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* 设置项样式 */
+.setting-item {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(225, 228, 234, 0.5);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+/* 开关样式 */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E1E4EA;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #3A3C6E;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+/* 颜色预览样式 */
+.color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid rgba(225, 228, 234, 0.8);
+  cursor: pointer;
+}
+
+.color-preview.active {
+  border-color: #3A3C6E;
+  box-shadow: 0 0 0 3px rgba(58, 60, 110, 0.15);
+}
+
+/* 危险区域样式 */
+.danger-zone {
+  background: linear-gradient(145deg, rgba(244, 67, 54, 0.05), rgba(244, 67, 54, 0.02));
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.danger-zone:hover {
+  border-color: rgba(244, 67, 54, 0.4);
+}

@@ -1,0 +1,217 @@
+/**
+ * 用户页面样式文件
+ * 
+ * 作用: 定义用户页面（包括更新日志、个人主页）的局部样式
+ * 
+ * 使用说明:
+ *   在 app/(user)/layout.tsx 中引入
+ *   遵循共享变量 + 局部互补原则
+ *   严格遵循 Tailwind CSS v4 规范
+ * 
+ * 样式特点:
+ *   - 响应式设计
+ *   - 移动端优先
+ *   - 平滑过渡动画
+ *   - 悬停效果
+ * 
+ * 更新时间: 2026-02-20
+ */
+
+/* 
+ * 引入个人主页样式
+ */
+@import './profile.css';
+
+/* 
+ * 更新日志页面样式
+ * 严格遵循更新日志.html原型文件样式
+ */
+
+/* 
+ * 筛选按钮样式
+ */
+.filter-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-button:hover {
+  transform: translateY(-1px);
+}
+
+.filter-button:active {
+  transform: translateY(0);
+}
+
+/* 
+ * 版本卡片样式
+ */
+.version-card {
+  transition: all 0.3s ease-in-out;
+}
+
+.version-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 
+ * 更新条目样式
+ */
+.update-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.update-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+/* 
+ * 月份标题样式
+ */
+.month-header {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 
+ * 当前版本卡片样式
+ */
+.current-version-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  transition: all 0.3s ease-in-out;
+}
+
+.current-version-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 
+ * 响应式样式
+ * 移动端优先
+ */
+
+/* 
+ * 平板设备（768px及以上）
+ */
+@media (min-width: 768px) {
+  .filter-button {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* 
+ * 桌面设备（1024px及以上）
+ */
+@media (min-width: 1024px) {
+  .version-card {
+    padding: 1.5rem;
+  }
+}
+
+/* 
+ * 大屏幕设备（1280px及以上）
+ */
+@media (min-width: 1280px) {
+  .updates-container {
+    max-width: 56rem;
+  }
+}
+
+/* 
+ * 打印样式
+ */
+@media print {
+  .filter-button {
+    display: none;
+  }
+  
+  .version-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .update-item:hover {
+    background-color: transparent;
+    transform: none;
+  }
+}
+
+/* 
+ * 深色模式支持（可选）
+ */
+@media (prefers-color-scheme: dark) {
+  .version-card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .update-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* 
+ * 辅助功能样式
+ */
+.filter-button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.version-card:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 
+ * 加载动画
+ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* 
+ * 滚动条样式
+ */
+.updates-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.updates-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.updates-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.updates-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

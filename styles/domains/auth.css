@@ -1,0 +1,154 @@
+/*
+ * 文件名: auth.css
+ * 作用: 定义认证页面（登录/注册）的共享样式
+ *
+ * 依赖:
+ *   - app/globals.css (颜色变量和主题定义)
+ *
+ * 使用说明:
+ *   在 app/(auth)/layout.tsx 中导入此文件
+ *   包含认证页面的所有共享样式和动画
+ *
+ * 更新时间: 2026-02-19
+ */
+
+/* 认证页面布局 */
+.auth-layout {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background: var(--color-xf-light);
+  color: var(--color-xf-dark);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 标题样式 */
+.auth-layout h1,
+.auth-layout h2,
+.auth-layout h3,
+.auth-layout h4,
+.auth-layout h5,
+.auth-layout h6 {
+  letter-spacing: 0.02em;
+  font-feature-settings: "kern" 1;
+  color: var(--color-xf-dark);
+}
+
+/* 隐藏滚动条 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 按钮按压效果 */
+button:active,
+.cursor-pointer:active {
+  transform: scale(0.985);
+  transition-duration: 50ms;
+}
+
+/* 输入框聚焦效果 */
+input:focus,
+textarea:focus,
+select:focus {
+  background: white;
+  border-color: var(--color-xf-primary);
+  box-shadow: 0 0 0 3px rgba(106, 91, 138, 0.15),
+              inset 0 1px 4px rgba(0, 0, 0, 0.05);
+  outline: none;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* 淡入上浮动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* 加载点动画 */
+@keyframes loadingDots {
+  0%,
+  20% {
+    content: '.';
+  }
+  40% {
+    content: '..';
+  }
+  60%,
+  100% {
+    content: '...';
+  }
+}
+
+.loading-dots::after {
+  content: '.';
+  animation: loadingDots 1.5s steps(5, end) infinite;
+}
+
+/* 卡片背景 */
+.card-bg {
+  background: #ffffff;
+  border: 1px solid rgba(225, 228, 234, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+/* 视图切换过渡 */
+.auth-view {
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.auth-view.hidden-view {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 自定义复选框 */
+.custom-checkbox {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-xf-bg);
+  background: var(--color-xf-light);
+  transition: all 0.2s ease;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.custom-checkbox:checked {
+  background: var(--color-xf-accent);
+  border-color: var(--color-xf-accent);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.75rem;
+  height: 0.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: 0.75rem;
+  background-position: center;
+  background-repeat: no-repeat;
+}

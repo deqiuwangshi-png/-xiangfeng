@@ -1,0 +1,117 @@
+/* 服务条款页面样式 - 严格遵循原型 */
+
+/* 侧边导航激活状态 */
+.side-nav-item {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.side-nav-item.active {
+  color: var(--color-xf-accent);
+  font-weight: 600;
+}
+
+.side-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background-color: var(--color-xf-accent);
+  border-radius: 0 4px 4px 0;
+}
+
+/* 条款内容样式 */
+.terms-section {
+  scroll-margin-top: 2rem;
+}
+
+.terms-section h3 {
+  border-bottom: 2px solid var(--color-xf-bg);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.terms-content ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.terms-content li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.terms-content li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-xf-primary);
+  font-weight: bold;
+}
+
+.terms-note {
+  background-color: rgba(165, 193, 214, 0.1);
+  border-left: 4px solid var(--color-xf-info);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin: 1.5rem 0;
+}
+
+.terms-warning {
+  background-color: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid var(--color-xf-warning);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin: 1.5rem 0;
+}
+
+.terms-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.terms-table th,
+.terms-table td {
+  border: 1px solid var(--color-xf-bg);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.terms-table th {
+  background-color: var(--color-xf-light);
+  font-weight: 600;
+}
+
+.terms-table tr:nth-child(even) {
+  background-color: var(--color-xf-light);
+}
+
+/* 重要条款高亮 */
+.important-clause {
+  background-color: rgba(58, 60, 110, 0.05);
+  border: 1px solid rgba(58, 60, 110, 0.2);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+/* 打印优化 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  .terms-section {
+    page-break-inside: avoid;
+  }
+}

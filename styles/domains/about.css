@@ -1,0 +1,41 @@
+/*
+ * 文件名: about.css
+ * 作用: 定义关于页面的样式
+ *
+ * 依赖:
+ *   - app/globals.css (颜色变量和主题定义)
+ *
+ * 使用说明:
+ *   在 app/(marketing)/about/page.tsx 中导入此文件
+ *   包含关于页面的所有样式
+ *
+ * 更新时间: 2026-02-20
+ */
+
+/* 玻璃效果 */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 网格背景 */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(106, 91, 138, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106, 91, 138, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+}
+
+/* 自定义分割线 */
+.divider-dot {
+  width: 4px;
+  height: 4px;
+  background-color: var(--color-xf-soft);
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 12px;
+}

@@ -1,0 +1,154 @@
+/**
+ * 个人主页样式文件
+ * 
+ * 作用: 定义个人主页页面的专用样式
+ * 
+ * 基于原型文件: d:\My_xiangmu\xf_02\docs\08原型文件设计图\个人.html
+ * 
+ * 设计原则:
+ * - HTML原型文件是唯一真理数据来源
+ * - 严格遵循原型中的所有样式和布局
+ * - 不得自行修改或"优化"原型设计
+ * - 所有间距完全复制原型数值
+ * 
+ * 更新时间: 2026-02-20
+ */
+
+/* 个人主页头部背景 */
+.profile-header-bg {
+  background: linear-gradient(135deg, rgba(106, 91, 138, 0.1) 0%, rgba(58, 60, 110, 0.05) 100%);
+}
+
+/* 个人主页统计项 */
+.profile-stats-item {
+  transition: all 0.3s ease;
+}
+
+.profile-stats-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px -5px rgba(58, 60, 110, 0.15);
+}
+
+/* 个人主页标签页 */
+.profile-tab {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profile-tab:hover {
+  background: rgba(225, 228, 234, 0.5);
+}
+
+.profile-tab.active {
+  background: #3A3C6E;
+  color: white;
+  box-shadow: 0 4px 12px rgba(58, 60, 110, 0.2);
+}
+
+/* 领域贡献卡片 */
+.domain-card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid rgba(225, 228, 234, 0.8);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.domain-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -10px rgba(58, 60, 110, 0.15);
+  border-color: #6A5B8A;
+}
+
+/* 领域图标 */
+.domain-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.domain-icon.thinking {
+  background: linear-gradient(135deg, rgba(106, 91, 138, 0.15), rgba(58, 60, 110, 0.1));
+  color: #6A5B8A;
+}
+
+.domain-icon.writing {
+  background: linear-gradient(135deg, rgba(74, 111, 165, 0.15), rgba(74, 111, 165, 0.1));
+  color: #4A6FA5;
+}
+
+.domain-icon.philosophy {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.1));
+  color: #4CAF50;
+}
+
+/* 文本阴影层次 */
+.text-layer-1 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.text-layer-2 {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 卡片背景 */
+.card-bg {
+  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  border: 1px solid rgba(225, 228, 234, 0.8);
+}
+
+/* 标签样式 */
+.tag {
+  border: 1.5px solid rgba(165, 193, 214, 0.3);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.tag:hover {
+  border-color: #4A6FA5;
+  background-color: #4A6FA5;
+  color: white;
+}
+
+/* 文章行高 */
+.line-clamp-3 {
+  line-height: 1.8;
+}
+
+/* 淡入动画 */
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页面切换过渡 */
+.view-transition {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* 隐藏滚动条但保留功能 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

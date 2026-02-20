@@ -1,0 +1,100 @@
+/* 隐私政策页面样式 - 严格遵循原型 */
+
+/* 侧边导航激活状态 */
+.side-nav-item {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.side-nav-item.active {
+  color: var(--color-xf-accent);
+  font-weight: 600;
+}
+
+.side-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background-color: var(--color-xf-accent);
+  border-radius: 0 4px 4px 0;
+}
+
+/* 政策内容样式 */
+.policy-section {
+  scroll-margin-top: 2rem;
+}
+
+.policy-section h3 {
+  border-bottom: 2px solid var(--color-xf-bg);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.policy-content ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.policy-content li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.policy-content li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-xf-primary);
+  font-weight: bold;
+}
+
+.policy-note {
+  background-color: rgba(165, 193, 214, 0.1);
+  border-left: 4px solid var(--color-xf-info);
+  padding: 1rem 1.5rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin: 1.5rem 0;
+}
+
+.policy-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.policy-table th,
+.policy-table td {
+  border: 1px solid var(--color-xf-bg);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.policy-table th {
+  background-color: var(--color-xf-light);
+  font-weight: 600;
+}
+
+.policy-table tr:nth-child(even) {
+  background-color: var(--color-xf-light);
+}
+
+/* 打印优化 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  .policy-section {
+    page-break-inside: avoid;
+  }
+}
