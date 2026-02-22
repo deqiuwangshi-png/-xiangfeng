@@ -1,6 +1,6 @@
 'use client'
 
-import { GitMerge } from 'lucide-react'
+import { GitMerge, Link } from 'lucide-react'
 import { useEffect } from 'react'
 
 export default function Navbar() {
@@ -34,30 +34,30 @@ export default function Navbar() {
         </a>
 
         <div className="flex items-center gap-8">
-          <a
+          <Link
             href="/"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             特色功能
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             如何运作
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             生态创作者
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             生态经济
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

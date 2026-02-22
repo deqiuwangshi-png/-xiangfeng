@@ -3,6 +3,7 @@
 import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
+import { updateContentSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 内容偏好设置区块（Client Component）
@@ -24,7 +25,7 @@ import { ToggleSwitch } from '../ToggleSwitch'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function ContentSection() {
@@ -48,13 +49,25 @@ export function ContentSection() {
         <SettingItem
           label="内容过滤"
           description="过滤可能包含敏感内容"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="filterSensitive"
+              onServerAction={updateContentSettings}
+            />
+          }
         />
 
         <SettingItem
           label="自动播放媒体"
           description="自动播放视频和音频内容"
-          control={<ToggleSwitch checked={false} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={false} 
+              settingKey="autoplayMedia"
+              onServerAction={updateContentSettings}
+            />
+          }
         />
 
         <SettingItem

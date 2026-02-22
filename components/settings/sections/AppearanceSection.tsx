@@ -5,6 +5,7 @@ import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
 import { ColorPreview } from '../ColorPreview'
 import { useState } from 'react'
+import { updateAppearanceSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 外观与主题设置区块（Client Component）
@@ -26,7 +27,7 @@ import { useState } from 'react'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function AppearanceSection() {
@@ -138,7 +139,13 @@ export function AppearanceSection() {
         <SettingItem
           label="动画效果"
           description="启用界面动画和过渡效果"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="animations"
+              onServerAction={updateAppearanceSettings}
+            />
+          }
         />
 
         <SettingItem

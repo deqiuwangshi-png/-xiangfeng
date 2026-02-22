@@ -3,6 +3,7 @@
 import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
+import { updateAccessibilitySettings } from '@/app/(user)/settings/actions'
 
 /**
  * 无障碍访问设置区块（Client Component）
@@ -24,7 +25,7 @@ import { ToggleSwitch } from '../ToggleSwitch'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function AccessibilitySection() {
@@ -34,19 +35,37 @@ export function AccessibilitySection() {
         <SettingItem
           label="减少动画"
           description="减少界面动画效果"
-          control={<ToggleSwitch checked={false} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={false} 
+              settingKey="reduceMotion"
+              onServerAction={updateAccessibilitySettings}
+            />
+          }
         />
 
         <SettingItem
           label="高对比度模式"
           description="增强界面元素之间的对比度"
-          control={<ToggleSwitch checked={false} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={false} 
+              settingKey="highContrast"
+              onServerAction={updateAccessibilitySettings}
+            />
+          }
         />
 
         <SettingItem
           label="屏幕阅读器优化"
           description="优化界面元素供屏幕阅读器使用"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="screenReader"
+              onServerAction={updateAccessibilitySettings}
+            />
+          }
         />
 
         <SettingItem

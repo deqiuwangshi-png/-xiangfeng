@@ -2,21 +2,12 @@
 
 /**
  * 侧边栏组件
- * 
  * 作用: 显示应用主导航、用户信息和操作菜单
- * 
  * @returns {JSX.Element} 侧边栏组件
- * 
- * 使用说明:
- *   用于应用页面的左侧导航栏
- *   包含导航菜单、用户头像、下拉菜单和版权信息
- *   支持响应式布局（移动端和桌面端）
- * 
  * 交互说明:
  *   - 点击导航项切换激活状态
  *   - 点击头像切换下拉菜单
  *   - 点击外部区域关闭下拉菜单
- * 
  * 依赖:
  *   - lucide-react (图标组件)
  *   - next/image (图片优化)
@@ -25,7 +16,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { Home, Compass, Edit3, User, Settings, LogOut, FolderOpen, MessageSquare, Newspaper, Zap } from 'lucide-react'
+import { Home, Edit3, User, Settings, LogOut, FolderOpen, MessageSquare, Newspaper, Zap, BellRing } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
@@ -84,7 +75,8 @@ const userDropdownItems: UserDropdownItem[] = [
   { label: '收益中心', icon: Zap, href: '/earnings' },
   { label: '更新公告', icon: Newspaper, href: '/updates' },
   { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-  { label: '设置', icon: Settings, href: '/settings' },
+  { label: '消息通知', icon: BellRing, href: '/notifications' },
+  { label: '用户设置', icon: Settings, href: '/settings' },
   { label: '退出登录', icon: LogOut, href: '/login', isDanger: true },
 ]
 
@@ -247,7 +239,7 @@ export function Sidebar() {
       {/* 版权信息 */}
       <div className="mt-auto pt-6 border-t border-xf-bg/40 text-center">
         <div className="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">
-          ©2024 相逢
+          ©2026 相逢
         </div>
         <div className="text-xs text-xf-primary font-medium xl:hidden">相</div>
       </div>

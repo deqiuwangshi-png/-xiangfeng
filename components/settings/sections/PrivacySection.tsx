@@ -3,6 +3,7 @@
 import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
+import { updatePrivacySettings } from '@/app/(user)/settings/actions'
 
 /**
  * 隐私与安全设置区块（Client Component）
@@ -24,7 +25,7 @@ import { ToggleSwitch } from '../ToggleSwitch'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function PrivacySection() {
@@ -48,7 +49,13 @@ export function PrivacySection() {
         <SettingItem
           label="在线状态显示"
           description="是否向其他人显示你的在线状态"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="onlineStatus"
+              onServerAction={updatePrivacySettings}
+            />
+          }
         />
 
         <SettingItem
@@ -68,7 +75,13 @@ export function PrivacySection() {
         <SettingItem
           label="个性化数据收集"
           description="允许收集数据以改进个性化推荐"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="dataCollection"
+              onServerAction={updatePrivacySettings}
+            />
+          }
         />
 
         <SettingItem

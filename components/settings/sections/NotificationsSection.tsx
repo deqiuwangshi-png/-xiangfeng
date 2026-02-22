@@ -3,6 +3,7 @@
 import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
+import { updateNotificationSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 通知设置区块（Client Component）
@@ -24,7 +25,7 @@ import { ToggleSwitch } from '../ToggleSwitch'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function NotificationsSection() {
@@ -34,43 +35,85 @@ export function NotificationsSection() {
         <SettingItem
           label="推送通知"
           description="接收应用内推送通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="push"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="邮件通知"
           description="接收邮件通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="email"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="新关注者通知"
           description="当有人关注你时通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="newFollowers"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="评论和回复"
           description="当有人评论或回复你的内容时通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="comments"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="点赞和收藏"
           description="当有人喜欢或收藏你的内容时通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="likes"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="社群活动"
           description="社群中的新活动和讨论通知"
-          control={<ToggleSwitch checked={true} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={true} 
+              settingKey="community"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
 
         <SettingItem
           label="每周摘要"
           description="接收每周活动摘要邮件"
-          control={<ToggleSwitch checked={false} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={false} 
+              settingKey="weeklyDigest"
+              onServerAction={updateNotificationSettings}
+            />
+          }
         />
       </div>
     </SettingsSection>

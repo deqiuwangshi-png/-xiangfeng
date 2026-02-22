@@ -4,6 +4,7 @@ import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
 import { ToggleSwitch } from '../ToggleSwitch'
 import { DangerZone } from '../DangerZone'
+import { updateAdvancedSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 高级设置区块（Client Component）
@@ -26,7 +27,7 @@ import { DangerZone } from '../DangerZone'
  *   - 使用Tailwind CSS v4语法
  *   - 像素级还原原型设计
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-02-22
  */
 
 export function AdvancedSection() {
@@ -36,7 +37,13 @@ export function AdvancedSection() {
         <SettingItem
           label="开发者选项"
           description="显示开发者工具和选项"
-          control={<ToggleSwitch checked={false} onChange={() => {}} />}
+          control={
+            <ToggleSwitch 
+              checked={false} 
+              settingKey="developerMode"
+              onServerAction={updateAdvancedSettings}
+            />
+          }
         />
 
         <SettingItem
