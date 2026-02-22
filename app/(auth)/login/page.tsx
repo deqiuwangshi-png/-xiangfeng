@@ -70,7 +70,7 @@ export default function LoginPage() {
                   <input type="checkbox" className="custom-checkbox" />
                   <span>记住我</span>
                 </label>
-                <Link href="#" className="text-xf-info hover:text-xf-accent transition font-medium">
+                <Link href="/forgot-password" className="text-xf-info hover:text-xf-accent transition font-medium">
                   忘记密码?
                 </Link>
               </div>
