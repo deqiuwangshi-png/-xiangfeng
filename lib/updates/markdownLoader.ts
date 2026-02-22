@@ -9,22 +9,6 @@
  *   用于从content/updates目录加载Markdown格式的更新日志
  *   支持front matter元数据解析
  *   自动按月份分组和排序
- * 
- * Markdown文件格式:
- *   ---
- *   version: V2.5.0
- *   title: 深度写作工具发布
- *   date: 2024-11-28
- *   versionType: minor
- *   categories: new,improved
- *   ---
- *   
- *   ## 新功能
- *   - 新增AI辅助写作工具，支持思维导图式写作和结构建议
- *   
- *   ## 改进优化
- *   - 首页加载速度提升40%，大幅减少数据加载时间
- * 
  * 更新时间: 2026-02-20
  */
 

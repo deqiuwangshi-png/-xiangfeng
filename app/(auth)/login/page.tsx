@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   /**
@@ -18,12 +20,50 @@ export default function LoginPage() {
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    // 模拟登录请求
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // 跳转到home页面（模拟测试）
-    router.push('/home');
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      // 登录成功，跳转到首页
+      router.push('/home');
+      router.refresh();
+    } catch (err) {
+      console.error('Login error:', err);
+      
+      // 优化错误提示
+      if (err instanceof Error) {
+        const errorMessage = err.message;
+        
+        if (errorMessage.includes('Invalid login credentials')) {
+          setError('邮箱或密码错误，请检查后重试。');
+        } else if (errorMessage.includes('Email not confirmed')) {
+          setError('邮箱未验证，请检查邮箱并点击验证链接。');
+        } else if (errorMessage.includes('User not found')) {
+          setError('该账号不存在，请先注册。');
+        } else if (errorMessage.includes('Too many requests')) {
+          setError('请求过于频繁，请稍后再试。');
+        } else {
+          setError('登录失败：' + errorMessage);
+        }
+      } else {
+        setError('登录失败，请检查邮箱和密码');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -39,16 +79,25 @@ export default function LoginPage() {
 
           {/* 表单卡片 */}
           <FormCard title="欢迎回来">
+            {/* 错误提示 */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleLogin} className="space-y-6">
               {/* 账号输入 */}
               <div>
                 <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">账号</label>
                 <input
                   type="email"
+                  name="email"
                   id="login-email"
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="your@email.com"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -57,17 +106,19 @@ export default function LoginPage() {
                 <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">密码</label>
                 <input
                   type="password"
+                  name="password"
                   id="login-password"
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="•••••••"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
               {/* 记住我和忘记密码 */}
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
-                  <input type="checkbox" className="custom-checkbox" />
+                  <input type="checkbox" className="custom-checkbox" disabled={isLoading} />
                   <span>记住我</span>
                 </label>
                 <Link href="/forgot-password" className="text-xf-info hover:text-xf-accent transition font-medium">
