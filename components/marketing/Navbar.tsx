@@ -1,6 +1,7 @@
 'use client'
 
-import { GitMerge, Link } from 'lucide-react'
+import { GitMerge } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect } from 'react'
 
 export default function Navbar() {
