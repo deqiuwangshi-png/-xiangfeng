@@ -23,12 +23,14 @@
  *   - EditorHeader (编辑器头部组件)
  *   - EditorCard (编辑器卡片组件)
  *   - EditorToolbar (编辑器工具栏组件)
+ *   - styles/domains/publish.css (发布页面样式)
  * 
  * 数据来源: docs/08原型文件设计图/发布.html
  * 
- * 更新时间: 2026-02-19
+ * 更新时间: 2026-02-23
  */
 
+import '@/styles/domains/publish.css'
 import { useState, useEffect, useRef } from 'react'
 import { EditorHeader } from '@/components/publish/EditorHeader'
 import { EditorCard } from '@/components/publish/EditorCard'
@@ -393,7 +395,7 @@ export default function PublishPage() {
   }, [editorState.title, editorState.content])
 
   return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
+    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth publish-page-container">
       {/* 顶部导航栏 */}
       <EditorHeader
         onSaveDraft={saveDraft}
