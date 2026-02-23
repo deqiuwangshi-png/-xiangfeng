@@ -23,6 +23,7 @@
  *   用于编辑器的浮动工具栏
  *   包含格式化工具、插入工具、编辑工具和视图工具
  *   支持折叠/展开功能
+ *   工具栏会自动与编辑器容器居中对齐
  * 
  * 交互说明:
  *   - 点击工具按钮触发相应的处理函数
@@ -36,9 +37,10 @@
  * 
  * 数据来源: docs/08原型文件设计图/发布.html
  * 
- * 更新时间: 2026-02-19
+ * 更新时间: 2026-02-23
  */
 
+import { useEffect, useRef } from 'react'
 import { Bold, Italic, Underline, Heading, Quote, Code, Link, Image, List, ListOrdered, Minus, Eraser, Undo, Redo, ArrowUpToLine, Maximize, ChevronDown } from 'lucide-react'
 import { ToolbarButton } from './ToolbarButton'
 
@@ -89,6 +91,13 @@ interface EditorToolbarProps {
  * 
  * @state
  * - isCollapsed: 工具栏是否折叠
+ * 
+ * @refs
+ * - toolbarRef: 工具栏DOM引用，用于动态定位
+ * 
+ * @effects
+ * - 组件挂载时调整工具栏位置
+ * - 窗口大小变化时重新调整工具栏位置
  */
 export function EditorToolbar({
   onFormatText,
@@ -103,9 +112,59 @@ export function EditorToolbar({
   onToggleToolbar,
   isCollapsed,
 }: EditorToolbarProps) {
+  const toolbarRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * 调整工具栏位置，使其与内容编辑器居中对齐
+   * 
+   * @function adjustToolbarPosition
+   * @returns {void}
+   * 
+   * @description
+   * 根据编辑器容器的位置和宽度，动态计算工具栏的中心位置
+   * 确保工具栏始终与编辑器容器水平居中对齐
+   * 
+   * @reference
+   * 原型文件: docs/08原型文件设计图/发布.html
+   * 函数: adjustToolbarPosition()
+   */
+  const adjustToolbarPosition = () => {
+    const editorContainer = document.querySelector('.max-w-\\[840px\\]')
+    const toolbar = toolbarRef.current
+
+    if (!editorContainer || !toolbar) return
+
+    const editorRect = editorContainer.getBoundingClientRect()
+    const editorCenter = editorRect.left + editorRect.width / 2
+
+    toolbar.style.left = `${editorCenter}px`
+    toolbar.style.transform = 'translateX(-50%)'
+  }
+
+  /**
+   * 组件挂载时调整工具栏位置
+   * 
+   * @useEffect
+   * @description
+   * 在组件挂载后立即调整工具栏位置
+   * 监听窗口大小变化，重新调整工具栏位置
+   * 
+   * @cleanup
+   * 移除窗口大小变化事件监听器
+   */
+  useEffect(() => {
+    adjustToolbarPosition()
+    window.addEventListener('resize', adjustToolbarPosition)
+
+    return () => {
+      window.removeEventListener('resize', adjustToolbarPosition)
+    }
+  }, [isCollapsed])
+
   return (
     <div
-      className={`fixed bottom-8 left-[calc(50%+160px)] -translate-x-1/2 bg-white/95 rounded-xl py-4 px-6 shadow-lg flex items-center gap-2 z-50 border border-xf-primary/8 backdrop-blur-md transition-all min-w-[min(90%,800px)] justify-center ${
+      ref={toolbarRef}
+      className={`fixed bottom-8 bg-white/95 rounded-xl py-4 px-6 shadow-lg flex items-center gap-2 z-50 border border-xf-primary/8 backdrop-blur-md transition-all min-w-[min(90%,800px)] justify-center ${
         isCollapsed ? 'py-2 px-4 opacity-70 scale-95 hover:opacity-100 hover:scale-100' : ''
       }`}
     >
