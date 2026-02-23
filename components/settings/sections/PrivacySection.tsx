@@ -58,19 +58,6 @@ export function PrivacySection() {
             </select>
           }
         />
-
-        <SettingItem
-          label="个性化数据收集"
-          description="允许收集数据以改进个性化推荐"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="dataCollection"
-              onServerAction={updatePrivacySettings}
-            />
-          }
-        />
-
         <SettingItem
           label="登录历史"
           description="查看最近的登录活动"
