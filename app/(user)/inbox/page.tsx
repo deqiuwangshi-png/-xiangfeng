@@ -280,7 +280,7 @@ export default function InboxPage() {
         className={`flex items-start gap-4 bg-white p-4 rounded-xl border-gray-100 hover:shadow-sm transition ${notification.unread ? 'border-l-4 border-xf-primary' : ''}`}
         onClick={() => notification.unread && handleMarkAsRead(notification.id)}
       >
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
           <Icon className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
