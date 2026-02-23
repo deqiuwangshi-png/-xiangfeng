@@ -13,6 +13,7 @@ import { Sidebar } from '@/components/ui/Sidebar'
 import '@/styles/domains/user.css'
 import '@/styles/domains/earnings.css'
 import '@/styles/domains/feedback.css'
+import '@/styles/domains/inbox.css'
 
 /**
  * 用户页面布局组件

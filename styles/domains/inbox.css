@@ -1,0 +1,38 @@
+/**
+ * 消息页面样式
+ * @description 消息页面的特定样式补充
+ * @author 系统生成
+ * @date 2026-02-23
+ */
+
+/* ===== 消息页面特定样式 ===== */
+
+/* 通知卡片悬停效果 */
+.inbox-notification-card:hover {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+/* 加载更多按钮动画 */
+.loader-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 筛选标签过渡效果 */
+.filter-tab {
+  transition: all 0.2s ease;
+}
+
+.filter-tab:hover {
+  background-color: rgba(106, 91, 138, 0.05);
+}
+
+.filter-tab.active {
+  background-color: #6A5B8A;
+  color: white;
+}

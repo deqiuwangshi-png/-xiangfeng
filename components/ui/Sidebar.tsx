@@ -17,7 +17,7 @@
  * 更新时间: 2026-02-23
  */
 
-import { Home, Edit3, User, Settings, LogOut, FolderOpen, MessageSquare, Newspaper, Zap, BellRing } from 'lucide-react'
+import { Home, Edit3, User, Settings, LogOut, FolderOpen, BellRing, MessageSquare, Newspaper, Zap } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
@@ -64,6 +64,7 @@ const navItems: NavItem[] = [
   { id: 'home', label: '首页', icon: Home, href: '/home' },
   { id: 'publish', label: '发布', icon: Edit3, href: '/publish' },
   { id: 'draft', label: '草稿', icon: FolderOpen, href: '/drafts' },
+  { id: 'inbox', label: '通知', icon: BellRing, href: '/inbox' },
 ]
 
 /**
@@ -77,7 +78,6 @@ const userDropdownItems: UserDropdownItem[] = [
   { label: '收益中心', icon: Zap, href: '/earnings' },
   { label: '更新公告', icon: Newspaper, href: '/updates' },
   { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-  { label: '消息通知', icon: BellRing, href: '/notifications' },
   { label: '用户设置', icon: Settings, href: '/settings' },
   { label: '退出登录', icon: LogOut, href: '/login', isDanger: true },
 ]
@@ -123,6 +123,7 @@ export function Sidebar() {
     if (pathname === '/home') return 'home'
     if (pathname === '/publish') return 'publish'
     if (pathname === '/drafts') return 'draft'
+    if (pathname === '/inbox') return 'inbox'
     return 'home'
   }, [pathname])
 
