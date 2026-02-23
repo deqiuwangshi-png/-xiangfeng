@@ -45,19 +45,6 @@ export function PrivacySection() {
             </select>
           }
         />
-
-        <SettingItem
-          label="在线状态显示"
-          description="是否向其他人显示你的在线状态"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="onlineStatus"
-              onServerAction={updatePrivacySettings}
-            />
-          }
-        />
-
         <SettingItem
           label="允许私信"
           description="谁可以向你发送私信"

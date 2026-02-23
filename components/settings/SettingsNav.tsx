@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Lock, Bell, Palette, Filter, Eye, Settings2 } from 'lucide-react'
+import { User, Lock, Bell, Palette, Filter, Settings2 } from 'lucide-react'
 
 /**
  * 设置导航组件（Client Component）
@@ -46,7 +46,6 @@ const navItems = [
   { id: 'notifications', label: '通知', icon: Bell },
   { id: 'appearance', label: '外观与主题', icon: Palette },
   { id: 'content', label: '内容偏好', icon: Filter },
-  { id: 'accessibility', label: '无障碍访问', icon: Eye },
   { id: 'advanced', label: '高级设置', icon: Settings2 },
 ]
 

@@ -74,16 +74,6 @@ export function AccountSection() {
           }
         />
 
-        <SettingItem
-          label="数据导出"
-          description="导出你的个人数据和内容"
-          controlType="button"
-          control={
-            <button className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all">
-              请求数据导出
-            </button>
-          }
-        />
       </div>
     </SettingsSection>
   )

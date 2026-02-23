@@ -46,51 +46,6 @@ export function ContentSection() {
           }
         />
 
-        <SettingItem
-          label="内容过滤"
-          description="过滤可能包含敏感内容"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="filterSensitive"
-              onServerAction={updateContentSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="自动播放媒体"
-          description="自动播放视频和音频内容"
-          control={
-            <ToggleSwitch 
-              checked={false} 
-              settingKey="autoplayMedia"
-              onServerAction={updateContentSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="个性化推荐"
-          description="基于你的兴趣推荐内容"
-          controlType="button"
-          control={
-            <button className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all">
-              管理兴趣标签
-            </button>
-          }
-        />
-
-        <SettingItem
-          label="重置兴趣模型"
-          description="清除你的兴趣记录，重新开始"
-          controlType="button"
-          control={
-            <button className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all">
-              重置兴趣
-            </button>
-          }
-        />
       </div>
     </SettingsSection>
   )

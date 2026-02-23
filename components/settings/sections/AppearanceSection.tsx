@@ -135,32 +135,6 @@ export function AppearanceSection() {
             </select>
           }
         />
-
-        <SettingItem
-          label="动画效果"
-          description="启用界面动画和过渡效果"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="animations"
-              onServerAction={updateAppearanceSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="圆角样式"
-          description="调整界面元素的圆角程度"
-          controlType="select"
-          control={
-            <select className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl">
-              <option value="sharp">直角</option>
-              <option value="slight">轻微圆角</option>
-              <option value="medium">中等圆角</option>
-              <option value="rounded">大圆角</option>
-            </select>
-          }
-        />
       </div>
     </SettingsSection>
   )

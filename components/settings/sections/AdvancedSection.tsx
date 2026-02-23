@@ -35,29 +35,6 @@ export function AdvancedSection() {
     <SettingsSection id="settings-advanced-section" title="高级设置">
       <div className="space-y-8">
         <SettingItem
-          label="开发者选项"
-          description="显示开发者工具和选项"
-          control={
-            <ToggleSwitch 
-              checked={false} 
-              settingKey="developerMode"
-              onServerAction={updateAdvancedSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="清除缓存"
-          description="清除本地缓存数据"
-          controlType="button"
-          control={
-            <button className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all">
-              清除缓存
-            </button>
-          }
-        />
-
-        <SettingItem
           label="重置所有设置"
           description="将所有设置恢复为默认值"
           controlType="button"

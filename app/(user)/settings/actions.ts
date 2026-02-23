@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server';
  * 设置更新数据验证模式
  */
 const updateSettingSchema = z.object({
-  category: z.enum(['privacy', 'notifications', 'appearance', 'content', 'accessibility', 'advanced']),
+  category: z.enum(['privacy', 'notifications', 'appearance', 'content', 'advanced']),
   key: z.string(),
   value: z.any(),
 });
@@ -163,32 +163,6 @@ export async function updateContentSettings(formData: FormData) {
 
   return updateSetting({
     category: 'content',
-    key,
-    value: booleanValue,
-  });
-}
-
-/**
- * 更新无障碍设置
- * 
- * @param formData 表单数据
- * @returns 更新结果
- */
-export async function updateAccessibilitySettings(formData: FormData) {
-  const key = formData.get('key') as string;
-  const value = formData.get('value');
-
-  if (!key || value === null) {
-    return {
-      success: false,
-      error: '参数不完整',
-    };
-  }
-
-  const booleanValue = value === 'true';
-
-  return updateSetting({
-    category: 'accessibility',
     key,
     value: booleanValue,
   });

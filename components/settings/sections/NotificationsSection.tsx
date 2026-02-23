@@ -33,18 +33,6 @@ export function NotificationsSection() {
     <SettingsSection id="settings-notifications-section" title="通知设置">
       <div className="space-y-8">
         <SettingItem
-          label="推送通知"
-          description="接收应用内推送通知"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="push"
-              onServerAction={updateNotificationSettings}
-            />
-          }
-        />
-
-        <SettingItem
           label="邮件通知"
           description="接收邮件通知"
           control={
@@ -87,30 +75,6 @@ export function NotificationsSection() {
             <ToggleSwitch 
               checked={true} 
               settingKey="likes"
-              onServerAction={updateNotificationSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="社群活动"
-          description="社群中的新活动和讨论通知"
-          control={
-            <ToggleSwitch 
-              checked={true} 
-              settingKey="community"
-              onServerAction={updateNotificationSettings}
-            />
-          }
-        />
-
-        <SettingItem
-          label="每周摘要"
-          description="接收每周活动摘要邮件"
-          control={
-            <ToggleSwitch 
-              checked={false} 
-              settingKey="weeklyDigest"
               onServerAction={updateNotificationSettings}
             />
           }
