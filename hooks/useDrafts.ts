@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
 import { DraftService } from '@/lib/drafts/draftService'
@@ -99,17 +99,6 @@ export function useDrafts(initialDrafts: DraftData[]) {
   }, [paginatedDrafts, selectedIds])
 
   /**
-   * 重置页码
-   * 
-   * @useEffect
-   * @description
-   * 当筛选器或搜索查询变化时，重置到第一页
-   */
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [activeFilter, searchQuery])
-
-  /**
    * 处理筛选器变化
    * 
    * @function handleFilterChange
@@ -122,6 +111,7 @@ export function useDrafts(initialDrafts: DraftData[]) {
   const handleFilterChange = useCallback((filter: DraftFilter) => {
     setActiveFilter(filter)
     setSelectedIds(new Set())
+    setCurrentPage(1)
   }, [])
 
   /**
@@ -136,6 +126,7 @@ export function useDrafts(initialDrafts: DraftData[]) {
    */
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query)
+    setCurrentPage(1)
   }, [])
 
   /**

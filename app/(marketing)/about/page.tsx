@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { Twitter, Github, Mail, Sparkles, Code2 } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'

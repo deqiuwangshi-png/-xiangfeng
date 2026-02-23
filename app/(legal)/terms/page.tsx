@@ -92,7 +92,7 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  相逢（以下简称"我们"、"平台"或"服务"）由上海相逢科技有限公司运营。本服务条款（以下简称"条款"）规定了您访问和使用相逢网站、移动应用程序及所有相关服务（统称"服务"）的条款和条件。
+                  相逢（以下简称&quot;我们&quot;、&quot;平台&quot;或&quot;服务&quot;）由上海相逢科技有限公司运营。本服务条款（以下简称“条款”）规定了您访问和使用相逢网站、移动应用程序及所有相关服务（统称&quot;服务&quot;）的条款和条件。
                 </p>
 
                 <div className="important-clause">
@@ -103,7 +103,7 @@ export default function TermsPage() {
                 </div>
 
                 <p>
-                  我们保留随时修改这些条款的权利。如果我们进行更改，我们将在本页面上发布更新后的条款，并更新"最后更新"日期。您继续使用服务即表示您接受更新后的条款。我们建议您定期查看本页面以了解任何更改。
+                  我们保留随时修改这些条款的权利。如果我们进行更改，我们将在本页面上发布更新后的条款，并更新&quot;最后更新&quot;日期。您继续使用服务即表示您接受更新后的条款。我们建议您定期查看本页面以了解任何更改。
                 </p>
 
                 <p>
@@ -222,7 +222,7 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">5.1 用户内容</h3>
 
                 <p>
-                  您对您在服务上发布、上传或以其他方式提供的所有内容（"用户内容"）承担全部责任。您声明并保证：
+                  您对您在服务上发布、上传或以其他方式提供的所有内容（以下简称&quot;用户内容&quot;）承担全部责任。您声明并保证：
                 </p>
 
                 <ul>
@@ -265,7 +265,7 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">6.2 商标</h3>
 
                 <p>
-                  "相逢"、"Xiangfeng"以及我们的产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经我们事先书面同意，您不得使用我们的商标。
+                  &quot;相逢&quot;、&quot;Xiangfeng&quot;以及我们的产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经我们事先书面同意，您不得使用我们的商标。
                 </p>
               </div>
             </section>
@@ -298,7 +298,7 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  服务按"现状"和"可用"基础提供，不提供任何明示或暗示的保证，包括但不限于：
+                  服务按&quot;现状&quot;和&quot;可用&quot;基础提供，不提供任何明示或暗示的保证，包括但不限于：
                 </p>
 
                 <ul>
