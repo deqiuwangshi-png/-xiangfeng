@@ -84,8 +84,6 @@ const domainsData: Domain[] = [
  * 
  * @description
  * 提供领域贡献区域的完整功能，包括：
- * - 领域贡献标题
- * - 领域描述
  * - 领域卡片列表
  * - 领域卡片（图标、标题、描述、统计数据）
  * 
@@ -96,14 +94,8 @@ const domainsData: Domain[] = [
  */
 export function ProfileDomain() {
   return (
-    <div id="profile-domain-section" className="hidden space-y-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-serif text-xf-accent font-bold text-layer-1 mb-6">领域贡献</h2>
-        <p className="text-xf-medium mb-8 max-w-3xl">
-          我在以下领域持续探索和贡献内容，致力于推动知识的边界，与同道中人一起深入探讨思维、认知和哲学的交叉领域。
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div id="profile-domain-section" className="hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {domainsData.map((domain, index) => (
             <div key={index} className="domain-card">
               <div className={`domain-icon ${domain.iconType}`}>
@@ -118,7 +110,6 @@ export function ProfileDomain() {
             </div>
           ))}
         </div>
-      </div>
     </div>
   )
 }

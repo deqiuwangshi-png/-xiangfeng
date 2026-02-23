@@ -16,7 +16,7 @@
 
 /* 个人主页头部背景 */
 .profile-header-bg {
-  background: linear-gradient(135deg, rgba(106, 91, 138, 0.1) 0%, rgba(58, 60, 110, 0.05) 100%);
+  background: rgba(106, 91, 138, 0.08);
 }
 
 /* 个人主页统计项 */

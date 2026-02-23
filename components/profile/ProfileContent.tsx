@@ -99,11 +99,8 @@ const articlesData: Article[] = [
  */
 export function ProfileContent() {
   return (
-    <div id="profile-content-section" className="space-y-8">
-      {/* 最新文章 */}
-      <div>
-        <h2 className="text-2xl font-serif text-xf-accent font-bold text-layer-1 mb-6">最新文章</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div id="profile-content-section">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {articlesData.map((article, index) => (
             <article
               key={index}
@@ -156,7 +153,6 @@ export function ProfileContent() {
             </article>
           ))}
         </div>
-      </div>
     </div>
   )
 }
