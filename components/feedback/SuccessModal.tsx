@@ -29,7 +29,7 @@ export default function SuccessModal({ trackingId, onClose, onViewMyFeedback }: 
             <span className="font-mono font-bold text-xf-accent">{trackingId}</span>
           </div>
           <p className="text-xs text-xf-primary">
-            您可以使用此ID在"我的反馈记录"中跟踪处理进展。
+            您可以使用此ID在&quot;我的反馈记录&quot;中跟踪处理进展。
           </p>
         </div>
         <div className="flex gap-3">

@@ -126,9 +126,6 @@ export default function SubmitFeedback({ onSubmit }: SubmitFeedbackProps) {
             placeholder="请详细描述… 包括使用场景、重现步骤等"
             required
           />
-          <div className="text-right text-xs text-xf-primary mt-1">
-            支持 Markdown 语法
-          </div>
         </div>
 
         <div className="border-t border-xf-bg/40 pt-4">

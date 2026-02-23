@@ -6,12 +6,11 @@ import FeedbackTabs from '@/components/feedback/FeedbackTabs';
 import SubmitFeedback from '@/components/feedback/SubmitFeedback';
 import MyFeedback from '@/components/feedback/MyFeedback';
 import HotFeedback from '@/components/feedback/HotFeedback';
-import Announcements from '@/components/feedback/Announcements';
 import Statistics from '@/components/feedback/Statistics';
 import FAQ from '@/components/feedback/FAQ';
 import SuccessModal from '@/components/feedback/SuccessModal';
 
-type TabType = 'submit' | 'my' | 'hot' | 'announce' | 'stats' | 'faq';
+type TabType = 'submit' | 'my' | 'hot' | 'stats' | 'faq';
 
 export default function FeedbackPage() {
   const [activeTab, setActiveTab] = useState<TabType>('submit');
@@ -41,7 +40,7 @@ export default function FeedbackPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between">
         <div>
           <h1 className="text-3xl font-serif text-xf-accent font-bold mb-1">
-            反馈中心
+            产品反馈
           </h1>
           <p className="text-xf-primary text-base">
             帮助我们一起打磨产品
@@ -62,7 +61,6 @@ export default function FeedbackPage() {
           )}
           {activeTab === 'my' && <MyFeedback />}
           {activeTab === 'hot' && <HotFeedback />}
-          {activeTab === 'announce' && <Announcements />}
           {activeTab === 'stats' && <Statistics />}
           {activeTab === 'faq' && <FAQ />}
         </div>
