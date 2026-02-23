@@ -28,28 +28,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold text-lg mb-6">探索</h4>
-            <ul className="space-y-3 text-slate-400">
-              <li>
-                <a href="#features" className="hover:text-white transition-colors">
-                  特色功能
-                </a>
-              </li>
-              <li>
-                <a href="#creators" className="hover:text-white transition-colors">
-                  创作者网络
-                </a>
-              </li>
-              <li>
-                <a href="/economy" className="hover:text-white transition-colors">
-                  生态经济
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-lg mb-6">关于</h4>
+            <h4 className="font-bold text-lg mb-6">关于产品</h4>
             <ul className="space-y-3 text-slate-400">
               <li>
                 <a href="/about" className="hover:text-white transition-colors">
@@ -57,13 +36,24 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  加入团队
+                <a href="#partners" className="hover:text-white transition-colors">
+                  品牌合作
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold text-lg mb-6">支持帮助</h4>
+            <ul className="space-y-3 text-slate-400">
+              <li>
+                <a href="privacy" className="hover:text-slate-300 transition-colors">
+                  隐私政策
                 </a>
               </li>
               <li>
-                <a href="/contact" className="hover:text-white transition-colors">
-                  联系方式
+                <a href="terms" className="hover:text-slate-300 transition-colors">
+                  服务条款
                 </a>
               </li>
             </ul>
@@ -71,15 +61,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/10 flex justify-between items-center gap-4 text-sm text-slate-500">
-          <p>© 2026 相逢 Xiangfeng</p>
-          <div className="flex gap-6">
-            <a href="privacy" className="hover:text-slate-300 transition-colors">
-              隐私政策
-            </a>
-            <a href="terms" className="hover:text-slate-300 transition-colors">
-              服务条款
-            </a>
-          </div>
+          <p>© 2026 相逢 不止相遇，更是改变世界</p>
         </div>
       </div>
     </footer>
