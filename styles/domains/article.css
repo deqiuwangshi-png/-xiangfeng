@@ -1,5 +1,15 @@
 /* 文章详情页样式 - 严格基于 文章1.html 原型 */
 
+/* ====== Body 基础样式 ====== */
+body {
+  font-family: 'Noto Serif SC', serif;
+  color: var(--color-xf-dark);
+  background-color: #f9fafb;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
 /* ====== 阅读进度条 ====== */
 .reading-progress {
   position: fixed;
@@ -506,6 +516,7 @@
   font-weight: 500;
   animation: toastSlideIn 0.3s ease, toastSlideOut 0.3s ease 2.7s;
   animation-fill-mode: forwards;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 @keyframes toastSlideIn {
@@ -541,4 +552,37 @@ body.comments-open .main-container {
 body.comments-open .douyin-sidebar {
   right: calc(420px + 24px) !important;
   transition: right 0.4s ease !important;
+}
+
+/* ====== 空评论状态 ====== */
+.comments-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+}
+
+.comments-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  stroke-width: 1;
+  color: #d1d5db;
+}
+
+/* ====== 展开/收起按钮 ====== */
+.expand-toggle-btn {
+  text-align: center;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  color: var(--color-xf-primary);
+  font-weight: 500;
+  cursor: pointer;
+  border-top: 1px solid #edf2f7;
+  transition: background 0.2s;
+  border-radius: 0 0 12px 12px;
+}
+
+.expand-toggle-btn:hover {
+  background: rgba(106, 91, 138, 0.04);
+  text-decoration: underline;
 }
