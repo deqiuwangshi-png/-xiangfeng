@@ -5,19 +5,21 @@
  * 作用: 显示应用主导航、用户信息和操作菜单
  * @returns {JSX.Element} 侧边栏组件
  * 交互说明:
- *   - 点击导航项切换激活状态
+ *   - 根据当前路由自动高亮导航项
  *   - 点击头像切换下拉菜单
  *   - 点击外部区域关闭下拉菜单
  * 依赖:
  *   - lucide-react (图标组件)
  *   - next/image (图片优化)
+ *   - next/navigation (路由导航)
  *   - react (状态管理和副作用)
  * 
- * 更新时间: 2026-02-19
+ * 更新时间: 2026-02-23
  */
 
 import { Home, Edit3, User, Settings, LogOut, FolderOpen, MessageSquare, Newspaper, Zap, BellRing } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 
 /**
@@ -89,33 +91,40 @@ const userDropdownItems: UserDropdownItem[] = [
  * @description
  * 提供应用主导航功能，包括：
  * - 用户头像和下拉菜单
- * - 主导航菜单（首页、探索、发布）
+ * - 主导航菜单（首页、发布、草稿）
  * - 版权信息
  * 
  * @state
- * - activeNav: 当前激活的导航项ID
  * - isDropdownOpen: 下拉菜单是否打开
  * 
  * @effects
  * - 监听点击外部事件，关闭下拉菜单
+ * 
+ * @hooks
+ * - pathname: 当前路由路径
+ * - activeNav: 根据当前路由计算的激活导航项ID
  */
 export function Sidebar() {
-  const [activeNav, setActiveNav] = useState('home')
+  const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   /**
-   * 处理导航项点击
+   * 根据当前路由计算激活的导航项
    * 
-   * @function handleNavClick
-   * @param {string} navId - 导航项ID
-   * @returns {void}
-   * 
+   * @constant activeNav
    * @description
-   * 更新当前激活的导航项状态
+   * 根据当前路径匹配对应的导航项ID
+   * - /home -> home
+   * - /publish -> publish
+   * - /drafts -> draft
+   * - 默认 -> home
    */
-  const handleNavClick = (navId: string) => {
-    setActiveNav(navId)
-  }
+  const activeNav = useMemo(() => {
+    if (pathname === '/home') return 'home'
+    if (pathname === '/publish') return 'publish'
+    if (pathname === '/drafts') return 'draft'
+    return 'home'
+  }, [pathname])
 
   /**
    * 切换下拉菜单显示状态
@@ -218,7 +227,6 @@ export function Sidebar() {
             <a
               key={item.id}
               href={item.href}
-              onClick={() => handleNavClick(item.id)}
               className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${
                 isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'
               }`}
