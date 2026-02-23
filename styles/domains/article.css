@@ -326,8 +326,9 @@
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+  border-left: 1px solid #edf2f7;
   transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: none;
 }
 
 .comments-panel.active {
@@ -458,6 +459,7 @@
   min-height: 48px;
   max-height: 120px;
   outline: none;
+  box-shadow: none;
 }
 
 .comment-input:focus {
@@ -484,6 +486,7 @@
   cursor: pointer;
   border: none;
   flex-shrink: 0;
+  box-shadow: none;
 }
 
 .send-comment-btn:disabled {
@@ -536,6 +539,6 @@ body.comments-open .main-container {
 }
 
 body.comments-open .douyin-sidebar {
-  right: calc(420px + 24px);
-  transition: right 0.4s ease;
+  right: calc(420px + 24px) !important;
+  transition: right 0.4s ease !important;
 }

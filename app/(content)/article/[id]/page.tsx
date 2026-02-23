@@ -91,10 +91,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <Suspense fallback={<ArticleSkeleton />}>
             <ArticleContent articleId={articleId} />
           </Suspense>
-          
-          <ArticleActions articleId={articleId} />
         </div>
       </div>
+      
+      <ArticleActions articleId={articleId} />
       
       <Suspense fallback={<CommentSkeleton />}>
         <CommentPanel articleId={articleId} />
