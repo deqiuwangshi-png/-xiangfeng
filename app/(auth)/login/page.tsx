@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+  const redirectPath = searchParams.get('redirect') || '/home';
 
   /**
    * 处理登录表单提交
@@ -37,8 +39,8 @@ export default function LoginPage() {
         throw signInError;
       }
 
-      // 登录成功，跳转到首页
-      router.push('/home');
+      // 登录成功，跳转到重定向页面或首页
+      router.push(redirectPath);
       router.refresh();
     } catch (err) {
       console.error('Login error:', err);

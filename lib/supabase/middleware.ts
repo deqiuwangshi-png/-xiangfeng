@@ -2,13 +2,13 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 /**
- * 更新用户会话
+ * 更新用户会话并实现路由保护
  * 
  * @param request - Next.js 请求对象
  * @returns Next.js 响应对象
  */
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
+  let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -18,52 +18,50 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return response
+    return supabaseResponse
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value
+      getAll() {
+        return request.cookies.getAll()
       },
-      set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value,
-          ...options,
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
         })
-        response = NextResponse.next({
+        supabaseResponse = NextResponse.next({
           request: {
             headers: request.headers,
           },
         })
-        response.cookies.set({
-          name,
-          value,
-          ...options,
-        })
-      },
-      remove(name: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value: '',
-          ...options,
-        })
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        })
-        response.cookies.set({
-          name,
-          value: '',
-          ...options,
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set({
+            name,
+            value,
+            ...options,
+          })
         })
       },
     },
   })
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  return response
+  const path = request.nextUrl.pathname
+
+  const protectedRoutes = ['/home', '/publish', '/drafts', '/article']
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
+
+  if (isProtectedRoute && !user) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('redirect', path)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  return supabaseResponse
 }
