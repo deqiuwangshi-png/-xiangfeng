@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相逢 Xiangfeng - 不止相遇，更是改变</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;350;400;500;600;700&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 使用固定版本的 Lucide -->
+    <script src="https://unpkg.com/lucide@1.251.0/dist/umd/lucide.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        xf: {
+                            bg: '#E1E4EA',
+                            surface: '#D2C3D5',
+                            primary: '#6A5B8A',
+                            accent: '#3A3C6E',
+                            info: '#4A6FA5',
+                            soft: '#A5C1D6',
+                            dark: '#25263D',
+                            light: '#F7F9FC',
+                            medium: '#8C8EA9',
+                            success: '#4CAF50',
+                            warning: '#FF9800',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(165, 193, 214, 0.3)',
+                        'glow': '0 0 15px rgba(106, 91, 138, 0.5)',
+                        'elevated': '0 15px 35px -10px rgba(58, 60, 110, 0.15)',
+                        'deep': '0 8px 25px -5px rgba(58, 60, 110, 0.2)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-subtle': 'pulse-subtle 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slide-up 0.3s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out',
+                        'scale-in': 'scaleIn 0.5s ease-out',
+                        'gradient-shift': 'gradientShift 8s ease infinite',
+                        'logo-spin': 'logoSpin 8s ease-in-out infinite',
+                        'logo-pulse': 'logoPulse 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        'pulse-subtle': {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 },
+                        },
+                        'slide-up': {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0 },
+                            '100%': { opacity: 1 },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: 0, transform: 'scale(0.95)' },
+                            '100%': { opacity: 1, transform: 'scale(1)' },
+                        },
+                        gradientShift: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        logoSpin: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(90deg)' },
+                            '50%': { transform: 'rotate(180deg)' },
+                            '75%': { transform: 'rotate(270deg)' },
+                        },
+                        logoPulse: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.8, transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 基础优化 */
+        body { 
+            font-weight: 400;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, h5, h6 { 
+            letter-spacing: 0.02em;
+            font-feature-settings: "kern" 1;
+            color: #25263D;
+        }
+        
+        /* 增强对比度的文本颜色类 */
+        .text-contrast-high { color: #25263D; }
+        .text-contrast-medium { color: #3A3C6E; }
+        .text-contrast-low { color: #6A5B8A; }
+        .text-contrast-muted { color: #8C8EA9; }
+        
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { 
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+        }
+
+        /* 卡片悬停的优雅抬起与阴影扩散 */
+        .card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(58, 60, 110, 0.25);
+        }
+
+        /* 图标悬停的弹性效果 */
+        i[data-lucide] {
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .group:hover i[data-lucide] {
+            transform: scale(1.15);
+        }
+
+        /* 为标签添加更精致的渐变边框效果 */
+        .tag {
+            border: 1.5px solid rgba(165, 193, 214, 0.3);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+        .tag:hover {
+            border-color: #4A6FA5;
+            background-color: #4A6FA5;
+            color: white;
+        }
+
+        /* 按钮按压效果 */
+        button:active, .cursor-pointer:active {
+            transform: scale(0.985);
+            transition-duration: 50ms;
+        }
+
+        /* 渐变背景动画 */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #E1E4EA, #D2C3D5, #A5C1D6, #6A5B8A);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+
+        /* 优雅的淡入动画 */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优雅的页面切换过渡 */
+        .view-transition {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* 导航栏激活指示器 */
+        .nav-active-indicator {
+            position: relative;
+        }
+        .nav-active-indicator:after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #3A3C6E;
+            transition: width 0.3s ease;
+        }
+        .nav-active-indicator.active:after {
+            width: 100%;
+        }
+
+        /* 网格背景 */
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(225, 228, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(225, 228, 234, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* 装饰性形状 */
+        .blob {
+            border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
+            animation: blobAnimation 20s ease-in-out infinite;
+        }
+        @keyframes blobAnimation {
+            0%, 100% { border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%; }
+            25% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
+            50% { border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%; }
+            75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
+        }
+
+        /* 自定义滚动条 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(225, 228, 234, 0.3);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(106, 91, 138, 0.5);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(106, 91, 138, 0.7);
+        }
+
+        /* 修复图标显示问题 */
+        .lucide-icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        /* 确保图标容器正确显示 */
+        [data-lucide] {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Logo 样式 */
+        .logo-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130%;
+            height: 130%;
+            border-radius: 12px;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .logo-icon:hover::before {
+            opacity: 1;
+        }
+        
+        /* Logo 文字样式 */
+        .logo-text {
+            background: linear-gradient(135deg, #3A3C6E 0%, #6A5B8A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-xf-light text-xf-dark antialiased font-sans selection:bg-xf-soft/50 overflow-x-hidden">
+
+    <!-- 官网着陆页 -->
+    <div id="landing-view" class="min-h-screen flex flex-col">
+
+        <!-- 导航栏 -->
+        <nav class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-xf-bg/30">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <!-- Logo - 已添加图标 -->
+                <div class="flex items-center gap-3">
+                    <div class="logo-icon w-8 h-8 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center animate-logo-pulse">
+                        <!-- 使用 "git-merge" 图标，象征连接和相遇 -->
+                        <i data-lucide="git-merge" class="w-4.5 h-4.5 text-white lucide-icon"></i>
+                    </div>
+                    <span class="font-serif text-xl font-bold logo-text">相逢</span>
+                </div>
+
+                <!-- 桌面导航菜单 -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features" class="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">特色功能</a>
+                    <a href="#how-it-works" class="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">如何运作</a>
+                    <a href="#community" class="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">社群</a>
+                    <a href="#pricing" class="nav-active-indicator text-xf-primary hover:text-xf-accent font-medium transition-colors">定价</a>
+                </div>
+
+                <!-- 行动按钮 -->
+                <div class="flex items-center gap-4">
+                    <button onclick="window.location.href='./登录注册页.html'" class="px-6 py-2.5 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98">
+                        登录
+                    </button>
+                    <!-- 移动端菜单按钮 -->
+                    <button id="mobile-menu-btn" class="md:hidden text-xf-primary">
+                        <i data-lucide="menu" class="w-6 h-6 lucide-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 移动端菜单 -->
+            <div id="mobile-menu" class="md:hidden hidden absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border-b border-xf-bg/30 shadow-elevated">
+                <div class="flex flex-col p-6 space-y-4">
+                    <a href="./首页.html" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">特色功能</a>
+                    <a href="./首页.html" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">如何运作</a>
+                    <a href="./首页.html" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">社群</a>
+                    <a href="./首页.html" class="text-xf-primary hover:text-xf-accent font-medium py-2" onclick="toggleMobileMenu()">定价</a>
+                    <div class="pt-4 border-t border-xf-bg/30">
+                        <button onclick="showLogin(); toggleMobileMenu();" class="w-full py-3 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-medium transition-all shadow-md">
+                            立即体验
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 英雄区域 -->
+        <section class="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-32">
+            <!-- 背景装饰 -->
+            <div class="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-xf-soft/30 to-xf-primary/10 rounded-full blur-3xl animate-pulse-subtle"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-tr from-xf-surface/20 to-xf-accent/10 rounded-full blur-3xl animate-float"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] grid-bg opacity-20"></div>
+
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="max-w-4xl mx-auto text-center">
+                    <!-- 标签 -->
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-xf-light/80 backdrop-blur-sm rounded-full mb-8 animate-fade-in">
+                        <div class="w-2 h-2 rounded-full bg-xf-info animate-pulse"></div>
+                        <span class="text-sm font-medium text-xf-primary">深度思考者的精神家园</span>
+                    </div>
+
+                    <!-- 主标题 -->
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 animate-fade-in" style="animation-delay: 0.1s">
+                        <span class="text-xf-accent">不止相遇</span>
+                        <span class="block mt-2 text-xf-dark">更是<span class="text-xf-primary">改变</span></span>
+                    </h1>
+
+                    <!-- 副标题 -->
+                    <p class="text-xl md:text-2xl text-xf-medium mb-10 max-w-2xl mx-auto animate-fade-in" style="animation-delay: 0.2s">
+                        连接深度思考者，打破认知边界，构建属于你的思维网络
+                    </p>
+
+                    <!-- 行动按钮 -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-fade-in" style="animation-delay: 0.3s">
+                        <button onclick="showLogin()" class="px-8 py-4 bg-gradient-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-2xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-98">
+                            开启深度之旅
+                        </button>
+                        <button onclick="scrollToSection('features')" class="px-8 py-4 bg-white hover:bg-xf-light border border-xf-bg/60 hover:border-xf-primary/30 text-xf-primary rounded-2xl font-semibold text-lg transition-all shadow-md hover:shadow-lg">
+                            探索特色
+                        </button>
+                    </div>
+
+                    <!-- 应用预览图 -->
+                    <div class="relative max-w-4xl mx-auto animate-scale-in" style="animation-delay: 0.5s">
+                        <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-xf-bg/50">
+                            <div class="absolute inset-0 bg-gradient-to-br from-xf-primary/5 to-xf-accent/5"></div>
+                            <div class="relative p-1 md:p-2 bg-white">
+                                <!-- 模拟应用界面 -->
+                                <div class="bg-xf-light rounded-2xl overflow-hidden">
+                                    <div class="p-6 md:p-8">
+                                        <div class="flex items-center justify-between mb-6">
+                                            <div class="flex items-center gap-4">
+                                                <div class="logo-icon w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-xl flex items-center justify-center">
+                                                    <i data-lucide="git-merge" class="w-6 h-6 text-white lucide-icon"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="h-3 w-24 bg-xf-primary/30 rounded-full mb-2"></div>
+                                                    <div class="h-2 w-16 bg-xf-medium/20 rounded-full"></div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-xf-bg"></div>
+                                                <div class="w-8 h-8 rounded-full bg-xf-bg"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                            <div class="h-32 bg-gradient-to-br from-xf-soft to-white rounded-xl p-4">
+                                                <div class="h-4 w-3/4 bg-xf-primary/20 rounded-full mb-3"></div>
+                                                <div class="h-2 w-full bg-xf-medium/10 rounded-full mb-2"></div>
+                                                <div class="h-2 w-2/3 bg-xf-medium/10 rounded-full"></div>
+                                            </div>
+                                            <div class="h-32 bg-gradient-to-br from-xf-surface to-white rounded-xl p-4">
+                                                <div class="h-4 w-3/4 bg-xf-accent/20 rounded-full mb-3"></div>
+                                                <div class="h-2 w-full bg-xf-medium/10 rounded-full mb-2"></div>
+                                                <div class="h-2 w-2/3 bg-xf-medium/10 rounded-full"></div>
+                                            </div>
+                                            <div class="h-32 bg-gradient-to-br from-xf-info/10 to-white rounded-xl p-4">
+                                                <div class="h-4 w-3/4 bg-xf-info/20 rounded-full mb-3"></div>
+                                                <div class="h-2 w-full bg-xf-medium/10 rounded-full mb-2"></div>
+                                                <div class="h-2 w-2/3 bg-xf-medium/10 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="h-40 w-full bg-gradient-to-r from-xf-soft/40 to-xf-primary/20 rounded-xl"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 装饰元素 -->
+                        <div class="absolute -top-4 -right-4 w-24 h-24 blob bg-gradient-to-br from-xf-soft/40 to-xf-primary/20"></div>
+                        <div class="absolute -bottom-4 -left-4 w-20 h-20 blob bg-gradient-to-tr from-xf-surface/40 to-xf-accent/20"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 特色功能 -->
+        <section id="features" class="py-20 bg-gradient-to-b from-white to-xf-light/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-xf-accent mb-4">重新定义深度连接</h2>
+                    <p class="text-lg text-xf-medium max-w-2xl mx-auto">相逢不仅是平台，更是思想碰撞与认知升级的催化剂</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <!-- 特色1 -->
+                    <div class="card bg-white rounded-3xl p-8 shadow-soft hover:shadow-elevated">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-xf-soft to-xf-info/30 flex items-center justify-center mb-6">
+                            <i data-lucide="brain-circuit" class="w-7 h-7 text-xf-info lucide-icon"></i>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">认知星云</h3>
+                        <p class="text-xf-medium mb-6">可视化你的思维网络，连接不同领域的知识点，构建属于你的认知星系。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">思维可视化</span>
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">知识网络</span>
+                        </div>
+                    </div>
+
+                    <!-- 特色2 -->
+                    <div class="card bg-white rounded-3xl p-8 shadow-soft hover:shadow-elevated">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-xf-surface to-xf-primary/30 flex items-center justify-center mb-6">
+                            <i data-lucide="swords" class="w-7 h-7 text-xf-primary lucide-icon"></i>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">跨界挑战</h3>
+                        <p class="text-xf-medium mb-6">打破学科边界，通过精心设计的挑战任务，激发你的创新思维与问题解决能力。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">跨学科</span>
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">思维训练</span>
+                        </div>
+                    </div>
+
+                    <!-- 特色3 -->
+                    <div class="card bg-white rounded-3xl p-8 shadow-soft hover:shadow-elevated">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-xf-bg to-xf-accent/30 flex items-center justify-center mb-6">
+                            <i data-lucide="users" class="w-7 h-7 text-xf-accent lucide-icon"></i>
+                        </div>
+                        <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">深度社群</h3>
+                        <p class="text-xf-medium mb-6">与志同道合的思考者建立连接，参与深度对谈，分享洞见，共同成长。</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">高质量交流</span>
+                            <span class="tag px-3 py-1 text-xs font-medium rounded-full">互助成长</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 如何运作 -->
+        <section id="how-it-works" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-xf-accent mb-4">简单三步，开启旅程</h2>
+                    <p class="text-lg text-xf-medium max-w-2xl mx-auto">加入相逢，开始你的深度思考与改变之旅</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="relative">
+                        <!-- 连接线 -->
+                        <div class="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-xf-soft via-xf-primary/30 to-xf-soft transform -translate-y-1/2"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
+                            <!-- 步骤1 -->
+                            <div class="text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-xf-soft to-xf-info/30 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                    <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-2xl font-bold text-xf-info">1</div>
+                                </div>
+                                <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">注册与探索</h3>
+                                <p class="text-xf-medium">创建属于你的思考者档案，探索不同领域的深度内容与社群。</p>
+                            </div>
+
+                            <!-- 步骤2 -->
+                            <div class="text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-xf-surface to-xf-primary/30 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                    <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-2xl font-bold text-xf-primary">2</div>
+                                </div>
+                                <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">连接与碰撞</h3>
+                                <p class="text-xf-medium">参与讨论，关注深度思考者，建立有价值的连接，激发思维火花。</p>
+                            </div>
+
+                            <!-- 步骤3 -->
+                            <div class="text-center">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-xf-bg to-xf-accent/30 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                    <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-2xl font-bold text-xf-accent">3</div>
+                                </div>
+                                <h3 class="text-xl font-serif font-bold text-xf-dark mb-3">成长与改变</h3>
+                                <p class="text-xf-medium">通过跨界挑战与深度反思，实现认知升级与个人成长。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 社群展示 -->
+        <section id="community" class="py-20 gradient-bg">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-xf-accent mb-4">加入深度思考者社群</h2>
+                    <p class="text-lg text-xf-medium max-w-2xl mx-auto">与数千名深度思考者一起探索认知边界</p>
+                </div>
+
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl">
+                        <div class="p-8 md:p-12">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                <!-- 左侧：用户评价 -->
+                                <div>
+                                    <h3 class="text-2xl font-serif font-bold text-xf-dark mb-8">思考者们说</h3>
+                                    
+                                    <div class="space-y-6">
+                                        <!-- 评价1 -->
+                                        <div class="bg-white rounded-2xl p-6 shadow-soft">
+                                            <div class="flex items-center gap-4 mb-4">
+                                                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Sophie&backgroundColor=B6CAD7" class="w-12 h-12 rounded-full">
+                                                <div>
+                                                    <h4 class="font-bold text-xf-dark">Sophie</h4>
+                                                    <p class="text-sm text-xf-medium">哲学研究者</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-xf-dark/80 italic">"在相逢找到了久违的思想碰撞，这里的讨论质量远超其他平台。"</p>
+                                        </div>
+                                        
+                                        <!-- 评价2 -->
+                                        <div class="bg-white rounded-2xl p-6 shadow-soft">
+                                            <div class="flex items-center gap-4 mb-4">
+                                                <img src="https://api.dicebear.com/7.x/micah/svg?seed=Alex&backgroundColor=D2C3D5" class="w-12 h-12 rounded-full">
+                                                <div>
+                                                    <h4 class="font-bold text-xf-dark">Alex</h4>
+                                                    <p class="text-sm text-xf-medium">产品设计师</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-xf-dark/80 italic">"跨界挑战让我突破了专业壁垒，开始用全新视角看待设计问题。"</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 右侧：数据统计 -->
+                                <div>
+                                    <h3 class="text-2xl font-serif font-bold text-xf-dark mb-8">我们的社群</h3>
+                                    
+                                    <div class="grid grid-cols-2 gap-6 mb-10">
+                                        <div class="bg-white rounded-2xl p-6 text-center shadow-soft">
+                                            <div class="text-3xl font-bold text-xf-accent mb-2">5,000+</div>
+                                            <p class="text-xf-medium">深度思考者</p>
+                                        </div>
+                                        <div class="bg-white rounded-2xl p-6 text-center shadow-soft">
+                                            <div class="text-3xl font-bold text-xf-primary mb-2">10,000+</div>
+                                            <p class="text-xf-medium">深度对话</p>
+                                        </div>
+                                        <div class="bg-white rounded-2xl p-6 text-center shadow-soft">
+                                            <div class="text-3xl font-bold text-xf-info mb-2">500+</div>
+                                            <p class="text-xf-medium">跨界挑战</p>
+                                        </div>
+                                        <div class="bg-white rounded-2xl p-6 text-center shadow-soft">
+                                            <div class="text-3xl font-bold text-xf-success mb-2">92%</div>
+                                            <p class="text-xf-medium">用户满意度</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gradient-to-r from-xf-accent/10 to-xf-primary/10 rounded-2xl p-6">
+                                        <h4 class="font-bold text-xf-dark mb-3">每周深度活动</h4>
+                                        <ul class="space-y-3">
+                                            <li class="flex items-center gap-3">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-xf-info lucide-icon"></i>
+                                                <span class="text-xf-dark">周二：哲学夜谈</span>
+                                            </li>
+                                            <li class="flex items-center gap-3">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-xf-primary lucide-icon"></i>
+                                                <span class="text-xf-dark">周四：跨界工作坊</span>
+                                            </li>
+                                            <li class="flex items-center gap-3">
+                                                <i data-lucide="calendar" class="w-4 h-4 text-xf-accent lucide-icon"></i>
+                                                <span class="text-xf-dark">周六：深度阅读会</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 定价 -->
+        <section id="pricing" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-xf-accent mb-4">选择适合你的计划</h2>
+                    <p class="text-lg text-xf-medium max-w-2xl mx-auto">开始免费体验，随时升级以获得完整功能</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- 免费计划 -->
+                        <div class="card bg-white rounded-3xl p-8 border-2 border-xf-bg/50 hover:border-xf-primary/30 shadow-soft hover:shadow-elevated">
+                            <div class="mb-6">
+                                <h3 class="text-2xl font-serif font-bold text-xf-dark mb-2">探索者</h3>
+                                <div class="flex items-baseline">
+                                    <span class="text-4xl font-bold text-xf-dark">免费</span>
+                                    <span class="text-xf-medium ml-2">/ 永久</span>
+                                </div>
+                                <p class="text-xf-medium mt-2">适合初次接触深度思考的你</p>
+                            </div>
+                            
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-xf-success lucide-icon"></i>
+                                    <span>每日阅读5篇深度内容</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-xf-success lucide-icon"></i>
+                                    <span>参与社群讨论</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-xf-success lucide-icon"></i>
+                                    <span>基础跨界挑战</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="x" class="w-5 h-5 text-xf-medium/50 lucide-icon"></i>
+                                    <span class="text-xf-medium/70">深度分析工具</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="x" class="w-5 h-5 text-xf-medium/50 lucide-icon"></i>
+                                    <span class="text-xf-medium/70">个性化认知地图</span>
+                                </li>
+                            </ul>
+                            
+                            <button onclick="showLogin()" class="w-full py-3 bg-xf-light hover:bg-xf-bg text-xf-primary rounded-xl font-medium transition-all">
+                                开始免费体验
+                            </button>
+                        </div>
+                        
+                        <!-- 高级计划 -->
+                        <div class="card bg-gradient-to-br from-xf-accent to-xf-primary rounded-3xl p-8 shadow-soft hover:shadow-elevated relative overflow-hidden">
+                            <!-- 热门标签 -->
+                            <div class="absolute top-6 right-6 bg-white text-xf-accent px-3 py-1 rounded-full text-xs font-bold">
+                                最受欢迎
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-2xl font-serif font-bold text-white mb-2">深度思考者</h3>
+                                <div class="flex items-baseline">
+                                    <span class="text-4xl font-bold text-white">¥29</span>
+                                    <span class="text-white/80 ml-2">/ 月</span>
+                                </div>
+                                <p class="text-white/80 mt-2">适合追求深度与改变的思考者</p>
+                            </div>
+                            
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-white lucide-icon"></i>
+                                    <span class="text-white">无限深度内容阅读</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-white lucide-icon"></i>
+                                    <span class="text-white">高级跨界挑战</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-white lucide-icon"></i>
+                                    <span class="text-white">个性化认知地图</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-white lucide-icon"></i>
+                                    <span class="text-white">深度分析工具</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i data-lucide="check" class="w-5 h-5 text-white lucide-icon"></i>
+                                    <span class="text-white">优先活动参与权</span>
+                                </li>
+                            </ul>
+                            
+                            <button onclick="showLogin()" class="w-full py-3 bg-white hover:bg-xf-light text-xf-accent rounded-xl font-semibold transition-all shadow-md hover:shadow-lg">
+                                升级为深度思考者
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="text-center text-xf-medium mt-8">所有计划均包含7天深度思考者试用期</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最终行动号召 -->
+        <section class="py-20 bg-gradient-to-br from-xf-accent/5 to-xf-primary/5">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto text-center">
+                    <div class="bg-white rounded-3xl p-8 md:p-12 shadow-2xl">
+                        <h2 class="text-3xl md:text-4xl font-serif font-bold text-xf-accent mb-4">准备好开始改变了吗？</h2>
+                        <p class="text-lg text-xf-medium mb-8 max-w-2xl mx-auto">加入相逢，与深度思考者一起探索未知，突破认知边界</p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="scrollToTop()" class="px-8 py-4 bg-white hover:bg-xf-light border border-xf-bg/60 hover:border-xf-primary/30 text-xf-primary rounded-2xl font-semibold text-lg transition-all shadow-md hover:shadow-lg">
+                                了解更多
+                            </button>
+                        </div>               
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="bg-xf-dark text-white pt-12 pb-8">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
+                    <!-- Logo和描述 -->
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="logo-icon w-10 h-10 bg-gradient-to-tr from-xf-accent to-xf-primary rounded-lg flex items-center justify-center">
+                                <i data-lucide="git-merge" class="w-6 h-6 text-white lucide-icon"></i>
+                            </div>
+                            <span class="font-serif text-2xl font-bold text-white">相逢</span>
+                        </div>
+                        <p class="text-white/70 max-w-md mb-6">相逢是一个深度思考者社群，致力于连接不同领域的思考者，促进跨界交流与认知升级。</p>
+                        <div class="flex gap-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                                <i data-lucide="twitter" class="w-5 h-5 lucide-icon"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                                <i data-lucide="github" class="w-5 h-5 lucide-icon"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                                <i data-lucide="instagram" class="w-5 h-5 lucide-icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 产品 -->
+                    <div>
+                        <h4 class="font-bold text-lg mb-6">产品</h4>
+                        <ul class="space-y-3">
+                            <li><a href="./首页.html" class="text-white/70 hover:text-white transition">特色功能</a></li>
+                            <li><a href="./首页.html" class="text-white/70 hover:text-white transition">如何运作</a></li>
+                            <li><a href="./首页.html" class="text-white/70 hover:text-white transition">定价</a></li>
+                            <li><a href="./首页.html" class="text-white/70 hover:text-white transition">更新日志</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 公司 -->
+                    <div>
+                        <h4 class="font-bold text-lg mb-6">公司</h4>
+                        <ul class="space-y-3">
+                            <li><a href="./子页面.html" class="text-white/70 hover:text-white transition">关于我们</a></li>
+                            <li><a href="./子页面.html" class="text-white/70 hover:text-white transition">博客</a></li>
+                            <li><a href="./子页面.html" class="text-white/70 hover:text-white transition">加入我们</a></li>
+                            <li><a href="./子页面.html" class="text-white/70 hover:text-white transition">联系我们</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pt-8 border-t border-white/10 text-center md:text-left">
+                    <div class="flex flex-col md:flex-row justify-between items-center">
+                        <p class="text-white/50 text-sm">© 2024 相逢 Xiangfeng. 保留所有权利。</p>
+                        <div class="flex gap-6 mt-4 md:mt-0">
+                            <a href="./隐私.html" class="text-white/50 hover:text-white text-sm transition">隐私政策</a>
+                            <a href="./服务.html" class="text-white/50 hover:text-white text-sm transition">服务条款</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+
+    <script>
+        // 页面加载后初始化 Lucide 图标
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保 Lucide 库已加载
+            if (typeof lucide !== 'undefined') {
+                // 初始化图标
+                lucide.createIcons();
+            } else {
+                console.error('Lucide 图标库未加载');
+                // 备选方案：如果 Lucide 未加载，可以显示备选文本
+                document.querySelectorAll('[data-lucide]').forEach(icon => {
+                    const iconName = icon.getAttribute('data-lucide');
+                    icon.parentElement.setAttribute('title', iconName);
+                });
+            }
+            
+            // 为导航链接添加滚动激活
+            window.addEventListener('scroll', updateActiveNav);
+            
+            // 为所有可点击元素添加按下效果
+            document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+                el.addEventListener('mousedown', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                el.addEventListener('mouseup', function() {
+                    this.style.transform = '';
+                });
+                el.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // 延迟加载动画
+            setTimeout(() => {
+                document.querySelectorAll('.animate-fade-in, .animate-scale-in').forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0) scale(1)';
+                });
+            }, 100);
+        });
+        
+        // 显示登录模态框
+        function showLogin() {
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滚动
+        }
+        
+        // 关闭登录模态框
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.body.style.overflow = ''; // 恢复滚动
+        }
+        
+        // 显示注册（简化处理，实际应用中会有完整注册流程）
+        function showSignup() {
+            alert('注册功能将在正式版中开放，目前请使用演示账号登录。\n\n演示账号：demo@xiangfeng.com\n密码：demo123');
+        }
+        
+        // 跳转到应用（模拟登录成功）
+        function redirectToApp() {
+            const submitBtn = document.querySelector('#login-modal button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.innerHTML = '<span class="loading-dots">登录中</span>';
+            submitBtn.disabled = true;
+            
+            // 模拟登录过程
+            setTimeout(() => {
+                // 在实际应用中，这里会验证登录信息并跳转
+                alert('登录成功！即将跳转到相逢应用...\n\n（演示版本：点击确定将打开应用界面）');
+                closeLoginModal();
+                
+                // 跳转到应用页面（实际应用中，这里会打开应用主界面）
+                // 由于这是一个演示，我们只是显示一个消息
+                window.location.href = '相逢草图.html';
+                
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 1500);
+        }
+        
+        // 滚动到指定区域
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                window.scrollTo({
+                    top: element.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // 滚动到顶部
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // 更新激活的导航链接
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-active-indicator');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // 切换移动端菜单
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('mobile-menu-btn');
+            const icon = btn.querySelector('i[data-lucide]');
+            
+            menu.classList.toggle('hidden');
+            
+            if (menu.classList.contains('hidden')) {
+                // 切换回菜单图标
+                icon.setAttribute('data-lucide', 'menu');
+            } else {
+                // 切换到关闭图标
+                icon.setAttribute('data-lucide', 'x');
+            }
+            
+            // 重新初始化图标
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        // 点击外部关闭移动菜单
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('mobile-menu-btn');
+            
+            if (!menu.classList.contains('hidden') && 
+                !menu.contains(event.target) && 
+                !btn.contains(event.target)) {
+                toggleMobileMenu();
+            }
+        });
+        
+        // 为自定义复选框添加样式
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        this.style.backgroundImage = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E\")";
+                        this.style.backgroundSize = '12px';
+                        this.style.backgroundPosition = 'center';
+                        this.style.backgroundRepeat = 'no-repeat';
+                    } else {
+                        this.style.backgroundImage = '';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
