@@ -39,9 +39,9 @@ export default function LoginPage() {
         throw signInError;
       }
 
-      // 登录成功，跳转到重定向页面或首页
-      router.push(redirectPath);
+      // 登录成功，先刷新再跳转
       router.refresh();
+      router.push(redirectPath);
     } catch (err) {
       console.error('Login error:', err);
       

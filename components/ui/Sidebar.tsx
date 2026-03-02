@@ -19,8 +19,10 @@
 
 import { Home, Edit3, User, Settings, LogOut, FolderOpen, BellRing, MessageSquare, Newspaper, Zap } from 'lucide-react'
 import { useState, useEffect, useMemo } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 
 /**
  * 导航项接口
@@ -46,12 +48,14 @@ interface NavItem {
  * @property {React.ElementType} icon - 菜单项图标组件
  * @property {string} href - 菜单项链接地址
  * @property {boolean} isDanger - 是否为危险操作（如退出登录）
+ * @property {() => void} onClick - 点击回调函数
  */
 interface UserDropdownItem {
   label: string
   icon: React.ElementType
-  href: string
+  href?: string
   isDanger?: boolean
+  onClick?: () => void
 }
 
 /**
@@ -68,24 +72,17 @@ const navItems: NavItem[] = [
 ]
 
 /**
- * 用户下拉菜单配置
- * 
- * @constant userDropdownItems
- * @description 定义用户操作下拉菜单项
+ * Sidebar Props 接口
  */
-const userDropdownItems: UserDropdownItem[] = [
-  { label: '个人主页', icon: User, href: '/profile' },
-  { label: '收益中心', icon: Zap, href: '/earnings' },
-  { label: '更新公告', icon: Newspaper, href: '/updates' },
-  { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-  { label: '用户设置', icon: Settings, href: '/settings' },
-  { label: '退出登录', icon: LogOut, href: '/login', isDanger: true },
-]
+interface SidebarProps {
+  user?: SupabaseUser | null
+}
 
 /**
  * 侧边栏组件
  * 
  * @function Sidebar
+ * @param {SidebarProps} props - 组件属性
  * @returns {JSX.Element} 侧边栏组件
  * 
  * @description
@@ -96,6 +93,7 @@ const userDropdownItems: UserDropdownItem[] = [
  * 
  * @state
  * - isDropdownOpen: 下拉菜单是否打开
+ * - isLoggingOut: 是否正在退出登录
  * 
  * @effects
  * - 监听点击外部事件，关闭下拉菜单
@@ -104,9 +102,11 @@ const userDropdownItems: UserDropdownItem[] = [
  * - pathname: 当前路由路径
  * - activeNav: 根据当前路由计算的激活导航项ID
  */
-export function Sidebar() {
+export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   /**
    * 根据当前路由计算激活的导航项
@@ -141,6 +141,44 @@ export function Sidebar() {
   }
 
   /**
+   * 处理退出登录
+   */
+  const handleLogout = async () => {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        console.error('Logout error:', error.message)
+        return
+      }
+
+      // 退出成功后跳转到登录页
+      router.push('/login')
+      router.refresh()
+    } catch (err) {
+      console.error('Logout failed:', err)
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  /**
+   * 用户下拉菜单配置
+   */
+  const userDropdownItems: UserDropdownItem[] = useMemo(() => [
+    { label: '个人主页', icon: User, href: '/profile' },
+    { label: '收益中心', icon: Zap, href: '/earnings' },
+    { label: '更新公告', icon: Newspaper, href: '/updates' },
+    { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
+    { label: '用户设置', icon: Settings, href: '/settings' },
+    { label: isLoggingOut ? '退出中...' : '退出登录', icon: LogOut, isDanger: true, onClick: handleLogout },
+  ], [isLoggingOut])
+
+  /**
    * 监听点击外部事件
    * 
    * @useEffect
@@ -165,6 +203,11 @@ export function Sidebar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // 获取用户显示信息
+  const userEmail = user?.email || '用户'
+  const userName = user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
+  const avatarUrl = user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id || 'Felix'}&backgroundColor=B6CAD7`
+
   return (
     <aside className="w-[80px] xl:w-[220px] shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 bg-xf-light border-r border-xf-surface/30 transition-all duration-300">
       {/* 用户信息区域 */}
@@ -177,7 +220,7 @@ export function Sidebar() {
         >
           <div className="w-10 h-10 rounded-full shadow-sm ring-2 ring-white overflow-hidden bg-xf-soft/20">
             <Image
-              src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7"
+              src={avatarUrl}
               alt="用户头像"
               width={40}
               height={40}
@@ -192,7 +235,7 @@ export function Sidebar() {
         
         {/* 用户名和版本信息（仅桌面端显示） */}
         <div className="hidden xl:block pt-1">
-          <div className="font-medium text-xf-dark text-sm mb-0.5">梦话</div>
+          <div className="font-medium text-xf-dark text-sm mb-0.5 truncate max-w-[120px]">{userName}</div>
           <div className="text-xs text-xf-primary">免费版</div>
         </div>
 
@@ -203,18 +246,37 @@ export function Sidebar() {
             className="absolute top-16 left-0 w-48 bg-white border border-xf-bg/80 backdrop-blur-md rounded-2xl shadow-deep py-2 z-50 origin-top-left fade-in-up"
           >
             {userDropdownItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${
-                  item.isDanger
-                    ? 'text-red-500 hover:bg-red-50/50'
-                    : 'text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                {item.label}
-              </a>
+              item.onClick ? (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    item.onClick?.()
+                    setIsDropdownOpen(false)
+                  }}
+                  disabled={isLoggingOut}
+                  className={`w-full flex items-center gap-3 px-5 py-3 text-sm transition-colors text-left ${
+                    item.isDanger
+                      ? 'text-red-500 hover:bg-red-50/50'
+                      : 'text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent'
+                  } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </button>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${
+                    item.isDanger
+                      ? 'text-red-500 hover:bg-red-50/50'
+                      : 'text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </a>
+              )
             ))}
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
@@ -10,6 +11,7 @@ import { FormCard } from '@/components/auth/FormCard';
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   /**
    * 处理注册表单提交
@@ -58,7 +60,7 @@ export default function RegisterPage() {
       }
 
       // 注册成功，跳转到登录页面
-      window.location.href = '/login';
+      router.push('/login');
     } catch (err) {
       console.error('Register error:', err);
       
