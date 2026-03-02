@@ -338,59 +338,119 @@ export async function updateArticle(
 /**
  * 点赞文章
  * 
- * @param formData - 表单数据
+ * @param articleId - 文章ID
  * @returns 点赞结果
+ * 
+ * @example
+ * ```typescript
+ * await likeArticle('article-id');
+ * ```
  */
-export async function likeArticle(formData: FormData) {
-  const articleId = formData.get('articleId');
-  
-  if (!articleId || typeof articleId !== 'string') {
-    throw new Error('Invalid article ID');
+export async function likeArticle(articleId: string) {
+  const supabase = await createClient();
+
+  // 获取当前登录用户
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('用户未登录');
   }
-  
-  const userId = 'user-123';
-  
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles/${articleId}/like`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to like article');
+
+  // 检查是否已点赞
+  const { data: existingLike } = await supabase
+    .from('article_likes')
+    .select('id')
+    .eq('article_id', articleId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (existingLike) {
+    // 已点赞，取消点赞
+    const { error: deleteError } = await supabase
+      .from('article_likes')
+      .delete()
+      .eq('article_id', articleId)
+      .eq('user_id', user.id);
+
+    if (deleteError) {
+      throw new Error(`取消点赞失败: ${deleteError.message}`);
+    }
+
+    // 减少点赞计数
+    await supabase.rpc('decrement_likes_count', { article_id: articleId });
+  } else {
+    // 未点赞，添加点赞
+    const { error: insertError } = await supabase
+      .from('article_likes')
+      .insert({
+        article_id: articleId,
+        user_id: user.id,
+      });
+
+    if (insertError) {
+      throw new Error(`点赞失败: ${insertError.message}`);
+    }
+
+    // 增加点赞计数
+    await supabase.rpc('increment_likes_count', { article_id: articleId });
   }
-  
+
   revalidatePath(`/article/${articleId}`);
-  
-  return { success: true };
+  return { success: true, liked: !existingLike };
 }
 
 /**
  * 收藏文章
  * 
- * @param formData - 表单数据
+ * @param articleId - 文章ID
  * @returns 收藏结果
+ * 
+ * @example
+ * ```typescript
+ * await bookmarkArticle('article-id');
+ * ```
  */
-export async function bookmarkArticle(formData: FormData) {
-  const articleId = formData.get('articleId');
-  
-  if (!articleId || typeof articleId !== 'string') {
-    throw new Error('Invalid article ID');
+export async function bookmarkArticle(articleId: string) {
+  const supabase = await createClient();
+
+  // 获取当前登录用户
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('用户未登录');
   }
-  
-  const userId = 'user-123';
-  
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles/${articleId}/bookmark`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to bookmark article');
+
+  // 检查是否已收藏
+  const { data: existingBookmark } = await supabase
+    .from('bookmarks')
+    .select('id')
+    .eq('article_id', articleId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (existingBookmark) {
+    // 已收藏，取消收藏
+    const { error: deleteError } = await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('article_id', articleId)
+      .eq('user_id', user.id);
+
+    if (deleteError) {
+      throw new Error(`取消收藏失败: ${deleteError.message}`);
+    }
+  } else {
+    // 未收藏，添加收藏
+    const { error: insertError } = await supabase
+      .from('bookmarks')
+      .insert({
+        article_id: articleId,
+        user_id: user.id,
+      });
+
+    if (insertError) {
+      throw new Error(`收藏失败: ${insertError.message}`);
+    }
   }
-  
+
   revalidatePath(`/article/${articleId}`);
-  
-  return { success: true };
+  return { success: true, bookmarked: !existingBookmark };
 }

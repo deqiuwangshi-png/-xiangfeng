@@ -43,7 +43,7 @@ export function ArticleCard({
 
   return (
     <Link href={`/article/${id}`}>
-      <article className="group bg-white rounded-2xl p-6 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer border border-xf-bg/50 hover:border-xf-accent/30">
+      <article className="group h-full flex flex-col bg-white rounded-2xl p-6 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer border border-xf-bg/50 hover:border-xf-accent/30">
         {/* 作者信息 */}
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full overflow-hidden bg-xf-light ring-2 ring-white">
@@ -75,13 +75,13 @@ export function ArticleCard({
         </h3>
 
         {/* 摘要 */}
-        <p className="text-xf-medium line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-xf-medium line-clamp-2 mb-4 leading-relaxed flex-1">
           {summary}
         </p>
 
         {/* 底部：查看文章按钮 */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-xf-info font-medium group-hover:underline flex items-center gap-1">
+        <div className="flex items-center justify-between mt-auto">
+          <span className="px-4 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 bg-xf-primary hover:bg-xf-primary/90 text-white flex items-center gap-1">
             查看文章 →
           </span>
           <div className="flex items-center gap-1 text-xf-medium text-sm">
