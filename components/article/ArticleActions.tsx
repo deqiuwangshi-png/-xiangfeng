@@ -22,6 +22,10 @@ import type { User } from '@supabase/supabase-js';
 interface ArticleActionsProps {
   articleId: string;
   currentUser: User | null;
+  initialLikeCount?: number;
+  initialCommentCount?: number;
+  initialLiked?: boolean;
+  initialBookmarked?: boolean;
 }
 
 /**
@@ -39,13 +43,20 @@ interface ArticleActionsProps {
  * - 收藏/取消收藏
  * - 根据登录状态启用/禁用功能
  */
-export default function ArticleActions({ articleId, currentUser }: ArticleActionsProps) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(367);
-  const [bookmarked, setBookmarked] = useState(false);
+export default function ArticleActions({ 
+  articleId, 
+  currentUser,
+  initialLikeCount = 0,
+  initialCommentCount = 0,
+  initialLiked = false,
+  initialBookmarked = false,
+}: ArticleActionsProps) {
+  const [liked, setLiked] = useState(initialLiked);
+  const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [shared, setShared] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [commentCount] = useState(42);
+  const [commentCount, setCommentCount] = useState(initialCommentCount);
 
   /**
    * 检查用户是否登录
@@ -62,44 +73,81 @@ export default function ArticleActions({ articleId, currentUser }: ArticleAction
 
   /**
    * 处理点赞
+   * 使用乐观更新：先更新 UI，再发送请求
    */
   const handleLike = async () => {
     if (!checkAuth()) return;
 
+    // 保存当前状态（用于失败回滚）
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
+
+    // 乐观更新：立即更新 UI
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikeCount(prev => newLiked ? prev + 1 : prev - 1);
+
     try {
-      const response = await fetch('/api/articles/like', {
+      const response = await fetch(`/api/articles/${articleId}/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId }),
       });
 
       if (response.ok) {
-        setLiked(!liked);
-        setLikeCount(prev => liked ? prev - 1 : prev + 1);
+        const data = await response.json();
+        // 使用服务器返回的最新数据
+        setLiked(data.liked);
+        setLikeCount(data.likes);
+      } else {
+        // 请求失败，回滚状态
+        setLiked(previousLiked);
+        setLikeCount(previousLikeCount);
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || '操作失败，请重试');
       }
     } catch (error) {
+      // 网络错误，回滚状态
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
       console.error('Failed to like article:', error);
+      alert('网络错误，请检查网络连接');
     }
   };
 
   /**
    * 处理收藏
+   * 使用乐观更新：先更新 UI，再发送请求
    */
   const handleBookmark = async () => {
     if (!checkAuth()) return;
 
+    // 保存当前状态（用于失败回滚）
+    const previousBookmarked = bookmarked;
+
+    // 乐观更新：立即更新 UI
+    setBookmarked(!bookmarked);
+
     try {
-      const response = await fetch('/api/articles/bookmark', {
+      const response = await fetch(`/api/articles/${articleId}/bookmark`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ articleId }),
       });
 
       if (response.ok) {
-        setBookmarked(!bookmarked);
+        const data = await response.json();
+        // 使用服务器返回的最新数据
+        setBookmarked(data.bookmarked);
+      } else {
+        // 请求失败，回滚状态
+        setBookmarked(previousBookmarked);
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || '操作失败，请重试');
       }
     } catch (error) {
+      // 网络错误，回滚状态
+      setBookmarked(previousBookmarked);
       console.error('Failed to bookmark article:', error);
+      alert('网络错误，请检查网络连接');
     }
   };
 

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import Link from 'next/link';
 import { Home } from 'lucide-react';
 import ArticleContent from '@/components/article/ArticleContent';
@@ -8,10 +8,32 @@ import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleActions from '@/components/article/ArticleActions';
 import CommentPanel from '@/components/article/CommentPanel';
 import ReadingProgress from '@/components/article/ReadingProgress';
-import ArticleSkeleton from '@/components/article/ArticleSkeleton';
 import CommentSkeleton from '@/components/article/CommentSkeleton';
 import { createClient } from '@/lib/supabase/server';
-import { getArticleById, getArticleComments } from '@/lib/articles/articleQueries';
+import { getArticleById, getArticleCommentsPaginated } from '@/lib/articles/articleQueries';
+
+/**
+ * 页面级别缓存配置
+ * - revalidate: 60秒增量静态再生
+ * - 已发布文章不经常变动，适合缓存
+ */
+export const revalidate = 60;
+
+/**
+ * 缓存文章查询
+ * 同一请求内多次调用返回缓存结果
+ */
+const getCachedArticle = cache(async (id: string) => {
+  return getArticleById(id);
+});
+
+/**
+ * 缓存评论查询
+ * 同一请求内多次调用返回缓存结果
+ */
+const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
+  return getArticleCommentsPaginated(articleId, page, limit);
+});
 
 interface ArticlePageProps {
   params: Promise<{
@@ -21,30 +43,19 @@ interface ArticlePageProps {
 
 /**
  * 生成页面元数据（SEO）
+ * 使用缓存避免重复查询
  */
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { id } = await params;
-  
-  // Server 端直接查询数据库
-  const supabase = await createClient();
-  const { data: article } = await supabase
-    .from('articles')
-    .select('title, summary, tags, created_at, author_id')
-    .eq('id', id)
-    .single();
+
+  // 使用缓存获取文章数据
+  const article = await getCachedArticle(id);
 
   if (!article) {
     return {
       title: '文章未找到',
     };
   }
-
-  // 获取作者信息
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', article.author_id)
-    .single();
 
   return {
     title: article.title,
@@ -54,8 +65,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       title: article.title,
       description: article.summary || '',
       type: 'article',
-      publishedTime: article.created_at,
-      authors: [profile?.username || ''],
+      publishedTime: article.publishedAt,
+      authors: [article.author.name],
     },
   };
 }
@@ -68,9 +79,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id: articleId } = await params;
 
   // ✅ 并行获取所有数据（速度快）
-  const [article, comments, { data: { user } }] = await Promise.all([
-    getArticleById(articleId),
-    getArticleComments(articleId),
+  // 使用分页加载评论，首屏只加载前10条
+  // 使用缓存函数避免重复查询
+  const [article, { comments, totalCount, hasMore }, { data: { user } }] = await Promise.all([
+    getCachedArticle(articleId),
+    getCachedComments(articleId, 1, 10),
     createClient().then(client => client.auth.getUser()),
   ]);
 
@@ -106,17 +119,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
       </div>
       
-      {/* ✅ ArticleActions 接收当前用户 */}
+      {/* ✅ ArticleActions 接收当前用户和文章统计数据 */}
       <ArticleActions 
         articleId={articleId} 
-        currentUser={user} 
+        currentUser={user}
+        initialLikeCount={article.likesCount || 0}
+        initialCommentCount={totalCount || 0}
+        initialLiked={false} // TODO: 从数据库获取当前用户是否点赞
+        initialBookmarked={false} // TODO: 从数据库获取当前用户是否收藏
       />
       
-      {/* ✅ CommentPanel 接收初始评论数据 */}
+      {/* ✅ CommentPanel 接收初始评论数据（分页加载） */}
       <Suspense fallback={<CommentSkeleton />}>
-        <CommentPanel 
-          articleId={articleId} 
+        <CommentPanel
+          articleId={articleId}
           initialComments={comments}
+          initialTotalCount={totalCount}
+          initialHasMore={hasMore}
           currentUser={user}
         />
       </Suspense>

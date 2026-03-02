@@ -1,106 +1,237 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getArticleCommentsPaginated } from '@/lib/articles/articleQueries';
+import { createClient } from '@/lib/supabase/server';
 
+/**
+ * 获取文章评论列表（支持分页）
+ *
+ * @param request - 请求对象
+ * @param params - 路由参数
+ * @returns 评论列表响应
+ */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: articleId } = await params;
-  
-  console.log('API - 获取评论列表:', { articleId });
-  
-  const mockComments = [
-    {
-      id: 'comment-1',
+
+  // 获取分页参数
+  const searchParams = request.nextUrl.searchParams;
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '10', 10);
+
+  console.log('API - 获取评论列表:', { articleId, page, limit });
+
+  try {
+    // 使用分页查询
+    const { comments, totalCount, hasMore } = await getArticleCommentsPaginated(
       articleId,
-      author: {
-        id: 'user-1',
-        name: '张明',
-        avatar: '/avatars/zhang.jpg',
-      },
-      content: '这篇文章写得真好，让我对深度思考有了更深的理解。特别是第一性原理的部分，对我启发很大。',
-      createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      likes: 23,
-      liked: false,
-    },
-    {
-      id: 'comment-2',
-      articleId,
-      author: {
-        id: 'user-2',
-        name: '李华',
-      },
-      content: '多元思维模型这个概念很有意思，我也在学习不同学科的知识，希望能构建自己的认知工具箱。',
-      createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-      likes: 15,
-      liked: false,
-    },
-    {
-      id: 'comment-3',
-      articleId,
-      author: {
-        id: 'user-3',
-        name: '王芳',
-        avatar: '/avatars/wang.jpg',
-      },
-      content: '深度思考确实是稀缺能力，在这个信息爆炸的时代，我们更需要学会慢下来，深入思考。',
-      createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-      likes: 31,
-      liked: false,
-    },
-  ];
-  
-  return NextResponse.json({
-    comments: mockComments,
-    total: mockComments.length,
-  });
+      page,
+      limit
+    );
+
+    return NextResponse.json({
+      comments,
+      totalCount,
+      hasMore,
+    });
+  } catch (error) {
+    console.error('API - 获取评论失败:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch comments' },
+      { status: 500 }
+    );
+  }
 }
 
+/**
+ * 提交新评论
+ *
+ * @param request - 请求对象
+ * @param params - 路由参数
+ * @returns 新评论响应
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: articleId } = await params;
-  const body = await request.json();
-  
-  const { userId, content } = body;
-  
-  if (!userId) {
+  const supabase = await createClient();
+
+  console.log('API - 收到评论提交请求:', { articleId });
+
+  try {
+    // 获取当前登录用户
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('API - 用户未登录:', authError);
+      return NextResponse.json(
+        { error: '请先登录' },
+        { status: 401 }
+      );
+    }
+
+    console.log('API - 当前用户:', { userId: user.id });
+
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      console.error('API - 请求体解析失败:', e);
+      return NextResponse.json(
+        { error: '请求格式错误' },
+        { status: 400 }
+      );
+    }
+    
+    const { content } = body;
+
+    if (!content || content.trim().length === 0) {
+      return NextResponse.json(
+        { error: '评论内容不能为空' },
+        { status: 400 }
+      );
+    }
+
+    if (content.length > 500) {
+      return NextResponse.json(
+        { error: '评论内容不能超过500字' },
+        { status: 400 }
+      );
+    }
+
+    console.log('API - 准备插入评论:', { articleId, userId: user.id, content: content.trim() });
+
+    // 插入评论到数据库
+    const { data: comment, error } = await supabase
+      .from('comments')
+      .insert({
+        article_id: articleId,
+        author_id: user.id,
+        content: content.trim(),
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('API - 插入评论失败:', error);
+      return NextResponse.json(
+        { error: `评论提交失败: ${error.message}` },
+        { status: 500 }
+      );
+    }
+
+    if (!comment) {
+      console.error('API - 评论插入成功但未返回数据');
+      return NextResponse.json(
+        { error: '评论提交失败: 未返回数据' },
+        { status: 500 }
+      );
+    }
+
+    console.log('API - 评论插入成功:', { commentId: comment.id });
+
+    // 获取用户资料
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('username, avatar_url')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('API - 获取用户资料失败:', profileError);
+    }
+
+    const responseData = {
+      comment: {
+        id: comment.id,
+        content: comment.content,
+        created_at: comment.created_at,
+        likes: 0,
+        author: {
+          id: user.id,
+          name: profile?.username || '匿名用户',
+          avatar: profile?.avatar_url || null,
+        },
+        liked: false,
+      },
+    };
+
+    console.log('API - 返回数据:', responseData);
+
+    return NextResponse.json(responseData);
+  } catch (error) {
+    console.error('API - 提交评论失败:', error);
     return NextResponse.json(
-      { error: 'User ID is required' },
-      { status: 400 }
+      { error: `评论提交失败: ${error instanceof Error ? error.message : '未知错误'}` },
+      { status: 500 }
     );
   }
-  
-  if (!content || content.trim().length === 0) {
+}
+
+/**
+ * 删除评论
+ *
+ * @param request - 请求对象
+ * @param params - 路由参数
+ * @returns 删除结果响应
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: articleId } = await params;
+  const supabase = await createClient();
+
+  try {
+    // 获取当前登录用户
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: '请先登录' },
+        { status: 401 }
+      );
+    }
+
+    // 从查询参数获取评论ID
+    const { searchParams } = new URL(request.url);
+    const commentId = searchParams.get('commentId');
+
+    if (!commentId) {
+      return NextResponse.json(
+        { error: '评论ID不能为空' },
+        { status: 400 }
+      );
+    }
+
+    // 删除评论（只能删除自己的评论）
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId)
+      .eq('author_id', user.id);
+
+    if (error) {
+      console.error('API - 删除评论失败:', error);
+      return NextResponse.json(
+        { error: '删除评论失败' },
+        { status: 500 }
+      );
+    }
+
+    console.log('API - 评论删除成功:', { articleId, commentId });
+
+    return NextResponse.json({
+      success: true,
+      message: '评论已删除',
+    });
+  } catch (error) {
+    console.error('API - 删除评论失败:', error);
     return NextResponse.json(
-      { error: 'Comment content is required' },
-      { status: 400 }
+      { error: '删除评论失败' },
+      { status: 500 }
     );
   }
-  
-  if (content.length > 500) {
-    return NextResponse.json(
-      { error: 'Comment content is too long' },
-      { status: 400 }
-    );
-  }
-  
-  console.log('API - 提交评论:', { articleId, userId, content });
-  
-  const newComment = {
-    id: `comment-${Date.now()}`,
-    articleId,
-    author: {
-      id: userId,
-      name: '当前用户',
-    },
-    content: content.trim(),
-    createdAt: new Date().toISOString(),
-    likes: 0,
-    liked: false,
-  };
-  
-  return NextResponse.json({
-    comment: newComment,
-  });
 }

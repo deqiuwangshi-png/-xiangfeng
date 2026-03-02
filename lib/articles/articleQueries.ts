@@ -34,6 +34,8 @@ export interface ArticleWithAuthor {
   author: ArticleAuthor;
   publishedAt: string;
   readTime: number;
+  likesCount: number;
+  commentsCount: number;
 }
 
 /**
@@ -55,80 +57,122 @@ export interface CommentWithAuthor {
 }
 
 /**
- * 根据ID获取文章详情
- * 
+ * 根据ID获取文章详情（优化版 - 使用关联查询避免 N+1）
+ *
  * @param id - 文章ID
  * @returns 文章详情（包含作者信息）
  */
 export async function getArticleById(id: string): Promise<ArticleWithAuthor | null> {
   const supabase = await createClient();
 
+  // 使用关联查询一次性获取文章和作者信息
   const { data, error } = await supabase
     .from('articles')
-    .select('*')
+    .select(`
+      *,
+      author:profiles!author_id(username, avatar_url, bio)
+    `)
     .eq('id', id)
     .single();
 
   if (error || !data) return null;
 
-  // 获取作者信息 - 使用 author_id
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, avatar_url, bio')
-    .eq('id', data.author_id)  // ✅ 使用 author_id
-    .single();
-
   return {
     ...data,
     author: {
-      id: data.author_id,  // ✅ 使用 author_id
-      name: profile?.username || '匿名',
-      avatar: profile?.avatar_url || undefined,
-      bio: profile?.bio || undefined,
+      id: data.author_id,
+      name: data.author?.username || '匿名',
+      avatar: data.author?.avatar_url || undefined,
+      bio: data.author?.bio || undefined,
     },
     publishedAt: data.created_at,
     readTime: Math.ceil(data.content.length / 500), // 估算阅读时间
+    likesCount: data.likes_count || 0,
+    commentsCount: data.comments_count || 0,
   };
 }
 
 /**
- * 获取文章评论列表
- * 
+ * 获取文章评论列表（优化版 - 使用关联查询避免 N+1）
+ *
  * @param articleId - 文章ID
  * @returns 评论列表（包含作者信息）
  */
 export async function getArticleComments(articleId: string): Promise<CommentWithAuthor[]> {
   const supabase = await createClient();
 
+  // 使用关联查询一次性获取评论和作者信息
   const { data, error } = await supabase
     .from('comments')
-    .select('*')
+    .select(`
+      *,
+      author:profiles!author_id(username, avatar_url)
+    `)
     .eq('article_id', articleId)
     .order('created_at', { ascending: false });
 
   if (error || !data) return [];
 
-  // 获取所有评论作者的信息 - 使用 author_id
-  const authorIds = [...new Set(data.map(c => c.author_id))];  // ✅ 使用 author_id
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, username, avatar_url')
-    .in('id', authorIds);  // ✅ 使用 author_id
+  return data.map(comment => ({
+    ...comment,
+    author: {
+      id: comment.author_id,
+      name: comment.author?.username || '匿名',
+      avatar: comment.author?.avatar_url || undefined,
+    },
+    liked: false, // 需要根据当前用户判断是否已点赞
+  }));
+}
 
-  const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+/**
+ * 分页获取文章评论列表（优化版 - 使用关联查询避免 N+1）
+ *
+ * @param articleId - 文章ID
+ * @param page - 页码（从1开始）
+ * @param limit - 每页数量
+ * @returns 评论列表、总数和是否还有更多
+ */
+export async function getArticleCommentsPaginated(
+  articleId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<{ comments: CommentWithAuthor[]; totalCount: number; hasMore: boolean }> {
+  const supabase = await createClient();
 
-  return data.map(comment => {
-    const profile = profileMap.get(comment.author_id);  // ✅ 使用 author_id
-    return {
-      ...comment,
-      author: {
-        id: comment.author_id,  // ✅ 使用 author_id
-        name: profile?.username || '匿名',
-        avatar: profile?.avatar_url || undefined,
-      },
-      liked: false, // 需要根据当前用户判断是否已点赞
-    };
-  });
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  // 使用关联查询一次性获取评论、作者信息和总数
+  const { data, error, count } = await supabase
+    .from('comments')
+    .select(
+      `*,
+      author:profiles!author_id(username, avatar_url)`,
+      { count: 'exact' }
+    )
+    .eq('article_id', articleId)
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (error || !data) {
+    return { comments: [], totalCount: 0, hasMore: false };
+  }
+
+  const comments = data.map(comment => ({
+    ...comment,
+    author: {
+      id: comment.author_id,
+      name: comment.author?.username || '匿名',
+      avatar: comment.author?.avatar_url || undefined,
+    },
+    liked: false, // 需要根据当前用户判断是否已点赞
+  }));
+
+  return {
+    comments,
+    totalCount: count || 0,
+    hasMore: (count || 0) > to + 1,
+  };
 }
 
 /**
