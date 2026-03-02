@@ -33,7 +33,11 @@ export function NotificationCard({
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-800">
+        {/* LCP关键元素：通知消息文本，优化渲染性能 */}
+        <p
+          className="text-sm text-gray-800"
+          style={{ contain: 'layout style paint' }}
+        >
           <span className="font-medium">{notification.user}</span> {notification.title}
           {notification.message && (
             <span className="text-xf-primary"> {notification.message}</span>

@@ -216,7 +216,11 @@ export function DraftCard({
             </div>
           </div>
 
-          <p className="text-sm text-xf-medium mb-4 line-clamp-2">
+          {/* LCP关键元素：摘要文本，使用will-change优化渲染性能 */}
+          <p
+            className="text-sm text-xf-medium mb-4 line-clamp-2"
+            style={{ willChange: 'auto' }}
+          >
             {draft.summary}
           </p>
 

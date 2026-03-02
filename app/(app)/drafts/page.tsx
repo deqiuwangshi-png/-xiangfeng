@@ -1,21 +1,9 @@
-import { DraftsClient } from '@/components/drafts/DraftsClient'
-import { getArticles } from '@/lib/articles/articleActions'
-import { filterOptions } from '@/constants/drafts'
+import { DraftsServer } from '@/components/drafts/DraftsServer'
 
 /**
- * 草稿页 Server Component
- * 从数据库获取真实数据
+ * 草稿页
+ * @description 使用Suspense优化LCP，优先渲染骨架屏
  */
-export default async function DraftsPage() {
-  // 从数据库获取当前用户的文章列表
-  const articles = await getArticles()
-
-  return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
-      <DraftsClient
-        initialArticles={articles}
-        filterOptions={filterOptions}
-      />
-    </div>
-  )
+export default function DraftsPage() {
+  return <DraftsServer />
 }

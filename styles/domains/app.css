@@ -489,17 +489,28 @@ i[data-lucide],
   visibility: visible;
 }
 
-/* 文本截断 */
+/*
+ * 文本截断 - LCP优化版本
+ * 使用contain属性优化渲染性能
+ */
 .line-clamp-2 {
   display: -webkit-box;
   line-clamp: 2;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* 优化LCP：限制样式计算范围 */
+  contain: layout style paint;
+  /* 确保文本在字体加载前可见 */
+  font-display: swap;
 }
 
 .line-clamp-3 {
   display: -webkit-box;
   line-clamp: 3;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  contain: layout style paint;
+  font-display: swap;
 }

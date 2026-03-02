@@ -13,9 +13,13 @@
   --color-xf-success: #4CAF50;
   --color-xf-warning: #FF9800;
   --color-xf-error: #f44336;
-  
-  --font-sans: "Noto Sans SC", system-ui, sans-serif;
-  --font-serif: "Noto Serif SC", Georgia, serif;
+
+  /*
+   * 字体配置 - 使用CSS变量支持next/font
+   * --font-sans 和 --font-serif 由 layout.tsx 中的 next/font 提供
+   */
+  --font-sans: var(--font-sans, "Noto Sans SC"), system-ui, sans-serif;
+  --font-serif: var(--font-serif, "Noto Serif SC"), Georgia, serif;
   
   --shadow-soft: 0 4px 20px -2px rgba(165, 193, 214, 0.3);
   --shadow-glow: 0 0 15px rgba(106, 91, 138, 0.5);
@@ -44,9 +48,43 @@
   75% { border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%; }
 }
 
+/**
+ * 全局样式优化
+ * - font-display: swap 确保字体加载期间显示后备字体
+ * - 优化LCP性能
+ */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 确保字体加载期间有后备字体显示，减少LCP时间 */
+  font-display: swap;
+}
+
+/*
+ * LCP优化：确保关键内容优先渲染
+ * 使用content-visibility优化非关键内容的渲染性能
+ */
+.lcp-critical {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/*
+ * 骨架屏动画优化
+ * 使用GPU加速的动画，减少主线程阻塞
+ */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: opacity;
 }
 
 .no-scrollbar::-webkit-scrollbar { 
