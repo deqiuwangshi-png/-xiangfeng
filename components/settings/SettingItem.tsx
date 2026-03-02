@@ -22,12 +22,6 @@ import { ReactNode } from 'react'
  *   - 使用'use client'指令
  *   - 接收设置项配置
  *   - 支持多种交互类型
- * 
- * 样式说明:
- *   - 严格遵循HTML原型文件样式
- *   - 使用Tailwind CSS v4语法
- *   - 像素级还原原型设计
- * 
  * 更新时间: 2026-02-20
  */
 

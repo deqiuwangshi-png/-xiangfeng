@@ -20,12 +20,6 @@ import { User, Lock, Bell, Palette, Filter, Settings2 } from 'lucide-react'
  *   - 使用'use client'指令
  *   - 接收当前激活的标签页
  *   - 触发标签页切换事件
- * 
- * 样式说明:
- *   - 严格遵循HTML原型文件样式
- *   - 使用Tailwind CSS v4语法
- *   - 像素级还原原型设计
- * 
  * 更新时间: 2026-02-20
  */
 

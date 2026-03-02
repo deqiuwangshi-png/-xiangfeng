@@ -113,13 +113,15 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
     throw new Error(`获取失败: ${error.message}`);
   }
 
+  // 返回完整数据，保持原始字段名
   return (data || []).map(item => ({
     id: item.id,
     title: item.title,
+    content: item.content,
     summary: item.summary || item.content.slice(0, 100) + '...',
     status: item.status,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
   }));
 }
 

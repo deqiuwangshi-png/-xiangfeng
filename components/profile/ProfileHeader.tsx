@@ -23,7 +23,9 @@
  * 更新时间: 2026-02-20
  */
 
-import { MessageSquare, UserPlus, MapPin, Star } from 'lucide-react'
+import { MessageSquare, UserPlus, UserCheck, MapPin, Star } from 'lucide-react'
+import { useState } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 
@@ -56,6 +58,12 @@ interface ProfileHeaderProps {
  * - 所有间距完全复制原型数值
  */
 export function ProfileHeader({ user }: ProfileHeaderProps) {
+  const [isFollowing, setIsFollowing] = useState(false)
+
+  const handleFollowClick = () => {
+    setIsFollowing(!isFollowing)
+  }
+
   return (
     <div className="profile-header-bg rounded-4xl p-8 mb-8 shadow-soft">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
@@ -93,13 +101,32 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
 
             <div className="flex gap-3 mt-4 md:mt-0">
-              <button className="px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all flex items-center gap-2">
+              <Link
+                href="/chat"
+                className="px-6 py-3 bg-white border border-xf-bg/60 text-xf-primary rounded-xl font-medium flex items-center gap-2"
+              >
                 <MessageSquare className="w-4 h-4" />
                 发消息
-              </button>
-              <button className="px-6 py-3 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2">
-                <UserPlus className="w-4 h-4" />
-                关注
+              </Link>
+              <button
+                onClick={handleFollowClick}
+                className={`px-6 py-3 rounded-xl font-semibold flex items-center gap-2 ${
+                  isFollowing
+                    ? 'bg-xf-light text-xf-medium border border-xf-bg/60'
+                    : 'bg-xf-accent text-white'
+                }`}
+              >
+                {isFollowing ? (
+                  <>
+                    <UserCheck className="w-4 h-4" />
+                    已关注
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    关注
+                  </>
+                )}
               </button>
             </div>
           </div>

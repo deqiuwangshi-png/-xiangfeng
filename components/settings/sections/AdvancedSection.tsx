@@ -21,12 +21,6 @@ import { updateAdvancedSettings } from '@/app/(user)/settings/actions'
  * 架构说明:
  *   - 使用'use client'指令
  *   - 使用Server Actions进行数据修改
- * 
- * 样式说明:
- *   - 严格遵循HTML原型文件样式
- *   - 使用Tailwind CSS v4语法
- *   - 像素级还原原型设计
- * 
  * 更新时间: 2026-02-22
  */
 

@@ -22,12 +22,6 @@ import { ReactNode } from 'react'
  *   - 使用'use client'指令
  *   - 接收区块ID和标题
  *   - 管理显示状态
- * 
- * 样式说明:
- *   - 严格遵循HTML原型文件样式
- *   - 使用Tailwind CSS v4语法
- *   - 像素级还原原型设计
- * 
  * 更新时间: 2026-02-20
  */
 
