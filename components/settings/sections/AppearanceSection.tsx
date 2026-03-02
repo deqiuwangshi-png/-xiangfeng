@@ -103,32 +103,7 @@ export function AppearanceSection() {
           }
         />
 
-        <SettingItem
-          label="字体大小"
-          description="调整界面字体大小"
-          controlType="select"
-          control={
-            <select className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl" defaultValue="medium">
-              <option value="small">较小</option>
-              <option value="medium">中等</option>
-              <option value="large">较大</option>
-              <option value="xlarge">最大</option>
-            </select>
-          }
-        />
 
-        <SettingItem
-          label="文章密度"
-          description="控制文章列表的间距"
-          controlType="select"
-          control={
-            <select className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl">
-              <option value="compact">紧凑</option>
-              <option value="normal">标准</option>
-              <option value="comfortable">宽松</option>
-            </select>
-          }
-        />
       </div>
     </SettingsSection>
   )

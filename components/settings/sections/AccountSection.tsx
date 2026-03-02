@@ -14,6 +14,22 @@ import { LinkedAccountsForm } from '../LinkedAccountsForm'
 type ViewMode = 'list' | 'editProfile' | 'security' | 'changeEmail' | 'linkedAccounts'
 
 /**
+ * 用户数据接口
+ */
+interface UserData {
+  id: string
+  email: string
+  username: string
+  avatar_url: string
+  bio: string
+  location: string
+}
+
+interface AccountSectionProps {
+  userData: UserData | null
+}
+
+/**
  * 账户设置区块（Client Component）
  *
  * 作用: 显示账户设置相关选项
@@ -33,7 +49,7 @@ type ViewMode = 'list' | 'editProfile' | 'security' | 'changeEmail' | 'linkedAcc
  * 更新时间: 2026-03-02
  */
 
-export function AccountSection() {
+export function AccountSection({ userData }: AccountSectionProps) {
   // 控制当前视图模式
   const [viewMode, setViewMode] = useState<ViewMode>('list')
 
@@ -102,6 +118,7 @@ export function AccountSection() {
   if (viewMode === 'editProfile') {
     return (
       <EditProfileForm
+        initialData={userData}
         onCancel={handleBackToList}
         onSave={handleSaveSuccess}
       />
@@ -169,7 +186,7 @@ export function AccountSection() {
 
         <SettingItem
           label="邮箱地址"
-          description="felix@example.com"
+          description={userData?.email || '未设置'}
           controlType="button"
           control={
             <button

@@ -10,6 +10,22 @@ import { ContentSection } from './sections/ContentSection'
 import { AdvancedSection } from './sections/AdvancedSection'
 
 /**
+ * 用户数据接口
+ */
+interface UserData {
+  id: string
+  email: string
+  username: string
+  avatar_url: string
+  bio: string
+  location: string
+}
+
+interface SettingsLayoutProps {
+  userData: UserData | null
+}
+
+/**
  * 设置页面布局组件（Client Component）
  * 
  * 作用: 管理设置页面的布局和标签页切换
@@ -31,10 +47,10 @@ import { AdvancedSection } from './sections/AdvancedSection'
  * @state
  * - activeTab: 当前激活的标签页ID
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-03-02
  */
 
-export function SettingsLayout() {
+export function SettingsLayout({ userData }: SettingsLayoutProps) {
   const [activeTab, setActiveTab] = useState('account')
 
   /**
@@ -68,7 +84,7 @@ export function SettingsLayout() {
         </div>
 
         <div className="lg:col-span-4">
-          {activeTab === 'account' && <AccountSection />}
+          {activeTab === 'account' && <AccountSection userData={userData} />}
           {activeTab === 'privacy' && <PrivacySection />}
           {activeTab === 'notifications' && <NotificationsSection />}
           {activeTab === 'appearance' && <AppearanceSection />}

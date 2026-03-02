@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Link2, Github, MessageCircle, CheckCircle2, Circle } from 'lucide-react'
+import { IconBox, PrimaryButton } from '@/components/ui'
 
 /**
  * 管理关联账号表单组件
@@ -96,16 +97,17 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
   return (
     <div className="fade-in-up">
       {/* 返回按钮和标题区域 */}
-      <div className="flex items-start gap-4 mb-10">
+      <div className="flex items-center justify-between mb-10">
         <button
           onClick={onCancel}
-          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors mt-2"
+          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        <header>
+        {/* 页面标题 - 靠右对齐 */}
+        <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             关联账号
           </h1>
@@ -118,9 +120,9 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
       {/* 已关联数量提示 */}
       <div className="card-bg rounded-2xl p-6 mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-linear-to-br from-xf-accent to-xf-primary rounded-xl flex items-center justify-center text-white">
+          <IconBox>
             <Link2 className="w-5 h-5" />
-          </div>
+          </IconBox>
           <div>
             <p className="text-sm text-xf-medium">已关联账号</p>
             <p className="font-medium text-xf-dark">{connectedCount} 个账号已绑定</p>
@@ -176,13 +178,13 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
                       <Circle className="w-4 h-4" />
                       未绑定
                     </span>
-                    <button
+                    <PrimaryButton
                       onClick={() => handleToggleConnection(account.id)}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow disabled:opacity-50"
+                      className="px-4! py-2! text-sm! rounded-lg! shadow-sm!"
                     >
                       绑定
-                    </button>
+                    </PrimaryButton>
                   </>
                 )}
               </div>
@@ -200,12 +202,9 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
 
       {/* 完成按钮 */}
       <div className="mt-8">
-        <button
-          onClick={handleDone}
-          className="w-full px-6 py-3 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-        >
+        <PrimaryButton fullWidth onClick={handleDone}>
           完成
-        </button>
+        </PrimaryButton>
       </div>
     </div>
   )

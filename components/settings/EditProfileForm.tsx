@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from 'lucide-react'
+import { AvatarPlaceholder, PrimaryButton } from '@/components/ui'
 
 /**
  * 编辑个人资料表单组件
@@ -59,7 +60,7 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
    *
    * @param e - 表单提交事件
    */
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -77,18 +78,18 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
   return (
     <div className="fade-in-up">
       {/* 返回按钮和标题区域 */}
-      <div className="flex items-start gap-4 mb-10">
+      <div className="flex items-center justify-between mb-10">
         {/* 返回按钮 */}
         <button
           onClick={onCancel}
-          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors mt-2"
+          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        {/* 页面标题 */}
-        <header>
+        {/* 页面标题 - 靠右对齐 */}
+        <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             编辑个人资料
           </h1>
@@ -100,52 +101,74 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
 
       {/* 编辑表单 */}
       <form onSubmit={handleSubmit} className="card-bg rounded-2xl p-8 space-y-8">
-        {/* 头像上传区域 */}
-        <div className="flex flex-col items-center">
-          <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-linear-to-br from-xf-accent to-xf-primary flex items-center justify-center text-white text-4xl font-bold shadow-deep ring-4 ring-white">
-              {formData.username.charAt(0).toUpperCase()}
+        {/* 头像和基本信息区域 - 水平布局 */}
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          {/* 头像上传区域 - 左侧 */}
+          <div className="flex flex-col items-center shrink-0">
+            <div className="relative">
+              <AvatarPlaceholder name={formData.username} />
+              <button
+                type="button"
+                className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
             </div>
-            <button
-              type="button"
-              className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
-            >
-              <Camera className="w-5 h-5" />
-            </button>
+            <p className="text-sm text-xf-medium mt-4">
+              点击头像更换照片
+            </p>
           </div>
-          <p className="text-sm text-xf-medium mt-4">
-            点击头像更换照片
-          </p>
-        </div>
 
-        {/* 用户名 */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
-            <User className="w-5 h-5 text-xf-primary" />
-            用户名
-          </label>
-          <input
-            type="text"
-            value={formData.username}
-            onChange={(e) => handleChange('username', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-            placeholder="请输入用户名"
-          />
-        </div>
+          {/* 用户名、邮箱和城市 - 右侧 */}
+          <div className="flex-1 flex flex-col gap-6 w-full">
+            {/* 第一行：用户名和邮箱 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 用户名 */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
+                  <User className="w-5 h-5 text-xf-primary" />
+                  用户名
+                </label>
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) => handleChange('username', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
+                  placeholder="请输入用户名"
+                />
+              </div>
 
-        {/* 邮箱 */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
-            <Mail className="w-5 h-5 text-xf-primary" />
-            邮箱地址
-          </label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-            placeholder="请输入邮箱地址"
-          />
+              {/* 邮箱 */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
+                  <Mail className="w-5 h-5 text-xf-primary" />
+                  邮箱地址
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange('email', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
+                  placeholder="请输入邮箱地址"
+                />
+              </div>
+            </div>
+
+            {/* 第二行：所在城市 */}
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
+                <MapPin className="w-5 h-5 text-xf-primary" />
+                所在城市
+              </label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => handleChange('location', e.target.value)}
+                className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
+                placeholder="请输入所在城市"
+              />
+            </div>
+          </div>
         </div>
 
         {/* 个人简介 */}
@@ -154,31 +177,18 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
             <FileText className="w-5 h-5 text-xf-primary" />
             个人简介
           </label>
-          <textarea
-            value={formData.bio}
-            onChange={(e) => handleChange('bio', e.target.value)}
-            rows={4}
-            className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all resize-none"
-            placeholder="介绍一下你自己..."
-          />
-          <p className="text-sm text-xf-medium text-right">
-            {formData.bio.length}/200
-          </p>
-        </div>
-
-        {/* 位置 */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
-            <MapPin className="w-5 h-5 text-xf-primary" />
-            所在城市
-          </label>
-          <input
-            type="text"
-            value={formData.location}
-            onChange={(e) => handleChange('location', e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-            placeholder="请输入所在城市"
-          />
+          <div className="relative">
+            <textarea
+              value={formData.bio}
+              onChange={(e) => handleChange('bio', e.target.value)}
+              rows={4}
+              className="w-full px-4 py-3 pb-8 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all resize-none"
+              placeholder="介绍一下你自己..."
+            />
+            <p className="absolute bottom-2 right-3 text-sm text-xf-medium">
+              {formData.bio.length}/200
+            </p>
+          </div>
         </div>
 
         {/* 操作按钮 */}
@@ -190,13 +200,9 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
           >
             取消
           </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 px-6 py-3 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-          >
-            {isLoading ? '保存中...' : '保存更改'}
-          </button>
+          <PrimaryButton type="submit" loading={isLoading}>
+            保存更改
+          </PrimaryButton>
         </div>
       </form>
     </div>

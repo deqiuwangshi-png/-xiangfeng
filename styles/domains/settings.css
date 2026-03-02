@@ -38,9 +38,9 @@ button:active, .cursor-pointer:active {
 
 
 
-/* 卡片背景增强 */
+/* 卡片背景 - 使用纯色替代渐变色 */
 .card-bg {
-  background: linear-gradient(145deg, #ffffff, #f5f7fa);
+  background: #ffffff;
   border: 1px solid rgba(225, 228, 234, 0.8);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
 }
@@ -153,9 +153,9 @@ button:active, .cursor-pointer:active {
   box-shadow: 0 0 0 3px rgba(58, 60, 110, 0.15);
 }
 
-/* 危险区域样式 */
+/* 危险区域样式 - 使用纯色替代渐变色 */
 .danger-zone {
-  background: linear-gradient(145deg, rgba(244, 67, 54, 0.05), rgba(244, 67, 54, 0.02));
+  background: rgba(244, 67, 54, 0.05);
   border: 1px solid rgba(244, 67, 54, 0.2);
 }
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Lock, Shield, Key, Smartphone, Eye, EyeOff } from 'lucide-react'
+import { IconBox, PrimaryButton } from '@/components/ui'
 
 /**
  * 安全管理表单组件
@@ -72,7 +73,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
    *
    * @param e - 表单提交事件
    */
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -97,18 +98,18 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
   return (
     <div className="fade-in-up">
       {/* 返回按钮和标题区域 */}
-      <div className="flex items-start gap-4 mb-10">
+      <div className="flex items-center justify-between mb-10">
         {/* 返回按钮 */}
         <button
           onClick={onCancel}
-          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors mt-2"
+          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        {/* 页面标题 */}
-        <header>
+        {/* 页面标题 - 靠右对齐 */}
+        <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             账号安全
           </h1>
@@ -123,9 +124,9 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
         {/* 修改密码区块 */}
         <div className="card-bg rounded-2xl p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-linear-to-br from-xf-accent to-xf-primary rounded-xl flex items-center justify-center text-white">
+            <IconBox>
               <Key className="w-5 h-5" />
-            </div>
+            </IconBox>
             <h2 className="text-xl font-bold text-xf-dark text-layer-1">
               修改密码
             </h2>
@@ -210,9 +211,9 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
         <div className="card-bg rounded-2xl p-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-linear-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white">
+              <IconBox variant="green">
                 <Shield className="w-5 h-5" />
-              </div>
+              </IconBox>
               <div>
                 <h2 className="text-xl font-bold text-xf-dark text-layer-1">
                   双重验证
@@ -236,9 +237,9 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
         {/* 登录设备管理区块 */}
         <div className="card-bg rounded-2xl p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white">
+            <IconBox variant="blue">
               <Smartphone className="w-5 h-5" />
-            </div>
+            </IconBox>
             <h2 className="text-xl font-bold text-xf-dark text-layer-1">
               登录设备
             </h2>
@@ -291,13 +292,9 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
           >
             取消
           </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 px-6 py-3 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-          >
-            {isLoading ? '保存中...' : '保存更改'}
-          </button>
+          <PrimaryButton type="submit" loading={isLoading}>
+            保存更改
+          </PrimaryButton>
         </div>
       </form>
     </div>

@@ -56,7 +56,7 @@ export default function ChatPage() {
       {/* 头部 */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-xf-bg/60">
         <Link
-          href="/home"
+          href="/profile"
           className="p-2 hover:bg-xf-light rounded-lg"
         >
           <ArrowLeft className="w-5 h-5 text-xf-medium" />

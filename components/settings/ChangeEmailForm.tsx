@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Mail, Shield, CheckCircle } from 'lucide-react'
+import { IconBox, PrimaryButton } from '@/components/ui'
 
 /**
  * 更换邮箱表单组件
@@ -64,7 +65,7 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
   /**
    * 处理提交
    */
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (step === 'input') {
       await handleSendCode()
@@ -86,16 +87,17 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
   return (
     <div className="fade-in-up">
       {/* 返回按钮和标题区域 */}
-      <div className="flex items-start gap-4 mb-10">
+      <div className="flex items-center justify-between mb-10">
         <button
           onClick={onCancel}
-          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors mt-2"
+          className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        <header>
+        {/* 页面标题 - 靠右对齐 */}
+        <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             更换邮箱
           </h1>
@@ -108,9 +110,9 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
       {/* 当前邮箱提示 */}
       <div className="card-bg rounded-2xl p-6 mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-linear-to-br from-xf-accent to-xf-primary rounded-xl flex items-center justify-center text-white">
+          <IconBox>
             <Mail className="w-5 h-5" />
-          </div>
+          </IconBox>
           <div>
             <p className="text-sm text-xf-medium">当前邮箱</p>
             <p className="font-medium text-xf-dark">felix@example.com</p>
@@ -179,13 +181,13 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
           >
             取消
           </button>
-          <button
+          <PrimaryButton
             type="submit"
-            disabled={isLoading || (step === 'input' && !email) || (step === 'verify' && !verificationCode)}
-            className="flex-1 px-6 py-3 bg-linear-to-r from-xf-accent to-xf-primary hover:from-xf-accent/90 hover:to-xf-primary/90 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            loading={isLoading}
+            disabled={(step === 'input' && !email) || (step === 'verify' && !verificationCode)}
           >
-            {isLoading ? '处理中...' : step === 'input' ? '发送验证码' : '确认更换'}
-          </button>
+            {step === 'input' ? '发送验证码' : '确认更换'}
+          </PrimaryButton>
         </div>
       </form>
 
