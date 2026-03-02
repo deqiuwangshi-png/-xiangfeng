@@ -19,16 +19,6 @@
   background: rgba(106, 91, 138, 0.08);
 }
 
-/* 个人主页统计项 */
-.profile-stats-item {
-  transition: all 0.3s ease;
-}
-
-.profile-stats-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px -5px rgba(58, 60, 110, 0.15);
-}
-
 /* 个人主页标签页 */
 .profile-tab {
   padding: 12px 24px;

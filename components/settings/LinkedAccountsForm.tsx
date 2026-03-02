@@ -20,12 +20,6 @@ import { IconBox, PrimaryButton } from '@/components/ui'
  * 架构说明:
  *   - 使用'use client'指令
  *   - 纯展示组件，不处理路由
- *
- * 样式说明:
- *   - 严格遵循项目现有样式
- *   - 使用Tailwind CSS v4语法
- *   - 保持与settings页面一致的风格
- *
  * 更新时间: 2026-03-02
  */
 

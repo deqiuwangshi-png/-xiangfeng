@@ -195,7 +195,11 @@ export function DraftCard({
         {/* 内容区域 */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-3">
-            <h3 className="text-lg font-semibold text-xf-dark line-clamp-1">
+            {/* LCP关键元素：标题使用系统字体优先，减少字体加载阻塞 */}
+            <h3
+              className="text-lg font-semibold text-xf-dark line-clamp-1"
+              style={{ fontDisplay: 'swap', contentVisibility: 'auto' }}
+            >
               {draft.title}
             </h3>
             <div className="flex items-center gap-2">

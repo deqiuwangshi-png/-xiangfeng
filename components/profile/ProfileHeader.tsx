@@ -93,7 +93,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
                 {user.username}
               </h1>
-              <p className="text-xl text-xf-primary font-medium mt-1">探索认知边界中...</p>
               <p className="text-sm text-xf-medium mt-2 flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 上海 · 加入于 {user.joinDate}
@@ -136,12 +135,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             <p className="text-xf-dark/80 leading-relaxed">
               {user.bio}
             </p>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="tag px-3 py-1.5 bg-xf-light text-xf-info text-xs rounded-full font-medium">#深度思考</span>
-              <span className="tag px-3 py-1.5 bg-xf-light text-xf-info text-xs rounded-full font-medium">#认知科学</span>
-              <span className="tag px-3 py-1.5 bg-xf-light text-xf-info text-xs rounded-full font-medium">#哲学探讨</span>
-              <span className="tag px-3 py-1.5 bg-xf-light text-xf-info text-xs rounded-full font-medium">#极简主义</span>
-            </div>
           </div>
         </div>
       </div>

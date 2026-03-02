@@ -29,9 +29,6 @@
  *   - TitleInput (标题输入组件)
  *   - ContentEditor (内容编辑器组件)
  *   - CharacterCounter (字符计数组件)
- * 
- * 数据来源: docs/08原型文件设计图/发布.html
- * 
  * 更新时间: 2026-02-19
  */
 

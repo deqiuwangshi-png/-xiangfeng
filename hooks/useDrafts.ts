@@ -268,18 +268,16 @@ export function useDrafts(initialDrafts: DraftData[]) {
 
   /**
    * 处理清空草稿
-   * 
+   *
    * @function handleClearAllDrafts
    * @returns {void}
-   * 
+   *
    * @description
-   * 清空所有草稿
+   * 清空所有草稿，由弹窗组件确认后调用
    */
   const handleClearAllDrafts = useCallback(() => {
-    if (confirm('确定要清空所有草稿吗？此操作不可恢复。')) {
-      setDrafts([])
-      setSelectedIds(new Set())
-    }
+    setDrafts([])
+    setSelectedIds(new Set())
   }, [])
 
   /**

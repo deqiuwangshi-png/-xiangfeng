@@ -1,5 +1,8 @@
 'use client'
 
+import { useState } from 'react'
+import { ClearDraftsModal } from './ClearDraftsModal'
+
 interface DraftsHeaderProps {
   draftCount: number
   onClearAllDrafts: () => void
@@ -11,6 +14,38 @@ export function DraftsHeader({
   onClearAllDrafts,
   onNewDraft,
 }: DraftsHeaderProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  /**
+   * 处理打开清空草稿弹窗
+   *
+   * @returns {void}
+   */
+  const handleOpenClearModal = () => {
+    if (draftCount === 0) {
+      return
+    }
+    setIsModalOpen(true)
+  }
+
+  /**
+   * 处理关闭弹窗
+   *
+   * @returns {void}
+   */
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  /**
+   * 处理确认清空草稿
+   *
+   * @returns {void}
+   */
+  const handleConfirmClear = () => {
+    onClearAllDrafts()
+  }
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-4 py-3">
@@ -26,8 +61,9 @@ export function DraftsHeader({
 
           <div className="flex items-center gap-3">
             <button
-              onClick={onClearAllDrafts}
-              className="text-sm text-xf-danger hover:text-red-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-2"
+              onClick={handleOpenClearModal}
+              disabled={draftCount === 0}
+              className="text-sm text-xf-danger hover:text-red-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg
                 className="w-4 h-4"
@@ -44,6 +80,13 @@ export function DraftsHeader({
               </svg>
               <span className="hidden sm:inline">清空草稿</span>
             </button>
+
+            <ClearDraftsModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              onConfirm={handleConfirmClear}
+              draftCount={draftCount}
+            />
             <button
               onClick={onNewDraft}
               className="bg-xf-primary text-white px-4 py-1.5 rounded-lg hover:bg-xf-accent transition-colors flex items-center gap-2"

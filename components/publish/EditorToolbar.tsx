@@ -34,9 +34,6 @@
  *   - lucide-react (图标组件)
  *   - react (React组件)
  *   - ToolbarButton (工具栏按钮组件)
- * 
- * 数据来源: docs/08原型文件设计图/发布.html
- * 
  * 更新时间: 2026-02-23
  */
 

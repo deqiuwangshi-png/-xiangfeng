@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from 'lucide-react'
-import { AvatarPlaceholder, PrimaryButton } from '@/components/ui'
+import { AvatarPlaceholder, FormActions } from '@/components/ui'
 
 /**
  * 编辑个人资料表单组件
@@ -22,27 +22,38 @@ import { AvatarPlaceholder, PrimaryButton } from '@/components/ui'
  * 架构说明:
  *   - 使用'use client'指令
  *   - 纯展示组件，不处理路由
- *
- * 样式说明:
- *   - 严格遵循项目现有样式
- *   - 使用Tailwind CSS v4语法
- *   - 保持与settings页面一致的风格
- *
  * 更新时间: 2026-03-02
  */
 
+/**
+ * 用户数据接口
+ *
+ * @interface UserData
+ * @property {string} username - 用户名
+ * @property {string} email - 邮箱
+ * @property {string} bio - 个人简介
+ * @property {string} location - 位置
+ */
+interface UserData {
+  username: string
+  email: string
+  bio: string
+  location: string
+}
+
 interface EditProfileFormProps {
+  initialData?: UserData | null
   onCancel: () => void
   onSave: () => void
 }
 
-export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
+export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    username: 'Felix',
-    email: 'felix@example.com',
-    bio: '探索认知边界中...',
-    location: '上海',
+    username: initialData?.username || 'Felix',
+    email: initialData?.email || 'felix@example.com',
+    bio: initialData?.bio || '你好',
+    location: initialData?.location || '上海',
   })
 
   /**
@@ -192,18 +203,7 @@ export function EditProfileForm({ onCancel, onSave }: EditProfileFormProps) {
         </div>
 
         {/* 操作按钮 */}
-        <div className="flex gap-4 pt-4 border-t border-xf-bg/60">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-          >
-            取消
-          </button>
-          <PrimaryButton type="submit" loading={isLoading}>
-            保存更改
-          </PrimaryButton>
-        </div>
+        <FormActions onCancel={onCancel} loading={isLoading} />
       </form>
     </div>
   )

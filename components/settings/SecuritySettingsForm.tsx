@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Lock, Shield, Key, Smartphone, Eye, EyeOff } from 'lucide-react'
-import { IconBox, PrimaryButton } from '@/components/ui'
+import { ArrowLeft, Key, Eye, EyeOff } from 'lucide-react'
+import { IconBox, FormActions } from '@/components/ui'
 
 /**
  * 安全管理表单组件
@@ -15,18 +15,9 @@ import { IconBox, PrimaryButton } from '@/components/ui'
  *
  * 使用说明:
  *   - 修改密码
- *   - 双重验证开关
- *   - 登录设备管理
- *
  * 架构说明:
  *   - 使用'use client'指令
  *   - 纯展示组件，不处理路由
- *
- * 样式说明:
- *   - 严格遵循项目现有样式
- *   - 使用Tailwind CSS v4语法
- *   - 保持与settings页面一致的风格
- *
  * 更新时间: 2026-03-02
  */
 
@@ -42,7 +33,6 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
     new: false,
     confirm: false,
   })
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -80,7 +70,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
     try {
       // 验证密码
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        alert('两次输入的新密码不一致')
+        alert('两次输入的密码不一致')
         setIsLoading(false)
         return
       }
@@ -108,13 +98,13 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        {/* 页面标题 - 靠右对齐 */}
+        {/* 页面标题*/}
         <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             账号安全
           </h1>
           <p className="text-xf-primary mt-2 font-medium">
-            管理密码和双重验证
+            管理密码
           </p>
         </header>
       </div>
@@ -206,96 +196,8 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
             </div>
           </div>
         </div>
-
-        {/* 双重验证区块 */}
-        <div className="card-bg rounded-2xl p-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <IconBox variant="green">
-                <Shield className="w-5 h-5" />
-              </IconBox>
-              <div>
-                <h2 className="text-xl font-bold text-xf-dark text-layer-1">
-                  双重验证
-                </h2>
-                <p className="text-sm text-xf-medium mt-1">
-                  开启后登录时需要输入手机验证码
-                </p>
-              </div>
-            </div>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={twoFactorEnabled}
-                onChange={(e) => setTwoFactorEnabled(e.target.checked)}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
-        {/* 登录设备管理区块 */}
-        <div className="card-bg rounded-2xl p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <IconBox variant="blue">
-              <Smartphone className="w-5 h-5" />
-            </IconBox>
-            <h2 className="text-xl font-bold text-xf-dark text-layer-1">
-              登录设备
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {/* 当前设备 */}
-            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-xf-bg/60">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-xf-light rounded-lg flex items-center justify-center text-xf-primary">
-                  <Smartphone className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-medium text-xf-dark">当前设备</p>
-                  <p className="text-sm text-xf-medium">Windows 11 · Chrome</p>
-                </div>
-              </div>
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                在线
-              </span>
-            </div>
-
-            {/* 其他设备示例 */}
-            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-xf-bg/60">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-xf-light rounded-lg flex items-center justify-center text-xf-primary">
-                  <Smartphone className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="font-medium text-xf-dark">iPhone 15</p>
-                  <p className="text-sm text-xf-medium">iOS 17 · Safari · 2天前</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                退出登录
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* 操作按钮 */}
-        <div className="flex gap-4 pt-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-          >
-            取消
-          </button>
-          <PrimaryButton type="submit" loading={isLoading}>
-            保存更改
-          </PrimaryButton>
-        </div>
+        <FormActions onCancel={onCancel} loading={isLoading} showBorder={false} />
       </form>
     </div>
   )

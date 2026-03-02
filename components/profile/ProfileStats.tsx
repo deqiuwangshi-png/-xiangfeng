@@ -21,7 +21,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { FileText, Users, ThumbsUp, MessageSquare as MessageIcon } from 'lucide-react'
+import { FileText, Users, ThumbsUp, MessageSquare as MessageIcon, Share2 } from 'lucide-react'
 
 /**
  * 统计项接口
@@ -49,30 +49,30 @@ interface StatItem {
  */
 const statsData: StatItem[] = [
   {
-    value: '128',
+    value: '0',
     label: '文章',
     icon: FileText,
     iconGradient: 'from-blue-100 to-blue-200',
     iconColor: 'text-xf-info'
   },
   {
-    value: '3.2k',
+    value: '0',
     label: '关注者',
     icon: Users,
     iconGradient: 'from-purple-100 to-purple-200',
     iconColor: 'text-xf-primary'
   },
   {
-    value: '564',
+    value: '0',
     label: '获赞',
     icon: ThumbsUp,
     iconGradient: 'from-indigo-100 to-indigo-200',
     iconColor: 'text-xf-accent'
   },
   {
-    value: '28',
-    label: '社群',
-    icon: MessageIcon,
+    value: '0',
+    label: '节点',
+    icon: Share2,
     iconGradient: 'from-green-100 to-green-200',
     iconColor: 'text-xf-success'
   }
@@ -89,7 +89,7 @@ const statsData: StatItem[] = [
  * - 文章数量
  * - 关注者数量
  * - 获赞数量
- * - 社群数量
+ * - 节点数量
  * 
  * @layout
  * - 使用 grid 布局

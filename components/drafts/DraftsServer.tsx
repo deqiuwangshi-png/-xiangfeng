@@ -28,6 +28,7 @@ async function DraftsData() {
 export function DraftsServer() {
   return (
     <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
+      {/* 优先渲染骨架屏，减少LCP感知时间 */}
       <Suspense fallback={<DraftsSkeleton />}>
         <DraftsData />
       </Suspense>
