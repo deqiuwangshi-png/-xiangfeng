@@ -1,9 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { X, Heart, CornerUpLeft, Send, MessageCircle } from 'lucide-react';
+/**
+ * CommentPanel - 评论面板组件
+ * 
+ * 作用: 显示文章评论列表，支持发表评论
+ * 
+ * 优化点:
+ * - 接收 initialComments 初始数据，减少白屏时间
+ * - 接收 currentUser 用于判断登录状态和权限
+ * - 支持乐观更新新评论
+ * 
+ * @returns {JSX.Element} 评论面板组件
+ */
 
+import { useState, useRef } from 'react';
+import { X, Heart, CornerUpLeft, Send, MessageCircle } from 'lucide-react';
+import type { User } from '@supabase/supabase-js';
+
+/**
+ * 评论数据接口
+ */
 interface Comment {
   id: string;
   author: {
@@ -12,43 +29,51 @@ interface Comment {
     avatar?: string;
   };
   content: string;
-  createdAt: string;
+  created_at: string;
   likes: number;
   liked: boolean;
   replies?: Comment[];
 }
 
+/**
+ * CommentPanel Props 接口
+ */
 interface CommentPanelProps {
   articleId: string;
+  initialComments: Comment[];
+  currentUser: User | null;
 }
 
-export default function CommentPanel({ articleId }: CommentPanelProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
+/**
+ * 评论面板组件
+ * 
+ * @function CommentPanel
+ * @param {CommentPanelProps} props - 组件属性
+ * @returns {JSX.Element} 评论面板组件
+ * 
+ * @description
+ * 提供评论功能的完整实现：
+ * - 显示评论列表（使用初始数据）
+ * - 支持发表评论（乐观更新）
+ * - 支持点赞评论
+ * - 响应式设计
+ */
+export default function CommentPanel({ 
+  articleId, 
+  initialComments,
+  currentUser 
+}: CommentPanelProps) {
+  // ✅ 使用初始数据，无需 loading 状态
+  const [comments, setComments] = useState<Comment[]>(initialComments);
   const [newComment, setNewComment] = useState('');
   const [sending, setSending] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await fetch(`/api/articles/${articleId}/comments`);
-        if (response.ok) {
-          const data = await response.json();
-          setComments(data.comments);
-          setCommentCount(data.total);
-        }
-      } catch (error) {
-        console.error('Failed to fetch comments:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const commentCount = comments.length;
 
-    fetchComments();
-  }, [articleId]);
-
+  /**
+   * 关闭评论面板
+   */
   const handleClose = () => {
     const commentPanel = document.querySelector('.comments-panel') as HTMLElement;
     const overlay = document.querySelector('.comments-overlay') as HTMLElement;
@@ -60,10 +85,15 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
     }
   };
 
+  /**
+   * 提交评论
+   * 
+   * @param e - 表单提交事件
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newComment.trim() || sending) return;
+    if (!newComment.trim() || sending || !currentUser) return;
 
     setSending(true);
 
@@ -79,8 +109,16 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setComments(prev => [data.comment, ...prev]);
-        setCommentCount(prev => prev + 1);
+        // ✅ 乐观更新：立即显示新评论
+        setComments(prev => [{
+          ...data.comment,
+          author: {
+            id: currentUser.id,
+            name: currentUser.user_metadata?.username || '用户',
+            avatar: currentUser.user_metadata?.avatar_url,
+          },
+          liked: false,
+        }, ...prev]);
         setNewComment('');
       }
     } catch (error) {
@@ -90,7 +128,14 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
     }
   };
 
+  /**
+   * 点赞/取消点赞评论
+   * 
+   * @param commentId - 评论ID
+   */
   const handleLike = async (commentId: string) => {
+    if (!currentUser) return;
+
     try {
       const response = await fetch('/api/articles/comment/like', {
         method: 'POST',
@@ -116,10 +161,22 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
     }
   };
 
+  /**
+   * 获取用户名称首字母
+   * 
+   * @param name - 用户名称
+   * @returns 首字母
+   */
   const getInitials = (name: string) => {
     return name.slice(0, 2);
   };
 
+  /**
+   * 格式化时间显示
+   * 
+   * @param dateString - ISO 格式日期字符串
+   * @returns 格式化后的时间文本
+   */
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -147,9 +204,7 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
         </div>
 
         <div className="comments-list">
-          {loading ? (
-            <div className="text-center text-gray-500 py-8">加载中...</div>
-          ) : comments.length === 0 ? (
+          {comments.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
               <p>还没有评论，快来发表第一条吧！</p>
@@ -172,7 +227,7 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
                 <div className="comment-content">
                   <div className="comment-header">
                     <span className="comment-author">{comment.author.name}</span>
-                    <span className="comment-time">{formatTime(comment.createdAt)}</span>
+                    <span className="comment-time">{formatTime(comment.created_at)}</span>
                   </div>
                   
                   <p className="comment-text">{comment.content}</p>
@@ -206,14 +261,15 @@ export default function CommentPanel({ articleId }: CommentPanelProps) {
               className="comment-input"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="写下你的评论..."
+              placeholder={currentUser ? "写下你的评论..." : "请先登录后评论"}
               rows={1}
               maxLength={500}
+              disabled={!currentUser}
             />
             <button 
               type="submit" 
               className="send-comment-btn"
-              disabled={!newComment.trim() || sending}
+              disabled={!newComment.trim() || sending || !currentUser}
             >
               <Send className="w-5 h-5" />
             </button>

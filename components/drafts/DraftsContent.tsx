@@ -20,6 +20,7 @@ interface DraftsContentProps {
   onSelectDraft: (id: string) => void
   onSelectAll: () => void
   onEditDraft: (id: string) => void
+  onDeleteDraft?: (id: string) => void
   currentPage: number
   totalPages: number
   onPageChange: (page: number) => void
@@ -37,6 +38,7 @@ export function DraftsContent({
   onSelectDraft,
   onSelectAll,
   onEditDraft,
+  onDeleteDraft,
   currentPage,
   totalPages,
   onPageChange,
@@ -93,6 +95,7 @@ export function DraftsContent({
                 selected={selectedIds.has(draft.id)}
                 onSelect={onSelectDraft}
                 onEdit={onEditDraft}
+                onDelete={onDeleteDraft}
               />
             ))}
           </div>

@@ -4,7 +4,7 @@ import '@/styles/domains/publish.css'
 import { EditorHeader } from '@/components/publish/EditorHeader'
 import { EditorCard } from '@/components/publish/EditorCard'
 import { EditorToolbar } from '@/components/publish/EditorToolbar'
-import { useEditorState, useEditorActions, useAutoSave } from '@/components/publish/hooks'
+import { useEditorState, useEditorActions } from '@/components/publish/hooks'
 import {
   formatText,
   insertLink,
@@ -32,8 +32,6 @@ export default function PublishPage() {
     publishContent,
     focusTitle,
   } = useEditorActions(editorState, setEditorState)
-
-  useAutoSave(editorState, saveDraft)
 
   return (
     <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth publish-page-container">

@@ -1,6 +1,7 @@
 'use client'
 
 import { DraftData, DraftStatus } from '@/types/drafts'
+import { Trash2 } from 'lucide-react'
 
 /**
  * 草稿卡片组件属性
@@ -10,6 +11,7 @@ interface DraftCardProps {
   selected: boolean
   onSelect: (id: string) => void
   onEdit: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
 /**
@@ -26,6 +28,7 @@ interface DraftCardProps {
  * - 草稿摘要（最多2行）
  * - 状态标签（草稿/已发布/已归档）
  * - 更新日期
+ * - 删除按钮
  * 
  * @data-source
  * docs/08原型文件设计图/草稿.html
@@ -47,12 +50,14 @@ interface DraftCardProps {
  * - 点击卡片：进入编辑模式
  * - 点击选择框：切换选中状态
  * - 悬停卡片：显示阴影和上移效果
+ * - 点击删除按钮：删除草稿
  */
 export function DraftCard({
   draft,
   selected,
   onSelect,
   onEdit,
+  onDelete,
 }: DraftCardProps) {
   /**
    * 获取状态标签样式
@@ -121,6 +126,23 @@ export function DraftCard({
   }
 
   /**
+   * 处理删除点击
+   * 
+   * @function handleDeleteClick
+   * @param {React.MouseEvent} e - 鼠标事件
+   * @returns {void}
+   * 
+   * @description
+   * 点击删除按钮删除草稿，阻止事件冒泡
+   */
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onDelete) {
+      onDelete(draft.id)
+    }
+  }
+
+  /**
    * 格式化日期
    * 
    * @function formatDate
@@ -183,6 +205,14 @@ export function DraftCard({
               `}>
                 {statusStyles.label}
               </span>
+              {/* 删除按钮 */}
+              <button
+                onClick={handleDeleteClick}
+                className="p-2 text-xf-medium hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                title="删除"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

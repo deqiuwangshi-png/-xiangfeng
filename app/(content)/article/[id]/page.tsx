@@ -10,7 +10,8 @@ import CommentPanel from '@/components/article/CommentPanel';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import ArticleSkeleton from '@/components/article/ArticleSkeleton';
 import CommentSkeleton from '@/components/article/CommentSkeleton';
-import { fetchArticle } from '@/lib/articles/articleService';
+import { createClient } from '@/lib/supabase/server';
+import { getArticleById, getArticleComments } from '@/lib/articles/articleQueries';
 
 interface ArticlePageProps {
   params: Promise<{
@@ -18,54 +19,65 @@ interface ArticlePageProps {
   }>;
 }
 
+/**
+ * 生成页面元数据（SEO）
+ */
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { id } = await params;
-  const article = await fetchArticle(id);
   
+  // Server 端直接查询数据库
+  const supabase = await createClient();
+  const { data: article } = await supabase
+    .from('articles')
+    .select('title, summary, tags, created_at, author_id')
+    .eq('id', id)
+    .single();
+
   if (!article) {
     return {
       title: '文章未找到',
     };
   }
-  
-  const metadata: Metadata = {
+
+  // 获取作者信息
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', article.author_id)
+    .single();
+
+  return {
     title: article.title,
-    description: article.excerpt,
-    keywords: article.tags.join(', '),
+    description: article.summary || '',
+    keywords: article.tags?.join(', '),
     openGraph: {
       title: article.title,
-      description: article.excerpt,
+      description: article.summary || '',
       type: 'article',
-      publishedTime: article.publishedAt,
-      authors: [article.author.name],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: article.title,
-      description: article.excerpt,
+      publishedTime: article.created_at,
+      authors: [profile?.username || ''],
     },
   };
-  
-  if (article.coverImage) {
-    if (metadata.openGraph) {
-      metadata.openGraph.images = [article.coverImage];
-    }
-    if (metadata.twitter) {
-      metadata.twitter.images = [article.coverImage];
-    }
-  }
-  
-  return metadata;
 }
 
+/**
+ * 文章详情页 - Server Component
+ * 所有数据在服务端获取，减少客户端请求
+ */
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id: articleId } = await params;
-  const article = await fetchArticle(articleId);
-  
+
+  // ✅ 并行获取所有数据（速度快）
+  const [article, comments, { data: { user } }] = await Promise.all([
+    getArticleById(articleId),
+    getArticleComments(articleId),
+    createClient().then(client => client.auth.getUser()),
+  ]);
+
   if (!article) {
     notFound();
   }
-  
+
   return (
     <>
       <ReadingProgress />
@@ -86,18 +98,27 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       
       <div className="main-container pt-14">
         <div className="article-container">
+          {/* ✅ 直接传递完整文章数据 */}
           <ArticleHeader article={article} />
           
-          <Suspense fallback={<ArticleSkeleton />}>
-            <ArticleContent articleId={articleId} />
-          </Suspense>
+          {/* ✅ ArticleContent 改为接收 content 直接渲染 */}
+          <ArticleContent content={article.content} />
         </div>
       </div>
       
-      <ArticleActions articleId={articleId} />
+      {/* ✅ ArticleActions 接收当前用户 */}
+      <ArticleActions 
+        articleId={articleId} 
+        currentUser={user} 
+      />
       
+      {/* ✅ CommentPanel 接收初始评论数据 */}
       <Suspense fallback={<CommentSkeleton />}>
-        <CommentPanel articleId={articleId} />
+        <CommentPanel 
+          articleId={articleId} 
+          initialComments={comments}
+          currentUser={user}
+        />
       </Suspense>
     </>
   );

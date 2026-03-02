@@ -25,11 +25,20 @@
 
 import { MessageSquare, UserPlus, MapPin, Star } from 'lucide-react'
 import Image from 'next/image'
+import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
+
+/**
+ * ProfileHeader Props 接口
+ */
+interface ProfileHeaderProps {
+  user: UserDisplayInfo
+}
 
 /**
  * 个人资料头部组件
  * 
  * @function ProfileHeader
+ * @param {ProfileHeaderProps} props - 组件属性
  * @returns {JSX.Element} 个人资料头部组件
  * 
  * @description
@@ -46,7 +55,7 @@ import Image from 'next/image'
  * - 响应式设计（移动端和桌面端）
  * - 所有间距完全复制原型数值
  */
-export function ProfileHeader() {
+export function ProfileHeader({ user }: ProfileHeaderProps) {
   return (
     <div className="profile-header-bg rounded-4xl p-8 mb-8 shadow-soft">
       <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
@@ -54,8 +63,8 @@ export function ProfileHeader() {
         <div className="relative">
           <div className="relative">
             <Image
-              src="https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=B6CAD7"
-              alt="Avatar"
+              src={user.avatarUrl}
+              alt={user.username}
               width={128}
               height={128}
               className="w-32 h-32 rounded-full shadow-deep ring-4 ring-white"
@@ -72,11 +81,14 @@ export function ProfileHeader() {
         <div className="flex-1">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">思考者</h1>
+              {/* 真实用户名 */}
+              <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
+                {user.username}
+              </h1>
               <p className="text-xl text-xf-primary font-medium mt-1">探索认知边界中...</p>
               <p className="text-sm text-xf-medium mt-2 flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                上海 · 加入于 2023年9月
+                上海 · 加入于 {user.joinDate}
               </p>
             </div>
 
@@ -95,7 +107,7 @@ export function ProfileHeader() {
           {/* 个人简介 */}
           <div className="bg-white/60 rounded-2xl p-5 mt-4">
             <p className="text-xf-dark/80 leading-relaxed">
-              深度思考者，认知科学爱好者。相信思考可以改变世界，致力于探索思维边界与认知科学的前沿交叉领域。喜欢在哲学、心理学和神经科学的交汇处寻找灵感。
+              {user.bio}
             </p>
             <div className="flex flex-wrap gap-2 mt-3">
               <span className="tag px-3 py-1.5 bg-xf-light text-xf-info text-xs rounded-full font-medium">#深度思考</span>

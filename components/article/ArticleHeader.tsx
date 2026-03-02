@@ -10,7 +10,7 @@ interface Author {
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
+  summary: string | null;
   content: string;
   author: Author;
   publishedAt: string;

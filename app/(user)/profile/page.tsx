@@ -14,7 +14,7 @@
  * @returns {JSX.Element} 个人主页页面
  * 
  * 使用说明:
- *   - 使用 Server Component 渲染静态内容
+ *   - 使用 Server Component 获取用户数据
  *   - 使用 Client Components 处理交互逻辑
  *   - 复用 Sidebar 组件保持一致性
  * 
@@ -26,6 +26,9 @@ import { ProfileStats } from '@/components/profile/ProfileStats'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent } from '@/components/profile/ProfileContent'
 import { ProfileDomain } from '@/components/profile/ProfileDomain'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { getUserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 
 /**
  * 个人主页页面组件
@@ -47,12 +50,24 @@ import { ProfileDomain } from '@/components/profile/ProfileDomain'
  * - 支持垂直滚动
  * - 隐藏滚动条
  */
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  // 获取当前登录用户
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // 未登录则重定向到登录页
+  if (!user) {
+    redirect('/login')
+  }
+
+  // 构造用户显示信息（与 Sidebar 一致）
+  const userData = getUserDisplayInfo(user)
+
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth">
       <div className="max-w-6xl mx-auto fade-in-up">
-        {/* 个人资料头部 */}
-        <ProfileHeader />
+        {/* 个人资料头部 - 传递真实用户数据 */}
+        <ProfileHeader user={userData} />
 
         {/* 数据统计 */}
         <ProfileStats />
