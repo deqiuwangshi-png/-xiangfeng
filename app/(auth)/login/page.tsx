@@ -1,26 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { checkRateLimit } from '@/lib/security/rateLimit';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
 
+/**
+ * 获取客户端标识符（IP或指纹）
+ * 注意：客户端无法获取真实IP，使用浏览器指纹作为替代
+ */
+function getClientIdentifier(): string {
+  if (typeof window === 'undefined') return 'server';
+  
+  // 使用 localStorage 中的设备ID或生成临时ID
+  let deviceId = localStorage.getItem('device_id');
+  if (!deviceId) {
+    deviceId = Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('device_id', deviceId);
+  }
+  return deviceId;
+}
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [rateLimitReset, setRateLimitReset] = useState<number>(0);
   const router = useRouter();
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
   const redirectPath = searchParams.get('redirect') || '/home';
 
+  // 检查速率限制状态
+  useEffect(() => {
+    const identifier = getClientIdentifier();
+    const result = checkRateLimit(identifier);
+    
+    if (!result.allowed) {
+      setIsRateLimited(true);
+      setRateLimitReset(result.resetTime);
+    }
+  }, []);
+
+  // 倒计时显示
+  useEffect(() => {
+    if (!isRateLimited || rateLimitReset === 0) return;
+    
+    const interval = setInterval(() => {
+      const remaining = Math.ceil((rateLimitReset - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setIsRateLimited(false);
+        clearInterval(interval);
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [isRateLimited, rateLimitReset]);
+
   /**
    * 处理登录表单提交
-   * @param event - 表单提交事件
    */
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    
+    // 🔐 安全加固：检查速率限制
+    const identifier = getClientIdentifier();
+    const rateLimitResult = checkRateLimit(identifier);
+    
+    if (!rateLimitResult.allowed) {
+      const remainingMinutes = Math.ceil((rateLimitResult.resetTime - Date.now()) / 60000);
+      setError(`登录尝试次数过多，请 ${remainingMinutes} 分钟后再试`);
+      setIsRateLimited(true);
+      setRateLimitReset(rateLimitResult.resetTime);
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -39,18 +96,25 @@ export default function LoginPage() {
         throw signInError;
       }
 
+      // 🔐 登录成功：重置速率限制
+      const { resetRateLimit } = await import('@/lib/security/rateLimit');
+      resetRateLimit(identifier);
+
       // 登录成功，先刷新再跳转
       router.refresh();
       router.push(redirectPath);
     } catch (err) {
       console.error('Login error:', err);
       
-      // 优化错误提示
+      // 🔐 安全加固：记录失败次数
+      const newResult = checkRateLimit(identifier);
+      
       if (err instanceof Error) {
         const errorMessage = err.message;
         
         if (errorMessage.includes('Invalid login credentials')) {
-          setError('邮箱或密码错误，请检查后重试。');
+          const remaining = newResult.remaining;
+          setError(`邮箱或密码错误，请检查后重试。剩余尝试次数：${remaining}`);
         } else if (errorMessage.includes('Email not confirmed')) {
           setError('邮箱未验证，请检查邮箱并点击验证链接。');
         } else if (errorMessage.includes('User not found')) {
@@ -68,6 +132,13 @@ export default function LoginPage() {
     }
   }
 
+  // 格式化剩余时间
+  const formatRemainingTime = () => {
+    if (rateLimitReset === 0) return '';
+    const remaining = Math.ceil((rateLimitReset - Date.now()) / 60000);
+    return remaining > 0 ? `${remaining} 分钟` : '即将';
+  };
+
   return (
     <section className="auth-view w-full h-full flex absolute inset-0 z-50 bg-xf-light">
       {/* 左侧品牌区域（桌面端） */}
@@ -81,6 +152,14 @@ export default function LoginPage() {
 
           {/* 表单卡片 */}
           <FormCard title="欢迎回来">
+            {/* 🔐 速率限制警告 */}
+            {isRateLimited && (
+              <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl text-orange-700 text-sm">
+                <p className="font-medium">登录尝试次数过多</p>
+                <p>请 {formatRemainingTime()} 后再试</p>
+              </div>
+            )}
+
             {/* 错误提示 */}
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
@@ -99,7 +178,7 @@ export default function LoginPage() {
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="your@email.com"
                   required
-                  disabled={isLoading}
+                  disabled={isLoading || isRateLimited}
                 />
               </div>
 
@@ -113,7 +192,8 @@ export default function LoginPage() {
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="•••••••"
                   required
-                  disabled={isLoading}
+                  disabled={isLoading || isRateLimited}
+                  minLength={8}
                 />
               </div>
 
@@ -131,8 +211,8 @@ export default function LoginPage() {
               {/* 登录按钮 */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-xf-primary hover:bg-xf-accent text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || isRateLimited}
+                className="w-full bg-xf-primary hover:bg-xf-accent disabled:bg-xf-primary/50 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:cursor-not-allowed"
               >
                 {isLoading ? <span className="loading-dots">登录中</span> : '登 录'}
               </button>

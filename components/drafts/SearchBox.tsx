@@ -19,36 +19,14 @@ interface SearchBoxProps {
  * @returns {JSX.Element} 搜索框组件
  * 
  * @description
- * 提供草稿搜索功能，包含：
- * - 搜索输入框
- * - 搜索图标
- * - 实时搜索（防抖）
- * - 聚焦效果
- * 
+ * 提供草稿搜索功能
  * @state
  * - query: 搜索查询字符串
  * - isFocused: 输入框聚焦状态
- * 
  * @refs
  * - inputRef: 输入框引用
- * 
- * @data-source
- * docs/08原型文件设计图/草稿.html
- * 
  * @styles
- * - 搜索框背景: white
- * - 搜索框边框默认: #E5E7EB
- * - 搜索框边框聚焦: #6A5B8A
- * - 搜索框聚焦阴影: 0 0 0 3px rgba(106, 91, 138, 0.1)
- * - 搜索图标: #9CA3AF
- * - 搜索框内边距: 0.75rem 1rem 0.75rem 2.75rem
- * - 搜索框圆角: 12px
- * - 搜索框最大宽度: 400px
- * 
  * @interactions
- * - 输入内容：实时搜索（防抖300ms）
- * - 聚焦输入框：显示边框和阴影效果
- * - 清空内容：重置搜索
  */
 export function SearchBox({
   placeholder = '搜索草稿标题或内容...',
@@ -56,7 +34,7 @@ export function SearchBox({
   initialValue = '',
 }: SearchBoxProps) {
   const [query, setQuery] = useState(initialValue)
-  const [isFocused, setIsFocused] = useState(false)
+  const [, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 

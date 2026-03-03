@@ -1,53 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getArticleById } from '@/lib/articles/articleQueries';
 
+/**
+ * 获取单篇文章详情 API
+ *
+ * @param request - HTTP 请求对象
+ * @param params - 路由参数，包含文章ID
+ * @returns 文章详情 JSON 响应
+ *
+ * @description
+ * 根据文章ID从数据库查询文章详情，包含作者信息
+ * 如果文章不存在或查询失败，返回 404 错误
+ */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: articleId } = await params;
-  
-  const mockArticle = {
-    id: articleId,
-    title: '深度思考的方法论：在信息爆炸时代重塑认知框架',
-    excerpt: '在信息过载的时代，深度思考成为一种稀缺能力。我们每天被海量信息淹没，却往往缺乏真正深入理解问题的能力。',
-    content: `
-      <p>在信息过载的时代，深度思考成为一种稀缺能力。我们每天被海量信息淹没，却往往缺乏真正深入理解问题的能力。深度思考不仅是一种认知过程，更是一种生活态度——它要求我们放慢节奏，穿透表层，触及问题的本质。与直觉和快速反应不同，深度思考需要系统的方法论支撑，需要我们有意识地构建认知框架，以在复杂问题中找到清晰的路径。</p>
-      
-      <p>认知科学家将深度思考定义为"对概念、想法或情境进行持续、有目的的分析和反思的过程"。这种思考超越了简单的信息处理，涉及批判性思维、创造性联想和系统性分析。深度思考不是与生俱来的天赋，而是一种可以通过训练获得的技能。本文将探讨深度思考的五个核心维度：第一性原理思维、多元思维模型、批判性反思、系统性分析以及实践性反馈。</p>
-      
-      <div class="important-text">
-        哲学家怀特海曾说："思考的深度不在于思考的内容有多少，而在于思考的方式和结构。深度思考者能够穿透表象，直达事物的本质和内在联系。"
-      </div>
-      
-      <h2 id="section1">第一性原理：回归事物本质</h2>
-      
-      <p>第一性原理思维是一种将复杂问题分解为最基本的组成部分，然后从这些基本要素重新构建解决方案的思考方式。这种方法要求我们摒弃类比和经验主义的束缚，回归到问题的本质。物理学家理查德·费曼曾说："如果你不能简单地解释它，说明你还没有真正理解它。"这句话道出了第一性原理思维的核心——真正的理解来自于对事物本质的把握。</p>
-      
-      <p>在实践中，第一性原理思维包括三个关键步骤：识别基本假设、质疑这些假设的有效性、从零开始重新构建。这种方法在科学发现、技术创新和商业决策中都展现出强大的威力。例如，埃隆·马斯克在SpaceX的火箭研发中，就运用了第一性原理思维，质疑了"火箭成本高昂"的传统假设，通过分析火箭的基本构成和材料成本，最终大幅降低了发射成本。</p>
-      
-      <div class="section-divider"></div>
-      
-      <h2 id="section2">多元思维模型：构建认知工具箱</h2>
-      
-      <p>查理·芒格提出了"多元思维模型"的概念，强调掌握多个学科的核心思维模型，并能够灵活运用它们来分析问题。这种方法认为，单一学科的视角往往存在盲点，而跨学科的思维模型能够提供更全面、更深刻的洞察。芒格说："对于一个只有锤子的人来说，所有问题看起来都像钉子。"这句话警示我们，思维工具的单一化会导致认知的局限。</p>
-      
-      <p>构建多元思维模型需要长期的学习和实践。我们可以从经济学、心理学、物理学、生物学、历史学等多个领域汲取智慧，将不同学科的核心概念和原理整合到我们的认知框架中。例如，经济学中的"机会成本"概念可以帮助我们做出更理性的决策；心理学中的"认知偏差"理论能够提醒我们警惕思维的陷阱；物理学中的"熵增"原理可以启发我们理解系统的演化规律。</p>
-      
-      <div class="article-end"><span>— 完 —</span></div>
-    `,
-    author: {
-      id: 'author-1',
-      name: 'Sophia Chen',
-      bio: '认知科学研究者',
-      avatar: '/avatars/sophia.jpg',
-    },
-    publishedAt: new Date('2024-01-15').toISOString(),
-    readTime: 12,
-    tags: ['深度思考', '认知科学', '方法论'],
-    coverImage: '/covers/article-1.jpg',
-    likes: 367,
-    comments: 42,
-  };
-  
-  return NextResponse.json(mockArticle);
+
+  try {
+    const article = await getArticleById(articleId);
+
+    if (!article) {
+      return NextResponse.json(
+        { error: '文章不存在' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(article);
+  } catch (error) {
+    console.error('获取文章详情失败:', error);
+    return NextResponse.json(
+      { error: '获取文章详情失败' },
+      { status: 500 }
+    );
+  }
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
@@ -11,11 +12,25 @@ import { FormCard } from '@/components/auth/FormCard';
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
+  const [password, setPassword] = useState('');
   const router = useRouter();
 
   /**
+   * 处理密码输入变化，实时验证
+   */
+  function handlePasswordChange(value: string) {
+    setPassword(value);
+    if (value.length > 0) {
+      const result = validatePassword(value);
+      setPasswordValidation(result);
+    } else {
+      setPasswordValidation(null);
+    }
+  }
+
+  /**
    * 处理注册表单提交
-   * @param event - 表单提交事件
    */
   async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,16 +44,24 @@ export default function RegisterPage() {
     const username = formData.get('username') as string;
     const terms = formData.get('terms') as string;
 
-    // 验证密码一致性
-    if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
+    // 🔐 验证服务条款
+    if (!terms) {
+      setError('请阅读并同意服务条款');
       setIsLoading(false);
       return;
     }
 
-    // 验证服务条款
-    if (!terms) {
-      setError('请阅读并同意服务条款');
+    // 🔐 验证密码复杂度
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.valid) {
+      setError(passwordCheck.message);
+      setIsLoading(false);
+      return;
+    }
+
+    // 验证密码一致性
+    if (password !== confirmPassword) {
+      setError('两次输入的密码不一致');
       setIsLoading(false);
       return;
     }
@@ -75,7 +98,7 @@ export default function RegisterPage() {
         } else if (errorMessage.includes('Invalid email')) {
           setError('邮箱地址格式不正确，请检查后重试。');
         } else if (errorMessage.includes('Password')) {
-          setError('密码不符合要求，请使用至少6个字符的密码。');
+          setError('密码不符合要求：' + errorMessage);
         } else if (errorMessage.includes('is invalid')) {
           setError('注册失败：' + errorMessage);
         } else {
@@ -88,6 +111,16 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   }
+
+  // 密码强度颜色
+  const getStrengthColor = () => {
+    if (!passwordValidation) return 'text-gray-400';
+    switch (passwordValidation.strength) {
+      case 'strong': return 'text-green-600';
+      case 'medium': return 'text-yellow-600';
+      case 'weak': return 'text-red-600';
+    }
+  };
 
   return (
     <section className="auth-view w-full h-full flex absolute inset-0 z-40 bg-xf-light">
@@ -140,16 +173,49 @@ export default function RegisterPage() {
 
               {/* 密码输入 */}
               <div>
-                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">密码</label>
+                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
+                  密码
+                  {passwordValidation && (
+                    <span className={`ml-2 text-sm ${getStrengthColor()}`}>
+                      ({passwordValidation.strength === 'strong' ? '强' : 
+                        passwordValidation.strength === 'medium' ? '中' : '弱'})
+                    </span>
+                  )}
+                </label>
                 <input
                   type="password"
                   name="password"
                   id="register-password"
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
-                  placeholder="••••••"
+                  placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
                 />
+                
+                {/* 🔐 密码复杂度提示 */}
+                <div className="mt-2 text-xs text-xf-medium space-y-1">
+                  <p>密码要求：</p>
+                  <ul className="space-y-1 ml-4">
+                    <li className={password.length >= 8 ? 'text-green-600' : ''}>
+                      ✓ 至少8位字符
+                    </li>
+                    <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>
+                      ✓ 包含大写字母
+                    </li>
+                    <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>
+                      ✓ 包含小写字母
+                    </li>
+                    <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>
+                      ✓ 包含数字
+                    </li>
+                    <li className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'text-green-600' : ''}>
+                      ✓ 包含特殊字符 (!@#$%^&*等)
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               {/* 确认密码输入 */}
@@ -160,7 +226,7 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   id="register-confirm"
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
-                  placeholder="••••••"
+                  placeholder="••••••••"
                   required
                   disabled={isLoading}
                 />

@@ -22,35 +22,11 @@ interface DraftCardProps {
  * @returns {JSX.Element} 草稿卡片组件
  * 
  * @description
- * 显示单个草稿的卡片，包含：
- * - 选择框（用于批量操作）
- * - 草稿标题
- * - 草稿摘要（最多2行）
- * - 状态标签（草稿/已发布/已归档）
- * - 更新日期
- * - 删除按钮
- * 
  * @data-source
  * docs/08原型文件设计图/草稿.html
  * 
  * @styles
- * - 卡片背景: white
- * - 卡片边框: 1px solid #E5E7EB
- * - 卡片圆角: 16px
- * - 卡片阴影默认: none
- * - 卡片阴影悬停: 0 20px 40px -15px rgba(58, 60, 110, 0.15)
- * - 卡片悬停位移: translateY(-6px)
- * - 卡片选中边框: #6A5B8A
- * - 卡片选中阴影: 0 0 0 2px rgba(106, 91, 138, 0.3)
- * - 标题文字: #25263D
- * - 摘要文字: #8C8EA9
- * - 日期文字: #8C8EA9
- * 
  * @interactions
- * - 点击卡片：进入编辑模式
- * - 点击选择框：切换选中状态
- * - 悬停卡片：显示阴影和上移效果
- * - 点击删除按钮：删除草稿
  */
 export function DraftCard({
   draft,

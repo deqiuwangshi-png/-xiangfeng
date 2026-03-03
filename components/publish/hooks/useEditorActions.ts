@@ -5,16 +5,28 @@ import { useRouter } from 'next/navigation'
 import type { EditorState } from './useEditorState'
 import { createArticle } from '@/lib/articles/articleActions'
 
+/**
+ * 编辑器操作 Hook
+ *
+ * 提供保存草稿、发布文章等操作功能
+ * 采用单向数据流，所有内容从 editorState 读取
+ *
+ * @param editorState - 编辑器状态
+ * @param setEditorState - 设置编辑器状态
+ * @returns 编辑器操作方法和引用
+ */
 export const useEditorActions = (
   editorState: EditorState,
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>
 ) => {
   const titleRef = useRef<HTMLInputElement>(null)
-  const contentRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
 
   /**
    * 保存草稿
+   *
+   * @description 将当前编辑器内容保存为草稿
+   * @requires 标题不能为空
    */
   const saveDraft = async () => {
     if (!editorState.title.trim()) {
@@ -42,7 +54,11 @@ export const useEditorActions = (
   }
 
   /**
-   * 发布文章 - 修复：直接跳转到已发布文章页面
+   * 发布文章
+   *
+   * @description 将当前编辑器内容发布为正式文章
+   * @requires 标题和内容都不能为空
+   * @redirects 发布成功后跳转到文章详情页
    */
   const publishContent = async () => {
     if (!editorState.title.trim()) {
@@ -52,7 +68,6 @@ export const useEditorActions = (
     }
     if (!editorState.content.trim()) {
       alert('请输入文章内容')
-      contentRef.current?.focus()
       return
     }
 
@@ -66,11 +81,8 @@ export const useEditorActions = (
         status: 'published',
       })
 
-      // ✅ 直接跳转到文章详情页（不显示 alert，避免阻塞）
+      // 直接跳转到文章详情页（不显示 alert，避免阻塞）
       router.push(`/article/${article.id}`)
-
-      // ✅ 使用 replace 避免返回时还在编辑器
-      // router.replace(`/article/${article.id}`)
     } catch (error) {
       console.error('发布失败:', error)
       alert(error instanceof Error ? error.message : '发布失败，请重试')
@@ -79,13 +91,15 @@ export const useEditorActions = (
     }
   }
 
+  /**
+   * 聚焦标题输入框
+   */
   const focusTitle = () => {
     titleRef.current?.focus()
   }
 
   return {
     titleRef,
-    contentRef,
     saveDraft,
     publishContent,
     focusTitle,

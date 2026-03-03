@@ -1,71 +1,21 @@
-'use client'
+import { Suspense } from 'react'
+import PublishPageClient from './PublishPageClient'
+import { EditorSkeleton } from '@/components/publish/EditorSkeleton'
 
-import '@/styles/domains/publish.css'
-import { EditorHeader } from '@/components/publish/EditorHeader'
-import { EditorCard } from '@/components/publish/EditorCard'
-import { EditorToolbar } from '@/components/publish/EditorToolbar'
-import { useEditorState, useEditorActions } from '@/components/publish/hooks'
-import {
-  formatText,
-  insertLink,
-  insertImage,
-  insertList,
-  clearFormatting,
-  undoAction,
-  redoAction,
-} from '@/components/publish/utils'
-
+/**
+ * 发布页
+ * 
+ * 性能优化亮点：
+ * 1. 使用 Suspense 提供优雅的加载状态
+ * 2. 客户端组件封装动态导入逻辑
+ * 3. 骨架屏优化感知性能
+ * 
+ * @returns 发布页JSX
+ */
 export default function PublishPage() {
-  const {
-    editorState,
-    updateTitle,
-    updateContent,
-    toggleFullscreen,
-    toggleToolbar,
-    setEditorState,
-  } = useEditorState()
-
-  const {
-    titleRef,
-    contentRef,
-    saveDraft,
-    publishContent,
-    focusTitle,
-  } = useEditorActions(editorState, setEditorState)
-
   return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth publish-page-container">
-      <EditorHeader
-        onSaveDraft={saveDraft}
-        onPublish={publishContent}
-      />
-
-      <div className="max-w-[840px] mx-auto px-4 py-8 md:py-12 fade-in">
-        <EditorCard
-          title={editorState.title}
-          onTitleChange={updateTitle}
-          titleRef={titleRef}
-          content={editorState.content}
-          onContentChange={updateContent}
-          contentRef={contentRef}
-          titleLength={editorState.titleLength}
-          contentLength={editorState.contentLength}
-        />
-      </div>
-
-      <EditorToolbar
-        onFormatText={formatText}
-        onInsertLink={insertLink}
-        onInsertImage={insertImage}
-        onInsertList={insertList}
-        onClearFormatting={clearFormatting}
-        onUndo={undoAction}
-        onRedo={redoAction}
-        onFocusTitle={focusTitle}
-        onToggleFullscreen={toggleFullscreen}
-        onToggleToolbar={toggleToolbar}
-        isCollapsed={editorState.isToolbarCollapsed}
-      />
-    </div>
+    <Suspense fallback={<EditorSkeleton />}>
+      <PublishPageClient />
+    </Suspense>
   )
 }

@@ -9,8 +9,8 @@ const PROTECTED_ROUTES = [
   '/publish',
   '/drafts',
   '/inbox',
-  '/article',
-  '/profile',
+  // '/article', // 移除 - 公开文章允许匿名访问
+  '/profile',   // 个人主页需要登录
   '/settings',
   '/earnings',
   '/feedback',
@@ -34,6 +34,11 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
  *
  * @param request - Next.js 请求对象
  * @returns Next.js 响应对象
+ * 
+ * 安全特性：
+ * - Cookie 安全属性（HttpOnly, Secure, SameSite）
+ * - 刷新令牌轮换
+ * - 路由访问控制
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -57,10 +62,18 @@ export async function updateSession(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
+          // 🔐 安全加固：添加 Cookie 安全属性
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,           // 防止 XSS 窃取 Cookie
+            secure: process.env.NODE_ENV === 'production', // 生产环境强制 HTTPS
+            sameSite: 'lax',          // 防止 CSRF 攻击
+          };
+          
           request.cookies.set({
             name,
             value,
-            ...options,
+            ...secureOptions,
           })
         })
         supabaseResponse = NextResponse.next({
@@ -69,10 +82,18 @@ export async function updateSession(request: NextRequest) {
           },
         })
         cookiesToSet.forEach(({ name, value, options }) => {
+          // 🔐 安全加固：添加 Cookie 安全属性到响应
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+          };
+          
           supabaseResponse.cookies.set({
             name,
             value,
-            ...options,
+            ...secureOptions,
           })
         })
       },
@@ -83,7 +104,10 @@ export async function updateSession(request: NextRequest) {
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
   if (userError) {
-    console.error('Auth error in middleware:', userError.message)
+    // 静默处理会话缺失错误（如用户已删除账户）
+    if (userError.message !== 'Auth session missing!') {
+      console.error('Auth error in middleware:', userError.message)
+    }
   }
 
   const path = request.nextUrl.pathname
@@ -103,6 +127,16 @@ export async function updateSession(request: NextRequest) {
     loginUrl.searchParams.set('redirect', path)
     return NextResponse.redirect(loginUrl)
   }
+
+  // 3. 🔐 安全加固：添加安全响应头部
+  supabaseResponse.headers.set('X-Frame-Options', 'DENY')
+  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
+  supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  supabaseResponse.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://*.supabase.co;"
+  )
+  // 移除 X-XSS-Protection（现代浏览器已弃用，使用 CSP 替代）
 
   return supabaseResponse
 }

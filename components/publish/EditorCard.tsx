@@ -2,92 +2,32 @@
 
 /**
  * 编辑器卡片组件
- * 
- * 作用: 提供编辑器的主要卡片容器
- * 
- * @param {string} title - 标题值
- * @param {(title: string) => void} onTitleChange - 标题变化处理函数
- * @param {React.Ref<HTMLInputElement>} titleRef - 标题输入框引用
- * @param {string} content - 内容值
- * @param {(content: string) => void} onContentChange - 内容变化处理函数
- * @param {React.Ref<HTMLTextAreaElement>} contentRef - 内容编辑器引用
- * @param {number} contentLength - 内容字符数
- * 
- * @returns {JSX.Element} 编辑器卡片组件
- * 
- * 使用说明:
- *   用于编辑器的主要卡片容器
- *   包含标题输入、内容编辑器和字符计数
- *   支持顶部装饰条和动画效果
- * 
- * 交互说明:
- *   - 标题和内容输入时触发相应的处理函数
- *   - 显示字符计数
- * 
- * 依赖:
- *   - react (React组件)
- *   - TitleInput (标题输入组件)
- *   - ContentEditor (内容编辑器组件)
- *   - CharacterCounter (字符计数组件)
- * 更新时间: 2026-02-19
+ *
+ * 已集成 TipTap 富文本编辑器
+ * - 保持原有 UI 样式
+ * - 功能通过 TipTap 实现
+ * - 避免 SSR 水合错误
+ * - 采用单向数据流，TipTap 作为唯一数据源
  */
 
 import { forwardRef } from 'react'
+import { Editor } from '@tiptap/react'
 import { TitleInput } from './TitleInput'
-import { ContentEditor } from './ContentEditor'
 import { CharacterCounter } from './CharacterCounter'
+import { EditorContent } from '@tiptap/react'
 
-/**
- * 编辑器卡片属性接口
- * 
- * @interface EditorCardProps
- * @property {string} title - 标题值
- * @property {(title: string) => void} onTitleChange - 标题变化处理函数
- * @property {React.Ref<HTMLInputElement>} titleRef - 标题输入框引用
- * @property {string} content - 内容值
- * @property {(content: string) => void} onContentChange - 内容变化处理函数
- * @property {React.Ref<HTMLTextAreaElement>} contentRef - 内容编辑器引用
- * @property {number} titleLength - 标题字符数
- * @property {number} contentLength - 内容字符数
- */
 interface EditorCardProps {
   title: string
   onTitleChange: (title: string) => void
   titleRef: React.Ref<HTMLInputElement>
-  content: string
-  onContentChange: (content: string) => void
-  contentRef: React.Ref<HTMLTextAreaElement>
   titleLength: number
   contentLength: number
+  editor: Editor | null
+  isMounted: boolean
 }
 
-/**
- * 编辑器卡片组件
- * 
- * @function EditorCard
- * @param {EditorCardProps} props - 组件属性
- * @returns {JSX.Element} 编辑器卡片组件
- * 
- * @description
- * 提供编辑器的主要卡片容器，包括：
- * - 顶部装饰条
- * - 标题输入
- * - 内容编辑器
- * - 字符计数
- * - 动画效果
- * 
- * @props
- * - title: 标题值
- * - onTitleChange: 标题变化处理函数
- * - titleRef: 标题输入框引用
- * - content: 内容值
- * - onContentChange: 内容变化处理函数
- * - contentRef: 内容编辑器引用
- * - titleLength: 标题字符数
- * - contentLength: 内容字符数
- */
 export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
-  ({ title, onTitleChange, titleRef, content, onContentChange, contentRef, titleLength, contentLength }, ref) => {
+  ({ title, onTitleChange, titleRef, titleLength, contentLength, editor, isMounted }, ref) => {
     return (
       <div
         ref={ref}
@@ -97,19 +37,29 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
         {/* 顶部装饰条 */}
         <div className="absolute top-0 left-0 right-0 bg-xf-primary rounded-t-[20px]" style={{ height: '4px' }} />
 
-        {/* 标题输入 */}
+        {/* 标题输入 - 保持原有组件 */}
         <TitleInput
           ref={titleRef}
           value={title}
           onChange={onTitleChange}
         />
 
-        {/* 内容编辑器 */}
-        <ContentEditor
-          ref={contentRef}
-          value={content}
-          onChange={onContentChange}
-        />
+        {/* 内容编辑器 - TipTap */}
+        <div className="relative py-0">
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-xf-primary via-xf-soft to-xf-accent rounded opacity-30" />
+
+          {!isMounted ? (
+            // SSR 占位，避免水合错误
+            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark">
+              <span className="opacity-30 italic">开始书写你的故事...（支持Markdown格式）</span>
+            </div>
+          ) : (
+            <EditorContent
+              editor={editor}
+              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none"
+            />
+          )}
+        </div>
 
         {/* 字符计数 */}
         <CharacterCounter titleLength={titleLength} contentLength={contentLength} />

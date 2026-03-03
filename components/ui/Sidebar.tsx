@@ -102,11 +102,74 @@ interface SidebarProps {
  * - pathname: 当前路由路径
  * - activeNav: 根据当前路由计算的激活导航项ID
  */
+/**
+ * 预加载路由配置
+ * 定义需要预加载的关键路由
+ */
+const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox']
+
+/**
+ * 侧边栏组件
+ * 
+ * @function Sidebar
+ * @param {SidebarProps} props - 组件属性
+ * @returns {JSX.Element} 侧边栏组件
+ * 
+ * @description
+ * 提供应用主导航功能，包括：
+ * - 用户头像和下拉菜单
+ * - 主导航菜单（首页、发布、草稿）
+ * - 路由预加载优化
+ * - 版权信息
+ * 
+ * @性能优化
+ * - 使用 router.prefetch 预加载关键路由
+ * - 鼠标悬停时预加载目标页面
+ * - 减少页面切换感知时间
+ * 
+ * @state
+ * - isDropdownOpen: 下拉菜单是否打开
+ * - isLoggingOut: 是否正在退出登录
+ * 
+ * @effects
+ * - 监听点击外部事件，关闭下拉菜单
+ * - 组件挂载时预加载所有关键路由
+ * 
+ * @hooks
+ * - pathname: 当前路由路径
+ * - activeNav: 根据当前路由计算的激活导航项ID
+ */
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  /**
+   * 预加载所有关键路由
+   * 
+   * @useEffect
+   * @description
+   * 组件挂载后预加载所有导航路由，减少切换延迟
+   * 使用 requestIdleCallback 在浏览器空闲时执行，避免阻塞主线程
+   */
+  useEffect(() => {
+    const preloadRoutes = () => {
+      PRELOAD_ROUTES.forEach(route => {
+        if (route !== pathname) {
+          router.prefetch(route)
+        }
+      })
+    }
+
+    // 使用 requestIdleCallback 在浏览器空闲时预加载
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      window.requestIdleCallback(preloadRoutes, { timeout: 2000 })
+    } else {
+      // 降级方案：使用 setTimeout
+      setTimeout(preloadRoutes, 1000)
+    }
+  }, [router, pathname])
 
   /**
    * 根据当前路由计算激活的导航项
@@ -286,10 +349,26 @@ export function Sidebar({ user }: SidebarProps) {
       <nav className="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
         {navItems.map((item) => {
           const isActive = activeNav === item.id
+          
+          /**
+           * 处理鼠标悬停预加载
+           * 
+           * @function handleMouseEnter
+           * @description
+           * 鼠标悬停在导航项上时预加载目标页面
+           * 提前加载页面资源，减少点击后的等待时间
+           */
+          const handleMouseEnter = () => {
+            if (item.href !== pathname) {
+              router.prefetch(item.href)
+            }
+          }
+          
           return (
             <a
               key={item.id}
               href={item.href}
+              onMouseEnter={handleMouseEnter}
               className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${
                 isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'
               }`}

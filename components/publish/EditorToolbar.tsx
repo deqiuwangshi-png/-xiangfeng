@@ -3,107 +3,30 @@
 /**
  * 编辑器工具栏组件
  * 
- * 作用: 提供编辑器的格式化工具栏
- * 
- * @param {() => void} onFormatText - 格式化文本处理函数
- * @param {() => void} onInsertLink - 插入链接处理函数
- * @param {() => void} onInsertImage - 插入图片处理函数
- * @param {() => void} onInsertList - 插入列表处理函数
- * @param {() => void} onClearFormatting - 清除格式处理函数
- * @param {() => void} onUndo - 撤销处理函数
- * @param {() => void} onRedo - 重做处理函数
- * @param {() => void} onFocusTitle - 聚焦标题处理函数
- * @param {() => void} onToggleFullscreen - 切换全屏处理函数
- * @param {() => void} onToggleToolbar - 切换工具栏处理函数
- * @param {boolean} isCollapsed - 工具栏是否折叠
- * 
- * @returns {JSX.Element} 编辑器工具栏组件
- * 
- * 使用说明:
- *   用于编辑器的浮动工具栏
- *   包含格式化工具、插入工具、编辑工具和视图工具
- *   支持折叠/展开功能
- *   工具栏会自动与编辑器容器居中对齐
- * 
- * 交互说明:
- *   - 点击工具按钮触发相应的处理函数
- *   - 点击收起按钮折叠工具栏
- *   - 悬停时显示工具提示
- * 
- * 依赖:
- *   - lucide-react (图标组件)
- *   - react (React组件)
- *   - ToolbarButton (工具栏按钮组件)
- * 更新时间: 2026-02-23
+ * 与 TipTap 编辑器集成
+ * - 保持原有 UI 样式
+ * - 通过 editor 实例操作编辑器
  */
 
 import { useEffect, useRef } from 'react'
-import { Bold, Italic, Underline, Heading, Quote, Code, Link, Image, List, ListOrdered, Minus, Eraser, Undo, Redo, ArrowUpToLine, Maximize, ChevronDown } from 'lucide-react'
+import { Editor } from '@tiptap/react'
+import {
+  Bold, Italic, Underline, Heading, Quote, Code,
+  Link, List, ListOrdered, Minus, Eraser, Undo, Redo,
+  ArrowUpToLine, Maximize, ChevronDown
+} from 'lucide-react'
 import { ToolbarButton } from './ToolbarButton'
 
-/**
- * 编辑器工具栏属性接口
- * 
- * @interface EditorToolbarProps
- * @property {() => void} onFormatText - 格式化文本处理函数
- * @property {() => void} onInsertLink - 插入链接处理函数
- * @property {() => void} onInsertImage - 插入图片处理函数
- * @property {(type: string) => void} onInsertList - 插入列表处理函数
- * @property {() => void} onClearFormatting - 清除格式处理函数
- * @property {() => void} onUndo - 撤销处理函数
- * @property {() => void} onRedo - 重做处理函数
- * @property {() => void} onFocusTitle - 聚焦标题处理函数
- * @property {() => void} onToggleFullscreen - 切换全屏处理函数
- * @property {() => void} onToggleToolbar - 切换工具栏处理函数
- * @property {boolean} isCollapsed - 工具栏是否折叠
- */
 interface EditorToolbarProps {
-  onFormatText: (format: string) => void
-  onInsertLink: () => void
-  onInsertImage: () => void
-  onInsertList: (type: string) => void
-  onClearFormatting: () => void
-  onUndo: () => void
-  onRedo: () => void
+  editor: Editor | null
   onFocusTitle: () => void
   onToggleFullscreen: () => void
   onToggleToolbar: () => void
   isCollapsed: boolean
 }
 
-/**
- * 编辑器工具栏组件
- * 
- * @function EditorToolbar
- * @param {EditorToolbarProps} props - 组件属性
- * @returns {JSX.Element} 编辑器工具栏组件
- * 
- * @description
- * 提供编辑器的格式化工具栏，包括：
- * - 格式化工具组（加粗、斜体、下划线）
- * - 标题工具组（标题、引用、代码）
- * - 插入工具组（链接、图片、列表）
- * - 编辑工具组（分割线、清除格式、撤销、重做）
- * - 视图工具组（跳转标题、全屏、收起工具栏）
- * 
- * @state
- * - isCollapsed: 工具栏是否折叠
- * 
- * @refs
- * - toolbarRef: 工具栏DOM引用，用于动态定位
- * 
- * @effects
- * - 组件挂载时调整工具栏位置
- * - 窗口大小变化时重新调整工具栏位置
- */
 export function EditorToolbar({
-  onFormatText,
-  onInsertLink,
-  onInsertImage,
-  onInsertList,
-  onClearFormatting,
-  onUndo,
-  onRedo,
+  editor,
   onFocusTitle,
   onToggleFullscreen,
   onToggleToolbar,
@@ -111,52 +34,89 @@ export function EditorToolbar({
 }: EditorToolbarProps) {
   const toolbarRef = useRef<HTMLDivElement>(null)
 
-  /**
-   * 调整工具栏位置，使其与内容编辑器居中对齐
-   * 
-   * @function adjustToolbarPosition
-   * @returns {void}
-   * 
-   * @description
-   * 根据编辑器容器的位置和宽度，动态计算工具栏的中心位置
-   * 确保工具栏始终与编辑器容器水平居中对齐
-   * 
-   * @reference
-   * 原型文件: docs/08原型文件设计图/发布.html
-   * 函数: adjustToolbarPosition()
-   */
-  const adjustToolbarPosition = () => {
-    const editorContainer = document.querySelector('.max-w-\\[840px\\]')
-    const toolbar = toolbarRef.current
-
-    if (!editorContainer || !toolbar) return
-
-    const editorRect = editorContainer.getBoundingClientRect()
-    const editorCenter = editorRect.left + editorRect.width / 2
-
-    toolbar.style.left = `${editorCenter}px`
-    toolbar.style.transform = 'translateX(-50%)'
-  }
-
-  /**
-   * 组件挂载时调整工具栏位置
-   * 
-   * @useEffect
-   * @description
-   * 在组件挂载后立即调整工具栏位置
-   * 监听窗口大小变化，重新调整工具栏位置
-   * 
-   * @cleanup
-   * 移除窗口大小变化事件监听器
-   */
+  // 调整工具栏位置
   useEffect(() => {
+    const adjustToolbarPosition = () => {
+      const editorContainer = document.querySelector('.max-w-\\[840px\\]')
+      const toolbar = toolbarRef.current
+      if (!editorContainer || !toolbar) return
+
+      const editorRect = editorContainer.getBoundingClientRect()
+      const editorCenter = editorRect.left + editorRect.width / 2
+      toolbar.style.left = `${editorCenter}px`
+      toolbar.style.transform = 'translateX(-50%)'
+    }
+
     adjustToolbarPosition()
     window.addEventListener('resize', adjustToolbarPosition)
-
-    return () => {
-      window.removeEventListener('resize', adjustToolbarPosition)
-    }
+    return () => window.removeEventListener('resize', adjustToolbarPosition)
   }, [isCollapsed])
+
+  // 格式化文本
+  const handleFormatText = (format: string) => {
+    if (!editor) return
+
+    switch (format) {
+      case 'bold':
+        editor.chain().focus().toggleBold().run()
+        break
+      case 'italic':
+        editor.chain().focus().toggleItalic().run()
+        break
+      case 'underline':
+        editor.chain().focus().toggleUnderline().run()
+        break
+      case 'heading':
+        editor.chain().focus().toggleHeading({ level: 2 }).run()
+        break
+      case 'quote':
+        editor.chain().focus().toggleBlockquote().run()
+        break
+      case 'code':
+        editor.chain().focus().toggleCode().run()
+        break
+      case 'hr':
+        editor.chain().focus().setHorizontalRule().run()
+        break
+    }
+  }
+
+  // 插入链接
+  const handleInsertLink = () => {
+    if (!editor) return
+    const url = window.prompt('输入链接地址:')
+    if (url) {
+      editor.chain().focus().setLink({ href: url }).run()
+    }
+  }
+
+  // 插入列表
+  const handleInsertList = (type: 'ul' | 'ol') => {
+    if (!editor) return
+    if (type === 'ul') {
+      editor.chain().focus().toggleBulletList().run()
+    } else {
+      editor.chain().focus().toggleOrderedList().run()
+    }
+  }
+
+  // 清除格式
+  const handleClearFormatting = () => {
+    if (!editor) return
+    editor.chain().focus().clearNodes().unsetAllMarks().run()
+  }
+
+  // 撤销
+  const handleUndo = () => {
+    if (!editor) return
+    editor.chain().focus().undo().run()
+  }
+
+  // 重做
+  const handleRedo = () => {
+    if (!editor) return
+    editor.chain().focus().redo().run()
+  }
 
   return (
     <div
@@ -170,19 +130,19 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Bold}
           tooltip="加粗"
-          onClick={() => onFormatText('bold')}
+          onClick={() => handleFormatText('bold')}
           title="加粗 (Ctrl+B)"
         />
         <ToolbarButton
           icon={Italic}
           tooltip="斜体"
-          onClick={() => onFormatText('italic')}
+          onClick={() => handleFormatText('italic')}
           title="斜体 (Ctrl+I)"
         />
         <ToolbarButton
           icon={Underline}
           tooltip="下划线"
-          onClick={() => onFormatText('underline')}
+          onClick={() => handleFormatText('underline')}
           title="下划线"
         />
       </div>
@@ -195,19 +155,19 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Heading}
           tooltip="标题"
-          onClick={() => onFormatText('heading')}
+          onClick={() => handleFormatText('heading')}
           title="标题"
         />
         <ToolbarButton
           icon={Quote}
           tooltip="引用"
-          onClick={() => onFormatText('quote')}
+          onClick={() => handleFormatText('quote')}
           title="引用"
         />
         <ToolbarButton
           icon={Code}
           tooltip="代码"
-          onClick={() => onFormatText('code')}
+          onClick={() => handleFormatText('code')}
           title="代码块"
         />
       </div>
@@ -220,25 +180,19 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Link}
           tooltip="链接"
-          onClick={onInsertLink}
+          onClick={handleInsertLink}
           title="链接 (Ctrl+K)"
-        />
-        <ToolbarButton
-          icon={Image}
-          tooltip="图片"
-          onClick={onInsertImage}
-          title="插入图片"
         />
         <ToolbarButton
           icon={List}
           tooltip="列表"
-          onClick={() => onInsertList('ul')}
+          onClick={() => handleInsertList('ul')}
           title="无序列表"
         />
         <ToolbarButton
           icon={ListOrdered}
           tooltip="有序列表"
-          onClick={() => onInsertList('ol')}
+          onClick={() => handleInsertList('ol')}
           title="有序列表"
         />
       </div>
@@ -251,25 +205,25 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Minus}
           tooltip="分割线"
-          onClick={() => onFormatText('hr')}
+          onClick={() => handleFormatText('hr')}
           title="分割线"
         />
         <ToolbarButton
           icon={Eraser}
           tooltip="清除格式"
-          onClick={onClearFormatting}
+          onClick={handleClearFormatting}
           title="清除格式"
         />
         <ToolbarButton
           icon={Undo}
           tooltip="撤销"
-          onClick={onUndo}
+          onClick={handleUndo}
           title="撤销 (Ctrl+Z)"
         />
         <ToolbarButton
           icon={Redo}
           tooltip="重做"
-          onClick={onRedo}
+          onClick={handleRedo}
           title="重做 (Ctrl+Y)"
         />
       </div>

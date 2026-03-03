@@ -11,12 +11,19 @@ export interface EditorState {
   isToolbarCollapsed: boolean
 }
 
-export const useEditorState = () => {
+/**
+ * 编辑器状态管理 Hook
+ * 
+ * @param initialTitle 
+ * @param initialContent 
+ * @returns
+ */
+export const useEditorState = (initialTitle: string = '', initialContent: string = '') => {
   const [editorState, setEditorState] = useState<EditorState>({
-    title: '',
-    content: '',
-    titleLength: 0,
-    contentLength: 0,
+    title: initialTitle,
+    content: initialContent,
+    titleLength: initialTitle.length,
+    contentLength: initialContent.length,
     isFullscreen: false,
     isToolbarCollapsed: false,
   })

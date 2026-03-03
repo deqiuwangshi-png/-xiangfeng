@@ -18,30 +18,10 @@ interface PaginationProps {
  * @returns {JSX.Element} 分页器组件
  * 
  * @description
- * 提供分页导航功能，包含：
- * - 上一页按钮
- * - 页码按钮
- * - 下一页按钮
- * - 省略号（当页数较多时）
- * 
+ * 提供分页导航功能
  * @data-source
- * docs/08原型文件设计图/草稿.html
- * 
  * @styles
- * - 分页按钮背景默认: transparent
- * - 分页按钮背景悬停: rgba(106, 91, 138, 0.08)
- * - 分页按钮背景激活: #6A5B8A
- * - 分页按钮文字默认: #6A5B8A
- * - 分页按钮文字激活: white
- * - 分页按钮禁用: opacity: 0.5
- * - 分页按钮内边距: 0.5rem 0.75rem
- * - 分页按钮圆角: 8px
- * - 分页按钮间距: 0.25rem
- * 
  * @interactions
- * - 点击页码：跳转到对应页
- * - 点击上一页/下一页：切换页面
- * - 禁用状态：无法点击
  */
 export function Pagination({
   currentPage,
