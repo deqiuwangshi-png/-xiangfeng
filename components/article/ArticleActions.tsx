@@ -56,7 +56,7 @@ export default function ArticleActions({
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [shared, setShared] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [commentCount, setCommentCount] = useState(initialCommentCount);
+  const [commentCount] = useState(initialCommentCount);
 
   /**
    * 检查用户是否登录

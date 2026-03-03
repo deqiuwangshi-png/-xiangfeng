@@ -5,16 +5,6 @@
  * 
  * @param {UpdateItem} item - 更新条目数据
  * @returns {JSX.Element} 更新条目组件
- * 
- * 使用说明:
- *   用于版本卡片中的单个更新条目
- *   显示更新类型标签和描述
- * 
- * 样式特点:
- *   - 布局：flex items-start gap-3
- *   - 标签：根据类型显示不同颜色
- *   - 描述：text-sm text-xf-dark
- * 
  * 更新时间: 2026-02-19
  */
 

@@ -35,7 +35,7 @@ interface ReadingProgressProps {
  * - 使用 RAF 节流优化性能
  * - 最小变化阈值减少渲染
  */
-export default function ReadingProgress({ articleId }: ReadingProgressProps) {
+export default function ReadingProgress({ }: ReadingProgressProps) {
   const [progress, setProgress] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
 

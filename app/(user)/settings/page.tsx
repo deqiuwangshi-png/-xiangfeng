@@ -1,4 +1,4 @@
-import { SettingsLayout } from '@/components/settings/SettingsLayout'
+import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
 import '@/styles/domains/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
@@ -40,8 +40,8 @@ export default async function SettingsPage() {
     email: user.email || '',
     username: profile?.username || user.email?.split('@')[0] || '用户',
     avatar_url: profile?.avatar_url || '',
-    bio: (profile as any)?.bio || '',
-    location: (profile as any)?.location || '',
+    bio: (profile as { bio?: string })?.bio || '',
+    location: (profile as { location?: string })?.location || '',
   } : null
 
   return (

@@ -2,36 +2,19 @@
 
 /**
  * 侧边栏组件
- * 作用: 显示应用主导航、用户信息和操作菜单
- * @returns {JSX.Element} 侧边栏组件
- * 交互说明:
- *   - 根据当前路由自动高亮导航项
- *   - 点击头像切换下拉菜单
- *   - 点击外部区域关闭下拉菜单
- * 依赖:
- *   - lucide-react (图标组件)
- *   - next/image (图片优化)
- *   - next/navigation (路由导航)
- *   - react (状态管理和副作用)
- * 
- * 更新时间: 2026-02-23
+ * @module components/ui/Sidebar
+ * @description 应用主导航侧边栏，只负责导航和布局
  */
 
-import { Home, Edit3, User, Settings, LogOut, FolderOpen, BellRing, MessageSquare, Newspaper, Zap } from 'lucide-react'
-import { useState, useEffect, useMemo } from 'react'
+import { Home, Edit3, FolderOpen, BellRing } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
 import { User as SupabaseUser } from '@supabase/supabase-js'
+import { UserProfileSection } from '@/components/user/UserProfileSection'
 
 /**
  * 导航项接口
- * 
  * @interface NavItem
- * @property {string} id - 导航项唯一标识
- * @property {string} label - 导航项显示文本
- * @property {React.ElementType} icon - 导航项图标组件
- * @property {string} href - 导航项链接地址
  */
 interface NavItem {
   id: string
@@ -41,28 +24,8 @@ interface NavItem {
 }
 
 /**
- * 用户下拉菜单项接口
- * 
- * @interface UserDropdownItem
- * @property {string} label - 菜单项显示文本
- * @property {React.ElementType} icon - 菜单项图标组件
- * @property {string} href - 菜单项链接地址
- * @property {boolean} isDanger - 是否为危险操作（如退出登录）
- * @property {() => void} onClick - 点击回调函数
- */
-interface UserDropdownItem {
-  label: string
-  icon: React.ElementType
-  href?: string
-  isDanger?: boolean
-  onClick?: () => void
-}
-
-/**
- * 导航菜单配置
- * 
+ * 主导航配置
  * @constant navItems
- * @description 定义应用主导航菜单项
  */
 const navItems: NavItem[] = [
   { id: 'home', label: '首页', icon: Home, href: '/home' },
@@ -72,7 +35,14 @@ const navItems: NavItem[] = [
 ]
 
 /**
+ * 预加载路由配置
+ * @constant PRELOAD_ROUTES
+ */
+const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox']
+
+/**
  * Sidebar Props 接口
+ * @interface SidebarProps
  */
 interface SidebarProps {
   user?: SupabaseUser | null
@@ -80,78 +50,26 @@ interface SidebarProps {
 
 /**
  * 侧边栏组件
- * 
  * @function Sidebar
  * @param {SidebarProps} props - 组件属性
  * @returns {JSX.Element} 侧边栏组件
  * 
  * @description
- * 提供应用主导航功能，包括：
- * - 用户头像和下拉菜单
- * - 主导航菜单（首页、发布、草稿）
- * - 版权信息
- * 
- * @state
- * - isDropdownOpen: 下拉菜单是否打开
- * - isLoggingOut: 是否正在退出登录
- * 
- * @effects
- * - 监听点击外部事件，关闭下拉菜单
- * 
- * @hooks
- * - pathname: 当前路由路径
- * - activeNav: 根据当前路由计算的激活导航项ID
- */
-/**
- * 预加载路由配置
- * 定义需要预加载的关键路由
- */
-const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox']
-
-/**
- * 侧边栏组件
- * 
- * @function Sidebar
- * @param {SidebarProps} props - 组件属性
- * @returns {JSX.Element} 侧边栏组件
- * 
- * @description
- * 提供应用主导航功能，包括：
- * - 用户头像和下拉菜单
- * - 主导航菜单（首页、发布、草稿）
+ * 职责：
+ * - 显示用户资料区域（头像、下拉菜单）
+ * - 显示主导航菜单
+ * - 显示版权信息
  * - 路由预加载优化
- * - 版权信息
  * 
- * @性能优化
- * - 使用 router.prefetch 预加载关键路由
- * - 鼠标悬停时预加载目标页面
- * - 减少页面切换感知时间
- * 
- * @state
- * - isDropdownOpen: 下拉菜单是否打开
- * - isLoggingOut: 是否正在退出登录
- * 
- * @effects
- * - 监听点击外部事件，关闭下拉菜单
- * - 组件挂载时预加载所有关键路由
- * 
- * @hooks
- * - pathname: 当前路由路径
- * - activeNav: 根据当前路由计算的激活导航项ID
+ * @example
+ * <Sidebar user={currentUser} />
  */
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   /**
-   * 预加载所有关键路由
-   * 
-   * @useEffect
-   * @description
-   * 组件挂载后预加载所有导航路由，减少切换延迟
-   * 使用 requestIdleCallback 在浏览器空闲时执行，避免阻塞主线程
+   * 预加载关键路由
    */
   useEffect(() => {
     const preloadRoutes = () => {
@@ -162,25 +80,15 @@ export function Sidebar({ user }: SidebarProps) {
       })
     }
 
-    // 使用 requestIdleCallback 在浏览器空闲时预加载
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       window.requestIdleCallback(preloadRoutes, { timeout: 2000 })
     } else {
-      // 降级方案：使用 setTimeout
       setTimeout(preloadRoutes, 1000)
     }
   }, [router, pathname])
 
   /**
-   * 根据当前路由计算激活的导航项
-   * 
-   * @constant activeNav
-   * @description
-   * 根据当前路径匹配对应的导航项ID
-   * - /home -> home
-   * - /publish -> publish
-   * - /drafts -> draft
-   * - 默认 -> home
+   * 计算当前激活的导航项
    */
   const activeNav = useMemo(() => {
     if (pathname === '/home') return 'home'
@@ -190,159 +98,11 @@ export function Sidebar({ user }: SidebarProps) {
     return 'home'
   }, [pathname])
 
-  /**
-   * 切换下拉菜单显示状态
-   * 
-   * @function toggleDropdown
-   * @returns {void}
-   * 
-   * @description
-   * 切换用户下拉菜单的打开/关闭状态
-   */
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen)
-  }
-
-  /**
-   * 处理退出登录
-   */
-  const handleLogout = async () => {
-    if (isLoggingOut) return
-
-    setIsLoggingOut(true)
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        console.error('Logout error:', error.message)
-        return
-      }
-
-      // 退出成功后跳转到登录页
-      router.push('/login')
-      router.refresh()
-    } catch (err) {
-      console.error('Logout failed:', err)
-    } finally {
-      setIsLoggingOut(false)
-    }
-  }
-
-  /**
-   * 用户下拉菜单配置
-   */
-  const userDropdownItems: UserDropdownItem[] = useMemo(() => [
-    { label: '个人主页', icon: User, href: '/profile' },
-    { label: '收益中心', icon: Zap, href: '/earnings' },
-    { label: '更新公告', icon: Newspaper, href: '/updates' },
-    { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-    { label: '用户设置', icon: Settings, href: '/settings' },
-    { label: isLoggingOut ? '退出中...' : '退出登录', icon: LogOut, isDanger: true, onClick: handleLogout },
-  ], [isLoggingOut])
-
-  /**
-   * 监听点击外部事件
-   * 
-   * @useEffect
-   * @description
-   * 当用户点击下拉菜单外部区域时，自动关闭下拉菜单
-   * 
-   * @cleanup
-   * 移除事件监听器，避免内存泄漏
-   */
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      const dropdown = document.getElementById('profile-dropdown')
-      const avatarButton = document.getElementById('avatar-button')
-      
-      if (dropdown && !dropdown.contains(target) && !avatarButton?.contains(target)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  // 获取用户显示信息
-  const userEmail = user?.email || '用户'
-  const userName = user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
-  const avatarUrl = user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id || 'Felix'}&backgroundColor=B6CAD7`
-
   return (
     <aside className="w-[80px] xl:w-[220px] shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 bg-xf-light border-r border-xf-surface/30 transition-all duration-300">
-      {/* 用户信息区域 */}
-      <div className="mb-8 pl-2 flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3">
-        <button
-          id="avatar-button"
-          onClick={toggleDropdown}
-          className="relative cursor-pointer"
-          aria-label="用户菜单"
-        >
-          <div className="w-10 h-10 rounded-full shadow-sm ring-2 ring-white overflow-hidden bg-xf-soft/20">
-            <Image
-              src={avatarUrl}
-              alt="用户头像"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-              loading="eager"
-              unoptimized={avatarUrl.includes('dicebear.com')}
-            />
-          </div>
-          {/* 在线状态指示器 */}
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-xf-success border-2 border-white rounded-full" />
-        </button>
-        
-        {/* 用户名和版本信息（仅桌面端显示） */}
-        <div className="hidden xl:block pt-1">
-          <div className="font-medium text-xf-dark text-sm mb-0.5 truncate max-w-[120px]">{userName}</div>
-          <div className="text-xs text-xf-primary">免费版</div>
-        </div>
-
-        {/* 用户下拉菜单 */}
-        {isDropdownOpen && (
-          <div
-            id="profile-dropdown"
-            className="absolute top-16 left-0 w-48 bg-white border border-xf-bg/80 backdrop-blur-md rounded-2xl shadow-deep py-2 z-50 origin-top-left fade-in-up"
-          >
-            {userDropdownItems.map((item) => (
-              item.onClick ? (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    item.onClick?.()
-                    setIsDropdownOpen(false)
-                  }}
-                  disabled={isLoggingOut}
-                  className={`w-full flex items-center gap-3 px-5 py-3 text-sm transition-colors text-left ${
-                    item.isDanger
-                      ? 'text-red-500 hover:bg-red-50/50'
-                      : 'text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent'
-                  } ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              ) : (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${
-                    item.isDanger
-                      ? 'text-red-500 hover:bg-red-50/50'
-                      : 'text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent'
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </a>
-              )
-            ))}
-          </div>
-        )}
+      {/* 用户资料区域 */}
+      <div className="mb-8 pl-2">
+        <UserProfileSection user={user} />
       </div>
 
       {/* 主导航菜单 */}
@@ -350,14 +110,6 @@ export function Sidebar({ user }: SidebarProps) {
         {navItems.map((item) => {
           const isActive = activeNav === item.id
           
-          /**
-           * 处理鼠标悬停预加载
-           * 
-           * @function handleMouseEnter
-           * @description
-           * 鼠标悬停在导航项上时预加载目标页面
-           * 提前加载页面资源，减少点击后的等待时间
-           */
           const handleMouseEnter = () => {
             if (item.href !== pathname) {
               router.prefetch(item.href)
@@ -369,15 +121,19 @@ export function Sidebar({ user }: SidebarProps) {
               key={item.id}
               href={item.href}
               onMouseEnter={handleMouseEnter}
-              className={`nav-item flex items-center justify-center xl:justify-start gap-3 xl:gap-5 py-3 transition-all relative group ${
-                isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'
-              }`}
+              className={`
+                nav-item flex items-center justify-center xl:justify-start 
+                gap-3 xl:gap-5 py-3 transition-all relative group
+                ${isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'}
+              `}
             >
               {/* 激活状态指示器 */}
               <div
-                className={`nav-active-indicator absolute left-0 h-[60%] w-1 bg-xf-accent rounded-r transition-all duration-300 ${
-                  isActive ? 'opacity-100 h-[80%]' : 'opacity-0'
-                }`}
+                className={`
+                  nav-active-indicator absolute left-0 h-[60%] w-1 bg-xf-accent rounded-r 
+                  transition-all duration-300
+                  ${isActive ? 'opacity-100 h-[80%]' : 'opacity-0'}
+                `}
               />
               <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>

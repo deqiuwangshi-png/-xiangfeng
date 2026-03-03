@@ -76,7 +76,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className="scroll-smooth">
+    <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${notoSansSC.variable} ${notoSerifSC.variable} antialiased`}>
         {children}
       </body>

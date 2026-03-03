@@ -12,7 +12,7 @@
 
 import { forwardRef } from 'react'
 import { Editor } from '@tiptap/react'
-import { TitleInput } from './TitleInput'
+import { TitleInput } from '../_inputs/TitleInput'
 import { CharacterCounter } from './CharacterCounter'
 import { EditorContent } from '@tiptap/react'
 

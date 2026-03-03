@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import PublishPageClient from './PublishPageClient'
-import { EditorSkeleton } from '@/components/publish/EditorSkeleton'
+import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
 
 /**
  * 发布页

@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 interface Author {
   id: string;
   name: string;

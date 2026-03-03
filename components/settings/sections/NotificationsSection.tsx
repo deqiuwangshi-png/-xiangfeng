@@ -1,8 +1,8 @@
 'use client'
 
-import { SettingsSection } from '../SettingsSection'
-import { SettingItem } from '../SettingItem'
-import { ToggleSwitch } from '../ToggleSwitch'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { ToggleSwitch } from '../_ui/ToggleSwitch'
 import { updateNotificationSettings } from '@/app/(user)/settings/actions'
 
 /**

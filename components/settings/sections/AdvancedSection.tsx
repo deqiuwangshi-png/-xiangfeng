@@ -1,9 +1,9 @@
 'use client'
 
-import { SettingsSection } from '../SettingsSection'
-import { SettingItem } from '../SettingItem'
-import { DangerZone } from '../DangerZone'
-import { DeleteAccountCard } from '../DeleteAccountCard'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { DangerZone } from '../_danger/DangerZone'
+import { DeleteAccountCard } from '../_danger/DeleteAccountCard'
 
 /**
  * 高级设置区块（Client Component）

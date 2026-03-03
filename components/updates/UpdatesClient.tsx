@@ -4,28 +4,6 @@
  * 作用: 处理更新日志页面的客户端交互逻辑
  * 
  * @returns {JSX.Element} 更新日志客户端组件
- * 
- * 使用说明:
- *   用于处理更新日志页面的客户端交互
- *   支持按类型筛选和关键词搜索
- *   严格遵循更新日志.html原型文件样式
- * 
- * 页面结构:
- *   - 头部：标题、描述、当前版本卡片
- *   - 筛选按钮：全部更新、新功能、改进优化、问题修复
- *   - 更新日志内容：按月份分组的版本卡片
- * 
- * 样式特点（严格遵循原型）:
- *   - 主容器：max-w-4xl mx-auto px-4 py-8
- *   - 头部区域：mb-10
- *   - 图标容器：w-10 h-10 rounded-lg bg-xf-accent
- *   - 页面标题：text-2xl font-serif font-bold text-xf-accent
- *   - 当前版本卡片：bg-white rounded-xl p-5 border border-xf-light
- *   - 筛选按钮区域：mb-6
- *   - 筛选按钮：px-4 py-2 rounded-lg text-sm font-medium
- *   - 月份标题：flex items-center gap-3 mb-4
- *   - 版本卡片：bg-white rounded-xl p-5 border border-xf-light mb-5
- * 
  * 更新时间: 2026-02-20
  */
 
@@ -33,7 +11,6 @@
 
 import { GitMerge } from 'lucide-react'
 import { useUpdates } from '@/hooks/useUpdates'
-import { UpdateService } from '@/lib/updates/updateService'
 import { LATEST_VERSION } from '@/constants/updates'
 import { FilterButton, VersionCard, MonthHeader } from '@/components/updates'
 import { UpdateType } from '@/types/updates'
@@ -63,8 +40,8 @@ import { MonthlyUpdate } from '@/types/updates'
  * @styles
  * 严格遵循更新日志.html原型文件样式
  */
-export function UpdatesClient({ initialUpdates, latestVersion }: { initialUpdates: MonthlyUpdate[], latestVersion: string }) {
-  const { updates, filteredUpdates, activeFilter, handleFilterChange } = useUpdates(initialUpdates)
+export function UpdatesClient({ initialUpdates }: { initialUpdates: MonthlyUpdate[], latestVersion: string }) {
+  const { filteredUpdates, activeFilter, handleFilterChange } = useUpdates(initialUpdates)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

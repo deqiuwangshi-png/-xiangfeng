@@ -15,7 +15,7 @@
  * @returns {JSX.Element} 评论面板组件
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { X, Heart, CornerUpLeft, Send, MessageCircle, Loader2 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';

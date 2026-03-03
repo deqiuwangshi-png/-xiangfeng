@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { SettingsSection } from '../SettingsSection'
-import { SettingItem } from '../SettingItem'
-import { EditProfileForm } from '../EditProfileForm'
-import { SecuritySettingsForm } from '../SecuritySettingsForm'
-import { ChangeEmailForm } from '../ChangeEmailForm'
-import { LinkedAccountsForm } from '../LinkedAccountsForm'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { EditProfileForm } from '../_forms/EditProfileForm'
+import { SecuritySettingsForm } from '../_forms/SecuritySettingsForm'
+import { ChangeEmailForm } from '../_forms/ChangeEmailForm'
+import { LinkedAccountsForm } from '../_forms/LinkedAccountsForm'
 
 /**
  * 视图模式类型

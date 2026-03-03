@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { SettingsNav } from './SettingsNav'
-import { AccountSection } from './sections/AccountSection'
-import { PrivacySection } from './sections/PrivacySection'
-import { NotificationsSection } from './sections/NotificationsSection'
-import { AppearanceSection } from './sections/AppearanceSection'
-import { ContentSection } from './sections/ContentSection'
-import { AdvancedSection } from './sections/AdvancedSection'
+import { AccountSection } from '../sections/AccountSection'
+import { PrivacySection } from '../sections/PrivacySection'
+import { NotificationsSection } from '../sections/NotificationsSection'
+import { AppearanceSection } from '../sections/AppearanceSection'
+import { ContentSection } from '../sections/ContentSection'
+import { AdvancedSection } from '../sections/AdvancedSection'
 
 /**
  * 用户数据接口

@@ -1,11 +1,9 @@
 'use client'
 
-import { SettingsSection } from '../SettingsSection'
-import { SettingItem } from '../SettingItem'
-import { ToggleSwitch } from '../ToggleSwitch'
-import { ColorPreview } from '../ColorPreview'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { ColorPreview } from '../_ui/ColorPreview'
 import { useState } from 'react'
-import { updateAppearanceSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 外观与主题设置区块（Client Component）

@@ -10,7 +10,7 @@
  */
 
 import dynamic from 'next/dynamic'
-import { EditorSkeleton } from '@/components/publish/EditorSkeleton'
+import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
 
 /**
  * 动态导入编辑器组件
@@ -21,7 +21,7 @@ import { EditorSkeleton } from '@/components/publish/EditorSkeleton'
  * - 将 100KB+ 的编辑器代码分割到单独的 chunk
  */
 const DynamicEditor = dynamic(
-  () => import('@/components/publish/DynamicEditor'),
+  () => import('@/components/publish/_core/DynamicEditor'),
   {
     ssr: false,
     loading: () => <EditorSkeleton />,

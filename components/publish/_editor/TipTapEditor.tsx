@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore, useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -12,21 +12,37 @@ interface TipTapEditorProps {
 }
 
 /**
+ * 使用 useSyncExternalStore 检测客户端挂载状态
+ *
+ * @description
+ * - 服务端：返回 false，显示占位符避免水合错误
+ * - 客户端：返回 true，直接创建编辑器
+ * - 无需 useEffect + setState，减少一次渲染
+ *
+ * @returns {boolean} 是否已挂载到客户端
+ */
+function useIsMounted() {
+  return useSyncExternalStore(
+    () => () => {}, // 订阅函数：挂载状态不会变化，返回空清理函数
+    () => true,     // getSnapshot：客户端直接返回 true
+    () => false     // getServerSnapshot：服务端返回 false
+  )
+}
+
+/**
  * TipTap 富文本编辑器组件
- * 
+ *
  * 特性：
- * - 动态导入避免水合错误
+ * - 使用 useSyncExternalStore 避免 SSR 水合错误
+ * - 减少一次渲染，提升性能
  * - 保持纯文本/Markdown 输入
  * - 展示时渲染 HTML
- * 
+ *
  * 注意：此组件仅在客户端渲染
  */
 export function TipTapEditor({ value, onChange, placeholder }: TipTapEditorProps) {
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  // 使用 useSyncExternalStore 替代 useState + useEffect
+  const isMounted = useIsMounted()
 
   const editor = useEditor({
     extensions: [
@@ -63,7 +79,7 @@ export function TipTapEditor({ value, onChange, placeholder }: TipTapEditorProps
     }
   }, [editor, value])
 
-  // 避免 SSR 水合错误
+  // 避免 SSR 水合错误：服务端显示占位符
   if (!isMounted) {
     return (
       <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark">
@@ -75,8 +91,8 @@ export function TipTapEditor({ value, onChange, placeholder }: TipTapEditorProps
   return (
     <div className="relative">
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-xf-primary via-xf-soft to-xf-accent rounded opacity-30" />
-      <EditorContent 
-        editor={editor} 
+      <EditorContent
+        editor={editor}
         className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh]"
       />
     </div>

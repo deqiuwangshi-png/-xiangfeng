@@ -14,12 +14,12 @@
  * 更新时间: 2026-03-03
  */
 
-export { EditorHeader } from './EditorHeader'
-export { EditorCard } from './EditorCard'
-export { TitleInput } from './TitleInput'
-export { CharacterCounter } from './CharacterCounter'
-export { EditorToolbar } from './EditorToolbar'
-export { ToolbarButton } from './ToolbarButton'
-export { EditorSkeleton } from './EditorSkeleton'
+export { EditorHeader } from './_header/EditorHeader'
+export { EditorCard } from './_core/EditorCard'
+export { TitleInput } from './_inputs/TitleInput'
+export { CharacterCounter } from './_core/CharacterCounter'
+export { EditorToolbar } from './_toolbar/EditorToolbar'
+export { ToolbarButton } from './_toolbar/ToolbarButton'
+export { EditorSkeleton } from './_skeleton/EditorSkeleton'
 // DynamicEditor 默认导出，用于动态导入
-export { default as DynamicEditor } from './DynamicEditor'
+export { default as DynamicEditor } from './_core/DynamicEditor'

@@ -10,11 +10,11 @@
  * @module DynamicEditor
  */
 
-import { useEditorState, useEditorActions } from './hooks'
-import { useTipTapEditor } from './hooks/useTipTapEditor'
-import { EditorHeader } from './EditorHeader'
-import { EditorCard } from './EditorCard'
-import { EditorToolbar } from './EditorToolbar'
+import { useEditorState, useEditorActions } from '../hooks'
+import { useTipTapEditor } from '../hooks/useTipTapEditor'
+import { EditorHeader } from '../_header/EditorHeader'
+import { EditorCard } from '../_core/EditorCard'  
+import { EditorToolbar } from '../_toolbar/EditorToolbar'
 
 /**
  * 动态编辑器组件属性

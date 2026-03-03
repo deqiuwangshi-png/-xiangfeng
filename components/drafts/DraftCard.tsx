@@ -23,7 +23,6 @@ interface DraftCardProps {
  * 
  * @description
  * @data-source
- * docs/08原型文件设计图/草稿.html
  * 
  * @styles
  * @interactions

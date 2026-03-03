@@ -7,17 +7,6 @@
  * @param {number} month - 月份
  * @param {boolean} isFirst - 是否为第一个月份
  * @returns {JSX.Element} 月份标题组件
- * 
- * 使用说明:
- *   用于更新日志页面中的月份分组标题
- *   显示年份和月份
- * 
- * 样式特点:
- *   - 布局：flex items-center gap-3 mb-4
- *   - 指示点：w-2 h-2 rounded-full
- *   - 指示点颜色：第一个月份为 bg-xf-accent，其他为 bg-xf-primary
- *   - 标题：text-xl font-bold text-xf-accent
- * 
  * 更新时间: 2026-02-19
  */
 

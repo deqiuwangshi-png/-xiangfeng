@@ -5,18 +5,6 @@
  * 
  * @param {VersionInfo} version - 版本信息
  * @returns {JSX.Element} 版本卡片组件
- * 
- * 使用说明:
- *   用于更新日志页面中的版本卡片
- *   显示版本号、日期、标题和更新条目
- * 
- * 样式特点:
- *   - 背景：bg-white
- *   - 边框：border border-xf-light
- *   - 圆角：rounded-xl
- *   - 内边距：p-5
- *   - 下边距：mb-5
- * 
  * 更新时间: 2026-02-19
  */
 
