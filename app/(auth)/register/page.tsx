@@ -1,246 +1,161 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
+import { useRegisterForm } from '@/hooks/useRegisterForm';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
+import { PasswordInput } from '@/components/auth/PasswordInput';
+import { PwdStrength } from '@/components/auth/PwdStrength';
+import { JSX } from 'react';
 
-export default function RegisterPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
-  const [password, setPassword] = useState('');
-  const router = useRouter();
+/**
+ * 注册页面组件
+ * @description 用户注册页面，使用 useRegisterForm Hook 管理表单逻辑
+ * @returns {JSX.Element} 注册页面
+ */
+export default function RegisterPage(): JSX.Element {
+  const {
+    formData,
+    errors,
+    globalError,
+    isLoading,
+    passwordValidation,
+    updateField,
+    submitForm,
+    getPasswordStrengthColor,
+  } = useRegisterForm();
 
   /**
-   * 处理密码输入变化，实时验证
+   * 处理表单提交
+   * @param {React.SubmitEvent<HTMLFormElement>} event - 表单提交事件
    */
-  function handlePasswordChange(value: string) {
-    setPassword(value);
-    if (value.length > 0) {
-      const result = validatePassword(value);
-      setPasswordValidation(result);
-    } else {
-      setPasswordValidation(null);
-    }
-  }
-
-  /**
-   * 处理注册表单提交
-   */
-  async function handleRegister(event: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-    const username = formData.get('username') as string;
-    const terms = formData.get('terms') as string;
-
-    // 🔐 验证服务条款
-    if (!terms) {
-      setError('请阅读并同意服务条款');
-      setIsLoading(false);
-      return;
-    }
-
-    // 🔐 验证密码复杂度
-    const passwordCheck = validatePassword(password);
-    if (!passwordCheck.valid) {
-      setError(passwordCheck.message);
-      setIsLoading(false);
-      return;
-    }
-
-    // 验证密码一致性
-    if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-        },
-      });
-
-      if (signUpError) {
-        throw signUpError;
-      }
-
-      // 注册成功，跳转到登录页面
-      router.push('/login');
-    } catch (err) {
-      console.error('Register error:', err);
-      
-      // 优化错误提示
-      if (err instanceof Error) {
-        const errorMessage = err.message;
-        
-        if (errorMessage.includes('Email not confirmed')) {
-          setError('注册成功，但邮箱未验证。请检查邮箱并点击验证链接。');
-        } else if (errorMessage.includes('User already registered')) {
-          setError('该邮箱已被注册，请直接登录或使用其他邮箱。');
-        } else if (errorMessage.includes('Invalid email')) {
-          setError('邮箱地址格式不正确，请检查后重试。');
-        } else if (errorMessage.includes('Password')) {
-          setError('密码不符合要求：' + errorMessage);
-        } else if (errorMessage.includes('is invalid')) {
-          setError('注册失败：' + errorMessage);
-        } else {
-          setError(errorMessage);
-        }
-      } else {
-        setError('注册失败，请稍后重试');
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    submitForm();
   }
-
-  // 密码强度颜色
-  const getStrengthColor = () => {
-    if (!passwordValidation) return 'text-gray-400';
-    switch (passwordValidation.strength) {
-      case 'strong': return 'text-green-600';
-      case 'medium': return 'text-yellow-600';
-      case 'weak': return 'text-red-600';
-    }
-  };
 
   return (
     <section className="auth-view w-full h-full flex absolute inset-0 z-40 bg-xf-light">
-      {/* 左侧品牌区域（桌面端） */}
       <BrandSection />
-
-      {/* 右侧表单区域 */}
       <div className="w-full lg:w-7/12 flex flex-col items-center justify-center p-8 bg-white/80 backdrop-blur-sm lg:bg-xf-light lg:backdrop-blur-none">
-        <div className="w-full max-w-md fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {/* 移动端品牌标题 */}
+        <div className="w-full max-w-md">
           <MobileBrandTitle />
-
-          {/* 表单卡片 */}
           <FormCard title="创建账号">
-            {/* 错误提示 */}
-            {error && (
+            {/* 全局错误提示 */}
+            {globalError && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                {error}
+                {globalError}
               </div>
             )}
 
-            <form onSubmit={handleRegister} className="space-y-6">
-              {/* 邮箱输入 */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* 邮箱字段 */}
               <div>
-                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">邮箱</label>
+                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
+                  邮箱
+                </label>
                 <input
                   type="email"
-                  name="email"
-                  id="register-email"
+                  value={formData.email}
+                  onChange={(e) => updateField('email', e.target.value)}
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="your@email.com"
                   required
                   disabled={isLoading}
                 />
+                {errors.email && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.email}</p>
+                )}
               </div>
 
-              {/* 用户名输入 */}
+              {/* 用户名字段 */}
               <div>
-                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">用户名</label>
+                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
+                  用户名
+                </label>
                 <input
                   type="text"
-                  name="username"
-                  id="register-username"
+                  value={formData.username}
+                  onChange={(e) => updateField('username', e.target.value)}
                   className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                   placeholder="选择用户名"
                   required
                   disabled={isLoading}
                 />
+                {errors.username && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.username}</p>
+                )}
               </div>
 
-              {/* 密码输入 */}
+              {/* 密码字段 */}
               <div>
-                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
-                  密码
-                  {passwordValidation && (
-                    <span className={`ml-2 text-sm ${getStrengthColor()}`}>
-                      ({passwordValidation.strength === 'strong' ? '强' : 
-                        passwordValidation.strength === 'medium' ? '中' : '弱'})
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="register-password"
-                  className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+                <PasswordInput
+                  label={
+                    <>
+                      密码
+                      {passwordValidation && (
+                        <span className={`ml-2 text-sm ${getPasswordStrengthColor()}`}>
+                          ({passwordValidation.strength === 'strong' ? '强' :
+                            passwordValidation.strength === 'medium' ? '中' : '弱'})
+                        </span>
+                      )}
+                    </>
+                  }
+                  value={formData.password}
+                  onChange={(e) => updateField('password', e.target.value)}
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
                   minLength={8}
-                  value={password}
-                  onChange={(e) => handlePasswordChange(e.target.value)}
                 />
-                
-                {/* 🔐 密码复杂度提示 */}
-                <div className="mt-2 text-xs text-xf-medium space-y-1">
-                  <p>密码要求：</p>
-                  <ul className="space-y-1 ml-4">
-                    <li className={password.length >= 8 ? 'text-green-600' : ''}>
-                      ✓ 至少8位字符
-                    </li>
-                    <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>
-                      ✓ 包含大写字母
-                    </li>
-                    <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>
-                      ✓ 包含小写字母
-                    </li>
-                    <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>
-                      ✓ 包含数字
-                    </li>
-                    <li className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? 'text-green-600' : ''}>
-                      ✓ 包含特殊字符 (!@#$%^&*等)
-                    </li>
-                  </ul>
-                </div>
+                <PwdStrength
+                  validation={passwordValidation}
+                  strengthColor={getPasswordStrengthColor()}
+                />
+                {errors.password && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.password}</p>
+                )}
               </div>
 
-              {/* 确认密码输入 */}
+              {/* 确认密码字段 */}
               <div>
-                <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">确认密码</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  id="register-confirm"
-                  className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
+                <PasswordInput
+                  label="确认密码"
+                  value={formData.confirmPassword}
+                  onChange={(e) => updateField('confirmPassword', e.target.value)}
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  minLength={8}
                 />
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.confirmPassword}</p>
+                )}
               </div>
 
               {/* 服务条款 */}
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
-                  <input type="checkbox" name="terms" className="custom-checkbox" disabled={isLoading} />
-                  <span>我已阅读并同意服务条款</span>
+              <div>
+                <label className="flex items-center gap-2 text-sm text-xf-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.terms}
+                    onChange={(e) => updateField('terms', e.target.checked)}
+                    disabled={isLoading}
+                  />
+                  <span>
+                    同意
+                    <a href="/terms" target="_blank" className="text-xf-info hover:underline">
+                      服务条款
+                    </a>
+                  </span>
                 </label>
+                {errors.terms && (
+                  <p className="mt-1 text-red-500 text-xs">{errors.terms}</p>
+                )}
               </div>
 
-              {/* 注册按钮 */}
+              {/* 提交按钮 */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -250,10 +165,13 @@ export default function RegisterPage() {
               </button>
             </form>
 
-            {/* 切换到登录 */}
+            {/* 登录链接 */}
             <div className="mt-8 flex justify-between text-sm text-xf-medium px-2">
               <span className="text-xf-primary">已有账号?</span>
-              <Link href="/login" className="hover:text-xf-accent transition font-medium text-xf-info">
+              <Link
+                href="/login"
+                className="hover:text-xf-accent transition font-medium text-xf-info"
+              >
                 立即登录 →
               </Link>
             </div>

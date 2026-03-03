@@ -1,7 +1,15 @@
 'use client';
 
+/**
+ * 忘记密码页面
+ * @module app/(auth)/forgot-password/page
+ * @description 用户忘记密码时发送重置邮件
+ */
+
 import { useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import { useAuthError } from '@/lib/auth/useAuthError';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
@@ -10,50 +18,60 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const { error, handleSupabaseError, clearError } = useAuthError();
 
-  /**
-   * 处理忘记密码表单提交
-   * @param event - 表单提交事件
-   */
-  async function handleForgotPassword(event: React.FormEvent<HTMLFormElement>) {
+  async function handleForgotPassword(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    clearError();
     setIsLoading(true);
 
-    // 模拟发送重置邮件请求
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const supabase = createClient();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-    setIsLoading(false);
-    setIsSuccess(true);
+      if (resetError) {
+        throw resetError;
+      }
+
+      setIsSuccess(true);
+    } catch (err) {
+      handleSupabaseError(err, 'forgot-password');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  /**
-   * 处理返回登录
-   */
   function handleBackToLogin() {
     window.location.href = '/login';
   }
 
+  function handleResend() {
+    setIsSuccess(false);
+    setEmail('');
+    clearError();
+  }
+
   return (
     <section className="auth-view w-full h-full flex absolute inset-0 z-50 bg-xf-light">
-      {/* 左侧品牌区域（桌面端） */}
       <BrandSection />
-
-      {/* 右侧表单区域 */}
       <div className="w-full lg:w-7/12 flex flex-col items-center justify-center p-8 bg-white/80 backdrop-blur-sm lg:bg-xf-light lg:backdrop-blur-none">
-        <div className="w-full max-w-md fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {/* 移动端品牌标题 */}
+        <div className="w-full max-w-md">
           <MobileBrandTitle />
-
-          {/* 表单卡片 */}
           <FormCard title={isSuccess ? '邮件已发送' : '重置密码'}>
             {!isSuccess ? (
               <form onSubmit={handleForgotPassword} className="space-y-6">
-                {/* 说明文字 */}
                 <div className="text-center text-xf-medium text-sm mb-4">
                   请输入您的邮箱地址，我们将向您发送重置密码的链接。
                 </div>
 
-                {/* 邮箱输入 */}
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">邮箱</label>
                   <input
@@ -64,10 +82,10 @@ export default function ForgotPasswordPage() {
                     className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
                     placeholder="your@email.com"
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
-                {/* 发送重置链接按钮 */}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -78,7 +96,6 @@ export default function ForgotPasswordPage() {
               </form>
             ) : (
               <div className="space-y-6">
-                {/* 成功图标 */}
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
                     <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +104,6 @@ export default function ForgotPasswordPage() {
                   </div>
                 </div>
 
-                {/* 成功说明 */}
                 <div className="text-center space-y-3">
                   <p className="text-xf-primary font-medium">
                     重置密码的链接已发送至
@@ -103,7 +119,6 @@ export default function ForgotPasswordPage() {
                   </p>
                 </div>
 
-                {/* 返回登录按钮 */}
                 <button
                   onClick={handleBackToLogin}
                   className="w-full bg-xf-primary hover:bg-xf-accent text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide"
@@ -111,13 +126,9 @@ export default function ForgotPasswordPage() {
                   返回登录
                 </button>
 
-                {/* 重新发送 */}
                 <div className="text-center text-sm">
                   <button
-                    onClick={() => {
-                      setIsSuccess(false);
-                      setEmail('');
-                    }}
+                    onClick={handleResend}
                     className="text-xf-info hover:text-xf-accent transition font-medium"
                   >
                     重新发送
@@ -126,7 +137,6 @@ export default function ForgotPasswordPage() {
               </div>
             )}
 
-            {/* 返回登录 */}
             {!isSuccess && (
               <div className="mt-8 flex justify-between text-sm text-xf-medium px-2">
                 <span className="text-xf-primary">想起密码了?</span>

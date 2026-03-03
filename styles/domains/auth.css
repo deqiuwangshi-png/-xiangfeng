@@ -65,22 +65,6 @@ select:focus {
   transition: all 0.2s ease;
 }
 
-/* 淡入上浮动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
 /* 加载点动画 */
 @keyframes loadingDots {
   0%,
