@@ -225,8 +225,8 @@ export function Sidebar({ user }: SidebarProps) {
               width={40}
               height={40}
               className="w-full h-full object-cover"
-              unoptimized
               loading="eager"
+              unoptimized={avatarUrl.includes('dicebear.com')}
             />
           </div>
           {/* 在线状态指示器 */}

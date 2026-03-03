@@ -17,8 +17,9 @@
  *   - 使用 Server Component 获取用户数据
  *   - 使用 Client Components 处理交互逻辑
  *   - 复用 Sidebar 组件保持一致性
+ *   - 从 profiles 表获取数据，与设置页面保持一致
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-03-02
  */
 
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
@@ -26,6 +27,7 @@ import { ProfileStats } from '@/components/profile/ProfileStats'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent } from '@/components/profile/ProfileContent'
 import { ProfileDomain } from '@/components/profile/ProfileDomain'
+import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getUserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
@@ -51,17 +53,24 @@ import { getUserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
  * - 隐藏滚动条
  */
 export default async function ProfilePage() {
-  // 获取当前登录用户
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 获取当前登录用户 - 使用缓存函数（与布局共享）
+  const user = await getCurrentUser()
 
   // 未登录则重定向到登录页
   if (!user) {
     redirect('/login')
   }
 
-  // 构造用户显示信息（与 Sidebar 一致）
-  const userData = getUserDisplayInfo(user)
+  // 从 profiles 表获取用户资料（与设置页面保持一致）
+  const supabase = await createClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+  // 构造用户显示信息（与 Sidebar 一致），优先使用 profile 数据
+  const userData = getUserDisplayInfo(user, profile)
 
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth">

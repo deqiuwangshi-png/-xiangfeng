@@ -58,8 +58,8 @@ export default function CreatorsSection() {
                                 width={56}
                                 height={56}
                                 className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
-                                unoptimized
                                 loading="eager"
+                                unoptimized={creator.avatar?.includes('dicebear.com')}
                               />
                               <div className={`absolute -bottom-1 -right-1 bg-xf-${creator.tagColor} text-white text-[10px] font-bold px-2 py-0.5 rounded-full`}>
                                 {creator.tag}

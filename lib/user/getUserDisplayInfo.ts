@@ -1,6 +1,18 @@
 import { User } from '@supabase/supabase-js'
 
 /**
+ * Profile 数据接口
+ */
+export interface ProfileData {
+  id?: string
+  username?: string
+  avatar_url?: string
+  bio?: string
+  location?: string
+  updated_at?: string
+}
+
+/**
  * 用户显示信息接口
  */
 export interface UserDisplayInfo {
@@ -9,6 +21,7 @@ export interface UserDisplayInfo {
   username: string
   avatarUrl: string
   bio: string
+  location: string
   joinDate: string
 }
 
@@ -16,16 +29,22 @@ export interface UserDisplayInfo {
  * 获取用户显示信息
  * 
  * @param user - Supabase User 对象
+ * @param profile - Profile 表数据（可选，优先使用）
  * @returns 用户显示信息
  * 
  * @description
  * 统一转换用户数据，确保所有组件使用相同的逻辑：
- * - 用户名：优先使用 user_metadata.username，其次使用邮箱前缀
- * - 头像：优先使用 user_metadata.avatar_url，否则根据 user.id 生成
- * - 简介：使用 user_metadata.bio 或默认文本
- * - 加入日期：格式化 user.created_at
+ * - 优先级：profiles 表 > user_metadata > 默认值
+ * - 用户名：优先使用 profile.username 或 user_metadata.username，其次使用邮箱前缀
+ * - 头像：优先使用 profile.avatar_url 或 user_metadata.avatar_url，否则根据 user.id 生成
+ * - 简介：优先使用 profile.bio 或 user_metadata.bio
+ * - 位置：优先使用 profile.location 或 user_metadata.location
+ * - 加入日期：格式化 user.created_at（保留，不可修改）
  */
-export function getUserDisplayInfo(user: User | null): UserDisplayInfo {
+export function getUserDisplayInfo(
+  user: User | null,
+  profile?: ProfileData | null
+): UserDisplayInfo {
   if (!user) {
     return {
       id: '',
@@ -33,16 +52,36 @@ export function getUserDisplayInfo(user: User | null): UserDisplayInfo {
       username: '访客',
       avatarUrl: 'https://api.dicebear.com/7.x/micah/svg?seed=guest&backgroundColor=B6CAD7',
       bio: '请先登录',
+      location: '',
       joinDate: '',
     }
   }
 
+  // 优先级：profiles 表 > user_metadata > 默认值
+  const username = profile?.username || 
+                   user.user_metadata?.username || 
+                   user.email?.split('@')[0] || 
+                   '用户'
+
+  const avatarUrl = profile?.avatar_url || 
+                    user.user_metadata?.avatar_url || 
+                    `https://api.dicebear.com/7.x/micah/svg?seed=${user.id}&backgroundColor=B6CAD7`
+
+  const bio = profile?.bio || 
+              user.user_metadata?.bio || 
+              '这个人很懒，还没有填写简介...'
+
+  const location = profile?.location || 
+                   user.user_metadata?.location || 
+                   ''
+
   return {
     id: user.id,
     email: user.email || '',
-    username: user.user_metadata?.username || user.email?.split('@')[0] || '用户',
-    avatarUrl: user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/micah/svg?seed=${user.id}&backgroundColor=B6CAD7`,
-    bio: user.user_metadata?.bio || '这个人很懒，还没有填写简介...',
+    username,
+    avatarUrl,
+    bio,
+    location,
     joinDate: new Date(user.created_at).toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: 'long',

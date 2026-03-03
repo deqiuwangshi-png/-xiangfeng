@@ -1,5 +1,6 @@
 import { SettingsLayout } from '@/components/settings/SettingsLayout'
 import '@/styles/domains/settings.css'
+import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 
 /**
@@ -13,25 +14,18 @@ import { createClient } from '@/lib/supabase/server'
  *   作为设置页面的入口点
  *   获取用户设置数据
  *   将数据传递给客户端组件
- * 
- * 架构说明:
- *   - 不使用'use client'指令
- *   - 直接访问数据库（通过服务层）
- *   - 不使用客户端hooks
- *   - 使用async/await
- *   - 将数据传递给客户端组件
- * 
+ *   使用缓存的getCurrentUser()与布局共享用户数据
  * 更新时间: 2026-03-02
  */
 
 export default async function SettingsPage() {
-  // 获取当前用户数据
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 获取当前用户数据 - 使用缓存函数
+  const user = await getCurrentUser()
 
   // 从 profiles 表获取用户资料
   let profile = null
   if (user) {
+    const supabase = await createClient()
     const { data } = await supabase
       .from('profiles')
       .select('*')

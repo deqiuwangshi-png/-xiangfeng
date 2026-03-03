@@ -137,6 +137,7 @@ export function AccountSection({ userData }: AccountSectionProps) {
   if (viewMode === 'changeEmail') {
     return (
       <ChangeEmailForm
+        currentEmail={userData?.email}
         onCancel={handleBackToList}
         onSave={handleSaveSuccess}
       />

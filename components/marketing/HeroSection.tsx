@@ -3,9 +3,19 @@
 import { ArrowRight, BrainCircuit, Sparkles, Users, GitMerge } from 'lucide-react'
 import { RevealOnScroll } from './RevealOnScroll'
 
+/**
+ * Hero区域组件 - 首屏关键内容
+ * 
+ * LCP优化策略：
+ * - 首屏关键内容（标题、副标题、CTA按钮）不使用RevealOnScroll
+ *   确保这些元素在HTML解析后立即可见，不依赖JS执行
+ * - 仅对装饰性内容和下方UI预览使用reveal动画
+ * - 使用hero-content类确保内容立即渲染
+ */
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-12 pb-20">
+      {/* 背景装饰 - 不影响LCP */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[10%] left-[10%] w-64 h-64 bg-xf-info/20 rounded-full blur-[80px] animate-pulse"></div>
         <div className="absolute bottom-[20%] right-[10%] w-80 h-80 bg-xf-primary/15 rounded-full blur-[100px] animate-float"></div>
@@ -14,7 +24,12 @@ export default function HeroSection() {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-6xl mx-auto text-center">
-          <RevealOnScroll>
+          {/* 
+           * LCP关键内容区域：不使用RevealOnScroll包装
+           * 确保标题、副标题、按钮立即可见
+           */}
+          <div className="hero-content">
+            {/* 标签 */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/60 backdrop-blur-sm border border-white/50 rounded-full mb-8 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-xf-info opacity-75"></span>
@@ -22,22 +37,19 @@ export default function HeroSection() {
               </span>
               <span className="text-xs font-semibold text-xf-accent tracking-wide uppercase">深度思考者的精神家园</span>
             </div>
-          </RevealOnScroll>
 
-          <RevealOnScroll delay={100}>
-            <h1 className="text-5xl font-serif font-bold mb-6 leading-tight text-xf-dark">
+            {/* 主标题 - LCP关键元素 */}
+            <h1 className="text-5xl font-serif font-bold mb-6 leading-tight text-xf-dark lcp-text">
               <span className="text-xf-accent">不止相遇</span>
               <span className="block mt-2">更是<span className="text-xf-info relative inline-block">改变<svg className="absolute w-full h-3 -bottom-1 left-0 text-xf-info/20" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none"/></svg></span></span>
             </h1>
-          </RevealOnScroll>
 
-          <RevealOnScroll delay={200}>
-            <p className="text-lg text-xf-medium mb-10 max-w-2xl mx-auto leading-relaxed">
+            {/* 副标题 - LCP关键元素 */}
+            <p className="text-lg text-xf-medium mb-10 max-w-2xl mx-auto leading-relaxed lcp-text">
               在嘈杂的信息流中寻找深度连接。打破认知边界，构建属于你的思维网络，与志同道合者共创价值。
             </p>
-          </RevealOnScroll>
 
-          <RevealOnScroll delay={300}>
+            {/* CTA按钮 - LCP关键元素 */}
             <div className="flex gap-4 justify-center mb-16">
               <button
                 onClick={() => window.location.href = '/login'}
@@ -52,9 +64,13 @@ export default function HeroSection() {
                 探索特色
               </button>
             </div>
-          </RevealOnScroll>
+          </div>
 
-          <RevealOnScroll delay={300}>
+          {/* 
+           * UI预览区域：非关键内容，使用reveal动画
+           * 不影响LCP，因为这不是 Largest Contentful Paint 的候选元素
+           */}
+          <RevealOnScroll delay={100}>
             <div className="relative max-w-5xl mx-auto mt-12">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/50 bg-white/40 backdrop-blur-sm p-2">
                 <div className="bg-xf-light rounded-2xl overflow-hidden border border-slate-200/60 shadow-inner">

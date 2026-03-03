@@ -76,7 +76,8 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               width={128}
               height={128}
               className="w-32 h-32 rounded-full shadow-deep ring-4 ring-white"
-              unoptimized
+              priority
+              unoptimized={user.avatarUrl?.includes('dicebear.com')}
             />
             <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-2 border-white rounded-full" />
           </div>
@@ -95,7 +96,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               </h1>
               <p className="text-sm text-xf-medium mt-2 flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                上海 · 加入于 {user.joinDate}
+                {user.location || '未设置位置'} · 加入于 {user.joinDate}
               </p>
             </div>
 

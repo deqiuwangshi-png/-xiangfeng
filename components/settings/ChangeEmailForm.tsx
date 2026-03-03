@@ -1,84 +1,87 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Mail, Shield, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Mail, Shield, CheckCircle, AlertCircle } from 'lucide-react'
 import { IconBox, PrimaryButton } from '@/components/ui'
+import { initiateEmailChange, UpdateEmailResult } from '@/lib/user/updateEmail'
 
 /**
  * 更换邮箱表单组件
  * @param {function} onCancel - 取消回调函数
  * @param {function} onSave - 保存成功回调函数
+ * @param currentEmail - 当前邮箱地址
  * @returns {JSX.Element} 更换邮箱表单组件
  *
  * 使用说明:
+ *   - 显示当前邮箱
  *   - 输入新邮箱
- *   - 发送验证码
- *   - 验证并保存
+ *   - Supabase 自动发送验证邮件
+ *   - 用户点击邮件链接确认后生效
+ * 
+ * 流程:
+ *   1. 输入新邮箱地址
+ *   2. 点击"发送验证邮件"
+ *   3. Supabase 发送确认邮件到新邮箱
+ *   4. 用户登录新邮箱，点击确认链接
+ *   5. 邮箱更换生效，需要重新登录
+ *
  * 架构说明:
  *   - 使用'use client'指令
- *   - 纯展示组件，不处理路由
+ *   - 使用 Server Action 调用 Supabase Auth
+ *   - Supabase 使用默认邮件模板发送验证邮件
  * 更新时间: 2026-03-02
  */
 
 interface ChangeEmailFormProps {
+  currentEmail?: string
   onCancel: () => void
   onSave: () => void
 }
 
-export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
+export function ChangeEmailForm({ currentEmail, onCancel, onSave }: ChangeEmailFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState<'input' | 'verify'>('input')
   const [email, setEmail] = useState('')
-  const [verificationCode, setVerificationCode] = useState('')
-  const [countdown, setCountdown] = useState(0)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState<UpdateEmailResult | null>(null)
 
   /**
-   * 处理发送验证码
+   * 处理发送验证邮件
    */
-  const handleSendCode = async () => {
-    if (!email || countdown > 0) return
-
-    setIsLoading(true)
-    try {
-      // TODO: 调用API发送验证码
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setStep('verify')
-      setCountdown(60)
-
-      // 倒计时
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    } catch (error) {
-      console.error('发送验证码失败:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  /**
-   * 处理提交
-   */
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (step === 'input') {
-      await handleSendCode()
+
+    if (!email || isLoading) return
+
+    // 基础验证
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('请输入有效的邮箱地址')
+      return
+    }
+
+    if (email === currentEmail) {
+      setError('新邮箱不能与当前邮箱相同')
       return
     }
 
     setIsLoading(true)
+    setError('')
+    setSuccess(null)
+
     try {
-      // TODO: 调用API验证并保存
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      onSave()
+      const result = await initiateEmailChange(email)
+
+      if (result.success) {
+        setSuccess(result)
+        // 3秒后通知父组件保存成功（关闭表单）
+        setTimeout(() => {
+          onSave()
+        }, 3000)
+      } else {
+        setError(result.error || '更换邮箱失败')
+      }
     } catch (error) {
-      console.error('验证失败:', error)
+      console.error('更换邮箱失败:', error)
+      setError('更换邮箱失败，请稍后重试')
     } finally {
       setIsLoading(false)
     }
@@ -96,7 +99,6 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        {/* 页面标题 - 靠右对齐 */}
         <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             更换邮箱
@@ -115,14 +117,41 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
           </IconBox>
           <div>
             <p className="text-sm text-xf-medium">当前邮箱</p>
-            <p className="font-medium text-xf-dark">felix@example.com</p>
+            <p className="font-medium text-xf-dark">{currentEmail || '未设置'}</p>
           </div>
         </div>
       </div>
 
+      {/* 错误提示 */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {/* 成功提示 */}
+      {success?.success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-green-800">验证邮件已发送</p>
+              <p className="text-sm text-green-700 mt-1">
+                我们已向 <strong>{email}</strong> 发送了验证邮件。
+                请登录新邮箱，点击邮件中的确认链接完成更换。
+              </p>
+              <p className="text-sm text-green-700 mt-2">
+                确认后你需要使用新邮箱重新登录。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 更换邮箱表单 */}
-      <form onSubmit={handleSubmit} className="card-bg rounded-2xl p-8 space-y-6">
-        {step === 'input' ? (
+      {!success?.success && (
+        <form onSubmit={handleSubmit} className="card-bg rounded-2xl p-8 space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-bold text-xf-dark">
               新邮箱地址
@@ -130,73 +159,51 @@ export function ChangeEmailForm({ onCancel, onSave }: ChangeEmailFormProps) {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setError('')
+              }}
               className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
               placeholder="请输入新邮箱地址"
               required
             />
           </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <p className="text-sm text-green-700">
-                验证码已发送至 {email}
-              </p>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-xf-dark">
-                验证码
-              </label>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-                  placeholder="请输入6位验证码"
-                  maxLength={6}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  disabled={countdown > 0 || isLoading}
-                  className="px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  {countdown > 0 ? `${countdown}秒后重试` : '重新发送'}
-                </button>
-              </div>
-            </div>
+          {/* 操作按钮 */}
+          <div className="flex gap-4 pt-4 border-t border-xf-bg/60">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
+            >
+              取消
+            </button>
+            <PrimaryButton
+              type="submit"
+              loading={isLoading}
+              disabled={!email || email === currentEmail}
+            >
+              发送验证邮件
+            </PrimaryButton>
           </div>
-        )}
-
-        {/* 操作按钮 */}
-        <div className="flex gap-4 pt-4 border-t border-xf-bg/60">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 px-6 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-          >
-            取消
-          </button>
-          <PrimaryButton
-            type="submit"
-            loading={isLoading}
-            disabled={(step === 'input' && !email) || (step === 'verify' && !verificationCode)}
-          >
-            {step === 'input' ? '发送验证码' : '确认更换'}
-          </PrimaryButton>
-        </div>
-      </form>
+        </form>
+      )}
 
       {/* 安全提示 */}
       <div className="mt-6 flex items-start gap-3 text-sm text-xf-medium">
         <Shield className="w-5 h-5 shrink-0 mt-0.5" />
-        <p>
-          更换邮箱后，你需要使用新邮箱登录。我们会向新邮箱发送验证链接以确认所有权。
-        </p>
+        <div className="space-y-1">
+          <p>
+            <strong>安全提示：</strong>
+          </p>
+          <ul className="list-disc list-inside space-y-1 ml-1">
+            <li>更换邮箱后，你需要使用新邮箱登录</li>
+            <li>我们会向新邮箱发送验证链接以确认所有权</li>
+            <li>在点击验证链接前，当前邮箱仍然有效</li>
+            <li>验证完成后，当前会话将失效，需要重新登录</li>
+            <li>更换邮箱后，密码保持不变，使用新邮箱+原密码登录，旧邮箱将无法登录</li>
+          </ul>
+        </div>
       </div>
     </div>
   )

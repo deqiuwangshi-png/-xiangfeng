@@ -1,16 +1,21 @@
 import { Sidebar } from '@/components/ui/Sidebar'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/app.css'
 
+/**
+ * App布局 - 应用主布局
+ * 
+ * @description 应用内页面的共享布局，包括首页、发布、草稿等
+ * 使用缓存的getCurrentUser()避免重复获取用户数据
+ */
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // 获取当前用户
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用缓存函数获取当前用户（同一请求内多次调用会复用结果）
+  const user = await getCurrentUser()
 
   // 如果未登录，重定向到登录页
   if (!user) {

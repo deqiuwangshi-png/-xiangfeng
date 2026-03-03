@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from 'lucide-react'
 import { AvatarPlaceholder, FormActions } from '@/components/ui'
+import { updateProfile, UpdateProfileParams } from '@/lib/user/updateProfile'
 
 /**
  * 编辑个人资料表单组件
@@ -11,34 +12,32 @@ import { AvatarPlaceholder, FormActions } from '@/components/ui'
  *
  * @param {function} onCancel - 取消回调函数
  * @param {function} onSave - 保存成功回调函数
+ * @param initialData - 初始用户数据
  * @returns {JSX.Element} 编辑个人资料表单组件
  *
  * 使用说明:
- *   - 头像上传
+ *   - 头像上传（通过 URL 或 Dicebear API）
  *   - 用户名编辑
  *   - 简介编辑
  *   - 位置信息编辑
  *
  * 架构说明:
  *   - 使用'use client'指令
- *   - 纯展示组件，不处理路由
+ *   - 使用 Server Action 保存数据
+ *   - 保存成功后刷新页面数据
  * 更新时间: 2026-03-02
  */
 
 /**
  * 用户数据接口
- *
- * @interface UserData
- * @property {string} username - 用户名
- * @property {string} email - 邮箱
- * @property {string} bio - 个人简介
- * @property {string} location - 位置
  */
 interface UserData {
+  id?: string
   username: string
   email: string
   bio: string
   location: string
+  avatar_url?: string
 }
 
 interface EditProfileFormProps {
@@ -49,38 +48,59 @@ interface EditProfileFormProps {
 
 export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string>('')
   const [formData, setFormData] = useState({
-    username: initialData?.username || 'Felix',
-    email: initialData?.email || 'felix@example.com',
-    bio: initialData?.bio || '你好',
-    location: initialData?.location || '上海',
+    username: initialData?.username || '',
+    email: initialData?.email || '',
+    bio: initialData?.bio || '',
+    location: initialData?.location || '',
+    avatar_url: initialData?.avatar_url || '',
   })
 
   /**
    * 处理表单字段变化
-   *
-   * @param field - 字段名
-   * @param value - 字段值
    */
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    setError('') // 清除错误
+  }
+
+  /**
+   * 生成新的随机头像
+   */
+  const generateNewAvatar = () => {
+    const seed = Math.random().toString(36).substring(7)
+    const newAvatarUrl = `https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=B6CAD7`
+    setFormData(prev => ({ ...prev, avatar_url: newAvatarUrl }))
   }
 
   /**
    * 处理表单提交
-   *
-   * @param e - 表单提交事件
    */
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
 
     try {
-      // TODO: 调用Server Action保存数据
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      onSave()
+      // 调用 Server Action 保存数据
+      const params: UpdateProfileParams = {
+        username: formData.username,
+        bio: formData.bio,
+        location: formData.location,
+        avatar_url: formData.avatar_url,
+      }
+
+      const result = await updateProfile(params)
+
+      if (result.success) {
+        onSave() // 通知父组件保存成功
+      } else {
+        setError(result.error || '保存失败，请稍后重试')
+      }
     } catch (error) {
       console.error('保存失败:', error)
+      setError('保存失败，请稍后重试')
     } finally {
       setIsLoading(false)
     }
@@ -90,7 +110,6 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
     <div className="fade-in-up">
       {/* 返回按钮和标题区域 */}
       <div className="flex items-center justify-between mb-10">
-        {/* 返回按钮 */}
         <button
           onClick={onCancel}
           className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
@@ -99,7 +118,6 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
           <span className="font-medium">返回账户设置</span>
         </button>
 
-        {/* 页面标题 - 靠右对齐 */}
         <header className="text-right">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             编辑个人资料
@@ -110,6 +128,13 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
         </header>
       </div>
 
+      {/* 错误提示 */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+
       {/* 编辑表单 */}
       <form onSubmit={handleSubmit} className="card-bg rounded-2xl p-8 space-y-8">
         {/* 头像和基本信息区域 - 水平布局 */}
@@ -117,16 +142,26 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
           {/* 头像上传区域 - 左侧 */}
           <div className="flex flex-col items-center shrink-0">
             <div className="relative">
-              <AvatarPlaceholder name={formData.username} />
+              {formData.avatar_url ? (
+                <img
+                  src={formData.avatar_url}
+                  alt={formData.username}
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+              ) : (
+                <AvatarPlaceholder name={formData.username} />
+              )}
               <button
                 type="button"
+                onClick={generateNewAvatar}
                 className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
+                title="更换随机头像"
               >
                 <Camera className="w-5 h-5" />
               </button>
             </div>
             <p className="text-sm text-xf-medium mt-4">
-              点击头像更换照片
+              点击相机更换头像
             </p>
           </div>
 
@@ -146,10 +181,11 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
                   onChange={(e) => handleChange('username', e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
                   placeholder="请输入用户名"
+                  required
                 />
               </div>
 
-              {/* 邮箱 */}
+              {/* 邮箱 - 只读 */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
                   <Mail className="w-5 h-5 text-xf-primary" />
@@ -158,9 +194,9 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-                  placeholder="请输入邮箱地址"
+                  readOnly
+                  className="w-full px-4 py-3 bg-xf-light border border-xf-bg/60 rounded-xl text-xf-medium cursor-not-allowed"
+                  title="邮箱地址请在账户安全中修改"
                 />
               </div>
             </div>
@@ -193,6 +229,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
               value={formData.bio}
               onChange={(e) => handleChange('bio', e.target.value)}
               rows={4}
+              maxLength={200}
               className="w-full px-4 py-3 pb-8 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all resize-none"
               placeholder="介绍一下你自己..."
             />

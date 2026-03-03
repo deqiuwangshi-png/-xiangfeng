@@ -5,25 +5,58 @@ import "./globals.css";
 /**
  * 无衬线字体配置 - 用于正文和UI元素
  * @description 使用next/font优化加载性能，支持font-display: swap
+ * 
+ * 优化策略：
+ * - 不指定subsets，让Next.js自动处理（中文没有子集）
+ * - 使用system font stack作为后备，确保首屏立即渲染
+ * - 启用preload优先加载关键字体
+ * - 添加size-adjust减少CLS
  */
 const notoSansSC = Noto_Sans_SC({
-  subsets: ["latin"],
   weight: ["400", "500", "700"],
   variable: "--font-sans",
   display: "swap",
   preload: true,
+  // 定义后备字体栈：优先使用系统字体，避免FOIT
+  fallback: [
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "PingFang SC",
+    "Microsoft YaHei",
+    "Helvetica Neue",
+    "Arial",
+    "sans-serif",
+  ],
+  // 调整大小比例，使后备字体和Noto Sans SC更匹配
+  adjustFontFallback: true,
 });
 
 /**
  * 衬线字体配置 - 用于标题和强调文本
  * @description 这是LCP关键字体，需要优先加载
+ * 
+ * 优化策略：
+ * - 仅加载标题需要的字重（500, 700），400由无衬线字体承担
+ * - 添加系统衬线字体作为后备
  */
 const notoSerifSC = Noto_Serif_SC({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["500", "700"],
   variable: "--font-serif",
   display: "swap",
   preload: true,
+  fallback: [
+    "PingFang SC",
+    "STSong",
+    "SimSun",
+    "Songti SC",
+    "Apple LiSung",
+    "Georgia",
+    "serif",
+  ],
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

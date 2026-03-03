@@ -1,31 +1,30 @@
 'use client'
 
 import { ReactNode } from 'react'
-
-/**
- * 危险区域组件（Client Component）
- * @param {string} title - 危险区域标题
- * @param {ReactNode} children - 危险区域内容
- * @returns {JSX.Element} 危险区域组件
- * 架构说明:
- *   - 使用'use client'指令
- *   - 接收危险操作配置
- *   - 使用Server Action执行危险操作
- * 更新时间: 2026-02-20
- */
+import { AlertTriangle } from 'lucide-react'
 
 interface DangerZoneProps {
-  title: string
   children: ReactNode
+  title?: string
 }
 
-export function DangerZone({ title, children }: DangerZoneProps) {
+/**
+ * 危险操作区域布局组件
+ * 
+ * 用于包裹删除账户、停用账户等危险操作
+ */
+export function DangerZone({ children, title = '危险区域' }: DangerZoneProps) {
   return (
-    <div className="danger-zone rounded-2xl p-8 mt-12">
-      <h2 className="text-2xl font-serif text-red-600 font-bold text-layer-1 mb-6">
-        {title}
-      </h2>
-      {children}
+    <div className="card-bg rounded-2xl p-6 border border-red-200">
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-6 h-6 text-red-600" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-red-700 mb-4">{title}</h3>
+          {children}
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,10 +1,9 @@
 import { Suspense } from 'react'
-import { PhilosophyCard } from '@/components/app/PhilosophyCard'
 import { ArticleCard } from '@/components/app/ArticleCard'
 import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
 import { RefreshCw } from 'lucide-react'
 import { getPublishedArticles } from '@/lib/articles/articleActions'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/supabase/user'
 import Link from 'next/link'
 
 /**
@@ -47,28 +46,21 @@ async function ArticleList() {
 
 /**
  * 首页 - 显示已发布的文章列表
- * @description 优化LCP：PhilosophyCard优先渲染，文章列表使用Suspense延迟加载
+ * @description 文章列表使用Suspense延迟加载
+ * 使用缓存的getCurrentUser()避免重复获取用户数据
  */
 export default async function HomePage() {
-  // 获取当前用户（LCP关键路径）
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 获取当前用户（LCP关键路径）- 使用缓存函数
+  const user = await getCurrentUser()
   const userName = user?.user_metadata?.username || user?.email?.split('@')[0] || '朋友'
 
   return (
     <div className="max-w-4xl mx-auto px-6 md:px-10 pt-8 pb-20 fade-in-up">
-      {/* 欢迎区域 - LCP关键内容，优先渲染 */}
+      {/* 欢迎区域 */}
       <div className="mb-10">
-        <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1 mb-8">
+        <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
           欢迎回来，{userName}
         </h1>
-
-        {/* LCP元素：PhilosophyCard使用服务端渲染，字体已预加载 */}
-        <PhilosophyCard
-          quote="人生已过半，昨日依附青山。光阴如梭，岁月如歌，唯愿此心常在，与世长存。"
-          author="山中答问"
-          source="禅意随想"
-        />
       </div>
 
       {/* 文章列表区域 - 使用Suspense优化LCP */}

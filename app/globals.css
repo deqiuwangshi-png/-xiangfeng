@@ -17,9 +17,12 @@
   /*
    * 字体配置 - 使用CSS变量支持next/font
    * --font-sans 和 --font-serif 由 layout.tsx 中的 next/font 提供
+   * 后备字体栈确保内容立即显示，减少LCP时间
    */
-  --font-sans: var(--font-sans, "Noto Sans SC"), system-ui, sans-serif;
-  --font-serif: var(--font-serif, "Noto Serif SC"), Georgia, serif;
+  --font-sans: var(--font-sans, "Noto Sans SC"), system-ui, -apple-system, BlinkMacSystemFont, 
+               "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-serif, "Noto Serif SC"), "PingFang SC", STSong, SimSun, 
+                "Songti SC", "Apple LiSung", Georgia, serif;
   
   --shadow-soft: 0 4px 20px -2px rgba(165, 193, 214, 0.3);
   --shadow-glow: 0 0 15px rgba(106, 91, 138, 0.5);
@@ -29,6 +32,28 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-blob: blobAnimation 20s infinite;
   --animate-logo-pulse: logoPulse 3s ease-in-out infinite;
+}
+
+/* 
+ * 字体优化：size-adjust 确保后备字体和自定义字体大小匹配
+ * 减少字体加载期间的布局偏移(CLS)
+ */
+@font-face {
+  font-family: 'Fallback Sans';
+  src: local('PingFang SC'), local('Microsoft YaHei'), local(system-ui);
+  size-adjust: 100%;
+  ascent-override: 90%;
+  descent-override: 20%;
+  line-gap-override: 5%;
+}
+
+@font-face {
+  font-family: 'Fallback Serif';
+  src: local(STSong), local(SimSun), local(Georgia);
+  size-adjust: 105%;
+  ascent-override: 85%;
+  descent-override: 15%;
+  line-gap-override: 5%;
 }
 
 @keyframes float {
@@ -56,7 +81,15 @@
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 使用字体回退栈，确保内容立即渲染 */
+  font-family: var(--font-sans);
   /* 确保字体加载期间有后备字体显示，减少LCP时间 */
+  font-display: swap;
+}
+
+/* 衬线字体类 - 用于标题 */
+.font-serif {
+  font-family: var(--font-serif);
   font-display: swap;
 }
 
@@ -67,6 +100,28 @@ body {
 .lcp-critical {
   content-visibility: auto;
   contain-intrinsic-size: auto 300px;
+}
+
+/*
+ * 首屏内容优化：确保文字立即可见
+ * 应用于Hero标题、导航等重要内容
+ */
+.lcp-text {
+  /* 强制使用系统字体作为即时后备 */
+  font-family: var(--font-serif);
+  /* 确保即使字体未加载也显示内容 */
+  visibility: visible;
+  /* 优化渲染 */
+  text-rendering: optimizeLegibility;
+}
+
+/* 字体加载完成前的平滑过渡 */
+.font-loading body {
+  font-family: 'Fallback Sans', system-ui, sans-serif;
+}
+
+.font-loading .font-serif {
+  font-family: 'Fallback Serif', Georgia, serif;
 }
 
 /*
@@ -96,6 +151,10 @@ body {
   scrollbar-width: none; 
 }
 
+/*
+ * Reveal动画优化：仅用于非首屏内容
+ * 首屏关键内容不应使用opacity:0初始状态
+ */
 .reveal {
   opacity: 0;
   transform: translateY(30px);
@@ -105,6 +164,13 @@ body {
 .reveal.active {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Hero首屏内容：不使用reveal，确保LCP元素立即可见 */
+.hero-content {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }
 
 .delay-100 { 
@@ -133,6 +199,38 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 
+ * 移动端优化：减少backdrop-filter使用
+ * 低端设备上性能开销大
+ */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  /* 减少动画复杂度 */
+  .animate-float,
+  .animate-blob {
+    animation-duration: 8s;
+  }
+}
+
+/* 减少动画偏好：尊重用户设置 */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .hero-content,
+  .animate-pulse,
+  .animate-float,
+  .animate-blob,
+  .animate-logo-pulse {
+    animation: none;
+    transition: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .grid-bg {

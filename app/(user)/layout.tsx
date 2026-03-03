@@ -1,24 +1,29 @@
 /**
  * 用户页面布局
- * 用于所有用户相关页面的布局
+ * 用于所有用户相关页面的布局（个人主页、设置、收益中心等）
  */
 
 import { Sidebar } from '@/components/ui/Sidebar'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/user.css'
 import '@/styles/domains/earnings.css'
 import '@/styles/domains/feedback.css'
 import '@/styles/domains/inbox.css'
 
+/**
+ * User布局 - 用户相关页面共享布局
+ * 
+ * @description 用户中心页面的共享布局
+ * 使用缓存的getCurrentUser()与AppLayout共享用户数据
+ */
 export default async function UserLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  // 获取当前用户
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用缓存函数获取当前用户（与AppLayout共享缓存）
+  const user = await getCurrentUser()
 
   // 如果未登录，重定向到登录页
   if (!user) {

@@ -9,7 +9,7 @@ import ArticleActions from '@/components/article/ArticleActions';
 import CommentPanel from '@/components/article/CommentPanel';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/CommentSkeleton';
-import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/supabase/user';
 import { getArticleById, getArticleCommentsPaginated } from '@/lib/articles/articleQueries';
 
 /**
@@ -81,10 +81,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // ✅ 并行获取所有数据（速度快）
   // 使用分页加载评论，首屏只加载前10条
   // 使用缓存函数避免重复查询
-  const [article, { comments, totalCount, hasMore }, { data: { user } }] = await Promise.all([
+  const [article, { comments, totalCount, hasMore }, user] = await Promise.all([
     getCachedArticle(articleId),
     getCachedComments(articleId, 1, 10),
-    createClient().then(client => client.auth.getUser()),
+    getCurrentUser(),
   ]);
 
   if (!article) {

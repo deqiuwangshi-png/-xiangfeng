@@ -94,8 +94,8 @@ export function ActivityCard({
                   width={40}
                   height={40}
                   className="w-full h-full object-cover"
-                  unoptimized
                   loading={loading}
+                  unoptimized={avatar?.includes('dicebear.com')}
                 />
               </div>
             ) : avatarGradient ? (

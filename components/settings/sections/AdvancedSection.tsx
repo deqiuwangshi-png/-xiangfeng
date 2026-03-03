@@ -2,9 +2,8 @@
 
 import { SettingsSection } from '../SettingsSection'
 import { SettingItem } from '../SettingItem'
-import { ToggleSwitch } from '../ToggleSwitch'
 import { DangerZone } from '../DangerZone'
-import { updateAdvancedSettings } from '@/app/(user)/settings/actions'
+import { DeleteAccountCard } from '../DeleteAccountCard'
 
 /**
  * 高级设置区块（Client Component）
@@ -15,13 +14,12 @@ import { updateAdvancedSettings } from '@/app/(user)/settings/actions'
  * 
  * 使用说明:
  *   显示高级设置选项
- *   显示危险操作区域
- *   处理高级设置交互
+ *   显示危险操作区域（停用账户、删除账户）
  * 
  * 架构说明:
  *   - 使用'use client'指令
- *   - 使用Server Actions进行数据修改
- * 更新时间: 2026-02-22
+ *   - 删除账户使用 DeleteAccountCard 组件
+ * 更新时间: 2026-03-02
  */
 
 export function AdvancedSection() {
@@ -39,29 +37,27 @@ export function AdvancedSection() {
           }
         />
 
+        {/* 危险操作区域 */}
         <DangerZone title="危险区域">
-          <div className="space-y-8">
+          <div className="space-y-6">
+            {/* 停用账户 */}
             <SettingItem
               label="停用账户"
               description="暂时停用你的账户，可以随时恢复"
               controlType="button"
               control={
-                <button className="w-full px-4 py-3 bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 rounded-xl font-medium transition-all">
+                <button 
+                  disabled
+                  className="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-400 rounded-xl font-medium cursor-not-allowed"
+                  title="功能开发中"
+                >
                   停用账户
                 </button>
               }
             />
 
-            <SettingItem
-              label="删除账户"
-              description="永久删除你的账户和所有数据，无法恢复"
-              controlType="button"
-              control={
-                <button className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all">
-                  删除账户
-                </button>
-              }
-            />
+            {/* 删除账户 */}
+            <DeleteAccountCard />
           </div>
         </DangerZone>
       </div>
