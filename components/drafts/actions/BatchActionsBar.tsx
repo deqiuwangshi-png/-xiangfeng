@@ -20,14 +20,13 @@ interface BatchActionsBarProps {
  * @returns {JSX.Element} 批量操作栏组件
  * 
  * @description
-
- * @styles
-
+ * 展示组件，显示批量操作按钮
+ * 
  * @interactions
  * - 显示/隐藏：根据选中状态自动显示或隐藏
- * - 点击删除：批量删除选中的草稿
- * - 点击发布：批量发布选中的草稿
- * - 点击归档：批量归档选中的草稿
+ * - 点击删除：批量删除选中的文章
+ * - 点击发布：批量发布选中的文章
+ * - 点击归档：批量归档选中的文章
  * - 点击取消：取消所有选择
  */
 export function BatchActionsBar({
@@ -55,14 +54,14 @@ export function BatchActionsBar({
     >
       {/* 已选择数量 */}
       <div className="text-sm font-medium text-xf-dark">
-        <span id="batch-selected-count">{selectedCount}</span> 篇草稿已选中
+        <span id="batch-selected-count">{selectedCount}</span> 篇文章已选中
       </div>
 
       {/* 删除按钮 */}
       <button
         onClick={onDelete}
         className="action-btn p-2 text-xf-danger hover:bg-red-50"
-        title="删除选中的草稿"
+        title="删除选中的文章"
       >
         <svg
           className="w-4 h-4"
@@ -83,7 +82,7 @@ export function BatchActionsBar({
       <button
         onClick={onPublish}
         className="action-btn p-2 text-xf-success hover:bg-green-50"
-        title="发布选中的草稿"
+        title="发布选中的文章"
       >
         <svg
           className="w-4 h-4"
@@ -104,7 +103,7 @@ export function BatchActionsBar({
       <button
         onClick={onArchive}
         className="action-btn p-2 text-xf-medium hover:bg-xf-subtle"
-        title="归档选中的草稿"
+        title="归档选中的文章"
       >
         <svg
           className="w-4 h-4"

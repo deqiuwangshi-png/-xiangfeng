@@ -11,7 +11,7 @@ interface DraftCardProps {
   selected: boolean
   onSelect: (id: string) => void
   onEdit: (id: string) => void
-  onDelete?: (id: string) => void
+  onDelete?: (id: string, title: string) => void
 }
 
 /**
@@ -36,16 +36,16 @@ export function DraftCard({
 }: DraftCardProps) {
   /**
    * 获取状态标签样式
-   * 
+   *
    * @function getStatusBadgeStyles
    * @param {DraftStatus} status - 草稿状态
    * @returns {Object} 状态标签样式对象
-   * 
+   *
    * @description
    * 根据草稿状态返回对应的样式
    * - 草稿: 橙色背景和文字
    * - 已发布: 绿色背景和文字
-   * - 已归档: 灰色背景和文字
+   * - 待审核: 灰色背景和文字
    */
   const getStatusBadgeStyles = (status: DraftStatus) => {
     switch (status) {
@@ -65,7 +65,7 @@ export function DraftCard({
         return {
           bg: 'bg-xf-medium/10',
           text: 'text-xf-medium',
-          label: '已归档',
+          label: '待审核',
         }
     }
   }
@@ -108,12 +108,12 @@ export function DraftCard({
    * @returns {void}
    * 
    * @description
-   * 点击删除按钮删除草稿，阻止事件冒泡
+   * 点击删除按钮触发删除弹窗，阻止事件冒泡
    */
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (onDelete) {
-      onDelete(draft.id)
+      onDelete(draft.id, draft.title)
     }
   }
 

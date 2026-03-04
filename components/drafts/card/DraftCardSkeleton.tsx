@@ -11,7 +11,7 @@ interface DraftCardSkeletonProps {
 
 export function DraftCardSkeleton({ count = 6 }: DraftCardSkeletonProps) {
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {Array.from({ length: count }).map((_, index) => (
         <div
           key={index}
@@ -26,7 +26,7 @@ export function DraftCardSkeleton({ count = 6 }: DraftCardSkeletonProps) {
             {/* 内容区域骨架 */}
             <div className="flex-1 min-w-0">
               {/* 标题和状态行骨架 */}
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-3">
+              <div className="flex flex-col justify-between gap-2 mb-3">
                 <div className="h-5 bg-xf-bg/60 rounded-lg w-2/3" />
                 <div className="flex items-center gap-2">
                   <div className="h-6 bg-xf-bg/40 rounded-full w-16" />

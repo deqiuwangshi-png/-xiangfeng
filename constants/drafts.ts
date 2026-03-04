@@ -7,7 +7,7 @@ export const filterOptions: Array<{ value: DraftFilter; label: string }> = [
   { value: 'all', label: '全部' },
   { value: 'draft', label: '草稿' },
   { value: 'published', label: '已发布' },
-  { value: 'archived', label: '已归档' },
+  { value: 'archived', label: '待审核' },
 ]
 
 /**

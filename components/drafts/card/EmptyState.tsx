@@ -8,8 +8,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = '暂无草稿',
-  description = '创建你的第一篇草稿，开始记录灵感',
+  title = '暂无文章',
+  description = '创建你的第一篇文章，开始记录灵感',
   actionText,
   onAction,
 }: EmptyStateProps) {

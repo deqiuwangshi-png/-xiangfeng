@@ -6,7 +6,7 @@
  * @description 应用主导航侧边栏，只负责导航和布局
  */
 
-import { Home, Edit3, FolderOpen, BellRing } from 'lucide-react'
+import { Home, Edit3, FolderOpen, BellRing, Gift } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -30,15 +30,16 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home', label: '首页', icon: Home, href: '/home' },
   { id: 'publish', label: '发布', icon: Edit3, href: '/publish' },
-  { id: 'draft', label: '草稿', icon: FolderOpen, href: '/drafts' },
+  { id: 'draft', label: '文章', icon: FolderOpen, href: '/drafts' },
   { id: 'inbox', label: '通知', icon: BellRing, href: '/inbox' },
+  { id: 'rewards', label: '福利', icon: Gift, href: '/rewards' },
 ]
 
 /**
  * 预加载路由配置
  * @constant PRELOAD_ROUTES
  */
-const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox']
+const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/rewards']
 
 /**
  * Sidebar Props 接口

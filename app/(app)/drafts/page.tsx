@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { DraftsClient } from '@/components/drafts/DraftsClient'
-import { DraftCardSkeleton } from '@/components/drafts/DraftCardSkeleton'
+import { DraftsClient } from '@/components/drafts/core/DraftsClient'
+import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
 import { getArticles } from '@/lib/articles/articleActions'
 import { filterOptions } from '@/constants/drafts'
 

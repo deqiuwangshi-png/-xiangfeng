@@ -1,31 +1,65 @@
 'use client'
 
-import { DraftCard } from './DraftCard'
-import { FilterChips } from './FilterChips'
-import { SearchBox } from './SearchBox'
-import { Pagination } from './Pagination'
-import { EmptyState } from './EmptyState'
+import { DraftCard } from '../card/DraftCard'
+import { FilterChips } from '../filter/FilterChips'
+import { SearchBox } from '../filter/SearchBox'
+import { SelectAllCheckbox } from '../filter/SelectAllCheckbox'
+import { Pagination } from '../navigation/Pagination'
+import { EmptyState } from '../card/EmptyState'
 import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
-import type { FilterOption } from './FilterChips'
+import type { FilterOption } from '../filter/FilterChips'
 
+/**
+ * DraftsContent Props 接口
+ */
 interface DraftsContentProps {
+  /** 筛选选项 */
   filterOptions: FilterOption[]
+  /** 当前激活的筛选器 */
   activeFilter: DraftFilter
+  /** 筛选变化回调 */
   onFilterChange: (filter: DraftFilter) => void
+  /** 搜索框占位文本 */
   searchPlaceholder: string
+  /** 搜索回调 */
   onSearch: (query: string) => void
+  /** 选中的文章ID集合 */
   selectedIds: Set<string>
+  /** 当前页文章列表 */
   paginatedDrafts: DraftData[]
+  /** 选择状态 */
   selection: DraftSelection
+  /** 选择文章回调 */
   onSelectDraft: (id: string) => void
+  /** 全选/取消全选回调 */
   onSelectAll: () => void
+  /** 编辑文章回调 */
   onEditDraft: (id: string) => void
-  onDeleteDraft?: (id: string) => void
+  /** 删除文章回调 */
+  onDeleteDraft?: (id: string, title: string) => void
+  /** 当前页码 */
   currentPage: number
+  /** 总页数 */
   totalPages: number
+  /** 页码变化回调 */
   onPageChange: (page: number) => void
 }
 
+/**
+ * DraftsContent 组件
+ *
+ * @function DraftsContent
+ * @param {DraftsContentProps} props - 组件属性
+ * @returns {JSX.Element} 文章内容区域组件
+ *
+ * @description
+ * 布局容器组件，职责：
+ * 1. 组合 FilterChips、SearchBox、SelectAllCheckbox 等控制组件
+ * 2. 渲染 DraftCard 列表或 EmptyState
+ * 3. 渲染 Pagination（当需要时）
+ *
+ * 不包含业务逻辑，仅负责布局和组件组装
+ */
 export function DraftsContent({
   filterOptions,
   activeFilter,
@@ -45,6 +79,7 @@ export function DraftsContent({
 }: DraftsContentProps) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 fade-in">
+      {/* 控制栏：筛选 + 搜索 */}
       <div className="mb-6 slide-in">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <FilterChips
@@ -59,35 +94,18 @@ export function DraftsContent({
           />
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div
-              className={`
-                select-checkbox w-5 h-5 rounded-md border-2
-                flex items-center justify-center cursor-pointer
-                transition-all duration-200
-                ${selection.isAllSelected
-                  ? 'bg-xf-primary border-xf-primary'
-                  : 'border-gray-300 bg-transparent'
-                }
-              `}
-              onClick={onSelectAll}
-            >
-              {selection.isAllSelected && (
-                <span className="text-white text-xs font-bold">✓</span>
-              )}
-            </div>
-            <span className="text-sm text-xf-medium">全选</span>
-          </div>
-          <div className="text-sm text-xf-medium hidden md:block">
-            <span>{selectedIds.size}</span> 篇选中
-          </div>
-        </div>
+        {/* 全选复选框 */}
+        <SelectAllCheckbox
+          selection={selection}
+          selectedCount={selectedIds.size}
+          onToggle={onSelectAll}
+        />
       </div>
 
+      {/* 文章列表或空状态 */}
       {paginatedDrafts.length > 0 ? (
         <>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedDrafts.map((draft) => (
               <DraftCard
                 key={draft.id}
@@ -100,6 +118,7 @@ export function DraftsContent({
             ))}
           </div>
 
+          {/* 分页器 */}
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
@@ -110,8 +129,8 @@ export function DraftsContent({
         </>
       ) : (
         <EmptyState
-          title="暂无草稿"
-          description="创建你的第一篇草稿，开始记录灵感"
+          title="暂无文章"
+          description="创建你的第一篇文章，开始记录灵感"
         />
       )}
     </div>
