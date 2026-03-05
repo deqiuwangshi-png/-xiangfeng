@@ -98,6 +98,24 @@ export async function register(formData: FormData): Promise<AuthResult> {
     return { success: false, error: validation.error.issues[0]?.message || '输入无效' };
   }
 
+  const supabase = await createClient();
+
+  // 检查用户名是否已存在
+  const { data: existingUser, error: checkError } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (checkError) {
+    console.error('检查用户名失败:', checkError);
+    return { success: false, error: '注册失败，请稍后重试' };
+  }
+
+  if (existingUser) {
+    return { success: false, error: REGISTER_ERRORS.USERNAME_ALREADY_TAKEN };
+  }
+
   // 注册限流（更严格）
   const rateLimit = checkServerRateLimit(`register:${email}`, { maxAttempts: 3, windowMs: 60 * 60 * 1000 });
   if (!rateLimit.allowed) {
@@ -105,11 +123,13 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   try {
-    const supabase = await createClient();
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username } },
+      options: {
+        data: { username },
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
+      },
     });
 
     if (signUpError) {

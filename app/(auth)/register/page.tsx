@@ -20,6 +20,7 @@ export default function RegisterPage(): JSX.Element {
     errors,
     globalError,
     isLoading,
+    isSuccess,
     passwordValidation,
     updateField,
     submitForm,
@@ -33,6 +34,49 @@ export default function RegisterPage(): JSX.Element {
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     submitForm();
+  }
+
+  {/* 注册成功状态 */}
+  if (isSuccess) {
+    return (
+      <section className="auth-view w-full h-full flex absolute inset-0 z-40 bg-xf-light">
+        <BrandSection />
+        <div className="w-full lg:w-7/12 flex flex-col items-center justify-center p-8 bg-white/80 backdrop-blur-sm lg:bg-xf-light lg:backdrop-blur-none">
+          <div className="w-full max-w-md">
+            <MobileBrandTitle />
+            <FormCard title="注册成功">
+              <div className="text-center py-8">
+                {/* 成功图标 */}
+                <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+                  <svg
+                    className="w-10 h-10 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                {/* 成功标题 */}
+                <h3 className="text-xl font-semibold text-xf-primary mb-4">
+                  验证邮件已发送
+                </h3>
+
+                {/* 邮箱地址 */}
+                <p className="text-xf-medium mb-2">请检查您的邮箱：</p>
+                <p className="text-xf-dark font-medium mb-4">{formData.email}</p>
+              </div>
+            </FormCard>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
