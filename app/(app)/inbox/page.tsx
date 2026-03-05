@@ -1,4 +1,4 @@
-import { InboxClient } from '@/components/inbox/InboxClient'
+import { InboxClient } from '@/components/inbox/_client/InboxClient'
 
 /**
  * 消息页

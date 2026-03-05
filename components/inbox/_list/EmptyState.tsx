@@ -2,15 +2,15 @@
 
 import { Bell } from 'lucide-react'
 
-interface InboxEmptyStateProps {
+interface EmptyStateProps {
   title?: string
   description?: string
 }
 
-export function InboxEmptyState({
+export function EmptyState({
   title = '暂无通知',
   description = '当有新消息时，会显示在这里',
-}: InboxEmptyStateProps) {
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <Bell className="w-12 h-12 text-gray-300 mb-4" />

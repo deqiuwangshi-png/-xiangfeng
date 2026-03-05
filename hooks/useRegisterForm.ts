@@ -1,15 +1,12 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
-import { useAuthError } from '@/lib/auth/useAuthError';
 import { REGISTER_ERRORS } from '@/lib/auth/errorMessages';
+import { register } from '@/lib/auth/actions';
 
 /**
  * 注册表单数据接口
- * @interface RegisterFormData
  */
 export interface RegisterFormData {
   email: string;
@@ -21,7 +18,6 @@ export interface RegisterFormData {
 
 /**
  * 注册表单验证错误接口
- * @interface RegisterFormErrors
  */
 export interface RegisterFormErrors {
   email?: string;
@@ -33,41 +29,28 @@ export interface RegisterFormErrors {
 
 /**
  * useRegisterForm Hook 返回值接口
- * @interface UseRegisterFormReturn
  */
 export interface UseRegisterFormReturn {
-  /** 表单数据 */
   formData: RegisterFormData;
-  /** 表单错误 */
   errors: RegisterFormErrors;
-  /** 全局错误信息 */
   globalError: string | null;
-  /** 提交加载状态 */
   isLoading: boolean;
-  /** 密码验证结果 */
+  isSuccess: boolean;
   passwordValidation: PasswordValidationResult | null;
-  /** 更新表单字段 */
   updateField: (field: keyof RegisterFormData, value: string | boolean) => void;
-  /** 提交表单 */
   submitForm: () => Promise<void>;
-  /** 清空错误 */
   clearErrors: () => void;
-  /** 获取密码强度颜色 */
   getPasswordStrengthColor: () => string;
 }
 
 /**
  * 注册表单管理 Hook
- * @description 封装注册表单的状态管理、验证和提交逻辑
- * @returns {UseRegisterFormReturn} 表单管理方法和状态
- * @example
- * const { formData, errors, submitForm, updateField } = useRegisterForm();
+ * @returns 表单管理方法和状态
  */
 export function useRegisterForm(): UseRegisterFormReturn {
-  const router = useRouter();
-  const { error: globalError, handleSupabaseError, clearError: clearGlobalError, setError: setGlobalError } = useAuthError();
-
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [globalError, setGlobalError] = useState<string | null>(null);
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
@@ -79,13 +62,11 @@ export function useRegisterForm(): UseRegisterFormReturn {
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
 
   /**
-   * 验证密码并更新验证状态
-   * @param {string} password - 密码值
+   * 验证密码强度
    */
   const validatePasswordStrength = useCallback((password: string) => {
     if (password.length > 0) {
-      const result = validatePassword(password);
-      setPasswordValidation(result);
+      setPasswordValidation(validatePassword(password));
     } else {
       setPasswordValidation(null);
     }
@@ -93,24 +74,20 @@ export function useRegisterForm(): UseRegisterFormReturn {
 
   /**
    * 更新表单字段
-   * @param {keyof RegisterFormData} field - 字段名
-   * @param {string | boolean} value - 字段值
    */
   const updateField = useCallback((field: keyof RegisterFormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // 密码字段需要实时验证强度
     if (field === 'password' && typeof value === 'string') {
       validatePasswordStrength(value);
     }
 
-    // 清除该字段的错误
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setGlobalError(null);
   }, [validatePasswordStrength]);
 
   /**
-   * 验证整个表单
-   * @returns {boolean} 验证是否通过
+   * 验证表单
    */
   const validateForm = useCallback((): boolean => {
     const newErrors: RegisterFormErrors = {};
@@ -144,7 +121,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
    * 提交表单
    */
   const submitForm = useCallback(async () => {
-    clearGlobalError();
+    setGlobalError(null);
 
     if (!validateForm()) {
       return;
@@ -153,36 +130,36 @@ export function useRegisterForm(): UseRegisterFormReturn {
     setIsLoading(true);
 
     try {
-      const supabase = createClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: { data: { username: formData.username } },
-      });
+      const formDataObj = new FormData();
+      formDataObj.append('email', formData.email);
+      formDataObj.append('password', formData.password);
+      formDataObj.append('username', formData.username);
 
-      if (signUpError) {
-        throw signUpError;
+      const result = await register(formDataObj);
+
+      if (!result.success) {
+        setGlobalError(result.error || '注册失败');
+        return;
       }
 
-      router.push('/login');
-    } catch (err) {
-      handleSupabaseError(err, 'register');
+      setIsSuccess(true);
+    } catch {
+      setGlobalError('注册过程中发生错误，请稍后重试');
     } finally {
       setIsLoading(false);
     }
-  }, [formData, validateForm, clearGlobalError, handleSupabaseError, router]);
+  }, [formData, validateForm]);
 
   /**
-   * 清空所有错误
+   * 清空错误
    */
   const clearErrors = useCallback(() => {
     setErrors({});
-    clearGlobalError();
-  }, [clearGlobalError]);
+    setGlobalError(null);
+  }, []);
 
   /**
-   * 获取密码强度颜色类名
-   * @returns {string} Tailwind 颜色类名
+   * 获取密码强度颜色
    */
   const getPasswordStrengthColor = useCallback((): string => {
     if (!passwordValidation) return 'text-gray-400';
@@ -203,6 +180,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
     errors,
     globalError,
     isLoading,
+    isSuccess,
     passwordValidation,
     updateField,
     submitForm,

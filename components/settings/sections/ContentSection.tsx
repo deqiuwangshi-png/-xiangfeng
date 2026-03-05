@@ -2,8 +2,6 @@
 
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
-import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updateContentSettings } from '@/app/(user)/settings/actions'
 
 /**
  * 内容偏好设置区块（Client Component）
