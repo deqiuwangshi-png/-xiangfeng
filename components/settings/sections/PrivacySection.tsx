@@ -2,8 +2,6 @@
 
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
-import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updatePrivacySettings } from '@/app/(user)/settings/actions'
 
 /**
  * 隐私与安全设置区块（Client Component）

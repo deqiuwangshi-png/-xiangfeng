@@ -18,12 +18,37 @@ export async function POST(
   try {
     // 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: '请先登录' },
         { status: 401 }
       );
+    }
+
+    {/* 检查用户资料是否存在，不存在则自动创建 */}
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      {/* 自动创建用户资料 */}
+      const { error: createProfileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`,
+        });
+
+      if (createProfileError) {
+        console.error('API - 创建用户资料失败:', createProfileError);
+        return NextResponse.json(
+          { error: '用户资料初始化失败' },
+          { status: 500 }
+        );
+      }
     }
 
     // 检查是否已点赞
@@ -82,16 +107,16 @@ export async function POST(
     // 获取最新的点赞数
     const { data: article } = await supabase
       .from('articles')
-      .select('likes_count')
+      .select('like_count')
       .eq('id', articleId)
       .single();
 
-    console.log('API - 点赞操作成功:', { articleId, userId: user.id, liked, likes: article?.likes_count || 0 });
+    console.log('API - 点赞操作成功:', { articleId, userId: user.id, liked, likes: article?.like_count || 0 });
 
     return NextResponse.json({
       success: true,
       liked,
-      likes: article?.likes_count || 0,
+      likes: article?.like_count || 0,
       articleId,
     });
   } catch (error) {
@@ -139,13 +164,13 @@ export async function GET(
     // 获取最新的点赞数
     const { data: article } = await supabase
       .from('articles')
-      .select('likes_count')
+      .select('like_count')
       .eq('id', articleId)
       .single();
 
     return NextResponse.json({
       liked: !!existingLike,
-      likes: article?.likes_count || 0,
+      likes: article?.like_count || 0,
     });
   } catch (error) {
     console.error('API - 获取点赞状态失败:', error);

@@ -73,23 +73,22 @@ export async function createArticle(data: {
     throw new Error('用户未登录');
   }
 
-  const summary = generateSummary(data.content, 100);
+  const excerpt = generateSummary(data.content, 100);
 
   const { data: article, error } = await supabase
     .from('articles')
     .insert({
       title: data.title,
       content: data.content,
-      summary,
+      excerpt,
       status: data.status || 'draft',
       author_id: user.id,
-      fields: [],
       tags: [],
-      likes_count: 0,
-      comments_count: 0,
-      views_count: 0,
+      like_count: 0,
+      comment_count: 0,
+      view_count: 0,
     })
-    .select()
+    .select('id, title, content, excerpt, status, created_at, updated_at')
     .single();
 
   if (error) {
@@ -138,7 +137,7 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
     id: item.id,
     title: item.title,
     content: item.content,
-    summary: item.summary || generateSummary(item.content, 100),
+    summary: item.excerpt || generateSummary(item.content, 100),
     status: item.status,
     created_at: item.created_at,
     updated_at: item.updated_at,
@@ -169,7 +168,7 @@ export async function getPublishedArticles() {
   return (data || []).map(item => ({
     id: item.id,
     title: item.title,
-    summary: item.summary || generateSummary(item.content, 100),
+    summary: item.excerpt || generateSummary(item.content, 100),
     content: item.content,
     status: item.status,
     createdAt: item.created_at,
@@ -180,9 +179,9 @@ export async function getPublishedArticles() {
       name: item.author?.username || '匿名',
       avatar: item.author?.avatar_url || `https://api.dicebear.com/7.x/micah/svg?seed=${item.author_id}&backgroundColor=B6CAD7`,
     },
-    likesCount: item.likes_count || 0,
-    commentsCount: item.comments_count || 0,
-    viewsCount: item.views_count || 0,
+    likesCount: item.like_count || 0,
+    commentsCount: item.comment_count || 0,
+    viewsCount: item.view_count || 0,
   }));
 }
 
@@ -211,7 +210,7 @@ export async function getArticleById(id: string) {
     id: data.id,
     title: data.title,
     content: data.content,
-    summary: data.summary,
+    summary: data.excerpt,
     status: data.status,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
@@ -222,9 +221,9 @@ export async function getArticleById(id: string) {
       avatar: data.author?.avatar_url,
       bio: data.author?.bio,
     },
-    likesCount: data.likes_count || 0,
-    commentsCount: data.comments_count || 0,
-    viewsCount: data.views_count || 0,
+    likesCount: data.like_count || 0,
+    commentsCount: data.comment_count || 0,
+    viewsCount: data.view_count || 0,
   };
 }
 
@@ -300,9 +299,8 @@ export async function updateArticle(
   data: {
     title?: string;
     content?: string;
-    summary?: string;
+    excerpt?: string;
     tags?: string[];
-    fields?: string[];
   }
 ) {
   const supabase = await createClient();
@@ -313,13 +311,12 @@ export async function updateArticle(
   const updateData: {
     title?: string;
     content?: string;
-    summary?: string;
+    excerpt?: string;
     tags?: string[];
-    fields?: string[];
   } = { ...data };
 
-  if (data.content && !data.summary) {
-    updateData.summary = generateSummary(data.content, 100);
+  if (data.content && !data.excerpt) {
+    updateData.excerpt = generateSummary(data.content, 100);
   }
 
   const { error } = await supabase

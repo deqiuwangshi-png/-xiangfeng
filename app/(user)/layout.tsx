@@ -4,7 +4,7 @@
  */
 
 import { Sidebar } from '@/components/ui/Sidebar'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser, getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/user.css'
 import '@/styles/domains/earnings.css'
@@ -15,15 +15,17 @@ import '@/styles/domains/inbox.css'
  * User布局 - 用户相关页面共享布局
  * 
  * @description 用户中心页面的共享布局
- * 使用缓存的getCurrentUser()与AppLayout共享用户数据
+ * 使用getCurrentUserWithProfile()获取包含profiles表数据的用户信息
+ * 确保侧边栏头像与编辑个人资料页面保持一致
  */
 export default async function UserLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  // 使用缓存函数获取当前用户（与AppLayout共享缓存）
+  // 获取当前用户及资料信息（包含profiles表数据）
   const user = await getCurrentUser()
+  const profile = await getCurrentUserWithProfile()
 
   // 如果未登录，重定向到登录页
   if (!user) {
@@ -32,7 +34,7 @@ export default async function UserLayout({
 
   return (
     <div className="flex h-screen bg-xf-light">
-      <Sidebar user={user} />
+      <Sidebar user={user} profile={profile} />
       <main className="flex-1 overflow-y-auto no-scrollbar">
         {children}
       </main>

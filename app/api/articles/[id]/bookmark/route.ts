@@ -18,7 +18,7 @@ export async function POST(
   try {
     // 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: '请先登录' },
@@ -26,9 +26,34 @@ export async function POST(
       );
     }
 
+    {/* 检查用户资料是否存在，不存在则自动创建 */}
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      {/* 自动创建用户资料 */}
+      const { error: createProfileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`,
+        });
+
+      if (createProfileError) {
+        console.error('API - 创建用户资料失败:', createProfileError);
+        return NextResponse.json(
+          { error: '用户资料初始化失败' },
+          { status: 500 }
+        );
+      }
+    }
+
     // 检查是否已收藏
-    const { data: existingBookmark, error: checkError } = await supabase
-      .from('bookmarks')
+    const { data: existingFavorite, error: checkError } = await supabase
+      .from('favorites')
       .select('id')
       .eq('article_id', articleId)
       .eq('user_id', user.id)
@@ -42,14 +67,14 @@ export async function POST(
       );
     }
 
-    let bookmarked = false;
+    let favorited = false;
 
-    if (existingBookmark) {
+    if (existingFavorite) {
       // 已收藏，取消收藏
       const { error: deleteError } = await supabase
-        .from('bookmarks')
+        .from('favorites')
         .delete()
-        .eq('id', existingBookmark.id);
+        .eq('id', existingFavorite.id);
 
       if (deleteError) {
         console.error('API - 取消收藏失败:', deleteError);
@@ -58,11 +83,11 @@ export async function POST(
           { status: 500 }
         );
       }
-      bookmarked = false;
+      favorited = false;
     } else {
       // 未收藏，添加收藏
       const { error: insertError } = await supabase
-        .from('bookmarks')
+        .from('favorites')
         .insert({
           article_id: articleId,
           user_id: user.id,
@@ -75,14 +100,22 @@ export async function POST(
           { status: 500 }
         );
       }
-      bookmarked = true;
+      favorited = true;
     }
 
-    console.log('API - 收藏操作成功:', { articleId, userId: user.id, bookmarked });
+    // 获取最新的收藏数
+    const { data: article } = await supabase
+      .from('articles')
+      .select('favorite_count')
+      .eq('id', articleId)
+      .single();
+
+    console.log('API - 收藏操作成功:', { articleId, userId: user.id, favorited, favorites: article?.favorite_count || 0 });
 
     return NextResponse.json({
       success: true,
-      bookmarked,
+      favorited,
+      favorites: article?.favorite_count || 0,
       articleId,
     });
   } catch (error) {
@@ -111,23 +144,32 @@ export async function GET(
   try {
     // 获取当前登录用户
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return NextResponse.json({
-        bookmarked: false,
+        favorited: false,
+        favorites: 0,
       });
     }
 
     // 检查是否已收藏
-    const { data: existingBookmark } = await supabase
-      .from('bookmarks')
+    const { data: existingFavorite } = await supabase
+      .from('favorites')
       .select('id')
       .eq('article_id', articleId)
       .eq('user_id', user.id)
       .single();
 
+    // 获取最新的收藏数
+    const { data: article } = await supabase
+      .from('articles')
+      .select('favorite_count')
+      .eq('id', articleId)
+      .single();
+
     return NextResponse.json({
-      bookmarked: !!existingBookmark,
+      favorited: !!existingFavorite,
+      favorites: article?.favorite_count || 0,
     });
   } catch (error) {
     console.error('API - 获取收藏状态失败:', error);

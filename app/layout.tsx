@@ -16,7 +16,7 @@ const notoSansSC = Noto_Sans_SC({
   weight: ["400", "500", "700"],
   variable: "--font-sans",
   display: "swap",
-  preload: true,
+  preload: false,
   // 定义后备字体栈：优先使用系统字体，避免FOIT
   fallback: [
     "system-ui",
@@ -46,7 +46,7 @@ const notoSerifSC = Noto_Serif_SC({
   weight: ["500", "700"],
   variable: "--font-serif",
   display: "swap",
-  preload: true,
+  preload: false,
   fallback: [
     "PingFang SC",
     "STSong",

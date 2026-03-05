@@ -34,7 +34,7 @@ export async function GET() {
       error: tableError?.message || null,
     };
 
-    // 3. 检查 articles 表是否有 comments_count 字段
+    // 3. 检查 articles 表是否有 comment_count 字段
     const { data: articleColumns } = await supabase
       .from('information_schema.columns')
       .select('column_name')
@@ -42,7 +42,7 @@ export async function GET() {
       .eq('table_schema', 'public');
 
     results.checks.articles = {
-      hasCommentsCount: articleColumns?.some((c: any) => c.column_name === 'comments_count') || false,
+      hasCommentCount: articleColumns?.some((c: any) => c.column_name === 'comment_count') || false,
       columns: articleColumns?.map((c: any) => c.column_name) || [],
     };
 

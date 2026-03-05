@@ -58,3 +58,53 @@ export const getCurrentUserId = cache(async (): Promise<string | null> => {
   const user = await getCurrentUser()
   return user?.id || null
 })
+
+/**
+ * 用户资料接口
+ * @interface UserProfile
+ */
+export interface UserProfile {
+  id: string
+  email: string
+  username: string
+  avatar_url: string
+}
+
+/**
+ * 获取当前用户及资料信息（包含profiles表数据）
+ * 
+ * @description 同时获取auth用户信息和profiles表资料
+ * 用于需要显示用户头像、用户名等资料的场景
+ * 
+ * @returns 用户资料对象，如果未登录则返回null
+ * 
+ * @example
+ * const userProfile = await getCurrentUserWithProfile()
+ * if (userProfile) {
+ *   console.log(userProfile.avatar_url) // 从profiles表获取的头像
+ * }
+ */
+export const getCurrentUserWithProfile = cache(async (): Promise<UserProfile | null> => {
+  const supabase = await createClient()
+  
+  // 获取当前用户
+  const { data: { user }, error } = await supabase.auth.getUser()
+  
+  if (error || !user) {
+    return null
+  }
+  
+  // 从profiles表获取用户资料
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, avatar_url')
+    .eq('id', user.id)
+    .single()
+  
+  return {
+    id: user.id,
+    email: user.email || '',
+    username: profile?.username || user.email?.split('@')[0] || '用户',
+    avatar_url: profile?.avatar_url || '',
+  }
+})

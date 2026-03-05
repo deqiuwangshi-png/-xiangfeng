@@ -18,6 +18,11 @@ import { UserDropdownMenu } from './UserDropdownMenu'
 interface UserProfileSectionProps {
   /** 当前用户 */
   user?: SupabaseUser | null
+  /** 用户资料（从profiles表获取，优先级高于user.user_metadata） */
+  profile?: {
+    username?: string
+    avatar_url?: string
+  } | null
   /** 额外的CSS类名 */
   className?: string
 }
@@ -31,7 +36,7 @@ interface UserProfileSectionProps {
  * @example
  * <UserProfileSection user={currentUser} />
  */
-export function UserProfileSection({ user, className = '' }: UserProfileSectionProps) {
+export function UserProfileSection({ user, profile, className = '' }: UserProfileSectionProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   /**
@@ -48,10 +53,10 @@ export function UserProfileSection({ user, className = '' }: UserProfileSectionP
     setIsDropdownOpen(false)
   }, [])
 
-  // 获取用户显示信息
+  // 获取用户显示信息（优先使用profile数据，保持与编辑页一致）
   const userEmail = user?.email || '用户'
-  const userName = user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
-  const avatarUrl = user?.user_metadata?.avatar_url || 
+  const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || 
     `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id || 'Felix'}&backgroundColor=B6CAD7`
 
   return (

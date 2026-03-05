@@ -42,11 +42,24 @@ const navItems: NavItem[] = [
 const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/rewards']
 
 /**
+ * 用户资料接口
+ * @interface UserProfile
+ */
+interface UserProfile {
+  id: string
+  email: string
+  username: string
+  avatar_url: string
+}
+
+/**
  * Sidebar Props 接口
  * @interface SidebarProps
  */
 interface SidebarProps {
   user?: SupabaseUser | null
+  /** 用户资料（从profiles表获取，用于显示头像） */
+  profile?: UserProfile | null
 }
 
 /**
@@ -65,7 +78,7 @@ interface SidebarProps {
  * @example
  * <Sidebar user={currentUser} />
  */
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -103,7 +116,7 @@ export function Sidebar({ user }: SidebarProps) {
     <aside className="w-[80px] xl:w-[220px] shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 bg-xf-light border-r border-xf-surface/30 transition-all duration-300">
       {/* 用户资料区域 */}
       <div className="mb-8 pl-2">
-        <UserProfileSection user={user} />
+        <UserProfileSection user={user} profile={profile} />
       </div>
 
       {/* 主导航菜单 */}

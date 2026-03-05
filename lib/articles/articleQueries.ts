@@ -87,8 +87,8 @@ export async function getArticleById(id: string): Promise<ArticleWithAuthor | nu
     },
     publishedAt: data.created_at,
     readTime: Math.ceil(data.content.length / 500), // 估算阅读时间
-    likesCount: data.likes_count || 0,
-    commentsCount: data.comments_count || 0,
+    likesCount: data.like_count || 0,
+    commentsCount: data.comment_count || 0,
   };
 }
 

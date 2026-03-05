@@ -68,7 +68,7 @@ export async function deleteAccount(): Promise<DeleteAccountResult> {
 
     // 3. 删除用户的点赞记录
     const { error: likesError } = await supabase
-      .from('likes')
+      .from('article_likes')
       .delete()
       .eq('user_id', userId)
 
@@ -77,13 +77,13 @@ export async function deleteAccount(): Promise<DeleteAccountResult> {
     }
 
     // 4. 删除用户的收藏记录
-    const { error: bookmarksError } = await supabase
-      .from('bookmarks')
+    const { error: favoritesError } = await supabase
+      .from('favorites')
       .delete()
       .eq('user_id', userId)
 
-    if (bookmarksError) {
-      console.error('删除收藏记录失败:', bookmarksError)
+    if (favoritesError) {
+      console.error('删除收藏记录失败:', favoritesError)
     }
 
     // 5. 删除 profiles 表数据

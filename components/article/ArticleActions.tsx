@@ -53,6 +53,7 @@ export default function ArticleActions({
 }: ArticleActionsProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [shared, setShared] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -73,19 +74,13 @@ export default function ArticleActions({
 
   /**
    * 处理点赞
-   * 使用乐观更新：先更新 UI，再发送请求
+   * 完全依赖后端返回的数据，避免乐观更新导致的数据竞争
    */
   const handleLike = async () => {
     if (!checkAuth()) return;
 
-    // 保存当前状态（用于失败回滚）
-    const previousLiked = liked;
-    const previousLikeCount = likeCount;
-
-    // 乐观更新：立即更新 UI
-    const newLiked = !liked;
-    setLiked(newLiked);
-    setLikeCount(prev => newLiked ? prev + 1 : prev - 1);
+    // 设置加载状态，防止重复点击
+    setIsLikeLoading(true);
 
     try {
       const response = await fetch(`/api/articles/${articleId}/like`, {
@@ -95,22 +90,18 @@ export default function ArticleActions({
 
       if (response.ok) {
         const data = await response.json();
-        // 使用服务器返回的最新数据
+        // 使用服务器返回的最新数据（数据库是单一真理源）
         setLiked(data.liked);
         setLikeCount(data.likes);
       } else {
-        // 请求失败，回滚状态
-        setLiked(previousLiked);
-        setLikeCount(previousLikeCount);
         const data = await response.json().catch(() => ({}));
         alert(data.error || '操作失败，请重试');
       }
     } catch (error) {
-      // 网络错误，回滚状态
-      setLiked(previousLiked);
-      setLikeCount(previousLikeCount);
       console.error('Failed to like article:', error);
       alert('网络错误，请检查网络连接');
+    } finally {
+      setIsLikeLoading(false);
     }
   };
 
@@ -128,7 +119,7 @@ export default function ArticleActions({
     setBookmarked(!bookmarked);
 
     try {
-      const response = await fetch(`/api/articles/${articleId}/bookmark`, {
+      const response = await fetch(`/api/articles/${articleId}/favorite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -136,7 +127,7 @@ export default function ArticleActions({
       if (response.ok) {
         const data = await response.json();
         // 使用服务器返回的最新数据
-        setBookmarked(data.bookmarked);
+        setBookmarked(data.favorited);
       } else {
         // 请求失败，回滚状态
         setBookmarked(previousBookmarked);
@@ -194,12 +185,12 @@ export default function ArticleActions({
   return (
     <div className="douyin-sidebar">
       {/* 点赞按钮 */}
-      <div 
-        className={`douyin-action-btn ${liked ? 'liked' : ''} ${!currentUser ? 'opacity-50' : ''}`}
-        onClick={handleLike}
-        title={currentUser ? '点赞' : '请先登录'}
+      <div
+        className={`douyin-action-btn ${liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
+        onClick={!isLikeLoading ? handleLike : undefined}
+        title={currentUser ? (isLikeLoading ? '处理中...' : '点赞') : '请先登录'}
       >
-        <Heart className="douyin-icon" />
+        <Heart className={`douyin-icon ${isLikeLoading ? 'animate-pulse' : ''}`} />
         <span className="douyin-count">{likeCount}</span>
       </div>
 

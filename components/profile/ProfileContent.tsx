@@ -1,106 +1,118 @@
 /**
  * 我的内容区域组件
  * 
- * 作用: 显示用户的最新文章列表
+ * 作用: 显示用户的最新文章列表（从数据库获取真实数据）
  * 
  * @returns {JSX.Element} 我的内容区域组件
  * 
- * 更新时间: 2026-02-20
+ * 更新时间: 2026-03-05
  */
 
-import { BookOpen, Brain, ThumbsUp, MessageSquare as MessageIcon } from 'lucide-react'
+import { BookOpen, Brain, ThumbsUp, MessageSquare as MessageIcon, FileText } from 'lucide-react'
+import { getArticles } from '@/lib/articles/articleActions'
+import { formatDistanceToNow } from '@/lib/utils/date'
 
 /**
- * 文章接口
+ * 文章图标映射
  * 
- * @interface Article
- * @property {string} series - 系列名称
- * @property {string} publishTime - 发布时间
- * @property {string} title - 文章标题
- * @property {string} summary - 文章摘要
- * @property {string[]} tags - 文章标签
- * @property {number} likes - 点赞数
- * @property {number} comments - 评论数
- * @property {React.ElementType} icon - 文章图标组件
- * @property {string} iconGradient - 图标背景渐变类
+ * @param index - 文章索引
+ * @returns 对应的图标组件
  */
-interface Article {
-  series: string
-  publishTime: string
-  title: string
-  summary: string
-  tags: string[]
-  likes: number
-  comments: number
-  icon: React.ElementType
-  iconGradient: string
+function getArticleIcon(index: number): React.ElementType {
+  const icons = [BookOpen, Brain, FileText]
+  return icons[index % icons.length]
 }
 
 /**
- * 文章数据配置
+ * 文章渐变样式映射
  * 
- * @constant articlesData
- * @description 定义用户最新文章
+ * @param index - 文章索引
+ * @returns 对应的渐变类名
  */
-const articlesData: Article[] = [
-  {
-    series: '深度思考系列',
-    publishTime: '发布于 2天前',
-    title: '为什么我们总是陷入"忙碌的陷阱"？',
-    summary: '在现代社会，忙碌似乎成了一种荣誉勋章。但这种持续的紧绷感，是否正在剥夺我们深度思考的能力？本文试图从韩炳哲的《倦怠社会》出发，探讨如何重建我们的...',
-    tags: ['#深度思考', '#生活方式'],
-    likes: 124,
-    comments: 32,
-    icon: BookOpen,
-    iconGradient: 'from-xf-accent to-xf-primary'
-  },
-  {
-    series: '认知科学笔记',
-    publishTime: '发布于 5天前',
-    title: '注意力经济时代的认知对抗',
-    summary: '在这个信息过载的时代，我们的注意力成了最宝贵的资源。本文探讨如何在算法推荐的信息茧房中保持独立思考，重建自己的认知主权...',
-    tags: ['#认知科学', '#注意力管理'],
-    likes: 89,
-    comments: 15,
-    icon: Brain,
-    iconGradient: 'from-xf-info to-xf-soft'
-  }
-]
+function getArticleGradient(index: number): string {
+  const gradients = [
+    'from-xf-accent to-xf-primary',
+    'from-xf-info to-xf-soft',
+    'from-purple-500 to-pink-500'
+  ]
+  return gradients[index % gradients.length]
+}
 
 /**
  * 我的内容区域组件
  * 
+ * @async
  * @function ProfileContent
- * @returns {JSX.Element} 我的内容区域组件
+ * @returns {Promise<JSX.Element>} 我的内容区域组件
  * 
  * @description
  * 提供我的内容区域的完整功能，包括：
- * - 最新文章标题
- * - 文章列表
+ * - 从数据库获取用户的最新文章列表
  * - 文章卡片（系列、发布时间、标题、摘要、标签、互动数据）
+ * - 加载状态和空状态处理
  * 
  * @layout
  * - 使用 grid 布局
  * - 响应式设计（移动端1列，桌面端2列）
  * - 所有间距完全复制原型数值
  */
-export function ProfileContent() {
+export async function ProfileContent() {
+  let articles: Awaited<ReturnType<typeof getArticles>> = []
+  let error: string | null = null
+
+  try {
+    articles = await getArticles('published')
+  } catch (err) {
+    error = err instanceof Error ? err.message : '获取文章失败'
+    console.error('获取用户文章失败:', err)
+  }
+
+  {/* 错误状态 */}
+  if (error) {
+    return (
+      <div id="profile-content-section">
+        <div className="text-center py-12">
+          <p className="text-xf-medium">{error}</p>
+        </div>
+      </div>
+    )
+  }
+
+  {/* 空状态 */}
+  if (articles.length === 0) {
+    return (
+      <div id="profile-content-section">
+        <div className="text-center py-12">
+          <FileText className="w-12 h-12 text-xf-light mx-auto mb-4" />
+          <p className="text-xf-medium">还没有发布文章</p>
+          <p className="text-sm text-xf-medium/70 mt-2">开始创作你的第一篇文章吧</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div id="profile-content-section">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {articlesData.map((article, index) => (
+        {articles.map((article, index) => {
+          const IconComponent = getArticleIcon(index)
+          const gradientClass = getArticleGradient(index)
+          
+          return (
             <article
-              key={index}
+              key={article.id}
               className="card-bg rounded-4xl p-6 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer group"
             >
               {/* 文章头部 */}
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-full bg-linear-to-tr ${article.iconGradient} flex items-center justify-center text-white`}>
-                  <article.icon className="w-5 h-5" />
+                <div className={`w-10 h-10 rounded-full bg-linear-to-tr ${gradientClass} flex items-center justify-center text-white`}>
+                  <IconComponent className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-sm font-bold text-xf-dark block">{article.series}</span>
-                  <span className="text-xs text-xf-medium font-medium">{article.publishTime}</span>
+                  <span className="text-sm font-bold text-xf-dark block">我的文章</span>
+                  <span className="text-xs text-xf-medium font-medium">
+                    发布于 {formatDistanceToNow(article.created_at)}
+                  </span>
                 </div>
               </div>
 
@@ -117,29 +129,25 @@ export function ProfileContent() {
               {/* 文章底部 */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-xf-bg/50">
                 <div className="flex gap-2">
-                  {article.tags.map((tag, tagIndex) => (
-                    <span
-                      key={tagIndex}
-                      className="tag px-3 py-1 bg-xf-light text-xf-info text-xs rounded-full font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  <span className="tag px-3 py-1 bg-xf-light text-xf-info text-xs rounded-full font-medium">
+                    #文章
+                  </span>
                 </div>
                 <div className="flex gap-4 text-xf-medium text-sm font-medium">
                   <span className="flex items-center gap-1 hover:text-xf-info transition">
                     <ThumbsUp className="w-4 h-4" />
-                    {article.likes}
+                    0
                   </span>
                   <span className="flex items-center gap-1 hover:text-xf-info transition">
                     <MessageIcon className="w-4 h-4" />
-                    {article.comments}
+                    0
                   </span>
                 </div>
               </div>
             </article>
-          ))}
-        </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
