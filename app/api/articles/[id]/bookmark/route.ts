@@ -110,8 +110,6 @@ export async function POST(
       .eq('id', articleId)
       .single();
 
-    console.log('API - 收藏操作成功:', { articleId, userId: user.id, favorited, favorites: article?.favorite_count || 0 });
-
     return NextResponse.json({
       success: true,
       favorited,

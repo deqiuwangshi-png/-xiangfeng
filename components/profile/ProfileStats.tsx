@@ -84,8 +84,8 @@ const statsData: StatItem[] = [
 export function ProfileStats() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-      {statsData.map((stat, index) => (
-        <div key={index} className="profile-stats-item card-bg rounded-2xl p-5">
+      {statsData.map((stat) => (
+        <div key={stat.label} className="profile-stats-item card-bg rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-2xl font-bold text-xf-accent mb-1">{stat.value}</div>

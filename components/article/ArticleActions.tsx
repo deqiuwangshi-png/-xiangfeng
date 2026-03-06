@@ -155,10 +155,10 @@ export default function ArticleActions({
 
     switch (platform) {
       case 'wechat':
-        console.log('Share to WeChat:', url);
+        {/* TODO: 实现微信分享功能 */}
         break;
       case 'weibo':
-        console.log('Share to Weibo:', url);
+        {/* TODO: 实现微博分享功能 */}
         break;
       case 'copy':
         navigator.clipboard.writeText(url);

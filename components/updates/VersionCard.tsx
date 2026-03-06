@@ -59,8 +59,8 @@ export function VersionCard({ version }: { version: VersionInfo }) {
       
       {/* 更新条目 */}
       <div className="space-y-3">
-        {version.updates.map((item, index) => (
-          <UpdateItemComponent key={index} item={item} />
+        {version.updates.map((item) => (
+          <UpdateItemComponent key={`${item.type}-${item.description}`} item={item} />
         ))}
       </div>
     </div>

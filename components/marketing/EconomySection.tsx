@@ -61,8 +61,8 @@ export default function EconomySection() {
                   <span className="bg-xf-primary/10 text-xf-primary text-xs font-bold px-3 py-1 rounded-full">Pro</span>
                 </div>
                 <ul className="space-y-5 mb-8">
-                  {creatorBenefits.map((benefit, index) => (
-                    <li key={index} className="flex justify-between items-center border-b border-slate-100 pb-2">
+                  {creatorBenefits.map((benefit) => (
+                    <li key={benefit.label} className="flex justify-between items-center border-b border-slate-100 pb-2">
                       <span className="text-xf-medium">{benefit.label}</span>
                       <span className="font-bold text-xf-dark">{benefit.value}</span>
                     </li>
@@ -84,8 +84,8 @@ export default function EconomySection() {
                   <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm">Open</span>
                 </div>
                 <ul className="space-y-5 mb-8 relative z-10">
-                  {readerBenefits.map((benefit, index) => (
-                    <li key={index} className="flex items-center gap-3">
+                  {readerBenefits.map((benefit) => (
+                    <li key={benefit} className="flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                         <Check className="w-3 h-3" />
                       </div>

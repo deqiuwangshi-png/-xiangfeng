@@ -86,10 +86,10 @@ export function EarningsOverview() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {statsData.map((stat, index) => {
+      {statsData.map((stat) => {
         const Icon = stat.icon
         return (
-          <div key={index} className="stat-card rounded-2xl p-6">
+          <div key={stat.label} className="stat-card rounded-2xl p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-sm text-xf-primary mb-1">{stat.label}</p>
@@ -106,11 +106,11 @@ export function EarningsOverview() {
               </button>
             ) : stat.description ? (
               <p className="text-sm text-xf-medium">
-                {stat.description.split(' ').map((word, i) => {
+                {stat.description.split(' ').map((word, wordIndex) => {
                   if (word.startsWith('+') || word.match(/^\d+/)) {
-                    return <span key={i} className="font-medium">{word} </span>
+                    return <span key={`${stat.label}-word-${wordIndex}`} className="font-medium">{word} </span>
                   }
-                  return word + ' '
+                  return <span key={`${stat.label}-word-${wordIndex}`}>{word} </span>
                 })}
               </p>
             ) : null}

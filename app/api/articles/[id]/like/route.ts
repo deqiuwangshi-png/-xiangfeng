@@ -111,8 +111,6 @@ export async function POST(
       .eq('id', articleId)
       .single();
 
-    console.log('API - 点赞操作成功:', { articleId, userId: user.id, liked, likes: article?.like_count || 0 });
-
     return NextResponse.json({
       success: true,
       liked,

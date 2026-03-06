@@ -48,8 +48,8 @@ export default function CreatorsSection() {
                     </h3>
                     
                     <div className="space-y-6">
-                      {creators.map((creator, index) => (
-                        <div key={index} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-white/50 hover:shadow-md transition-shadow">
+                      {creators.map((creator) => (
+                        <div key={creator.name} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-white/50 hover:shadow-md transition-shadow">
                           <div className="flex items-center gap-4 mb-4">
                             <div className="relative">
                               <Image

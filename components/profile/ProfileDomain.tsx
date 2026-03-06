@@ -85,8 +85,8 @@ export function ProfileDomain() {
   return (
     <div id="profile-domain-section" className="hidden">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {domainsData.map((domain, index) => (
-            <div key={index} className="domain-card">
+          {domainsData.map((domain) => (
+            <div key={domain.title} className="domain-card">
               <div className={`domain-icon ${domain.iconType}`}>
                 <domain.icon className="w-8 h-8" />
               </div>

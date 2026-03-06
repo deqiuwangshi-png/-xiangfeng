@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { submitFeedback } from '@/lib/feedback/feedbackActions';
+import { submitFeedback } from '@/lib/feedback/actions';
 
 type FeedbackType = 'bug' | 'suggestion' | 'ui' | 'other';
 

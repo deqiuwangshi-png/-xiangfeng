@@ -3,30 +3,10 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import FeedbackCard from './FeedbackCard';
-import FeedbackDetailModal from './FeedbackDetailModal';
+import FeedbackDetailModal from '../modal/DetailDlg';
+import type { FeedbackItem } from '@/types/feedback';
 
-type FeedbackStatus = 'pending' | 'processing' | 'completed';
-
-interface Reply {
-  id: string;
-  author: string;
-  content: string;
-  date: string;
-  isOfficial?: boolean;
-}
-
-export interface FeedbackItem {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  status: FeedbackStatus;
-  statusText: string;
-  replies?: number;
-  fixed?: boolean;
-  replyList?: Reply[];
-  pageId: string;
-}
+export type { FeedbackItem };
 
 interface MyFeedbackProps {
   feedbackItems: FeedbackItem[];

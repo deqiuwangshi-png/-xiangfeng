@@ -327,8 +327,6 @@ export async function queryFeedbackFromNotion(options: {
       queryBody.filter = filter;
     }
 
-    console.log('Notion query 请求体:', JSON.stringify(queryBody, null, 2));
-
     const response = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
       method: 'POST',
       headers: {
@@ -349,8 +347,6 @@ export async function queryFeedbackFromNotion(options: {
       has_more: boolean;
       next_cursor: string | null;
     };
-
-    console.log('Notion databases/query 返回结果数:', data.results.length);
 
     {/* 解析结果 */}
     return data.results.map((page) => {

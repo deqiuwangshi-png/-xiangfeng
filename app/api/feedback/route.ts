@@ -15,11 +15,8 @@ export async function POST(request: Request) {
 
     const trackingId = `FB-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Math.floor(Math.random() * 900 + 100)}`;
 
-    console.log('API - 提交反馈:', {
-      trackingId,
-      ...validatedData,
-      createdAt: new Date().toISOString(),
-    });
+    {/* 使用 validatedData 防止未使用变量警告 */}
+    void validatedData;
 
     return NextResponse.json({
       success: true,

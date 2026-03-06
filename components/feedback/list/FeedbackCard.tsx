@@ -1,20 +1,7 @@
 'use client';
 
 import { MessageSquare, CheckCircle, Clock } from 'lucide-react';
-
-type FeedbackStatus = 'pending' | 'processing' | 'completed';
-
-interface FeedbackItem {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  status: FeedbackStatus;
-  statusText: string;
-  replies?: number;
-  fixed?: boolean;
-  pageId: string;
-}
+import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
 
 interface FeedbackCardProps {
   item: FeedbackItem;

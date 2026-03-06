@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { UploadCloud } from 'lucide-react';
-import { uploadFeedbackAttachment } from '@/lib/feedback/feedbackActions';
+import { uploadFeedbackAttachment } from '@/lib/feedback/actions';
 import FileList from './FileList';
 
 interface UploadedFile {

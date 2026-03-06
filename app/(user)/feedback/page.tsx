@@ -4,19 +4,19 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import FeedbackTabs from '@/components/feedback/FeedbackTabs';
 import SubmitFeedback from '@/components/feedback/SubmitFeedback';
-import MyFeedback, { FeedbackItem } from '@/components/feedback/MyFeedback';
-import HotFeedback from '@/components/feedback/HotFeedback';
+import MyFeedback, { FeedbackItem } from '@/components/feedback/list/MyFeedback';
+
 import Statistics from '@/components/feedback/Statistics';
 import FAQ from '@/components/feedback/FAQ';
-import Toast from '@/components/feedback/Toast';
-import { getFeedbacksByTrackingIds } from '@/lib/feedback/feedbackActions';
+import Toast from '@/components/feedback/modal/Toast';
+import { getFeedbacksByTrackingIds } from '@/lib/feedback/actions';
 import { getTrackingIds, addTrackingId } from '@/lib/feedback/storage';
 
-type TabType = 'submit' | 'my' | 'hot' | 'stats' | 'faq';
+type TabType = 'submit' | 'my' | 'stats' | 'faq';
 
 /**
  * 反馈页面
- * 包含提交反馈、我的反馈、热门反馈、统计和FAQ五个标签页
+ * 包含提交反馈、我的反馈、统计和FAQ四个标签页
  */
 export default function FeedbackPage() {
   const [activeTab, setActiveTab] = useState<TabType>('submit');
@@ -154,7 +154,6 @@ export default function FeedbackPage() {
               )}
             </>
           )}
-          {activeTab === 'hot' && <HotFeedback />}
           {activeTab === 'stats' && <Statistics />}
           {activeTab === 'faq' && <FAQ />}
         </div>

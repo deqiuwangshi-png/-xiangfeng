@@ -6,7 +6,7 @@ import { Home } from 'lucide-react';
 import ArticleContent from '@/components/article/ArticleContent';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleActions from '@/components/article/ArticleActions';
-import CommentPanel from '@/components/article/CommentPanel';
+import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/CommentSkeleton';
 import { getCurrentUser } from '@/lib/supabase/user';
