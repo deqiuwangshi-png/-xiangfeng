@@ -1,67 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { Bug, Lightbulb, Palette, HelpCircle, Send, Lock, UploadCloud, File, X, ChevronDown, Edit3 } from 'lucide-react';
-import { submitFeedback } from '@/lib/feedback/feedbackActions';
-
-type FeedbackType = 'bug' | 'suggestion' | 'ui' | 'other';
+import { Edit3, ChevronDown } from 'lucide-react';
+import { useFeedbackForm } from '@/hooks/useFeedbackForm';
+import TypeSelector from './submit/TypeSelector';
+import FileUploader from './submit/FileUploader';
+import ContactInput from './submit/ContactInput';
+import SubmitBtn from './submit/SubmitBtn';
 
 interface SubmitFeedbackProps {
   onSubmit: (trackingId: string) => void;
 }
 
-const feedbackTypes = [
-  { id: 'bug' as FeedbackType, icon: Bug, label: '问题反馈', desc: '功能异常/错误', color: 'text-xf-error' },
-  { id: 'suggestion' as FeedbackType, icon: Lightbulb, label: '功能建议', desc: '新功能/改进', color: 'text-xf-warning' },
-  { id: 'ui' as FeedbackType, icon: Palette, label: '界面优化', desc: '视觉/交互', color: 'text-xf-info' },
-  { id: 'other' as FeedbackType, icon: HelpCircle, label: '其他反馈', desc: '其他问题', color: 'text-xf-primary' },
-];
-
+/**
+ * 提交反馈组件
+ * 纯视图组件，逻辑由useFeedbackForm Hook管理
+ *
+ * @param onSubmit 提交成功回调，接收追踪ID
+ */
 export default function SubmitFeedback({ onSubmit }: SubmitFeedbackProps) {
-  const [selectedType, setSelectedType] = useState<FeedbackType>('bug');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !description.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      const result = await submitFeedback({
-        type: selectedType,
-        title,
-        description,
-        contactEmail: contactEmail || undefined,
-      });
-
-      if (result.success && result.trackingId) {
-        onSubmit(result.trackingId);
-        setTitle('');
-        setDescription('');
-        setContactEmail('');
-        setUploadedFiles([]);
-      }
-    } catch (error) {
-      console.error('提交反馈失败:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024);
-    setUploadedFiles(prev => [...prev, ...validFiles]);
-  };
-
-  const removeFile = (index: number) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-  };
+  const {
+    selectedType,
+    setSelectedType,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    contactEmail,
+    setContactEmail,
+    showAdvanced,
+    setShowAdvanced,
+    uploadedFiles,
+    setUploadedFiles,
+    isSubmitting,
+    submitError,
+    handleSubmit,
+  } = useFeedbackForm({ onSubmitSuccess: onSubmit });
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -73,30 +46,7 @@ export default function SubmitFeedback({ onSubmit }: SubmitFeedbackProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-xf-dark mb-3">
-            反馈类型 <span className="text-xf-error">*</span>
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {feedbackTypes.map((type) => (
-              <div
-                key={type.id}
-                onClick={() => setSelectedType(type.id)}
-                className={`feedback-type-option flex flex-col items-center text-center cursor-pointer transition-all border-2 rounded-xl p-4 pb-2 ${
-                    selectedType === type.id
-                      ? 'border-xf-accent bg-linear-to-br from-xf-accent/10 to-xf-primary/10 shadow-elevated'
-                      : 'border-xf-surface/50 bg-xf-light/50 hover:border-xf-primary hover:bg-xf-primary/5 hover:-translate-y-0.5'
-                  }`}
-              >
-                <type.icon className={`w-6 h-6 mb-2 ${type.color}`} />
-                <div className="font-medium text-sm">{type.label}</div>
-                <div className="text-[11px] text-xf-primary mt-1 leading-tight">
-                  {type.desc}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <TypeSelector selectedType={selectedType} onChange={setSelectedType} />
 
         <div>
           <label htmlFor="feedbackTitle" className="block text-sm font-medium text-xf-dark mb-2">
@@ -145,82 +95,19 @@ export default function SubmitFeedback({ onSubmit }: SubmitFeedbackProps) {
             }`}
           >
             <div className="space-y-5">
-              <div>
-                <label htmlFor="contactEmail" className="block text-sm font-medium text-xf-dark mb-2">
-                  联系方式（可选）
-                </label>
-                <input
-                  type="email"
-                  id="contactEmail"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-xf-primary/20 focus:border-xf-primary focus:shadow-glow transition-all"
-                  placeholder="邮箱 / 手机号"
-                />
-                <p className="text-xs text-xf-primary mt-2 flex items-center gap-1">
-                  <Lock className="w-3 h-3" />
-                  仅用于跟进反馈
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-xf-dark mb-2">
-                  附件上传（可选）
-                </label>
-                <div className="upload-area border-2 border-dashed border-xf-surface bg-xf-light/50 rounded-xl p-6 text-center cursor-pointer hover:border-xf-primary hover:bg-xf-primary/5 transition-all">
-                  <UploadCloud className="w-8 h-8 text-xf-primary mx-auto mb-2" />
-                  <p className="text-sm font-medium text-xf-dark">点击或拖拽</p>
-                  <p className="text-xs text-xf-primary">图片/文档，最大10MB</p>
-                  <input
-                    type="file"
-                    className="hidden"
-                    multiple
-                    accept="image/*,.pdf,.doc,.docx,.txt"
-                    onChange={handleFileUpload}
-                  />
-                </div>
-                {uploadedFiles.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    {uploadedFiles.map((file, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-white border border-xf-bg/60 rounded-xl"
-                      >
-                        <div className="flex items-center">
-                          <File className="w-5 h-5 text-xf-primary mr-3" />
-                          <div>
-                            <div className="font-medium text-sm">{file.name}</div>
-                            <div className="text-xs text-xf-primary">
-                              {(file.size / 1024).toFixed(1)} KB
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeFile(index)}
-                          className="text-xf-primary hover:text-xf-error"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <ContactInput value={contactEmail} onChange={setContactEmail} />
+              <FileUploader files={uploadedFiles} onFilesChange={setUploadedFiles} />
             </div>
           </div>
         </div>
 
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 bg-xf-accent text-white font-medium rounded-xl transition-all duration-300 shadow-soft hover:shadow-glow flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-4 h-4" />
-            {isSubmitting ? '提交中...' : '提交反馈'}
-          </button>
-        </div>
+        {submitError && (
+          <div className="p-3 bg-xf-error/10 border border-xf-error/20 rounded-xl text-xf-error text-sm">
+            {submitError}
+          </div>
+        )}
+
+        <SubmitBtn isSubmitting={isSubmitting} />
       </form>
     </div>
   );
