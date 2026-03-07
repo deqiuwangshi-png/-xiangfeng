@@ -10,7 +10,7 @@ import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
 import { getCurrentUser } from '@/lib/supabase/user';
-import { getArticleById, getArticleCommentsPaginated } from '@/lib/articles/articleQueries';
+import { getArticleById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 
 /**
  * 页面级别缓存配置

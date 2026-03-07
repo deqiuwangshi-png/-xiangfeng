@@ -1,4 +1,4 @@
-import { ArticleWithAuthor } from '@/lib/articles/articleQueries';
+import { ArticleWithAuthor } from '@/lib/articles/queries/article';
 
 /**
  * ArticleHeader Props 接口

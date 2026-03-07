@@ -1,6 +1,6 @@
 'use client';
 
-type TabType = 'submit' | 'my' | 'stats' | 'faq';
+type TabType = 'submit' | 'my' | 'faq';
 
 interface FeedbackTabsProps {
   activeTab: TabType;
@@ -10,7 +10,6 @@ interface FeedbackTabsProps {
 const tabs = [
   { id: 'submit' as TabType, label: '提交反馈' },
   { id: 'my' as TabType, label: '我的反馈' },
-  { id: 'stats' as TabType, label: '统计洞察' },
   { id: 'faq' as TabType, label: '常见问题' },
 ];
 

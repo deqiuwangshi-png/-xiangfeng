@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Heart, CornerUpLeft } from 'lucide-react'
+import { Heart, CornerUpLeft, Trash2 } from 'lucide-react'
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { getInitials } from '@/lib/utils/getInitials'
 import type { CommentCardProps } from './types'
@@ -15,9 +15,12 @@ import type { CommentCardProps } from './types'
  * @param currentUser - 当前用户
  * @returns 评论卡片JSX
  */
-export function CommentCard({ comment, onLike, currentUser }: CommentCardProps) {
+export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentCardProps) {
   {/* 头像加载失败状态 */}
   const [avatarError, setAvatarError] = useState(false)
+
+  {/* 判断是否显示删除按钮 */}
+  const canDelete = currentUser?.id === comment.author.id
 
   return (
     <div className="comment-item">
@@ -65,6 +68,16 @@ export function CommentCard({ comment, onLike, currentUser }: CommentCardProps) 
             <CornerUpLeft className="w-4 h-4" />
             <span>回复</span>
           </div>
+
+          {canDelete && (
+            <div
+              className="comment-action delete"
+              onClick={() => onDelete(comment.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>删除</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

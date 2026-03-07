@@ -31,6 +31,7 @@ export interface CommentPanelProps {
 export interface CommentCardProps {
   comment: Comment
   onLike: (commentId: string) => void
+  onDelete: (commentId: string) => void
   currentUser: User | null
 }
 
@@ -40,6 +41,8 @@ export interface CommentListProps {
   hasMore: boolean
   loadingMore: boolean
   onLoadMore: () => void
+  onLike: (commentId: string) => void
+  onDelete: (commentId: string) => void
   currentUser: User | null
 }
 

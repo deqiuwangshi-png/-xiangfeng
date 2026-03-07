@@ -2,7 +2,8 @@
 
 import { useState, useCallback } from 'react'
 import type { Comment } from '../types'
-import { getArticleComments, toggleCommentLike } from '@/lib/articles/articleInteractions'
+import { getArticleComments, deleteArticleComment } from '@/lib/articles/actions/comment'
+import { toggleCommentLike } from '@/lib/articles/actions/like'
 
 /**
  * 评论数据管理 Hook
@@ -88,6 +89,27 @@ export function useComments(
     }
   }, [])
 
+  /**
+   * 删除评论
+   * 使用 Server Action 替代 API Route
+   */
+  const deleteComment = useCallback(async (commentId: string) => {
+    try {
+      const result = await deleteArticleComment(commentId)
+
+      if (result.success) {
+        setComments((prev) => prev.filter((comment) => comment.id !== commentId))
+        setTotalCount((prev) => prev - 1)
+      } else {
+        console.error('删除评论失败:', result.error)
+        alert(result.error || '删除评论失败')
+      }
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+      alert('删除评论失败')
+    }
+  }, [])
+
   return {
     comments,
     totalCount,
@@ -96,5 +118,6 @@ export function useComments(
     loadMore,
     addComment,
     toggleLike,
+    deleteComment,
   }
 }

@@ -14,9 +14,10 @@
  */
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon, X } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
-import { toggleArticleLike, toggleArticleBookmark } from '@/lib/articles/articleInteractions';
+import { toggleArticleLike } from '@/lib/articles/actions/like';
+import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
 
 /**
  * ArticleActions Props 接口
@@ -136,28 +137,19 @@ export default function ArticleActions({
 
   /**
    * 处理分享
-   * 
+   *
    * @param platform - 分享平台
    */
   const handleShare = (platform: string) => {
-    setShared(true);
-    setShowShareMenu(false);
-
     const url = window.location.href;
 
     switch (platform) {
-      case 'wechat':
-        {/* TODO: 实现微信分享功能 */}
-        break;
-      case 'weibo':
-        {/* TODO: 实现微博分享功能 */}
-        break;
       case 'copy':
         navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 500);
         break;
     }
-
-    setTimeout(() => setShared(false), 500);
   };
 
   /**
@@ -195,39 +187,68 @@ export default function ArticleActions({
         <span className="douyin-count">{commentCount}</span>
       </div>
 
-      {/* 分享按钮和菜单 */}
+      {/* 分享按钮 */}
       <div className="share-menu-container">
-        <div 
+        <div
           className={`douyin-action-btn ${shared ? 'shared' : ''}`}
-          onClick={() => setShowShareMenu(!showShareMenu)}
+          onClick={() => setShowShareMenu(true)}
         >
           <Share2 className="douyin-icon" />
           <span className="douyin-count">分享</span>
         </div>
 
+        {/* 分享弹窗 */}
         {showShareMenu && (
-          <div className="share-menu active">
-            <div className="share-options">
-              <div 
-                className="share-option"
-                onClick={() => handleShare('wechat')}
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* 遮罩层 - 仅视觉，不响应点击 */}
+            <div className="absolute inset-0 bg-black/50" />
+
+            {/* 弹窗内容 */}
+            <div className="relative bg-white rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl">
+              {/* 关闭按钮 */}
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowShareMenu(false)}
               >
-                <MessageCircle className="share-icon" />
-                <span>微信好友</span>
-              </div>
-              <div 
-                className="share-option"
-                onClick={() => handleShare('weibo')}
-              >
-                <Share className="share-icon" />
-                <span>微博</span>
-              </div>
-              <div 
-                className="share-option"
-                onClick={() => handleShare('copy')}
-              >
-                <LinkIcon className="share-icon" />
-                <span>复制链接</span>
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* 标题 */}
+              <h3 className="text-lg font-medium text-center text-gray-900 mb-6">
+                分享到
+              </h3>
+
+              {/* 分享选项 */}
+              <div className="flex justify-center gap-8">
+                {/* 微信 - 占位禁用 */}
+                <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <MessageCircle className="w-6 h-6 text-green-500" />
+                  </div>
+                  <span className="text-sm text-gray-600">微信好友</span>
+                </div>
+
+                {/* 微博 - 占位禁用 */}
+                <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
+                  <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <Share className="w-6 h-6 text-red-500" />
+                  </div>
+                  <span className="text-sm text-gray-600">微博</span>
+                </div>
+
+                {/* 复制链接 - 可用 */}
+                <button
+                  className="flex flex-col items-center gap-2 hover:opacity-80 transition"
+                  onClick={() => {
+                    handleShare('copy')
+                    setShowShareMenu(false)
+                  }}
+                >
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <LinkIcon className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <span className="text-sm text-gray-600">复制链接</span>
+                </button>
               </div>
             </div>
           </div>

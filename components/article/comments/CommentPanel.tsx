@@ -42,6 +42,8 @@ export function CommentPanel({
     loadingMore,
     loadMore,
     addComment,
+    toggleLike,
+    deleteComment,
   } = useComments(articleId, initialComments, initialTotalCount, initialHasMore)
 
   const { sending, submitError, submit, clearError } = useCommentSubmit(
@@ -93,6 +95,8 @@ export function CommentPanel({
             hasMore={currentUser ? hasMore : false}
             loadingMore={loadingMore}
             onLoadMore={loadMore}
+            onLike={toggleLike}
+            onDelete={deleteComment}
             currentUser={currentUser}
           />
 

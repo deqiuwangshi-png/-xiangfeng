@@ -1,5 +1,5 @@
 'use client';
-
+//该文件属于统计洞察功能，考虑作为保留，未来可能会有统计功能，作为临时功能
 import { ThumbsUp } from 'lucide-react';
 
 export default function Statistics() {

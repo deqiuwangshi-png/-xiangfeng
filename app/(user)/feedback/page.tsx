@@ -1,18 +1,27 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import FeedbackTabs from '@/components/feedback/FeedbackTabs';
-import SubmitFeedback from '@/components/feedback/SubmitFeedback';
-import MyFeedback, { FeedbackItem } from '@/components/feedback/list/MyFeedback';
-
-import Statistics from '@/components/feedback/Statistics';
-import FAQ from '@/components/feedback/FAQ';
 import Toast from '@/components/feedback/modal/Toast';
 import { getFeedbacksByTrackingIds } from '@/lib/feedback/actions';
 import { getTrackingIds, addTrackingId } from '@/lib/feedback/storage';
+import type { FeedbackItem } from '@/types/feedback';
 
-type TabType = 'submit' | 'my' | 'stats' | 'faq';
+{/* 懒加载标签页组件，减少初始加载时间 */}
+const SubmitFeedback = lazy(() => import('@/components/feedback/SubmitFeedback'));
+const MyFeedback = lazy(() => import('@/components/feedback/list/MyFeedback'));
+const FAQ = lazy(() => import('@/components/feedback/FAQ'));
+
+{/* 标签页内容加载占位符 */}
+const TabContentSkeleton = () => (
+  <div className="flex items-center justify-center py-12">
+    <Loader2 className="w-6 h-6 animate-spin text-xf-primary" />
+    <span className="ml-2 text-xf-primary">加载中...</span>
+  </div>
+);
+
+type TabType = 'submit' | 'my' | 'faq';
 
 /**
  * 反馈页面
@@ -25,31 +34,16 @@ export default function FeedbackPage() {
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 用于取消正在进行的请求
-  const abortControllerRef = useRef<AbortController | null>(null);
-
   /**
    * 加载反馈列表
-   * TODO: 从飞书多维表格查询用户的反馈数据
+   * 从飞书多维表格查询用户的反馈数据
    */
   const loadFeedbacks = useCallback(async () => {
-    // 取消之前的请求
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // 创建新的 AbortController
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
     setIsLoading(true);
     try {
       const trackingIds = getTrackingIds();
       if (trackingIds.length > 0) {
         const result = await getFeedbacksByTrackingIds(trackingIds);
-        // 如果请求被取消，不更新状态
-        if (controller.signal.aborted) return;
-
         if (result.success && result.data) {
           setFeedbackItems(result.data);
         }
@@ -57,13 +51,11 @@ export default function FeedbackPage() {
         setFeedbackItems([]);
       }
     } catch (error) {
-      // 忽略取消错误
-      if (error instanceof Error && error.name === 'AbortError') return;
       console.error('加载反馈失败:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setIsLoading, setFeedbackItems]);
 
   /**
    * 切换标签页时加载数据
@@ -72,13 +64,6 @@ export default function FeedbackPage() {
     if (activeTab === 'my') {
       loadFeedbacks();
     }
-
-    // 组件卸载时取消请求
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
   }, [activeTab, loadFeedbacks]);
 
   /**
@@ -131,10 +116,12 @@ export default function FeedbackPage() {
 
         <div className="mt-4">
           {activeTab === 'submit' && (
-            <SubmitFeedback onSubmit={handleFeedbackSubmit} />
+            <Suspense fallback={<TabContentSkeleton />}>
+              <SubmitFeedback onSubmit={handleFeedbackSubmit} />
+            </Suspense>
           )}
           {activeTab === 'my' && (
-            <>
+            <Suspense fallback={<TabContentSkeleton />}>
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin text-xf-primary" />
@@ -148,10 +135,13 @@ export default function FeedbackPage() {
                   <p className="text-sm mt-1">提交反馈后将在此显示</p>
                 </div>
               )}
-            </>
+            </Suspense>
           )}
-          {activeTab === 'stats' && <Statistics />}
-          {activeTab === 'faq' && <FAQ />}
+          {activeTab === 'faq' && (
+            <Suspense fallback={<TabContentSkeleton />}>
+              <FAQ />
+            </Suspense>
+          )}
         </div>
       </div>
 

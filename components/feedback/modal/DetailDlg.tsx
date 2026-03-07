@@ -57,6 +57,9 @@ export default function FeedbackDetailModal({
       }
     };
 
+    {/* 保存原始overflow值以便恢复 */}
+    const originalOverflow = document.body.style.overflow;
+
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
@@ -64,7 +67,7 @@ export default function FeedbackDetailModal({
 
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen, onClose]);
 
@@ -75,8 +78,7 @@ export default function FeedbackDetailModal({
     if (isOpen && feedback?.pageId) {
       loadReplies();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, feedback?.pageId]);
+  }, [isOpen, feedback?.pageId, loadReplies]);
 
   if (!isOpen || !feedback) {
     return null;

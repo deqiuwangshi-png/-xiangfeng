@@ -17,7 +17,7 @@ import {
  */
 interface SupabaseNotification {
   id: string
-  type: 'like' | 'comment' | 'reply'
+  type: 'article_liked' | 'comment_liked' | 'article_commented' | 'comment_replied' | 'article_favorited' | 'followed' | 'mention' | 'system' | 'announcement'
   title: string
   message: string | null
   sender_name: string | null

@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { DraftsClient } from '@/components/drafts/core/DraftsClient'
 import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
-import { getArticles } from '@/lib/articles/articleActions'
+import { getArticles } from '@/lib/articles/actions/crud'
 import { filterOptions } from '@/constants/drafts'
 
 /**

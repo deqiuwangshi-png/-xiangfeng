@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EditorState } from './useEditorState'
-import { createArticle } from '@/lib/articles/articleActions'
+import { createArticle } from '@/lib/articles/actions/crud'
 
 /**
  * 编辑器操作 Hook

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { Comment } from '../types'
-import { submitArticleComment } from '@/lib/articles/articleInteractions'
+import { submitArticleComment } from '@/lib/articles/actions/comment'
 
 /**
  * 评论提交 Hook

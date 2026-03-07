@@ -1,21 +1,20 @@
 'use server';
 
 /**
- * 文章相关 Server Actions
+ * 文章CRUD Server Actions
  *
- * 职责：处理文章的创建、查询、更新、删除
- * 所有查询和插入使用 author_id，user_id 由触发器自动同步
+ * @module lib/articles/actions/crud
+ * @description 处理文章的创建、查询、更新、删除
  *
  * @性能优化
  * - 使用异步 revalidate，避免阻塞发布操作
  * - 数据库操作和缓存刷新分离
- *
- * @module articleActions
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { generateSummary } from '@/lib/utils/html';
+import { ensureUserProfile } from '../helpers/profile';
 
 /**
  * 异步刷新页面缓存
@@ -50,15 +49,6 @@ async function revalidatePathsAsync(paths: string[]) {
  * - 数据库操作完成后立即返回
  * - 缓存刷新在后台异步执行
  * - 发布响应时间从 6s 降低到 ~2s
- *
- * @example
- * ```typescript
- * const article = await createArticle({
- *   title: '文章标题',
- *   content: '文章内容...',
- *   status: 'draft'
- * });
- * ```
  */
 export async function createArticle(data: {
   title: string;
@@ -71,6 +61,12 @@ export async function createArticle(data: {
 
   if (userError || !user) {
     throw new Error('用户未登录');
+  }
+
+  {/* 确保用户资料存在（使用 upsert 原子操作） */}
+  const profileCreated = await ensureUserProfile(user.id, user.email);
+  if (!profileCreated) {
+    throw new Error('用户资料初始化失败，请重试');
   }
 
   const excerpt = generateSummary(data.content, 100);

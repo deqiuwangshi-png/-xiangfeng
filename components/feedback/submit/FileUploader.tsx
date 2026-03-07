@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { UploadCloud } from 'lucide-react';
 import { uploadFeedbackAttachment } from '@/lib/feedback/actions';
 import FileList from './FileList';
@@ -46,6 +46,7 @@ const generateId = (): string => {
  */
 export default function FileUploader({ files, onFilesChange }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   /**
    * 验证文件大小
@@ -93,11 +94,25 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
    * @param fileId 文件项唯一ID
    */
   const uploadSingleFile = async (file: File, fileId: string) => {
+    {/* 创建新的 AbortController 用于取消上传 */}
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       const formData = new FormData();
       formData.append('file', file);
 
+      {/* 如果请求被取消，直接返回 */}
+      if (controller.signal.aborted) {
+        return;
+      }
+
       const result = await uploadFeedbackAttachment(formData);
+
+      {/* 如果请求被取消，不更新状态 */}
+      if (controller.signal.aborted) {
+        return;
+      }
 
       if (result.success && result.fileToken) {
         updateFileStatus(fileId, { fileToken: result.fileToken, isUploading: false });
@@ -108,7 +123,16 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
         });
       }
     } catch {
+      {/* 如果请求被取消，不更新状态 */}
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
       updateFileStatus(fileId, { isUploading: false, error: '上传失败' });
+    } finally {
+      {/* 清理引用 */}
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -172,6 +196,17 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
     // 从列表中移除
     onFilesChange(files.filter((_, i) => i !== index));
   };
+
+  /**
+   * 组件卸载时取消正在进行的文件上传
+   */
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <div>

@@ -61,9 +61,6 @@ export async function createFeishuFeedback(
       }
     );
 
-    {/* 调试：打印完整响应结果 */}
-    console.log('飞书创建记录响应:', JSON.stringify(result, null, 2));
-
     return {
       success: true,
       recordId: result.data?.record?.record_id,
@@ -159,12 +156,6 @@ export async function queryFeishuFeedbacks(options: {
       };
     }
 
-    {/* 调试：打印请求参数 */}
-    console.log('飞书查询参数:', {
-      url: `${FEISHU_CONFIG.API_BASE}/bitable/v1/apps/${FEISHU_CONFIG.BASE_ID}/tables/${FEISHU_CONFIG.TABLE_ID}/records/search`,
-      filter: filterObj,
-    });
-
     {/* 调用飞书 API 查询 */}
     const result = await feishuRequest<QueryRecordsResponse>(
       `${FEISHU_CONFIG.API_BASE}/bitable/v1/apps/${FEISHU_CONFIG.BASE_ID}/tables/${FEISHU_CONFIG.TABLE_ID}/records/search`,
@@ -177,12 +168,8 @@ export async function queryFeishuFeedbacks(options: {
       }
     );
 
-    {/* 调试：打印完整响应结果 */}
-    console.log('飞书查询完整响应:', JSON.stringify(result, null, 2));
-
     {/* 转换记录格式 - 兼容多种数据结构 */}
     const records = result.data?.items || result.data?.records || [];
-    console.log('提取到记录数:', records.length);
     const feedbackItems = await Promise.all(records.map(convertFeishuRecordToFeedbackItem));
 
     return {

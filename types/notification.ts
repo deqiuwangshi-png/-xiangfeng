@@ -1,13 +1,28 @@
-import { Heart, MessageCircle, AtSign } from 'lucide-react'
+import { Heart, MessageCircle, AtSign, Star } from 'lucide-react'
 
 /**
  * 通知类型
  * @description 与数据库 notifications.type 对齐
- * - like: 点赞文章
- * - comment: 评论文章
- * - reply: 回复评论
+ * - article_liked: 文章被点赞
+ * - comment_liked: 评论被点赞
+ * - article_commented: 文章被评论
+ * - comment_replied: 评论被回复
+ * - article_favorited: 文章被收藏
+ * - followed: 被关注
+ * - mention: 被提及
+ * - system: 系统通知
+ * - announcement: 公告
  */
-export type NotificationType = 'like' | 'comment' | 'reply'
+export type NotificationType =
+  | 'article_liked'
+  | 'comment_liked'
+  | 'article_commented'
+  | 'comment_replied'
+  | 'article_favorited'
+  | 'followed'
+  | 'mention'
+  | 'system'
+  | 'announcement'
 
 /**
  * 筛选类型
@@ -66,9 +81,15 @@ export interface NotificationGroup {
  * @description 将通知类型映射到对应的 Lucide 图标
  */
 export const notificationIconMap: Record<NotificationType, React.ElementType> = {
-  like: Heart,
-  comment: MessageCircle,
-  reply: AtSign,
+  article_liked: Heart,
+  comment_liked: Heart,
+  article_commented: MessageCircle,
+  comment_replied: AtSign,
+  article_favorited: Star,
+  followed: AtSign,
+  mention: AtSign,
+  system: MessageCircle,
+  announcement: MessageCircle,
 }
 
 /**
@@ -76,7 +97,13 @@ export const notificationIconMap: Record<NotificationType, React.ElementType> = 
  * @description 用于UI显示的类型名称
  */
 export const notificationTypeLabels: Record<NotificationType, string> = {
-  like: '点赞',
-  comment: '评论',
-  reply: '回复',
+  article_liked: '文章点赞',
+  comment_liked: '评论点赞',
+  article_commented: '文章评论',
+  comment_replied: '回复',
+  article_favorited: '收藏',
+  followed: '关注',
+  mention: '提及',
+  system: '系统',
+  announcement: '公告',
 }

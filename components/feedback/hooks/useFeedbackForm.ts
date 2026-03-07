@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { submitFeedback } from '@/lib/feedback/actions';
 import type { FeedbackType, UploadedFile } from '@/types/feedback';
 
@@ -117,21 +117,35 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     }
   }, [validateForm, selectedType, title, description, contactEmail, uploadedFiles, onSubmitSuccess, resetForm]);
 
-  return {
-    selectedType,
-    setSelectedType,
-    title,
-    setTitle,
-    description,
-    setDescription,
-    contactEmail,
-    setContactEmail,
-    showAdvanced,
-    setShowAdvanced,
-    uploadedFiles,
-    setUploadedFiles,
-    isSubmitting,
-    submitError,
-    handleSubmit,
-  };
+  {/* 使用useMemo缓存返回值，避免不必要重新渲染 */}
+  return useMemo(
+    () => ({
+      selectedType,
+      setSelectedType,
+      title,
+      setTitle,
+      description,
+      setDescription,
+      contactEmail,
+      setContactEmail,
+      showAdvanced,
+      setShowAdvanced,
+      uploadedFiles,
+      setUploadedFiles,
+      isSubmitting,
+      submitError,
+      handleSubmit,
+    }),
+    [
+      selectedType,
+      title,
+      description,
+      contactEmail,
+      showAdvanced,
+      uploadedFiles,
+      isSubmitting,
+      submitError,
+      handleSubmit,
+    ]
+  );
 }

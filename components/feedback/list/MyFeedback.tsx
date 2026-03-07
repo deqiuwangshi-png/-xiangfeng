@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { useState, useCallback, lazy, Suspense } from 'react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 import FeedbackCard from './FeedbackCard';
-import FeedbackDetailModal from '../modal/DetailDlg';
 import type { FeedbackItem } from '@/types/feedback';
+
+{/* 懒加载弹窗组件，减少列表初始渲染负担 */}
+const FeedbackDetailModal = lazy(() => import('../modal/DetailDlg'));
 
 export type { FeedbackItem };
 
@@ -58,12 +60,22 @@ export default function MyFeedback({ feedbackItems }: MyFeedbackProps) {
         </a>
       </div>
 
-      {/* 反馈详情弹窗 */}
-      <FeedbackDetailModal
-        feedback={selectedFeedback}
-        isOpen={isModalOpen}
-        onClose={handleCloseDetail}
-      />
+      {/* 反馈详情弹窗 - 懒加载 */}
+      <Suspense
+        fallback={
+          isModalOpen ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+              <Loader2 className="w-8 h-8 animate-spin text-white" />
+            </div>
+          ) : null
+        }
+      >
+        <FeedbackDetailModal
+          feedback={selectedFeedback}
+          isOpen={isModalOpen}
+          onClose={handleCloseDetail}
+        />
+      </Suspense>
     </div>
   );
 }

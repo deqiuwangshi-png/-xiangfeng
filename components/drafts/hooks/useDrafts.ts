@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { DraftService, Article } from '@/lib/drafts/draftService'
-import { deleteArticle, updateArticleStatus } from '@/lib/articles/articleActions'
+import { deleteArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
 import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
 
 /**

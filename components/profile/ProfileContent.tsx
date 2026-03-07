@@ -9,7 +9,7 @@
  */
 
 import { BookOpen, Brain, ThumbsUp, MessageSquare as MessageIcon, FileText } from 'lucide-react'
-import { getArticles } from '@/lib/articles/articleActions'
+import { getArticles } from '@/lib/articles/actions/crud'
 import { formatDistanceToNow } from '@/lib/utils/date'
 
 /**

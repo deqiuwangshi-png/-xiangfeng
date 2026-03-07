@@ -19,6 +19,8 @@ export function CommentList({
   hasMore,
   loadingMore,
   onLoadMore,
+  onLike,
+  onDelete,
   currentUser,
 }: CommentListProps) {
   if (comments.length === 0) {
@@ -36,7 +38,8 @@ export function CommentList({
         <CommentCard
           key={comment.id}
           comment={comment}
-          onLike={() => {}}
+          onLike={onLike}
+          onDelete={onDelete}
           currentUser={currentUser}
         />
       ))}
