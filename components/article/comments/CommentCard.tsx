@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Heart, CornerUpLeft } from 'lucide-react'
-import { formatTime } from './utils/formatTime'
-import { getInitials } from './utils/getInitials'
+import { formatDistanceToNow } from '@/lib/utils/date'
+import { getInitials } from '@/lib/utils/getInitials'
 import type { CommentCardProps } from './types'
 
 /**
@@ -45,7 +45,7 @@ export function CommentCard({ comment, onLike, currentUser }: CommentCardProps) 
       <div className="comment-content">
         <div className="comment-header">
           <span className="comment-author">{comment.author.name}</span>
-          <span className="comment-time">{formatTime(comment.created_at)}</span>
+          <span className="comment-time">{formatDistanceToNow(comment.created_at)}</span>
         </div>
 
         <p className="comment-text">{comment.content}</p>

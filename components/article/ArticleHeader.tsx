@@ -1,24 +1,10 @@
-interface Author {
-  id: string;
-  name: string;
-  avatar?: string;
-  bio?: string;
-}
+import { ArticleWithAuthor } from '@/lib/articles/articleQueries';
 
-interface Article {
-  id: string;
-  title: string;
-  summary: string | null;
-  content: string;
-  author: Author;
-  publishedAt: string;
-  readTime: number;
-  tags: string[];
-  coverImage?: string;
-}
-
+/**
+ * ArticleHeader Props 接口
+ */
 interface ArticleHeaderProps {
-  article: Article;
+  article: ArticleWithAuthor;
 }
 
 export default function ArticleHeader({ article }: ArticleHeaderProps) {

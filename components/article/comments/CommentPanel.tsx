@@ -10,8 +10,8 @@
 
 import { useRef } from 'react'
 import { X } from 'lucide-react'
-import { useComments } from './hooks/useComments'
-import { useCommentSubmit } from './hooks/useCommentSubmit'
+import { useComments } from './_hooks/useComments'
+import { useCommentSubmit } from './_hooks/useCommentSub'
 import { CommentList } from './CommentList'
 import { LoginPrompt } from './LoginPrompt'
 import { CommentForm } from './CommentForm'

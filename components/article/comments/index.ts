@@ -8,11 +8,10 @@ export { CommentCard } from './CommentCard'
 export { CommentForm } from './CommentForm'
 export { LoginPrompt } from './LoginPrompt'
 
-export { useComments } from './hooks/useComments'
-export { useCommentSubmit } from './hooks/useCommentSubmit'
+export { useComments } from './_hooks/useComments'
+export { useCommentSubmit } from './_hooks/useCommentSub'
 
-export { formatTime } from './utils/formatTime'
-export { getInitials } from './utils/getInitials'
+export { getInitials } from '@/lib/utils/getInitials'
 
 export type {
   Comment,

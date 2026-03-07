@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { Comment } from '../types'
+import { getArticleComments, toggleCommentLike } from '@/lib/articles/articleInteractions'
 
 /**
  * 评论数据管理 Hook
@@ -26,6 +27,7 @@ export function useComments(
 
   /**
    * 加载更多评论
+   * 使用 Server Action 替代 API Route
    */
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return
@@ -34,15 +36,13 @@ export function useComments(
     const nextPage = page + 1
 
     try {
-      const response = await fetch(
-        `/api/articles/${articleId}/comments?page=${nextPage}&limit=10`
-      )
+      const result = await getArticleComments(articleId, nextPage, 10)
 
-      if (response.ok) {
-        const data = await response.json()
-        setComments((prev) => [...prev, ...data.comments])
-        setTotalCount(data.totalCount)
-        setHasMore(data.hasMore)
+      if (result.success && result.comments && result.comments.length > 0) {
+        const newComments = result.comments as Comment[]
+        setComments((prev) => [...prev, ...newComments])
+        setTotalCount(result.totalCount || 0)
+        setHasMore(result.hasMore || false)
         setPage(nextPage)
       }
     } catch (error) {
@@ -62,29 +62,26 @@ export function useComments(
 
   /**
    * 切换评论点赞状态
+   * 使用 Server Action 替代 API Route
    */
   const toggleLike = useCallback(async (commentId: string) => {
     try {
-      const response = await fetch('/api/articles/comment/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commentId }),
-      })
+      const result = await toggleCommentLike(commentId)
 
-      if (response.ok) {
+      if (result.success) {
         setComments((prev) =>
           prev.map((comment) =>
             comment.id === commentId
               ? {
                   ...comment,
-                  liked: !comment.liked,
-                  likes: comment.liked
-                    ? comment.likes - 1
-                    : comment.likes + 1,
+                  liked: result.liked,
+                  likes: result.likes,
                 }
               : comment
           )
         )
+      } else {
+        console.error('评论点赞失败:', result.error)
       }
     } catch (error) {
       console.error('Failed to like comment:', error)

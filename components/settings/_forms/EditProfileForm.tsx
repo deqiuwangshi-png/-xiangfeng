@@ -142,15 +142,11 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
           {/* 头像上传区域 - 左侧 */}
           <div className="flex flex-col items-center shrink-0">
             <div className="relative">
-              {formData.avatar_url ? (
-                <img
-                  src={formData.avatar_url}
-                  alt={formData.username}
-                  className="w-20 h-20 rounded-full object-cover"
-                />
-              ) : (
-                <AvatarPlaceholder name={formData.username} />
-              )}
+              <AvatarPlaceholder
+                name={formData.username}
+                avatarUrl={formData.avatar_url}
+                size={80}
+              />
               <button
                 type="button"
                 onClick={generateNewAvatar}

@@ -2,19 +2,21 @@
 
 /**
  * ArticleActions - 文章操作按钮组件
- * 
+ *
  * 作用: 提供文章点赞、评论、分享、收藏功能
- * 
+ *
  * 优化点:
  * - 接收 currentUser 用于判断登录状态
  * - 未登录时提示登录
- * 
+ * - 使用 Server Actions 替代 API Routes
+ *
  * @returns {JSX.Element} 文章操作按钮组件
  */
 
 import { useState } from 'react';
 import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
+import { toggleArticleLike, toggleArticleBookmark } from '@/lib/articles/articleInteractions';
 
 /**
  * ArticleActions Props 接口
@@ -74,7 +76,7 @@ export default function ArticleActions({
 
   /**
    * 处理点赞
-   * 完全依赖后端返回的数据，避免乐观更新导致的数据竞争
+   * 使用 Server Action 替代 API Route
    */
   const handleLike = async () => {
     if (!checkAuth()) return;
@@ -83,19 +85,14 @@ export default function ArticleActions({
     setIsLikeLoading(true);
 
     try {
-      const response = await fetch(`/api/articles/${articleId}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const result = await toggleArticleLike(articleId);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (result.success) {
         // 使用服务器返回的最新数据（数据库是单一真理源）
-        setLiked(data.liked);
-        setLikeCount(data.likes);
+        setLiked(result.liked);
+        setLikeCount(result.likes);
       } else {
-        const data = await response.json().catch(() => ({}));
-        alert(data.error || '操作失败，请重试');
+        alert(result.error || '操作失败，请重试');
       }
     } catch (error) {
       console.error('Failed to like article:', error);
@@ -107,7 +104,7 @@ export default function ArticleActions({
 
   /**
    * 处理收藏
-   * 使用乐观更新：先更新 UI，再发送请求
+   * 使用 Server Action 替代 API Route，保持乐观更新
    */
   const handleBookmark = async () => {
     if (!checkAuth()) return;
@@ -119,20 +116,15 @@ export default function ArticleActions({
     setBookmarked(!bookmarked);
 
     try {
-      const response = await fetch(`/api/articles/${articleId}/favorite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const result = await toggleArticleBookmark(articleId);
 
-      if (response.ok) {
-        const data = await response.json();
+      if (result.success) {
         // 使用服务器返回的最新数据
-        setBookmarked(data.favorited);
+        setBookmarked(result.favorited);
       } else {
         // 请求失败，回滚状态
         setBookmarked(previousBookmarked);
-        const data = await response.json().catch(() => ({}));
-        alert(data.error || '操作失败，请重试');
+        alert(result.error || '操作失败，请重试');
       }
     } catch (error) {
       // 网络错误，回滚状态

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { Comment } from '../types'
+import { submitArticleComment } from '@/lib/articles/articleInteractions'
 
 /**
  * 评论提交 Hook
@@ -20,6 +21,7 @@ export function useCommentSubmit(
 
   /**
    * 提交评论
+   * 使用 Server Action 替代 API Route
    *
    * @param content - 评论内容
    * @returns 是否提交成功
@@ -32,30 +34,24 @@ export function useCommentSubmit(
       setSubmitError(null)
 
       try {
-        const response = await fetch(`/api/articles/${articleId}/comments`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content }),
-        })
+        const result = await submitArticleComment(articleId, content)
 
-        const data = await response.json()
-
-        if (response.ok && data.comment) {
+        if (result.success && result.comment) {
           const newCommentData: Comment = {
-            id: data.comment.id,
-            author: data.comment.author,
-            content: data.comment.content,
-            created_at: data.comment.created_at || new Date().toISOString(),
-            likes: data.comment.likes || 0,
+            id: result.comment.id,
+            author: result.comment.author,
+            content: result.comment.content,
+            created_at: result.comment.created_at || new Date().toISOString(),
+            likes: result.comment.likes || 0,
             liked: false,
           }
           onSuccess(newCommentData)
           setNewComment('')
           return true
         } else {
-          const errorMsg = data.error || '评论发表失败，请重试'
+          const errorMsg = result.error || '评论发表失败，请重试'
           setSubmitError(errorMsg)
-          console.error('评论提交失败:', data)
+          console.error('评论提交失败:', result)
           return false
         }
       } catch (error) {

@@ -56,7 +56,8 @@ export function sanitizeHtml(html: string): string {
   sanitized = sanitized.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
 
   {/* 移除事件处理器属性 */}
-  sanitized = sanitized.replace(/\s*on\w+\s*=\s*(['"])[^\1]*\1/gi, '')
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*"[^"]*"/gi, '')
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*'[^']*'/gi, '')
   sanitized = sanitized.replace(/\s*on\w+\s*=\s*[^\s>]+/gi, '')
 
   {/* 处理标签 - 只允许白名单标签 */}
@@ -69,7 +70,7 @@ export function sanitizeHtml(html: string): string {
     }
 
     {/* 处理允许的标签的属性 */}
-    const attrRegex = /\s+([a-zA-Z-:]+)\s*=\s*(['"])([^\2]*)\2/g
+    const attrRegex = /\s+([a-zA-Z-:]+)\s*=\s*"([^"]*)"/g
     const attrs: string[] = []
     let attrMatch
     const allowedAttrs = ALLOWED_ATTRIBUTES[lowerTagName] || []
