@@ -57,6 +57,6 @@ export async function getAccessToken(): Promise<string> {
  * 清除令牌缓存
  * 用于测试或需要强制刷新令牌的场景
  */
-export function clearTokenCache(): void {
+export async function clearTokenCache(): Promise<void> {
   accessTokenCache = null;
 }

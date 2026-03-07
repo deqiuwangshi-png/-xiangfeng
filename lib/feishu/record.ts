@@ -12,12 +12,12 @@ import type { FeishuFeedbackData, FeedbackItem, CreateRecordResponse, QueryRecor
  * @param data 反馈数据
  * @returns 飞书字段对象
  */
-function buildRecordFields(data: FeishuFeedbackData): Record<string, unknown> {
+async function buildRecordFields(data: FeishuFeedbackData): Promise<Record<string, unknown>> {
   const fields: Record<string, unknown> = {
-    [FIELD_MAPPING.TYPE]: getFeishuTypeOption(data.type),
+    [FIELD_MAPPING.TYPE]: await getFeishuTypeOption(data.type),
     [FIELD_MAPPING.TITLE]: data.title,
     [FIELD_MAPPING.DESCRIPTION]: data.description,
-    [FIELD_MAPPING.STATUS]: getFeishuStatusOption(data.status || 'pending'),
+    [FIELD_MAPPING.STATUS]: await getFeishuStatusOption(data.status || 'pending'),
     [FIELD_MAPPING.CREATED_AT]: Date.now(),
   };
 
@@ -51,7 +51,7 @@ export async function createFeishuFeedback(
   data: FeishuFeedbackData
 ): Promise<{ success: boolean; recordId?: string; error?: string }> {
   try {
-    const fields = buildRecordFields(data);
+    const fields = await buildRecordFields(data);
 
     const result = await feishuRequest<CreateRecordResponse>(
       `${FEISHU_CONFIG.API_BASE}/bitable/v1/apps/${FEISHU_CONFIG.BASE_ID}/tables/${FEISHU_CONFIG.TABLE_ID}/records`,
@@ -95,7 +95,7 @@ export async function updateFeishuFeedbackStatus(
         method: 'PUT',
         body: {
           fields: {
-            [FIELD_MAPPING.STATUS]: getFeishuStatusOption(status),
+            [FIELD_MAPPING.STATUS]: await getFeishuStatusOption(status),
           },
         },
       }
@@ -183,7 +183,7 @@ export async function queryFeishuFeedbacks(options: {
     {/* 转换记录格式 - 兼容多种数据结构 */}
     const records = result.data?.items || result.data?.records || [];
     console.log('提取到记录数:', records.length);
-    const feedbackItems = records.map(convertFeishuRecordToFeedbackItem);
+    const feedbackItems = await Promise.all(records.map(convertFeishuRecordToFeedbackItem));
 
     return {
       success: true,

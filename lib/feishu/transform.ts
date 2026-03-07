@@ -32,7 +32,7 @@ const REVERSE_STATUS_MAPPING: Record<string, FeedbackStatus> = {
  * @param value 飞书字段值
  * @returns 提取的文本
  */
-export function extractFieldValue(value: unknown): string {
+export async function extractFieldValue(value: unknown): Promise<string> {
   if (value === null || value === undefined) {
     return '';
   }
@@ -79,18 +79,18 @@ export function extractFieldValue(value: unknown): string {
  * @param record 飞书记录
  * @returns 系统反馈项
  */
-export function convertFeishuRecordToFeedbackItem(record: FeishuRecord): FeedbackItem {
+export async function convertFeishuRecordToFeedbackItem(record: FeishuRecord): Promise<FeedbackItem> {
   const fields = record.fields;
 
   return {
     id: record.record_id,
-    title: extractFieldValue(fields[FIELD_MAPPING.TITLE]),
-    description: extractFieldValue(fields[FIELD_MAPPING.DESCRIPTION]),
+    title: await extractFieldValue(fields[FIELD_MAPPING.TITLE]),
+    description: await extractFieldValue(fields[FIELD_MAPPING.DESCRIPTION]),
     date: new Date(Number(fields[FIELD_MAPPING.CREATED_AT]) || Date.now()).toISOString(),
-    status: REVERSE_STATUS_MAPPING[extractFieldValue(fields[FIELD_MAPPING.STATUS])] || 'pending',
-    statusText: extractFieldValue(fields[FIELD_MAPPING.STATUS]) || '待处理',
-    pageId: extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id,
-    contactEmail: extractFieldValue(fields[FIELD_MAPPING.CONTACT]),
+    status: REVERSE_STATUS_MAPPING[await extractFieldValue(fields[FIELD_MAPPING.STATUS])] || 'pending',
+    statusText: await extractFieldValue(fields[FIELD_MAPPING.STATUS]) || '待处理',
+    pageId: await extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id,
+    contactEmail: await extractFieldValue(fields[FIELD_MAPPING.CONTACT]),
   };
 }
 
@@ -100,7 +100,7 @@ export function convertFeishuRecordToFeedbackItem(record: FeishuRecord): Feedbac
  * @param type 系统类型
  * @returns 飞书选项文本
  */
-export function getFeishuTypeOption(type: string): string {
+export async function getFeishuTypeOption(type: string): Promise<string> {
   return TYPE_MAPPING[type] || '其他';
 }
 
@@ -110,7 +110,7 @@ export function getFeishuTypeOption(type: string): string {
  * @param status 系统状态
  * @returns 飞书选项文本
  */
-export function getFeishuStatusOption(status: string): string {
+export async function getFeishuStatusOption(status: string): Promise<string> {
   return STATUS_MAPPING[status] || '待处理';
 }
 
@@ -120,6 +120,6 @@ export function getFeishuStatusOption(status: string): string {
  * @param statusText 飞书状态文本
  * @returns 系统状态
  */
-export function getSystemStatus(statusText: string): FeedbackStatus {
+export async function getSystemStatus(statusText: string): Promise<FeedbackStatus> {
   return REVERSE_STATUS_MAPPING[statusText] || 'pending';
 }
