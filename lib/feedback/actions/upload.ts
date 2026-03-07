@@ -1,14 +1,13 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from './auth';
+import { uploadFileToFeishu } from '@/lib/feishu/api';
 
 /**
- * 上传附件到 Supabase Storage
- * 返回公开访问URL
+ * 上传附件到飞书多维表格
+ * 使用飞书 Drive API 上传文件
  *
  * @param formData 包含文件的 FormData
- * @returns 上传结果，包含文件URL
+ * @returns 上传结果，包含 file_token
  */
 export async function uploadFeedbackAttachment(formData: FormData) {
   try {
@@ -21,7 +20,7 @@ export async function uploadFeedbackAttachment(formData: FormData) {
       };
     }
 
-    {/* 验证文件大小 (10MB) */}
+    // 验证文件大小 (10MB)
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
       return {
@@ -30,61 +29,49 @@ export async function uploadFeedbackAttachment(formData: FormData) {
       };
     }
 
-    {/* 验证文件类型 */}
-    const allowedTypes = [
-      'image/',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain',
-    ];
+    // 验证文件类型 - 仅允许图片和文档格式
+    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.md', '.pdf'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
-    const isAllowedType = allowedTypes.some((type) =>
-      file.type.startsWith(type) || file.name.toLowerCase().endsWith('.doc') || file.name.toLowerCase().endsWith('.docx')
-    );
-
-    if (!isAllowedType) {
+    if (!allowedExtensions.includes(fileExtension)) {
       return {
         success: false,
-        error: '不支持的文件类型',
+        error: '仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)和文档格式(MD, PDF)',
       };
     }
 
-    {/* 获取当前用户 */}
-    const { userId } = await getCurrentUser();
-    const folderPrefix = userId ? `user_${userId}` : 'anonymous';
+    // 验证 MIME 类型与扩展名匹配（防止修改扩展名绕过）
+    const allowedMimeTypes: Record<string, string[]> = {
+      '.png': ['image/png'],
+      '.jpg': ['image/jpeg'],
+      '.jpeg': ['image/jpeg'],
+      '.gif': ['image/gif'],
+      '.webp': ['image/webp'],
+      '.md': ['text/markdown', 'text/plain', 'application/octet-stream'],
+      '.pdf': ['application/pdf'],
+    };
 
-    {/* 生成唯一文件名 */}
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 8);
-    const fileExtension = file.name.split('.').pop() || '';
-    const fileName = `${folderPrefix}/${timestamp}_${randomString}.${fileExtension}`;
-
-    {/* 上传到 Supabase Storage */}
-    const supabase = await createClient();
-    const { data, error } = await supabase.storage
-      .from('feedback-attachments')
-      .upload(fileName, file, {
-        contentType: file.type,
-        upsert: false,
-      });
-
-    if (error) {
-      console.error('文件上传失败:', error);
+    const expectedMimeTypes = allowedMimeTypes[fileExtension];
+    if (!expectedMimeTypes?.includes(file.type)) {
       return {
         success: false,
-        error: '文件上传失败: ' + error.message,
+        error: '文件类型与扩展名不匹配',
       };
     }
 
-    {/* 获取公开URL */}
-    const { data: { publicUrl } } = supabase.storage
-      .from('feedback-attachments')
-      .getPublicUrl(data.path);
+    // 上传到飞书
+    const result = await uploadFileToFeishu(file);
+
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error || '文件上传失败',
+      };
+    }
 
     return {
       success: true,
-      url: publicUrl,
+      fileToken: result.fileToken,
       fileName: file.name,
       fileSize: file.size,
     };

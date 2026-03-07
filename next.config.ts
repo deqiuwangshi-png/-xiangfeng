@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Server Actions 配置
+  experimental: {
+    // 增加请求体大小限制到 10MB（用于文件上传）
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+    // 优化包体积
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     // 图片优化配置
     remotePatterns: [
@@ -28,11 +37,6 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // 图片尺寸
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  },
-  // 实验性功能：优化CSS
-  experimental: {
-    // 优化包体积
-    optimizePackageImports: ['lucide-react'],
   },
 };
 

@@ -1,21 +1,22 @@
 'use server';
 
-import { getFeedbackComments, addFeedbackComment } from '@/lib/notion';
 import type { ReplyQueryResult, ReplySubmitResult } from '@/types/feedback';
 
 /**
  * 获取反馈的评论列表
+ * TODO: 实现飞书多维表格评论查询
  *
- * @param pageId Notion 页面ID
+ * @param recordId 飞书记录ID
  * @returns 评论列表
  */
-export async function getFeedbackReplies(pageId: string): Promise<ReplyQueryResult> {
+export async function getFeedbackReplies(recordId: string): Promise<ReplyQueryResult> {
   try {
-    const comments = await getFeedbackComments(pageId);
+    // TODO: 从飞书多维表格查询评论
+    console.log('查询反馈评论:', recordId);
 
     return {
       success: true,
-      data: comments,
+      data: [],
     };
   } catch (error) {
     console.error('获取评论失败:', error);
@@ -29,14 +30,15 @@ export async function getFeedbackReplies(pageId: string): Promise<ReplyQueryResu
 
 /**
  * 提交评论到反馈
+ * TODO: 实现飞书多维表格评论提交
  *
- * @param pageId Notion 页面ID
+ * @param recordId 飞书记录ID
  * @param content 评论内容
  * @returns 提交结果
  */
-export async function submitReply(pageId: string, content: string): Promise<ReplySubmitResult> {
+export async function submitReply(recordId: string, content: string): Promise<ReplySubmitResult> {
   try {
-    {/* 验证输入 */}
+    // 验证输入
     if (!content.trim()) {
       return {
         success: false,
@@ -51,11 +53,17 @@ export async function submitReply(pageId: string, content: string): Promise<Repl
       };
     }
 
-    const comment = await addFeedbackComment(pageId, content.trim());
+    // TODO: 提交评论到飞书多维表格
+    console.log('提交评论:', recordId, content);
 
     return {
       success: true,
-      data: comment,
+      data: {
+        id: 'temp-id',
+        author: '用户',
+        content: content.trim(),
+        date: new Date().toISOString(),
+      },
     };
   } catch (error) {
     console.error('提交评论失败:', error);

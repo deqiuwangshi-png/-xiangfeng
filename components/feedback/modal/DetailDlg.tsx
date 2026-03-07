@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { X, Calendar, Tag } from 'lucide-react';
+import { X, Calendar, Tag, FileText, Mail, User } from 'lucide-react';
 import { useFeedbackReplies } from '../hooks/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';
@@ -48,7 +48,7 @@ export default function FeedbackDetailModal({
   } = useFeedbackReplies({ pageId: feedback?.pageId || '' });
 
   /**
-   * 处理ESC键关闭
+   * 处理ESC键关闭和加载评论
    */
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -60,15 +60,23 @@ export default function FeedbackDetailModal({
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
-      {/* 打开弹窗时加载评论 */}
-      loadReplies();
     }
 
     return () => {
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose, loadReplies]);
+  }, [isOpen, onClose]);
+
+  /**
+   * 打开弹窗时加载评论
+   */
+  useEffect(() => {
+    if (isOpen && feedback?.pageId) {
+      loadReplies();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, feedback?.pageId]);
 
   if (!isOpen || !feedback) {
     return null;
@@ -120,6 +128,18 @@ export default function FeedbackDetailModal({
                 <Tag className="w-4 h-4" />
                 追踪ID: {feedback.id}
               </span>
+              {feedback.userEmail && (
+                <span className="flex items-center gap-1.5">
+                  <User className="w-4 h-4" />
+                  {feedback.userEmail}
+                </span>
+              )}
+              {feedback.contactEmail && (
+                <span className="flex items-center gap-1.5">
+                  <Mail className="w-4 h-4" />
+                  {feedback.contactEmail}
+                </span>
+              )}
             </div>
 
             {/* 详细描述 */}
@@ -129,6 +149,32 @@ export default function FeedbackDetailModal({
                 {feedback.description}
               </p>
             </div>
+
+            {/* 附件列表 */}
+            {feedback.attachments && feedback.attachments.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-xf-dark mb-3">附件 ({feedback.attachments.length})</h4>
+                <div className="space-y-2">
+                  {feedback.attachments.map((attachment, index) => (
+                    <a
+                      key={`${attachment.name}-${index}`}
+                      href={attachment.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-white border border-xf-bg/60 rounded-xl hover:border-xf-primary hover:bg-xf-primary/5 transition-colors group"
+                    >
+                      <FileText className="w-5 h-5 text-xf-primary shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-xf-dark truncate group-hover:text-xf-accent transition-colors">
+                          {attachment.name}
+                        </div>
+                        <div className="text-xs text-xf-primary">点击下载或查看</div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 评论列表 */}
             <ReplyList replies={replies} isLoading={isLoading} />

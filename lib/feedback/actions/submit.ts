@@ -2,9 +2,8 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { submitFeedbackToNotion } from '@/lib/notion';
+import { createFeishuFeedback } from '@/lib/feishu/api';
 import { generateTrackingId } from '../utils';
-import { getCurrentUser } from './auth';
 import type { FeedbackInput, FeedbackSubmitResult } from '@/types/feedback';
 
 /**
@@ -20,35 +19,42 @@ const feedbackSchema = z.object({
 
 /**
  * 提交反馈 Server Action
- * 将反馈数据写入 Notion 数据库
+ * 将反馈数据写入飞书多维表格
  *
  * @param feedbackData 反馈数据
  * @returns 提交结果，包含成功状态和追踪ID
  */
 export async function submitFeedback(feedbackData: FeedbackInput): Promise<FeedbackSubmitResult> {
   try {
-    {/* 验证输入数据 */}
+    // 验证输入数据
     const validatedData = feedbackSchema.parse(feedbackData);
 
-    {/* 生成追踪ID */}
+    // 生成追踪ID
     const trackingId = generateTrackingId();
 
-    {/* 获取当前用户信息 */}
-    const { userId, userEmail } = await getCurrentUser();
-
-    {/* 提交到 Notion */}
-    await submitFeedbackToNotion({
+    // 提交到飞书多维表格
+    const feishuResult = await createFeishuFeedback({
       type: validatedData.type,
       title: validatedData.title,
       description: validatedData.description,
       contactEmail: validatedData.contactEmail || undefined,
-      userId,
-      userEmail,
+      status: 'pending',
       attachments: validatedData.attachments,
       trackingId,
     });
 
-    {/* 刷新缓存 */}
+    // 检查飞书提交结果
+    if (!feishuResult.success) {
+      console.error('飞书提交失败:', feishuResult.error);
+      return {
+        success: false,
+        error: '反馈存储失败，请稍后重试',
+      };
+    }
+
+    console.log('飞书提交成功，记录ID:', feishuResult.recordId);
+
+    // 刷新缓存
     revalidatePath('/feedback');
 
     return {
@@ -56,7 +62,7 @@ export async function submitFeedback(feedbackData: FeedbackInput): Promise<Feedb
       trackingId,
     };
   } catch (error) {
-    {/* Zod 验证错误处理 */}
+    // Zod 验证错误处理
     if (error instanceof z.ZodError) {
       return {
         success: false,
@@ -64,16 +70,7 @@ export async function submitFeedback(feedbackData: FeedbackInput): Promise<Feedb
       };
     }
 
-    {/* Notion API 错误处理 */}
-    if (error instanceof Error && error.message.includes('Notion')) {
-      console.error('Notion API 错误:', error);
-      return {
-        success: false,
-        error: '反馈存储失败，请稍后重试',
-      };
-    }
-
-    {/* 其他错误处理 */}
+    // 其他错误处理
     console.error('提交反馈失败:', error);
     return {
       success: false,

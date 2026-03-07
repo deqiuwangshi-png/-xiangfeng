@@ -203,3 +203,6 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
     </div>
   )
 }
+
+{/* 默认导出，支持动态导入 */}
+export default LinkedAccountsForm

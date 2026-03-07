@@ -1,3 +1,5 @@
+'use client';
+
 import { ThumbsUp } from 'lucide-react';
 
 export default function Statistics() {

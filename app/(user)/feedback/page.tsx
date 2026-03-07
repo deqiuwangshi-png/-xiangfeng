@@ -25,20 +25,20 @@ export default function FeedbackPage() {
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  {/* 用于取消正在进行的请求 */}
+  // 用于取消正在进行的请求
   const abortControllerRef = useRef<AbortController | null>(null);
 
   /**
    * 加载反馈列表
-   * 从 Notion 查询用户的反馈数据
+   * TODO: 从飞书多维表格查询用户的反馈数据
    */
   const loadFeedbacks = useCallback(async () => {
-    {/* 取消之前的请求 */}
+    // 取消之前的请求
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
-    {/* 创建新的 AbortController */}
+    // 创建新的 AbortController
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -47,7 +47,7 @@ export default function FeedbackPage() {
       const trackingIds = getTrackingIds();
       if (trackingIds.length > 0) {
         const result = await getFeedbacksByTrackingIds(trackingIds);
-        {/* 如果请求被取消，不更新状态 */}
+        // 如果请求被取消，不更新状态
         if (controller.signal.aborted) return;
 
         if (result.success && result.data) {
@@ -57,7 +57,7 @@ export default function FeedbackPage() {
         setFeedbackItems([]);
       }
     } catch (error) {
-      {/* 忽略取消错误 */}
+      // 忽略取消错误
       if (error instanceof Error && error.name === 'AbortError') return;
       console.error('加载反馈失败:', error);
     } finally {
@@ -73,7 +73,7 @@ export default function FeedbackPage() {
       loadFeedbacks();
     }
 
-    {/* 组件卸载时取消请求 */}
+    // 组件卸载时取消请求
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -91,17 +91,13 @@ export default function FeedbackPage() {
 
   /**
    * 反馈提交成功回调
-   * 显示 Toast 提示并自动切换到"我的反馈"标签
+   * 显示 Toast 提示
    * @param id 追踪ID
    */
   const handleFeedbackSubmit = (id: string) => {
     setTrackingId(id);
     addTrackingId(id);
     setShowToast(true);
-    {/* 3秒后自动切换到"我的反馈"标签 */}
-    setTimeout(() => {
-      setActiveTab('my');
-    }, 2000);
   };
 
   /**

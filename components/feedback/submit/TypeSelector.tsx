@@ -1,8 +1,7 @@
 'use client';
 
 import { Bug, Lightbulb, Palette, HelpCircle } from 'lucide-react';
-
-type FeedbackType = 'bug' | 'suggestion' | 'ui' | 'other';
+import type { FeedbackType } from '@/types/feedback';
 
 interface TypeSelectorProps {
   selectedType: FeedbackType | null;

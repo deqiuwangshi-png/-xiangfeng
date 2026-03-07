@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 
 interface SuccessModalProps {
@@ -8,12 +9,31 @@ interface SuccessModalProps {
   onViewMyFeedback: () => void;
 }
 
+/**
+ * 成功提交反馈弹窗组件
+ *
+ * @param trackingId 追踪ID
+ * @param onClose 关闭回调
+ * @param onViewMyFeedback 查看我的反馈回调
+ */
 export default function SuccessModal({ trackingId, onClose, onViewMyFeedback }: SuccessModalProps) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // 触发动画
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-8 transform transition-all scale-95 opacity-0 animate-in fade-in zoom-in duration-300">
+      <div
+        className={`bg-white rounded-2xl max-w-md w-full p-8 transform transition-all duration-300 ${
+          isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
+      >
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-linear-gradient(to right, xf-success, #4ade80) rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-xf-success rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-white" />
           </div>
           <h3 className="text-xl font-serif font-bold text-xf-dark mb-2">
@@ -41,7 +61,7 @@ export default function SuccessModal({ trackingId, onClose, onViewMyFeedback }: 
           </button>
           <button
             onClick={onViewMyFeedback}
-            className="flex-1 py-3 bg-linear-gradient(to right, xf-primary, xf-accent) hover:bg-linear-gradient(to right, xf-accent, xf-primary) text-white font-medium rounded-xl transition-all"
+            className="flex-1 py-3 bg-xf-accent text-white font-medium rounded-xl hover:bg-xf-accent/90 transition-all"
           >
             查看我的反馈
           </button>

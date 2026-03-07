@@ -230,3 +230,6 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
     </div>
   )
 }
+
+{/* 默认导出，支持动态导入 */}
+export default EditProfileForm

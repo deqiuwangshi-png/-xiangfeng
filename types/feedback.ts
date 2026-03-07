@@ -25,6 +25,14 @@ export interface Reply {
 }
 
 /**
+ * 附件项
+ */
+export interface Attachment {
+  name: string;
+  url: string;
+}
+
+/**
  * 反馈项（列表展示用）
  */
 export interface FeedbackItem {
@@ -38,6 +46,9 @@ export interface FeedbackItem {
   fixed?: boolean;
   replyList?: Reply[];
   pageId: string;
+  attachments?: Attachment[];
+  contactEmail?: string;
+  userEmail?: string;
 }
 
 /**
@@ -71,7 +82,7 @@ export interface FeedbackInput {
   title: string;
   description: string;
   contactEmail?: string;
-  attachments?: string[];
+  attachments?: string[];  // 飞书 file_token 数组
 }
 
 /**
@@ -107,5 +118,17 @@ export interface ReplyQueryResult {
 export interface ReplySubmitResult {
   success: boolean;
   data?: Reply;
+  error?: string;
+}
+
+/**
+ * 已上传文件项
+ */
+export interface UploadedFile {
+  id: string;  // 唯一标识符，用于解决闭包更新问题
+  file: File;
+  url?: string;  // 外部URL（如Supabase）
+  fileToken?: string;  // 飞书文件 file_token
+  isUploading: boolean;
   error?: string;
 }

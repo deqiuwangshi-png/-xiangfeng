@@ -1,16 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { submitFeedback } from '@/lib/feedback/actions';
-
-type FeedbackType = 'bug' | 'suggestion' | 'ui' | 'other';
-
-interface UploadedFile {
-  file: File;
-  url?: string;
-  isUploading: boolean;
-  error?: string;
-}
+import type { FeedbackType, UploadedFile } from '@/types/feedback';
 
 interface UseFeedbackFormOptions {
   onSubmitSuccess: (trackingId: string) => void;
@@ -28,10 +20,10 @@ interface UseFeedbackFormReturn {
   showAdvanced: boolean;
   setShowAdvanced: (value: boolean) => void;
   uploadedFiles: UploadedFile[];
-  setUploadedFiles: (files: UploadedFile[]) => void;
+  setUploadedFiles: (files: UploadedFile[] | ((prevFiles: UploadedFile[]) => UploadedFile[])) => void;
   isSubmitting: boolean;
   submitError: string;
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
+  handleSubmit: (e: React.SyntheticEvent<HTMLFormElement>) => Promise<void>;
 }
 
 /**
@@ -56,7 +48,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
    *
    * @returns 错误信息，验证通过返回null
    */
-  const validateForm = (): string | null => {
+  const validateForm = useCallback((): string | null => {
     if (!selectedType) {
       return '请选择反馈类型';
     }
@@ -68,25 +60,25 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
       return '请等待附件上传完成';
     }
     return null;
-  };
+  }, [selectedType, title, description, uploadedFiles]);
 
   /**
    * 重置表单
    */
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setTitle('');
     setDescription('');
     setContactEmail('');
     setUploadedFiles([]);
     setShowAdvanced(false);
-  };
+  }, []);
 
   /**
    * 处理表单提交
    *
    * @param e 表单提交事件
    */
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError('');
 
@@ -99,16 +91,16 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     setIsSubmitting(true);
 
     try {
-      const attachmentUrls = uploadedFiles
-        .filter((f) => f.url)
-        .map((f) => f.url!);
+      const attachmentTokens = uploadedFiles
+        .filter((f) => f.fileToken)
+        .map((f) => f.fileToken!);
 
       const result = await submitFeedback({
         type: selectedType!,
         title: title.trim(),
         description: description.trim(),
         contactEmail: contactEmail.trim() || undefined,
-        attachments: attachmentUrls.length > 0 ? attachmentUrls : undefined,
+        attachments: attachmentTokens.length > 0 ? attachmentTokens : undefined,
       });
 
       if (result.success && result.trackingId) {
@@ -123,7 +115,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [validateForm, selectedType, title, description, contactEmail, uploadedFiles, onSubmitSuccess, resetForm]);
 
   return {
     selectedType,

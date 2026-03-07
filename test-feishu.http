@@ -1,0 +1,29 @@
+### 测试飞书 API 查询
+
+### 1. 获取 Access Token
+POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal
+Content-Type: application/json
+
+{
+  "app_id": "YOUR_APP_ID",
+  "app_secret": "YOUR_APP_SECRET"
+}
+
+### 2. 查询记录 (使用 trackingIds)
+POST https://open.feishu.cn/open-apis/bitable/v1/apps/X3hVw8dUTilgKQkACsCcOcaEnsg/tables/tblpWzxXOfwlZMHr/records/search
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "filter": {
+    "conjunction": "or",
+    "conditions": [
+      {
+        "field_name": "追踪ID",
+        "operator": "is",
+        "value": ["FB-20260307-297"]
+      }
+    ]
+  },
+  "page_size": 100
+}

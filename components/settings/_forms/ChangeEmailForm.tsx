@@ -208,3 +208,6 @@ export function ChangeEmailForm({ currentEmail, onCancel, onSave }: ChangeEmailF
     </div>
   )
 }
+
+{/* 默认导出，支持动态导入 */}
+export default ChangeEmailForm

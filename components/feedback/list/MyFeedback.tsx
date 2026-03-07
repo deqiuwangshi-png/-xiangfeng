@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ChevronRight } from 'lucide-react';
 import FeedbackCard from './FeedbackCard';
 import FeedbackDetailModal from '../modal/DetailDlg';
@@ -27,18 +27,18 @@ export default function MyFeedback({ feedbackItems }: MyFeedbackProps) {
    *
    * @param feedback 选中的反馈项
    */
-  const handleOpenDetail = (feedback: FeedbackItem) => {
+  const handleOpenDetail = useCallback((feedback: FeedbackItem) => {
     setSelectedFeedback(feedback);
     setIsModalOpen(true);
-  };
+  }, []);
 
   /**
    * 关闭反馈详情弹窗
    */
-  const handleCloseDetail = () => {
+  const handleCloseDetail = useCallback(() => {
     setIsModalOpen(false);
     setSelectedFeedback(null);
-  };
+  }, []);
 
   return (
     <div className="space-y-4">

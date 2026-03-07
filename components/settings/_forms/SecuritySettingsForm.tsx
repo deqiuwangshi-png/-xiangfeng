@@ -212,3 +212,6 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
     </div>
   )
 }
+
+{/* 默认导出，支持动态导入 */}
+export default SecuritySettingsForm

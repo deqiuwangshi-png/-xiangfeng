@@ -1,43 +1,55 @@
 'use server';
 
-import { queryFeedbackFromNotion } from '@/lib/notion';
 import { getCurrentUser } from './auth';
+import { queryFeishuFeedbacks } from '@/lib/feishu/api';
 import type { FeedbackQueryResult } from '@/types/feedback';
 
 /**
  * 获取当前用户的反馈列表
- * 已登录用户按 userId 查询，未登录用户按 trackingIds 查询
+ * 优先按 trackingIds 查询（包含未登录用户的反馈），
+ * 已登录用户额外按邮箱查询并合并结果
  *
- * @param trackingIds 追踪ID数组（未登录用户使用）
+ * @param trackingIds 追踪ID数组
  * @returns 反馈列表
  */
 export async function getFeedbacksByTrackingIds(trackingIds: string[]): Promise<FeedbackQueryResult> {
   try {
-    {/* 获取当前用户信息 */}
-    const { userId } = await getCurrentUser();
+    // 获取当前用户信息
+    const { userId, userEmail } = await getCurrentUser();
 
-    {/* 已登录用户：按 userId 查询 */}
-    if (userId) {
-      const feedbacks = await queryFeedbackFromNotion({ userId });
-      return {
-        success: true,
-        data: feedbacks,
-      };
+    // 收集所有查询结果
+    const allFeedbacks: NonNullable<FeedbackQueryResult['data']> = [];
+    const seenIds = new Set<string>();
+
+    // 1. 优先按 trackingIds 查询（包含匿名提交和已登录用户提交的反馈）
+    if (trackingIds && trackingIds.length > 0) {
+      const trackingResult = await queryFeishuFeedbacks({ trackingIds });
+      if (trackingResult.success && trackingResult.data) {
+        for (const item of trackingResult.data) {
+          if (!seenIds.has(item.id)) {
+            allFeedbacks.push(item);
+            seenIds.add(item.id);
+          }
+        }
+      }
     }
 
-    {/* 未登录用户：按 trackingIds 查询 */}
-    if (!trackingIds || trackingIds.length === 0) {
-      return {
-        success: true,
-        data: [],
-      };
+    // 2. 已登录用户额外按邮箱查询（捕获可能遗漏的反馈）
+    if (userId && userEmail) {
+      const emailResult = await queryFeishuFeedbacks({ userEmail });
+      if (emailResult.success && emailResult.data) {
+        for (const item of emailResult.data) {
+          if (!seenIds.has(item.id)) {
+            allFeedbacks.push(item);
+            seenIds.add(item.id);
+          }
+        }
+      }
     }
-
-    const feedbacks = await queryFeedbackFromNotion({ trackingIds });
 
     return {
       success: true,
-      data: feedbacks,
+      data: allFeedbacks,
     };
   } catch (error) {
     console.error('获取反馈列表失败:', error);
@@ -76,10 +88,10 @@ export async function getAnnouncements() {
  */
 export async function getFeedbackStatistics() {
   try {
-    {/* 获取当前用户信息，后续统计需要用到 */}
+    // 获取当前用户信息
     await getCurrentUser();
 
-    {/* TODO: 从 Notion 查询统计数据 */}
+    // TODO: 从飞书多维表格查询统计数据
     return {
       success: true,
       data: {
