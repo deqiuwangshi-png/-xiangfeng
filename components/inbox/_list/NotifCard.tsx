@@ -3,7 +3,7 @@
 import { memo } from 'react'
 import { type NotificationWithIcon } from '@/types/notification'
 import { BatchSelectBox } from '../_actions/BatchSelectBox'
-import { NotificationActions } from '../_actions/NotifActions.tsx'
+import { NotificationActions } from '../_actions/NotifActions'
 
 /**
  * 通知卡片组件属性接口

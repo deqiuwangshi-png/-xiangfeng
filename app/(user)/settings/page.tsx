@@ -2,14 +2,15 @@ import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
 import '@/styles/domains/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
+import { getContentSettings } from '@/lib/settings/actions'
 
 /**
  * 设置页面主入口（Server Component）
- * 
+ *
  * 作用: 获取用户设置数据并渲染设置页面
- * 
+ *
  * @returns {JSX.Element} 设置页面
- * 
+ *
  * 使用说明:
  *   作为设置页面的入口点
  *   获取用户设置数据
@@ -44,10 +45,16 @@ export default async function SettingsPage() {
     location: (profile as { location?: string })?.location || '',
   } : null
 
+  // 获取内容设置数据 - 避免客户端重复请求
+  const contentSettingsResult = await getContentSettings()
+  const contentSettings = contentSettingsResult.success
+    ? { content_language: contentSettingsResult.content_language || 'zh-CN' }
+    : { content_language: 'zh-CN' }
+
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth">
       <div className="max-w-7xl mx-auto fade-in-up">
-        <SettingsLayout userData={userData} />
+        <SettingsLayout userData={userData} contentSettings={contentSettings} />
       </div>
     </main>
   )

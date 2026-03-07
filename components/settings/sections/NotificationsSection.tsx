@@ -3,22 +3,8 @@
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updateNotificationSettings } from '@/app/(user)/settings/actions'
-
-/**
- * 通知设置项配置接口
- * @interface NotificationSettingConfig
- * @property {string} label - 设置项标签
- * @property {string} description - 设置项描述
- * @property {string} settingKey - 设置键名，用于Server Actions
- * @property {boolean} defaultChecked - 默认是否开启
- */
-interface NotificationSettingConfig {
-  label: string
-  description: string
-  settingKey: string
-  defaultChecked: boolean
-}
+import { updateNotificationSettings } from '@/lib/settings/actions'
+import { NotificationSettingConfig } from '@/types/settings'
 
 /**
  * 通知设置配置列表

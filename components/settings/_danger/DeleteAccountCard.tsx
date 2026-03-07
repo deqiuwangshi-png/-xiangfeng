@@ -85,7 +85,7 @@ export function DeleteAccountCard() {
 
             {/* 确认输入 */}
             <p className="text-sm text-gray-600 mb-2">
-              输入 <strong className="text-red-600">"删除"</strong> 确认：
+              输入 <strong className="text-red-600">&ldquo;删除&rdquo;</strong> 确认：
             </p>
             <input
               type="text"

@@ -2,30 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-
-/**
- * 更新用户资料参数接口
- */
-export interface UpdateProfileParams {
-  username?: string
-  bio?: string
-  location?: string
-  avatar_url?: string
-}
-
-/**
- * 更新用户资料结果接口
- */
-export interface UpdateProfileResult {
-  success: boolean
-  error?: string
-  data?: {
-    username: string
-    bio: string
-    location: string
-    avatar_url: string
-  }
-}
+import { UpdateProfileParams, UpdateProfileResult } from '@/types/settings'
 
 /**
  * 更新用户资料 Server Action

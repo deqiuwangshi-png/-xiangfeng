@@ -7,18 +7,14 @@
  */
 
 import { useState, useCallback } from 'react'
-
-/**
- * 视图模式类型
- */
-export type ViewMode = 'list' | 'editProfile' | 'security' | 'changeEmail' | 'linkedAccounts'
+import { AccountViewMode } from '@/types/settings'
 
 /**
  * 账户设置视图状态管理
  * @returns 视图状态和操作方法
  */
 export function useAccountView() {
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [viewMode, setViewMode] = useState<AccountViewMode>('list')
 
   /**
    * 切换到编辑个人资料视图

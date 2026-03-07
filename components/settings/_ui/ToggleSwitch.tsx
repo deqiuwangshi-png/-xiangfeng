@@ -4,21 +4,22 @@ import { useState, useTransition } from 'react'
 
 /**
  * 开关组件（Client Component）
- * 
+ *
  * 作用: 显示开关控件并处理开关状态切换
- * 
+ *
  * @param {boolean} checked - 开关是否选中
  * @param {function} onChange - 开关状态变化回调函数
  * @param {string} settingKey - 设置键（用于Server Actions）
  * @param {function} onServerAction - Server Action函数
+ * @param {function} onError - 错误回调函数
  * @param {boolean} disabled - 开关是否禁用
  * @returns {JSX.Element} 开关组件
- * 
+ *
  * 使用说明:
  *   显示开关控件
  *   处理开关状态切换
  *   调用Server Action更新设置
- * 
+ *
  * 架构说明:
  *   - 使用'use client'指令
  *   - 接收当前状态和设置键
@@ -32,15 +33,17 @@ interface ToggleSwitchProps {
   onChange?: (checked: boolean) => void
   settingKey?: string
   onServerAction?: (formData: FormData) => Promise<{ success: boolean; error?: string }>
+  onError?: (error: string) => void
   disabled?: boolean
 }
 
-export function ToggleSwitch({ 
-  checked, 
-  onChange, 
-  settingKey, 
-  onServerAction, 
-  disabled = false 
+export function ToggleSwitch({
+  checked,
+  onChange,
+  settingKey,
+  onServerAction,
+  onError,
+  disabled = false
 }: ToggleSwitchProps) {
   const [isPending, startTransition] = useTransition()
   const [localChecked, setLocalChecked] = useState(checked)
@@ -59,11 +62,23 @@ export function ToggleSwitch({
       formData.append('value', String(newChecked))
 
       startTransition(async () => {
-        const result = await onServerAction(formData)
-        if (!result.success) {
-          console.error('更新设置失败:', result.error)
-          setLocalChecked(!newChecked)
-        }
+        try {
+          const result = await onServerAction(formData)
+          if (!result.success) {
+            {/* 失败时回滚状态 */}
+            setLocalChecked(!newChecked)
+            {/* 调用错误回调 */}
+            if (onError) {
+              onError(result.error || '更新失败')
+            }
+          }
+        } catch {
+           {/* 异常时回滚状态 */}
+            setLocalChecked(!newChecked)
+           if (onError) {
+             onError('更新失败，请稍后重试')
+           }
+          }
       })
     }
   }

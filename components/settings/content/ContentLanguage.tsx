@@ -9,16 +9,7 @@
 import { useState, useCallback } from 'react'
 import { SettingItem } from '../_layout/SettingItem'
 import { updateContentLanguage } from '@/lib/settings/actions'
-
-/**
- * 支持的语言列表
- */
-const LANGUAGES = [
-  { value: 'zh-CN', label: '简体中文' },
-  { value: 'zh-TW', label: '繁体中文' },
-  { value: 'en', label: 'English' },
-  { value: 'ja', label: '日本語' },
-] as const
+import { SUPPORTED_LANGUAGES } from '@/types/settings'
 
 /**
  * 内容语言选择组件属性
@@ -80,7 +71,7 @@ export function ContentLanguage({ currentLanguage, onChange }: ContentLanguagePr
               disabled={isLoading}
               className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {LANGUAGES.map((lang) => (
+              {SUPPORTED_LANGUAGES.map((lang) => (
                 <option key={lang.value} value={lang.value}>
                   {lang.label}
                 </option>

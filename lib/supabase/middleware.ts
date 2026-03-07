@@ -9,8 +9,7 @@ const PROTECTED_ROUTES = [
   '/publish',
   '/drafts',
   '/inbox',
-  // '/article', // 移除 - 公开文章允许匿名访问
-  '/profile',   // 个人主页需要登录
+  '/profile',   
   '/settings',
   '/earnings',
   '/feedback',

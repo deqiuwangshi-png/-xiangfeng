@@ -12,18 +12,7 @@ import { EditProfileForm } from '../_forms/EditProfileForm'
 import { SecuritySettingsForm } from '../_forms/SecuritySettingsForm'
 import { ChangeEmailForm } from '../_forms/ChangeEmailForm'
 import { LinkedAccountsForm } from '../_forms/LinkedAccountsForm'
-
-/**
- * 用户数据接口
- */
-interface UserData {
-  id: string
-  email: string
-  username: string
-  avatar_url: string
-  bio: string
-  location: string
-}
+import { UserData } from '@/types/settings'
 
 interface AccountSectionProps {
   userData: UserData | null

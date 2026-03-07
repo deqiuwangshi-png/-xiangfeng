@@ -3,19 +3,27 @@
 /**
  * 用户设置相关 Server Actions
  * @module lib/settings/actions
- * @description 处理用户内容偏好等设置
+ * @description 集中处理所有用户设置相关的 Server Actions
  */
 
+import { z } from 'zod'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import {
+  ContentSettingsResult,
+  UpdateSettingInput,
+  UpdateSettingResult,
+  SettingCategory,
+} from '@/types/settings'
 
 /**
- * 内容设置结果接口
+ * 设置更新数据验证模式
  */
-export interface ContentSettingsResult {
-  success: boolean
-  content_language?: string
-  error?: string
-}
+const updateSettingSchema = z.object({
+  category: z.enum(['privacy', 'notifications', 'appearance', 'content', 'advanced']),
+  key: z.string(),
+  value: z.any(),
+})
 
 /**
  * 获取用户内容设置
@@ -114,3 +122,120 @@ export async function updateContentLanguage(
     return { success: false, error: '保存失败，请稍后重试' }
   }
 }
+
+/**
+ * 更新设置 Server Action
+ *
+ * @param settingData 设置数据
+ * @returns 更新结果
+ */
+export async function updateSetting(settingData: UpdateSettingInput): Promise<UpdateSettingResult> {
+  try {
+    const validatedData = updateSettingSchema.parse(settingData)
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return {
+        success: false,
+        error: '用户未登录',
+      }
+    }
+
+    console.log('更新设置:', {
+      userId: user.id,
+      ...validatedData,
+      updatedAt: new Date().toISOString(),
+    })
+
+    revalidatePath('/settings')
+
+    return {
+      success: true,
+      message: '设置更新成功',
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: '数据验证失败',
+        details: error.issues,
+      }
+    }
+
+    console.error('更新设置失败:', error)
+    return {
+      success: false,
+      error: '更新失败，请稍后重试',
+    }
+  }
+}
+
+/**
+ * 创建通用设置更新函数
+ *
+ * @param category 设置分类
+ * @returns 该分类的设置更新函数
+ */
+function createSettingUpdater(category: SettingCategory) {
+  return async function (formData: FormData): Promise<UpdateSettingResult> {
+    const key = formData.get('key') as string
+    const value = formData.get('value')
+
+    if (!key || value === null) {
+      return {
+        success: false,
+        error: '参数不完整',
+      }
+    }
+
+    const booleanValue = value === 'true'
+
+    return updateSetting({
+      category,
+      key,
+      value: booleanValue,
+    })
+  }
+}
+
+/**
+ * 更新隐私设置
+ *
+ * @param formData 表单数据
+ * @returns 更新结果
+ */
+export const updatePrivacySettings = createSettingUpdater('privacy')
+
+/**
+ * 更新通知设置
+ *
+ * @param formData 表单数据
+ * @returns 更新结果
+ */
+export const updateNotificationSettings = createSettingUpdater('notifications')
+
+/**
+ * 更新外观设置
+ *
+ * @param formData 表单数据
+ * @returns 更新结果
+ */
+export const updateAppearanceSettings = createSettingUpdater('appearance')
+
+/**
+ * 更新内容设置
+ *
+ * @param formData 表单数据
+ * @returns 更新结果
+ */
+export const updateContentSettings = createSettingUpdater('content')
+
+/**
+ * 更新高级设置
+ *
+ * @param formData 表单数据
+ * @returns 更新结果
+ */
+export const updateAdvancedSettings = createSettingUpdater('advanced')

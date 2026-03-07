@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from 'lucide-react'
 import { AvatarPlaceholder, FormActions } from '@/components/ui'
-import { updateProfile, UpdateProfileParams } from '@/lib/user/updateProfile'
+import { updateProfile } from '@/lib/user/updateProfile'
+import { UserData, UpdateProfileParams } from '@/types/settings'
 
 /**
  * 编辑个人资料表单组件
@@ -27,18 +28,6 @@ import { updateProfile, UpdateProfileParams } from '@/lib/user/updateProfile'
  *   - 保存成功后刷新页面数据
  * 更新时间: 2026-03-02
  */
-
-/**
- * 用户数据接口
- */
-interface UserData {
-  id?: string
-  username: string
-  email: string
-  bio: string
-  location: string
-  avatar_url?: string
-}
 
 interface EditProfileFormProps {
   initialData?: UserData | null

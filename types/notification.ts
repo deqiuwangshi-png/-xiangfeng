@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, UserPlus, Bell, AtSign, Award } from 'lucide-react'
+import { Heart, MessageCircle, AtSign } from 'lucide-react'
 
 /**
  * 通知类型
