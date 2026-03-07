@@ -12,12 +12,25 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserDropdownMenu } from './UserDropdownMenu'
 
 /**
+ * 简化用户对象接口
+ * @interface SimpleUser
+ */
+interface SimpleUser {
+  id: string
+  email: string
+  user_metadata?: {
+    username?: string
+    avatar_url?: string
+  }
+}
+
+/**
  * UserProfileSection Props 接口
  * @interface UserProfileSectionProps
  */
 interface UserProfileSectionProps {
-  /** 当前用户 */
-  user?: SupabaseUser | null
+  /** 当前用户（支持SupabaseUser或简化用户对象） */
+  user?: SupabaseUser | SimpleUser | null
   /** 用户资料（从profiles表获取，优先级高于user.user_metadata） */
   profile?: {
     username?: string

@@ -1,6 +1,6 @@
 'use client';
 
-import { Bug, Lightbulb, Palette, HelpCircle } from 'lucide-react';
+import { Bug, Lightbulb, Palette, HelpCircle } from '@/components/icons';
 import type { FeedbackType } from '@/types/feedback';
 
 interface TypeSelectorProps {

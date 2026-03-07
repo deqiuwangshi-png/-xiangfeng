@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from '@/components/icons'
 
 interface DangerZoneProps {
   children: ReactNode

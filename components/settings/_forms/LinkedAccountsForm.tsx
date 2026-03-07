@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Link2, Github, MessageCircle, CheckCircle2, Circle } from 'lucide-react'
+import { ArrowLeft, Link2, Github, MessageCircle, CheckCircle2, Circle } from '@/components/icons'
 import { IconBox, PrimaryButton } from '@/components/ui'
 
 /**

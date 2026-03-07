@@ -14,7 +14,8 @@
  */
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon, X } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon } from '@/components/icons';
+import { X } from '@/components/icons';
 import type { User } from '@supabase/supabase-js';
 import { toggleArticleLike } from '@/lib/articles/actions/like';
 import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';

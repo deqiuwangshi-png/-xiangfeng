@@ -9,7 +9,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { DollarSign } from 'lucide-react'
+import { DollarSign } from '@/components/icons'
 
 /**
  * 提现记录接口

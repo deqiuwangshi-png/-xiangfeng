@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check } from '@/components/icons';
 
 interface SuccessModalProps {
   trackingId: string;

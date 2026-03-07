@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from 'lucide-react'
+import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from '@/components/icons'
 import { AvatarPlaceholder, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
 import { UserData, UpdateProfileParams } from '@/types/settings'

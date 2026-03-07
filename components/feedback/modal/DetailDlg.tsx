@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { X, Calendar, Tag, FileText, Mail, User } from 'lucide-react';
+import { X } from '@/components/icons';
+import { Calendar, Tag, FileText, Mail, User } from 'lucide-react';
 import { useFeedbackReplies } from '../hooks/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';

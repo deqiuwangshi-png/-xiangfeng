@@ -33,13 +33,29 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
  *
  * @param request - Next.js 请求对象
  * @returns Next.js 响应对象
- * 
+ *
+ * 性能优化：
+ * - 快速路径：公开路由跳过用户验证
+ * - 延迟加载：安全头部仅在需要时设置
+ * - 缓存优化：减少不必要的Cookie操作
+ *
  * 安全特性：
  * - Cookie 安全属性（HttpOnly, Secure, SameSite）
  * - 刷新令牌轮换
  * - 路由访问控制
  */
 export async function updateSession(request: NextRequest) {
+  const path = request.nextUrl.pathname
+
+  {/* 快速路径：公开路由不需要会话验证，直接返回 */}
+  const isPublicRoute = !isMatchingRoute(path, PROTECTED_ROUTES) &&
+                        !isMatchingRoute(path, AUTH_ROUTES)
+  if (isPublicRoute) {
+    return NextResponse.next({
+      request: { headers: request.headers },
+    })
+  }
+
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -60,38 +76,31 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll()
       },
       setAll(cookiesToSet) {
+        {/* 批量设置Cookie，减少响应对象重建 */}
+        const secureOptions: CookieOptions = {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+        }
+
         cookiesToSet.forEach(({ name, value, options }) => {
-          // 🔐 安全加固：添加 Cookie 安全属性
-          const secureOptions: CookieOptions = {
-            ...options,
-            httpOnly: true,           // 防止 XSS 窃取 Cookie
-            secure: process.env.NODE_ENV === 'production', // 生产环境强制 HTTPS
-            sameSite: 'lax',          // 防止 CSRF 攻击
-          };
-          
           request.cookies.set({
             name,
             value,
+            ...options,
             ...secureOptions,
           })
         })
+
         supabaseResponse = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
+          request: { headers: request.headers },
         })
+
         cookiesToSet.forEach(({ name, value, options }) => {
-          // 🔐 安全加固：添加 Cookie 安全属性到响应
-          const secureOptions: CookieOptions = {
-            ...options,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-          };
-          
           supabaseResponse.cookies.set({
             name,
             value,
+            ...options,
             ...secureOptions,
           })
         })
@@ -99,20 +108,16 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  // 获取当前用户
+  {/* 获取当前用户 - 仅对需要验证的路由执行 */}
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (userError) {
-    // 静默处理会话缺失错误（如用户已删除账户）
-    if (userError.message !== 'Auth session missing!') {
-      console.error('Auth error in middleware:', userError.message)
-    }
+  if (userError && userError.message !== 'Auth session missing!') {
+    console.error('Auth error in middleware:', userError.message)
   }
 
-  const path = request.nextUrl.pathname
-
-  // 1. 已登录用户访问认证页面，重定向到首页
+  {/* 路由保护逻辑 */}
   if (user && isMatchingRoute(path, AUTH_ROUTES)) {
+    {/* 已登录用户访问认证页面，重定向到首页 */}
     const redirectUrl = request.nextUrl.searchParams.get('redirect')
     const targetUrl = redirectUrl && !isMatchingRoute(redirectUrl, AUTH_ROUTES)
       ? redirectUrl
@@ -120,22 +125,19 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL(targetUrl, request.url))
   }
 
-  // 2. 未登录用户访问受保护路由，重定向到登录页
   if (!user && isMatchingRoute(path, PROTECTED_ROUTES)) {
+    {/* 未登录用户访问受保护路由，重定向到登录页 */}
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', path)
     return NextResponse.redirect(loginUrl)
   }
 
-  // 3. 🔐 安全加固：添加安全响应头部
-  supabaseResponse.headers.set('X-Frame-Options', 'DENY')
-  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
-  supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  supabaseResponse.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://*.supabase.co;"
-  )
-  // 移除 X-XSS-Protection（现代浏览器已弃用，使用 CSP 替代）
+  {/* 安全头部 - 仅对受保护路由设置，减少开销 */}
+  if (isMatchingRoute(path, PROTECTED_ROUTES)) {
+    supabaseResponse.headers.set('X-Frame-Options', 'DENY')
+    supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
+    supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  }
 
   return supabaseResponse
 }

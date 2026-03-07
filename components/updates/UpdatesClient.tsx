@@ -9,7 +9,7 @@
 
 'use client'
 
-import { GitMerge } from 'lucide-react'
+import { GitMerge } from '@/components/icons'
 import { useUpdates } from '@/hooks/useUpdates'
 import { LATEST_VERSION } from '@/constants/updates'
 import { FilterButton, VersionCard, MonthHeader } from '@/components/updates'

@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Lock, Bell, Palette, Filter, Settings2 } from 'lucide-react'
+import { User, Lock, Bell, Palette, Filter, Settings2 } from '@/components/icons'
 
 /**
  * 设置导航组件（Client Component）

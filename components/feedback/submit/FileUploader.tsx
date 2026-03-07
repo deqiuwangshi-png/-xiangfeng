@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud } from '@/components/icons';
 import { uploadFeedbackAttachment } from '@/lib/feedback/actions';
 import FileList from './FileList';
 import type { UploadedFile } from '@/types/feedback';

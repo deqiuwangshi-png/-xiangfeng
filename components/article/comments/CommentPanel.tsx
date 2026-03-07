@@ -9,7 +9,7 @@
  */
 
 import { useRef } from 'react'
-import { X } from 'lucide-react'
+import { X } from '@/components/icons'
 import { useComments } from './_hooks/useComments'
 import { useCommentSubmit } from './_hooks/useCommentSub'
 import { CommentList } from './CommentList'

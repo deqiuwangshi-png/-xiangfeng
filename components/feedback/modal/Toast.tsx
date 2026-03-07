@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, X, Copy } from 'lucide-react';
+import { Check, X } from '@/components/icons';
+import { Copy } from 'lucide-react';
 
 interface ToastProps {
   message: string;

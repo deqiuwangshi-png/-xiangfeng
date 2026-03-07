@@ -16,7 +16,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { MessageSquare, UserPlus, UserCheck, MapPin, Star } from 'lucide-react'
+import { MessageSquare, UserPlus, UserCheck, MapPin, Star } from '@/components/icons'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'

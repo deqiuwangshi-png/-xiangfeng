@@ -24,12 +24,25 @@ interface DropdownItem {
 }
 
 /**
+ * 简化用户对象接口
+ * @interface SimpleUser
+ */
+interface SimpleUser {
+  id: string
+  email: string
+  user_metadata?: {
+    username?: string
+    avatar_url?: string
+  }
+}
+
+/**
  * UserDropdownMenu Props 接口
  * @interface UserDropdownMenuProps
  */
 interface UserDropdownMenuProps {
-  /** 当前用户 */
-  user?: SupabaseUser | null
+  /** 当前用户（支持SupabaseUser或简化用户对象，当前未使用但保留用于未来扩展） */
+  user?: SupabaseUser | SimpleUser | null
   /** 是否打开 */
   isOpen: boolean
   /** 关闭菜单的回调 */

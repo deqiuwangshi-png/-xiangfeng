@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, User, Loader2 } from 'lucide-react';
+import { MessageSquare, User, Loader2 } from '@/components/icons';
 import type { Reply } from '@/types/feedback';
 
 interface FeedbackReplyListProps {

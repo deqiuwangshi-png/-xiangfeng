@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Heart, CornerUpLeft, Trash2 } from 'lucide-react'
+import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { getInitials } from '@/lib/utils/getInitials'
 import type { CommentCardProps } from './types'

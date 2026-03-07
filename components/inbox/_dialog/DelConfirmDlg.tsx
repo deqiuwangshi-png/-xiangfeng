@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, X } from 'lucide-react'
+import { Trash2, X } from '@/components/icons'
 
 /**
  * 删除确认弹窗组件属性接口

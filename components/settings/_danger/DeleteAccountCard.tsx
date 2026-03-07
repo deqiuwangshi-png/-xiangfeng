@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Trash2, X } from '@/components/icons'
 import { deleteAccount } from '@/lib/user/deleteAccount'
 import { useRouter } from 'next/navigation'
 

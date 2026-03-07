@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageSquare, CheckCircle, Clock } from 'lucide-react';
+import { MessageSquare, CheckCircle, Clock } from '@/components/icons';
 import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
 
 interface FeedbackCardProps {

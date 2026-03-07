@@ -1,6 +1,7 @@
 'use client';
 
-import { File, X, Loader2 } from 'lucide-react';
+import { X, Loader2 } from '@/components/icons';
+import { File } from 'lucide-react';
 import type { UploadedFile } from '@/types/feedback';
 
 interface FileListProps {

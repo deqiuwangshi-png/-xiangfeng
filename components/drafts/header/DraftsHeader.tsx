@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 
 /**
  * DraftsHeader Props 接口

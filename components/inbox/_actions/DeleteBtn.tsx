@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 import { DeleteConfirmDialog } from '../_dialog/DelConfirmDlg'
 
 /**

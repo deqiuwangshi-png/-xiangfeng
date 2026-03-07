@@ -1,6 +1,6 @@
 'use client'
 
-import { Save, Send } from 'lucide-react'
+import { Save, Send } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
 interface EditorHeaderProps {

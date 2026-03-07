@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Suspense, cache } from 'react';
 import Link from 'next/link';
-import { Home } from 'lucide-react';
+import { Home } from '@/components/icons';
 import ArticleContent from '@/components/article/ArticleContent';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArticleActions from '@/components/article/ArticleActions';

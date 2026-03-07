@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { ArticleCard } from '@/components/app/ArticleCard'
 import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/crud'
 import { getCurrentUser } from '@/lib/supabase/user'
 import Link from 'next/link'

@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, CheckCheck, Trash2, X, CheckSquare } from 'lucide-react'
+import { Bell, CheckCheck, Trash2, X, CheckSquare } from '@/components/icons'
 
 /**
  * 消息页头部组件属性接口

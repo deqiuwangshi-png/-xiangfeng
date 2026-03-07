@@ -6,7 +6,7 @@
  * @description 应用主导航侧边栏，只负责导航和布局
  */
 
-import { Home, Edit3, FolderOpen, BellRing, Gift } from 'lucide-react'
+import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -53,11 +53,25 @@ interface UserProfile {
 }
 
 /**
+ * 简化用户对象接口
+ * @interface SimpleUser
+ */
+interface SimpleUser {
+  id: string
+  email: string
+  user_metadata?: {
+    username?: string
+    avatar_url?: string
+  }
+}
+
+/**
  * Sidebar Props 接口
  * @interface SidebarProps
  */
 interface SidebarProps {
-  user?: SupabaseUser | null
+  /** 当前用户（支持SupabaseUser或简化用户对象） */
+  user?: SupabaseUser | SimpleUser | null
   /** 用户资料（从profiles表获取，用于显示头像） */
   profile?: UserProfile | null
 }

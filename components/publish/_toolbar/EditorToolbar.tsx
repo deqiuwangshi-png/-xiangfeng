@@ -14,7 +14,7 @@ import {
   Bold, Italic, Underline, Heading, Quote, Code,
   Link, List, ListOrdered, Minus, Eraser, Undo, Redo,
   ArrowUpToLine, Maximize, ChevronDown
-} from 'lucide-react'
+} from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
 
 interface EditorToolbarProps {

@@ -1,7 +1,7 @@
 'use client'
 
 import { DraftData, DraftStatus } from '@/types/drafts'
-import { Trash2 } from 'lucide-react'
+import { Trash2 } from '@/components/icons'
 
 /**
  * 草稿卡片组件属性

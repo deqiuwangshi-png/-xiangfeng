@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { HelpCircle, Loader2 } from 'lucide-react';
+import { HelpCircle, Loader2 } from '@/components/icons';
 import FeedbackTabs from '@/components/feedback/FeedbackTabs';
 import Toast from '@/components/feedback/modal/Toast';
 import { getFeedbacksByTrackingIds } from '@/lib/feedback/actions';

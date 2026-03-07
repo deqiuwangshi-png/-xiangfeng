@@ -16,7 +16,7 @@
  * 更新时间: 2026-03-04
  */
 
-import { AlertTriangle, X, Trash2 } from 'lucide-react'
+import { AlertTriangle, X, Trash2 } from '@/components/icons'
 
 /**
  * 删除模式类型

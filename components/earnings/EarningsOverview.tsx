@@ -8,7 +8,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { Wallet, TrendingUp, Award, Calendar } from 'lucide-react'
+import { Wallet, TrendingUp, Award, Calendar } from '@/components/icons'
 
 /**
  * 统计卡片接口

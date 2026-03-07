@@ -167,7 +167,8 @@ export function useInbox() {
   const filteredNotifications = useMemo(() => {
     if (activeFilter === 'all') return notifications
     if (activeFilter === 'unread') return notifications.filter(n => n.unread)
-    if (activeFilter === 'mention') return notifications.filter(n => n.type === 'reply')
+    if (activeFilter === 'mention') return notifications.filter(n => n.type === 'mention')
+    if (activeFilter === 'system') return notifications.filter(n => n.type === 'system' || n.type === 'announcement')
     return notifications
   }, [notifications, activeFilter])
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2 } from '@/components/icons';
 
 interface FeedbackReplyFormProps {
   onSubmit: (content: string) => Promise<boolean>;

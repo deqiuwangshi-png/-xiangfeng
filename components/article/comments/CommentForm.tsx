@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2 } from '@/components/icons'
 import type { CommentFormProps } from './types'
 
 /**

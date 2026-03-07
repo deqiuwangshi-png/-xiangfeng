@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react'
-import { RefreshCw, Plus, Users, FileText, Heart } from 'lucide-react'
+import { RefreshCw, Plus, Users, FileText, Heart } from '@/components/icons'
 
 /**
  * 收益记录接口

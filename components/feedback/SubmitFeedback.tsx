@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit3, ChevronDown } from 'lucide-react';
+import { Edit3, ChevronDown } from '@/components/icons';
 import { useFeedbackForm } from '@/components/feedback/hooks/useFeedbackForm';
 import TypeSelector from './submit/TypeSelector';
 import FileUploader from './submit/FileUploader';

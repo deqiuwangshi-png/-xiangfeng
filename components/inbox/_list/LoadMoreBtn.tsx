@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader } from 'lucide-react'
+import { Loader } from '@/components/icons'
 
 /**
  * 加载更多按钮组件属性接口

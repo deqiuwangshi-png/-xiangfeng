@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, lazy, Suspense } from 'react';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from '@/components/icons';
 import FeedbackCard from './FeedbackCard';
 import type { FeedbackItem } from '@/types/feedback';
 
