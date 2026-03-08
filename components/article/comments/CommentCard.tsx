@@ -1,10 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import Image from 'next/image'
 import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
 import { formatDistanceToNow } from '@/lib/utils/date'
-import { getInitials } from '@/lib/utils/getInitials'
+import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 import type { CommentCardProps } from './types'
 
 /**
@@ -16,33 +14,18 @@ import type { CommentCardProps } from './types'
  * @returns 评论卡片JSX
  */
 export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentCardProps) {
-  {/* 头像加载失败状态 */}
-  const [avatarError, setAvatarError] = useState(false)
-
   {/* 判断是否显示删除按钮 */}
   const canDelete = currentUser?.id === comment.author.id
 
   return (
     <div className="comment-item">
       <div className="comment-avatar relative">
-        {!avatarError ? (
-          <Image
-            src={
-              comment.author.avatar ||
-              `https://api.dicebear.com/7.x/micah/svg?seed=${comment.author.id}&backgroundColor=B6CAD7`
-            }
-            alt={comment.author.name}
-            fill
-            sizes="40px"
-            className="object-cover rounded-full"
-            loading="lazy"
-            onError={() => setAvatarError(true)}
-          />
-        ) : (
-          <span className="flex items-center justify-center w-full h-full text-sm font-medium text-gray-600 rounded-full bg-gray-200">
-            {getInitials(comment.author.name)}
-          </span>
-        )}
+        <AvatarPlaceholder
+          name={comment.author.name}
+          userId={comment.author.id}
+          avatarUrl={comment.author.avatar}
+          size="sm"
+        />
       </div>
 
       <div className="comment-content">

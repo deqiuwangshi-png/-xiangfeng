@@ -96,15 +96,17 @@ export async function getArticleComments(
 }
 
 /**
- * 提交文章评论
+ * 提交文章评论（支持回复）
  *
  * @param articleId - 文章ID
  * @param content - 评论内容
+ * @param parentId - 回复的评论ID（可选）
  * @returns 提交结果
  */
 export async function submitArticleComment(
   articleId: string,
-  content: string
+  content: string,
+  parentId?: string
 ): Promise<SubmitCommentResult> {
   const supabase = await createClient();
 
@@ -131,14 +133,47 @@ export async function submitArticleComment(
       return { success: false, error: '用户资料初始化失败' };
     }
 
-    {/* 插入评论到数据库 - 使用关联查询一次性返回作者信息 */}
+    {/* 准备插入数据 */}
+    const insertData: {
+      article_id: string;
+      user_id: string;
+      content: string;
+      parent_id?: string;
+      reply_to_user_id?: string;
+      reply_to_username?: string;
+    } = {
+      article_id: articleId,
+      user_id: user.id,
+      content: content.trim(),
+    };
+
+    {/* 如果是回复，获取父评论信息 */}
+    let parentComment: { user_id: string; author: { username: string } } | null = null;
+    if (parentId) {
+      const { data: parent } = await supabase
+        .from('comments')
+        .select('user_id, author:profiles!user_id(username)')
+        .eq('id', parentId)
+        .single();
+
+      if (parent) {
+        {/* Supabase 关联查询返回数组，取第一个元素 */}
+        const authorArray = parent.author as unknown as Array<{ username: string }>;
+        const author = authorArray?.[0];
+        parentComment = {
+          user_id: parent.user_id,
+          author: { username: author?.username || '匿名用户' }
+        };
+        insertData.parent_id = parentId;
+        insertData.reply_to_user_id = parent.user_id;
+        insertData.reply_to_username = author?.username || '匿名用户';
+      }
+    }
+
+    {/* 插入评论到数据库 */}
     const { data: comment, error } = await supabase
       .from('comments')
-      .insert({
-        article_id: articleId,
-        user_id: user.id,
-        content: content.trim(),
-      })
+      .insert(insertData)
       .select(`
         *,
         author:profiles!user_id(username, avatar_url)
@@ -149,6 +184,8 @@ export async function submitArticleComment(
       console.error('插入评论失败:', error);
       return { success: false, error: `评论提交失败: ${error?.message || '未知错误'}` };
     }
+
+    {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
 
     return {
       success: true,
@@ -205,3 +242,5 @@ export async function deleteArticleComment(commentId: string): Promise<DeleteCom
     return { success: false, error: '操作失败' };
   }
 }
+
+{/* 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql */}

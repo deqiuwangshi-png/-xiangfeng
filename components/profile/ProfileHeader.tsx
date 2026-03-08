@@ -19,7 +19,7 @@
 import { MessageSquare, UserPlus, UserCheck, MapPin, Star } from '@/components/icons'
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 
 /**
@@ -63,14 +63,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         {/* 头像区域 */}
         <div className="relative">
           <div className="relative">
-            <Image
-              src={user.avatarUrl}
-              alt={user.username}
-              width={128}
-              height={128}
-              className="w-32 h-32 rounded-full shadow-deep ring-4 ring-white"
-              priority
-              unoptimized={user.avatarUrl?.includes('dicebear.com')}
+            <AvatarPlaceholder
+              name={user.username}
+              userId={user.id}
+              avatarUrl={user.avatarUrl}
+              size="xl"
+              className="shadow-deep ring-4 ring-white"
             />
             <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-2 border-white rounded-full" />
           </div>

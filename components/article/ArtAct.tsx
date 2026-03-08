@@ -1,72 +1,64 @@
 'use client';
 
 /**
- * ArticleActions - 文章操作按钮组件
+ * 文章操作按钮组件
  *
- * 作用: 提供文章点赞、评论、分享、收藏功能
- *
- * 优化点:
- * - 接收 currentUser 用于判断登录状态
- * - 未登录时提示登录
- * - 使用 Server Actions 替代 API Routes
- *
- * @returns {JSX.Element} 文章操作按钮组件
+ * @module components/article/ArtAct
+ * @description 提供文章点赞、评论、分享、收藏功能
  */
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon } from '@/components/icons';
-import { X } from '@/components/icons';
+import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon, Sparkles, X } from '@/components/icons';
 import type { User } from '@supabase/supabase-js';
 import { toggleArticleLike } from '@/lib/articles/actions/like';
 import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
+import { RwMd } from './rw/RwMd';
 
 /**
- * ArticleActions Props 接口
+ * ArtAct Props 接口
  */
-interface ArticleActionsProps {
+interface ArtActProps {
+  /** 文章ID */
   articleId: string;
+  /** 当前用户 */
   currentUser: User | null;
+  /** 初始点赞数 */
   initialLikeCount?: number;
+  /** 初始评论数 */
   initialCommentCount?: number;
+  /** 初始点赞状态 */
   initialLiked?: boolean;
+  /** 初始收藏状态 */
   initialBookmarked?: boolean;
 }
 
 /**
  * 文章操作按钮组件
- * 
- * @function ArticleActions
- * @param {ArticleActionsProps} props - 组件属性
+ *
+ * @param {ArtActProps} props - 组件属性
  * @returns {JSX.Element} 文章操作按钮组件
- * 
- * @description
- * 提供文章交互功能的完整实现：
- * - 点赞/取消点赞
- * - 打开评论面板
- * - 分享文章
- * - 收藏/取消收藏
- * - 根据登录状态启用/禁用功能
  */
-export default function ArticleActions({ 
-  articleId, 
+export default function ArtAct({
+  articleId,
   currentUser,
   initialLikeCount = 0,
   initialCommentCount = 0,
   initialLiked = false,
   initialBookmarked = false,
-}: ArticleActionsProps) {
+}: ArtActProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [bookmarked, setBookmarked] = useState(initialBookmarked);
   const [shared, setShared] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
   const [commentCount] = useState(initialCommentCount);
 
   /**
    * 检查用户是否登录
-   * 
-   * @returns 是否已登录
+   *
+   * @returns {boolean} 是否已登录
    */
   const checkAuth = () => {
     if (!currentUser) {
@@ -78,19 +70,16 @@ export default function ArticleActions({
 
   /**
    * 处理点赞
-   * 使用 Server Action 替代 API Route
    */
   const handleLike = async () => {
     if (!checkAuth()) return;
 
-    // 设置加载状态，防止重复点击
     setIsLikeLoading(true);
 
     try {
       const result = await toggleArticleLike(articleId);
 
       if (result.success) {
-        // 使用服务器返回的最新数据（数据库是单一真理源）
         setLiked(result.liked);
         setLikeCount(result.likes);
       } else {
@@ -106,30 +95,23 @@ export default function ArticleActions({
 
   /**
    * 处理收藏
-   * 使用 Server Action 替代 API Route，保持乐观更新
    */
   const handleBookmark = async () => {
     if (!checkAuth()) return;
 
-    // 保存当前状态（用于失败回滚）
     const previousBookmarked = bookmarked;
-
-    // 乐观更新：立即更新 UI
     setBookmarked(!bookmarked);
 
     try {
       const result = await toggleArticleBookmark(articleId);
 
       if (result.success) {
-        // 使用服务器返回的最新数据
         setBookmarked(result.favorited);
       } else {
-        // 请求失败，回滚状态
         setBookmarked(previousBookmarked);
         alert(result.error || '操作失败，请重试');
       }
     } catch (error) {
-      // 网络错误，回滚状态
       setBookmarked(previousBookmarked);
       console.error('Failed to bookmark article:', error);
       alert('网络错误，请检查网络连接');
@@ -139,7 +121,7 @@ export default function ArticleActions({
   /**
    * 处理分享
    *
-   * @param platform - 分享平台
+   * @param {string} platform - 分享平台
    */
   const handleShare = (platform: string) => {
     const url = window.location.href;
@@ -159,7 +141,7 @@ export default function ArticleActions({
   const handleCommentsClick = () => {
     const commentPanel = document.querySelector('.comments-panel') as HTMLElement;
     const overlay = document.querySelector('.comments-overlay') as HTMLElement;
-    
+
     if (commentPanel && overlay) {
       commentPanel.classList.add('active');
       overlay.classList.add('active');
@@ -169,6 +151,16 @@ export default function ArticleActions({
 
   return (
     <div className="douyin-sidebar">
+      {/* 鼓励/打赏按钮 */}
+      <div
+        className="douyin-action-btn reward-btn"
+        onClick={() => setShowRewardModal(true)}
+        title="鼓励作者"
+      >
+        <Sparkles className="douyin-icon" />
+        <span className="douyin-count">鼓励</span>
+      </div>
+
       {/* 点赞按钮 */}
       <div
         className={`douyin-action-btn ${liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
@@ -180,7 +172,7 @@ export default function ArticleActions({
       </div>
 
       {/* 评论按钮 */}
-      <div 
+      <div
         className="douyin-action-btn comments-btn"
         onClick={handleCommentsClick}
       >
@@ -201,48 +193,35 @@ export default function ArticleActions({
         {/* 分享弹窗 */}
         {showShareMenu && (
           <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* 遮罩层 - 仅视觉，不响应点击 */}
             <div className="absolute inset-0 bg-black/50" />
-
-            {/* 弹窗内容 */}
             <div className="relative bg-white rounded-xl p-6 w-full max-w-sm mx-4 shadow-xl">
-              {/* 关闭按钮 */}
               <button
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowShareMenu(false)}
               >
                 <X className="w-5 h-5" />
               </button>
-
-              {/* 标题 */}
               <h3 className="text-lg font-medium text-center text-gray-900 mb-6">
                 分享到
               </h3>
-
-              {/* 分享选项 */}
               <div className="flex justify-center gap-8">
-                {/* 微信 - 占位禁用 */}
                 <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
                   <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                     <MessageCircle className="w-6 h-6 text-green-500" />
                   </div>
                   <span className="text-sm text-gray-600">微信好友</span>
                 </div>
-
-                {/* 微博 - 占位禁用 */}
                 <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
                   <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                     <Share className="w-6 h-6 text-red-500" />
                   </div>
                   <span className="text-sm text-gray-600">微博</span>
                 </div>
-
-                {/* 复制链接 - 可用 */}
                 <button
                   className="flex flex-col items-center gap-2 hover:opacity-80 transition"
                   onClick={() => {
-                    handleShare('copy')
-                    setShowShareMenu(false)
+                    handleShare('copy');
+                    setShowShareMenu(false);
                   }}
                 >
                   <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -257,7 +236,7 @@ export default function ArticleActions({
       </div>
 
       {/* 收藏按钮 */}
-      <div 
+      <div
         className={`douyin-action-btn ${bookmarked ? 'bookmarked' : ''} ${!currentUser ? 'opacity-50' : ''}`}
         onClick={handleBookmark}
         title={currentUser ? '收藏' : '请先登录'}
@@ -265,6 +244,14 @@ export default function ArticleActions({
         <Bookmark className="douyin-icon" />
         <span className="douyin-count">收藏</span>
       </div>
+
+      {/* 打赏弹窗 */}
+      {showRewardModal && (
+        <RwMd
+          onClose={() => setShowRewardModal(false)}
+          currentUser={currentUser}
+        />
+      )}
     </div>
   );
 }

@@ -15,4 +15,9 @@ export {
   Link,
   CornerUpLeft,
   Send,
+  Sparkles,
+  Coins,
+  Gift,
+  Megaphone,
+  X,
 } from 'lucide-react'

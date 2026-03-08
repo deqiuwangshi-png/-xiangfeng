@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Home } from '@/components/icons';
 import ArticleContent from '@/components/article/ArticleContent';
 import ArticleHeader from '@/components/article/ArticleHeader';
-import ArticleActions from '@/components/article/ArticleActions';
+import ArtAct from '@/components/article/ArtAct';
 import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
@@ -120,8 +120,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       </div>
       
       {/* ✅ ArticleActions 接收当前用户和文章统计数据 */}
-      <ArticleActions 
-        articleId={articleId} 
+      <ArtAct
+        articleId={articleId}
         currentUser={user}
         initialLikeCount={article.likesCount || 0}
         initialCommentCount={totalCount || 0}

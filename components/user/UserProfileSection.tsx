@@ -7,8 +7,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import Image from 'next/image'
 import { User as SupabaseUser } from '@supabase/supabase-js'
+import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 import { UserDropdownMenu } from './UserDropdownMenu'
 
 /**
@@ -69,8 +69,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   // 获取用户显示信息（优先使用profile数据，保持与编辑页一致）
   const userEmail = user?.email || '用户'
   const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || 
-    `https://api.dicebear.com/7.x/micah/svg?seed=${user?.id || 'Felix'}&backgroundColor=B6CAD7`
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
 
   return (
     <div className={`relative ${className}`}>
@@ -83,17 +82,13 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
           aria-label="用户菜单"
           aria-expanded={isDropdownOpen}
         >
-          <div className="w-10 h-10 rounded-full shadow-sm ring-2 ring-white overflow-hidden bg-xf-soft/20">
-            <Image
-              src={avatarUrl}
-              alt="用户头像"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-              loading="eager"
-              unoptimized={avatarUrl.includes('dicebear.com')}
-            />
-          </div>
+          <AvatarPlaceholder
+            name={userName}
+            userId={user?.id}
+            avatarUrl={avatarUrl}
+            size="sm"
+            className="shadow-sm ring-2 ring-white"
+          />
           {/* 在线状态指示器 */}
           <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-xf-success border-2 border-white rounded-full" />
         </button>

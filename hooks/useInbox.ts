@@ -14,13 +14,15 @@ import {
 /**
  * Supabase通知原始数据接口
  * @interface SupabaseNotification
+ * @description 对应数据库 notifications 表结构
  */
 interface SupabaseNotification {
   id: string
   type: 'article_liked' | 'comment_liked' | 'article_commented' | 'comment_replied' | 'article_favorited' | 'followed' | 'mention' | 'system' | 'announcement'
   title: string
-  message: string | null
-  sender_name: string | null
+  content: string | null
+  actor_id: string | null
+  actor?: { username: string } | null
   is_read: boolean
   created_at: string
 }
@@ -35,8 +37,8 @@ function formatNotification(raw: SupabaseNotification): NotificationData & { cre
     id: raw.id,
     type: raw.type,
     title: raw.title,
-    message: raw.message || '',
-    user: raw.sender_name || '未知用户',
+    message: raw.content || '',
+    user: raw.actor?.username || '未知用户',
     time: formatTime(raw.created_at),
     unread: !raw.is_read,
     createdAt: raw.created_at,
@@ -97,7 +99,10 @@ export function useInbox() {
 
     const { data, error } = await supabase
       .from('notifications')
-      .select('*')
+      .select(`
+        *,
+        actor:profiles!actor_id(username)
+      `)
       .order('created_at', { ascending: false })
       .range(from, to)
 
@@ -115,7 +120,6 @@ export function useInbox() {
     } else {
       setNotifications(formatted)
       setPage(1)
-      setUnreadCount(formatted.filter(n => n.unread).length)
     }
 
     setHasMore(formatted.length === PAGE_SIZE)
@@ -137,27 +141,59 @@ export function useInbox() {
 
   /**
    * 实时订阅新通知
+   * @description 使用用户特定的channel名，并过滤当前用户的消息
    */
   useEffect(() => {
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-        },
-        (payload) => {
-          const newNotification = formatNotification(payload.new as SupabaseNotification)
-          setNotifications(prev => [newNotification, ...prev])
-          setUnreadCount(prev => prev + 1)
-        }
-      )
-      .subscribe()
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
+    const setupSubscription = async () => {
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData.user?.id
+
+      if (!userId) return
+
+      channel = supabase
+        .channel(`notifications:${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            const newNotification = formatNotification(payload.new as SupabaseNotification)
+            setNotifications(prev => [newNotification, ...prev])
+            setUnreadCount(prev => prev + 1)
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            const updated = payload.new as SupabaseNotification
+            const old = payload.old as SupabaseNotification
+
+            if (!old.is_read && updated.is_read) {
+              setUnreadCount(prev => Math.max(0, prev - 1))
+            }
+          }
+        )
+        .subscribe()
+    }
+
+    setupSubscription()
 
     return () => {
-      channel.unsubscribe()
+      if (channel) {
+        channel.unsubscribe()
+      }
     }
   }, [supabase])
 
@@ -217,7 +253,7 @@ export function useInbox() {
     const { error } = await supabase
       .from('notifications')
       .update({ is_read: true })
-      .eq('recipient_id', userId)
+      .eq('user_id', userId)
       .eq('is_read', false)
 
     if (error) {
@@ -297,6 +333,8 @@ export function useInbox() {
    * @param id - 消息ID
    */
   const deleteNotification = useCallback(async (id: string) => {
+    const notification = notifications.find(n => n.id === id)
+
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -308,7 +346,11 @@ export function useInbox() {
     }
 
     setNotifications(prev => prev.filter(n => n.id !== id))
-  }, [supabase])
+
+    if (notification?.unread) {
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    }
+  }, [supabase, notifications])
 
   /**
    * 批量删除消息
@@ -317,6 +359,10 @@ export function useInbox() {
     if (selectedIds.size === 0) return
 
     const ids = Array.from(selectedIds)
+    const unreadDeletedCount = notifications.filter(
+      n => selectedIds.has(n.id) && n.unread
+    ).length
+
     const { error } = await supabase
       .from('notifications')
       .delete()
@@ -328,9 +374,10 @@ export function useInbox() {
     }
 
     setNotifications(prev => prev.filter(n => !selectedIds.has(n.id)))
+    setUnreadCount(prev => Math.max(0, prev - unreadDeletedCount))
     setSelectedIds(new Set())
     setIsBatchMode(false)
-  }, [supabase, selectedIds])
+  }, [supabase, selectedIds, notifications])
 
   return {
     activeFilter,

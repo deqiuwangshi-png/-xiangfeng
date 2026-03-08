@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { Clock, Eye } from '@/components/icons'
+import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 
 interface ArticleCardProps {
   id: string
@@ -46,16 +46,13 @@ export function ArticleCard({
       <article className="h-full flex flex-col bg-white rounded-2xl p-6 shadow-soft cursor-pointer border border-xf-bg/50">
         {/* 作者信息 */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-xf-light ring-2 ring-white">
-            <Image
-              src={author.avatar}
-              alt={author.name}
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-              unoptimized={author.avatar?.includes('dicebear.com')}
-            />
-          </div>
+          <AvatarPlaceholder
+            name={author.name}
+            userId={author.id}
+            avatarUrl={author.avatar}
+            size="sm"
+            className="ring-2 ring-white"
+          />
           <div className="flex-1">
             <div className="font-medium text-xf-dark">{author.name}</div>
             <div className="text-sm text-xf-medium flex items-center gap-2">

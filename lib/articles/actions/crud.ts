@@ -14,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { generateSummary } from '@/lib/utils/html';
+import { getAvtUrl } from '@/lib/utils/getAvtUrl';
 import { ensureUserProfile } from '../helpers/profile';
 
 /**
@@ -173,7 +174,7 @@ export async function getPublishedArticles() {
     author: {
       id: item.author_id,
       name: item.author?.username || '匿名',
-      avatar: item.author?.avatar_url || `https://api.dicebear.com/7.x/micah/svg?seed=${item.author_id}&backgroundColor=B6CAD7`,
+      avatar: item.author?.avatar_url || getAvtUrl(item.author_id),
     },
     likesCount: item.like_count || 0,
     commentsCount: item.comment_count || 0,

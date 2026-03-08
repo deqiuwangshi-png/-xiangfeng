@@ -1,4 +1,5 @@
 import { User } from '@supabase/supabase-js'
+import { getAvtUrl } from '@/lib/utils/getAvtUrl'
 
 /**
  * Profile 数据接口
@@ -50,7 +51,7 @@ export function getUserDisplayInfo(
       id: '',
       email: '',
       username: '访客',
-      avatarUrl: 'https://api.dicebear.com/7.x/micah/svg?seed=guest&backgroundColor=B6CAD7',
+      avatarUrl: getAvtUrl('guest'),
       bio: '请先登录',
       location: '',
       joinDate: '',
@@ -65,7 +66,7 @@ export function getUserDisplayInfo(
 
   const avatarUrl = profile?.avatar_url || 
                     user.user_metadata?.avatar_url || 
-                    `https://api.dicebear.com/7.x/micah/svg?seed=${user.id}&backgroundColor=B6CAD7`
+                    getAvtUrl(user.id)
 
   const bio = profile?.bio || 
               user.user_metadata?.bio || 
