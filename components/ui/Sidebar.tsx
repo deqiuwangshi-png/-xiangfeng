@@ -123,6 +123,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
     if (pathname === '/publish') return 'publish'
     if (pathname === '/drafts') return 'draft'
     if (pathname === '/inbox') return 'inbox'
+    if (pathname === '/rewards' || pathname.startsWith('/rewards/')) return 'rewards'
     return 'home'
   }, [pathname])
 

@@ -1,0 +1,151 @@
+'use server'
+
+/**
+ * 签到系统 Server Actions
+ * @module lib/rewards/actions/signin
+ * @description 处理每日签到、连续签到奖励
+ */
+
+import { createClient } from '@/lib/supabase/server'
+import type { SignInResponse, SignInRecord } from '@/types/rewards'
+
+/**
+ * 获取今日签到状态
+ * @returns {Promise<{hasSigned: boolean; consecutiveDays: number}>} 签到状态
+ */
+export async function getTodaySignInStatus(): Promise<{
+  hasSigned: boolean
+  consecutiveDays: number
+}> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { hasSigned: false, consecutiveDays: 0 }
+
+  const today = new Date().toISOString().split('T')[0]
+
+  const { data, error } = await supabase
+    .from('sign_in_records')
+    .select('consecutive_days')
+    .eq('user_id', user.id)
+    .eq('sign_date', today)
+    .single()
+
+  if (error || !data) {
+    // 查询昨日签到获取连续天数
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split('T')[0]
+
+    const { data: yesterdayData } = await supabase
+      .from('sign_in_records')
+      .select('consecutive_days')
+      .eq('user_id', user.id)
+      .eq('sign_date', yesterday)
+      .single()
+
+    return {
+      hasSigned: false,
+      consecutiveDays: yesterdayData?.consecutive_days || 0,
+    }
+  }
+
+  return { hasSigned: true, consecutiveDays: data.consecutive_days }
+}
+
+/**
+ * 执行每日签到
+ * @returns {Promise<SignInResponse>} 签到结果
+ */
+export async function performSignIn(): Promise<SignInResponse> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return {
+      success: false,
+      points_earned: 0,
+      consecutive_days: 0,
+      is_bonus_day: false,
+      current_points: 0,
+    }
+  }
+
+  // 调用数据库函数执行签到
+  const { data, error } = await supabase.rpc('perform_daily_signin', {
+    p_user_id: user.id,
+  })
+
+  if (error) {
+    console.error('签到失败:', error)
+    return {
+      success: false,
+      points_earned: 0,
+      consecutive_days: 0,
+      is_bonus_day: false,
+      current_points: 0,
+    }
+  }
+
+  return data as SignInResponse
+}
+
+/**
+ * 获取签到历史记录
+ * @param {number} days - 查询天数
+ * @returns {Promise<SignInRecord[]>} 签到记录列表
+ */
+export async function getSignInHistory(days: number = 30): Promise<SignInRecord[]> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+
+  const { data, error } = await supabase
+    .from('sign_in_records')
+    .select('*')
+    .eq('user_id', user.id)
+    .gte('sign_date', startDate)
+    .order('sign_date', { ascending: false })
+
+  if (error) {
+    console.error('获取签到历史失败:', error)
+    return []
+  }
+
+  return data as SignInRecord[]
+}
+
+/**
+ * 获取连续签到奖励配置
+ * @returns {Promise<Array<{day: number; points: number; isBonus: boolean}>>} 奖励配置
+ */
+export async function getSignInRewardsConfig(): Promise<
+  Array<{ day: number; points: number; isBonus: boolean; bonusPoints: number }>
+> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('sign_in_rewards')
+    .select('day_number, points_reward, is_bonus, bonus_extra_points')
+    .eq('is_active', true)
+    .order('day_number')
+
+  if (error) {
+    console.error('获取签到奖励配置失败:', error)
+    return []
+  }
+
+  return (
+    data?.map((item) => ({
+      day: item.day_number,
+      points: item.points_reward,
+      isBonus: item.is_bonus,
+      bonusPoints: item.bonus_extra_points,
+    })) || []
+  )
+}

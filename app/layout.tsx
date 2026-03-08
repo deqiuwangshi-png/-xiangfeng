@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
+import { SWRProvider } from "@/components/providers/SWRProvider";
 import "./globals.css";
 
 /**
@@ -78,7 +79,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${notoSansSC.variable} ${notoSerifSC.variable} antialiased`}>
-        {children}
+        <SWRProvider>
+          {children}
+        </SWRProvider>
       </body>
     </html>
   );

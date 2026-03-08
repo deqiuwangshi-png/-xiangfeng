@@ -15,6 +15,7 @@
  * - settings: 设置页图标
  * - profile: 个人中心图标
  * - earnings: 收益中心图标
+ * - rewards: 福利中心图标
  */
 
 export * from './common'
@@ -25,3 +26,4 @@ export * from './feedback'
 export * from './settings'
 export * from './profile'
 export * from './earnings'
+export * from './rewards'
