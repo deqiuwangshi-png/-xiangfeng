@@ -2,19 +2,19 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 /**
- * Next.js 中间件
+ * Next.js 代理
  * 用于处理 Supabase 会话更新
  * 
  * @param request - Next.js 请求对象
  * @returns Next.js 响应对象
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request)
 }
 
 /**
- * 配置中间件匹配路径
- * @description 精简匹配范围，减少不必要的中间件执行
+ * 配置代理匹配路径
+ * @description 精简匹配范围，减少不必要的代理执行
  * 排除静态资源、API路由、源码映射等
  */
 export const config = {

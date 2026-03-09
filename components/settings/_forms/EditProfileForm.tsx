@@ -134,7 +134,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
               <AvatarPlaceholder
                 name={formData.username}
                 avatarUrl={formData.avatar_url}
-                size={80}
+                size="lg"
               />
               <button
                 type="button"
