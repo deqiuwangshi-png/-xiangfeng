@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { DraftService, Article } from '@/lib/drafts/draftService'
-import { deleteArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
 import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
 
 /**
@@ -159,7 +159,15 @@ export function useDrafts(
   )
 
   /**
-   * 执行删除草稿的核心逻辑
+   * 执行删除草稿的核心逻辑（安全增强版）
+   *
+   * @param ids - 要删除的文章ID数组
+   * @param shouldRefresh - 是否刷新页面
+   *
+   * @security
+   * - 单条删除：使用传统deleteArticle
+   * - 批量删除：使用batchDeleteArticles进行批量验证
+   * - 防止越权删除他人文章
    */
   const executeDeleteDrafts = useCallback(
     async (ids: string[], shouldRefresh = false) => {
@@ -167,8 +175,36 @@ export function useDrafts(
 
       setIsLoading(true)
       try {
-        for (const id of ids) {
-          await deleteArticle(id)
+        if (ids.length === 1) {
+          // 单条删除：使用原有方法
+          await deleteArticle(ids[0])
+        } else {
+          // 批量删除：使用安全增强版，批量验证所有权
+          const result = await batchDeleteArticles(ids)
+
+          // 处理部分失败的情况
+          if (result.unauthorized.length > 0) {
+            console.warn(`越权尝试: ${result.unauthorized.length} 篇文章`)
+          }
+
+          if (result.notFound.length > 0) {
+            console.warn(`未找到: ${result.notFound.length} 篇文章`)
+          }
+
+          // 只更新成功删除的
+          const actuallyDeleted = result.deleted
+          setDrafts((prev) => DraftService.removeDrafts(prev, new Set(actuallyDeleted)))
+          setSelectedIds((prev) => {
+            const newSet = new Set(prev)
+            actuallyDeleted.forEach((id) => newSet.delete(id))
+            return newSet
+          })
+
+          if (result.unauthorized.length > 0) {
+            alert(`成功删除 ${result.deleted.length} 篇，${result.unauthorized.length} 篇无权删除`)
+            setIsLoading(false)
+            return
+          }
         }
 
         setDrafts((prev) => DraftService.removeDrafts(prev, new Set(ids)))

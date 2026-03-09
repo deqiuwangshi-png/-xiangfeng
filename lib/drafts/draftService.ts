@@ -2,12 +2,13 @@ import { DraftData, DraftStatus, DraftFilter } from '@/types/drafts'
 
 /**
  * 数据库文章数据接口
+ * @description 与 lib/articles/actions/crud.ts 中的 getArticles 返回类型保持一致
  */
 export interface Article {
   id: string
   title: string
   content: string
-  summary: string | null
+  summary: string
   status: 'draft' | 'published' | 'archived'
   created_at: string
   updated_at: string
@@ -85,14 +86,17 @@ export class DraftService {
    * @param filter - 筛选器
    * @param query - 搜索查询
    * @returns 筛选和搜索后的草稿列表
+   * @note 组合 filterDraftsByStatus 和 searchDraftsByQuery
    */
   static filterDrafts(
     drafts: DraftData[],
     filter: DraftFilter,
     query: string
   ): DraftData[] {
-    const filteredByStatus = this.filterDraftsByStatus(drafts, filter)
-    return this.searchDraftsByQuery(filteredByStatus, query)
+    return this.searchDraftsByQuery(
+      this.filterDraftsByStatus(drafts, filter),
+      query
+    )
   }
 
   /**

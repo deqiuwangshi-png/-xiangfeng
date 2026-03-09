@@ -5,12 +5,22 @@
  *
  * @module lib/articles/actions/comment
  * @description 处理评论提交、删除、查询
+ *
+ * @安全特性
+ * - 使用 Zod 进行输入验证
+ * - 内容净化防止 XSS
+ * - 严格的权限验证
+ * - 速率限制保护
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { ensureUserProfile } from '../helpers/profile';
 import { getArticleCommentsPaginated } from '../queries/comment';
 import { checkCommentArticleTask } from '@/lib/rewards/actions/tasks';
+import { CommentSchema, CommentIdSchema } from '../schema';
+import { verifyCommentOwnership } from './_secure';
+import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
+import { sanitizePlainText } from '@/lib/utils/purify';
 
 /**
  * 评论提交结果
@@ -103,6 +113,11 @@ export async function getArticleComments(
  * @param content - 评论内容
  * @param parentId - 回复的评论ID（可选）
  * @returns 提交结果
+ *
+ * @安全说明
+ * - 使用 Zod 验证输入数据
+ * - 净化内容防止 XSS
+ * - 速率限制防止滥用
  */
 export async function submitArticleComment(
   articleId: string,
@@ -119,14 +134,32 @@ export async function submitArticleComment(
       return { success: false, error: '请先登录' };
     }
 
-    {/* 验证评论内容 */}
-    if (!content || content.trim().length === 0) {
-      return { success: false, error: '评论内容不能为空' };
+    {/* 速率限制检查：每用户每分钟最多 10 条评论 */}
+    const rateLimit = checkServerRateLimit(`comment:${user.id}`, {
+      maxAttempts: 10,
+      windowMs: 60 * 1000, // 1分钟
+    });
+
+    if (!rateLimit.allowed) {
+      return { success: false, error: '评论过于频繁，请稍后再试' };
     }
 
-    if (content.length > 500) {
-      return { success: false, error: '评论内容不能超过500字' };
+    {/* Zod 输入验证 */}
+    const validationResult = CommentSchema.safeParse({
+      articleId,
+      content,
+      parentId,
+    });
+
+    if (!validationResult.success) {
+      const errorMessage = validationResult.error.issues[0]?.message || '输入数据无效';
+      return { success: false, error: errorMessage };
     }
+
+    const validatedData = validationResult.data;
+
+    {/* 净化评论内容 - 评论只允许纯文本 - 使用 DOMPurify */}
+    const sanitizedContent = sanitizePlainText(validatedData.content);
 
     {/* 确保用户资料存在 */}
     const profileCreated = await ensureUserProfile(user.id, user.email);
@@ -143,29 +176,24 @@ export async function submitArticleComment(
       reply_to_user_id?: string;
       reply_to_username?: string;
     } = {
-      article_id: articleId,
+      article_id: validatedData.articleId,
       user_id: user.id,
-      content: content.trim(),
+      content: sanitizedContent,
     };
 
     {/* 如果是回复，获取父评论信息 */}
-    let parentComment: { user_id: string; author: { username: string } } | null = null;
-    if (parentId) {
+    if (validatedData.parentId) {
       const { data: parent } = await supabase
         .from('comments')
         .select('user_id, author:profiles!user_id(username)')
-        .eq('id', parentId)
+        .eq('id', validatedData.parentId)
         .single();
 
       if (parent) {
         {/* Supabase 关联查询返回数组，取第一个元素 */}
         const authorArray = parent.author as unknown as Array<{ username: string }>;
         const author = authorArray?.[0];
-        parentComment = {
-          user_id: parent.user_id,
-          author: { username: author?.username || '匿名用户' }
-        };
-        insertData.parent_id = parentId;
+        insertData.parent_id = validatedData.parentId;
         insertData.reply_to_user_id = parent.user_id;
         insertData.reply_to_username = author?.username || '匿名用户';
       }
@@ -219,6 +247,10 @@ export async function submitArticleComment(
  *
  * @param commentId - 评论ID
  * @returns 删除结果
+ *
+ * @安全说明
+ * - 验证评论ID格式
+ * - 验证用户是否为评论作者
  */
 export async function deleteArticleComment(commentId: string): Promise<DeleteCommentResult> {
   const supabase = await createClient();
@@ -231,11 +263,24 @@ export async function deleteArticleComment(commentId: string): Promise<DeleteCom
       return { success: false, error: '请先登录' };
     }
 
+    {/* 验证评论ID格式 */}
+    const idValidation = CommentIdSchema.safeParse(commentId);
+    if (!idValidation.success) {
+      return { success: false, error: '无效的评论ID' };
+    }
+
+    {/* 验证用户是否为评论作者 */}
+    const isOwner = await verifyCommentOwnership(commentId, user.id);
+    if (!isOwner) {
+      return { success: false, error: '无权删除此评论' };
+    }
+
     {/* 删除评论 */}
     const { error } = await supabase
       .from('comments')
       .delete()
-      .eq('id', commentId);
+      .eq('id', commentId)
+      .eq('user_id', user.id);
 
     if (error) {
       console.error('删除评论失败:', error);

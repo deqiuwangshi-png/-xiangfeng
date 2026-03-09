@@ -82,7 +82,7 @@ export function TipTapEditor({ value, onChange, placeholder }: TipTapEditorProps
   // 避免 SSR 水合错误：服务端显示占位符
   if (!isMounted) {
     return (
-      <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark">
+      <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-[#FAFBFD] rounded-lg">
         <span className="opacity-30 italic">{placeholder || '开始书写你的故事...'}</span>
       </div>
     )
@@ -93,7 +93,7 @@ export function TipTapEditor({ value, onChange, placeholder }: TipTapEditorProps
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-xf-primary via-xf-soft to-xf-accent rounded opacity-30" />
       <EditorContent
         editor={editor}
-        className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh]"
+        className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] bg-[#FAFBFD] rounded-lg"
       />
     </div>
   )

@@ -9,6 +9,9 @@ export interface EditorState {
   contentLength: number
   isFullscreen: boolean
   isToolbarCollapsed: boolean
+  draftId: string | null
+  isSaving: boolean
+  isPublishing: boolean
 }
 
 /**
@@ -18,7 +21,7 @@ export interface EditorState {
  * @param initialContent 
  * @returns
  */
-export const useEditorState = (initialTitle: string = '', initialContent: string = '') => {
+export const useEditorState = (initialTitle: string = '', initialContent: string = '', initialDraftId: string | null = null) => {
   const [editorState, setEditorState] = useState<EditorState>({
     title: initialTitle,
     content: initialContent,
@@ -26,6 +29,9 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
     contentLength: initialContent.length,
     isFullscreen: false,
     isToolbarCollapsed: false,
+    draftId: initialDraftId,
+    isSaving: false,
+    isPublishing: false,
   })
 
   const updateTitle = (title: string) => {

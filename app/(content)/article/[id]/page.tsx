@@ -10,7 +10,7 @@ import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
 import { getCurrentUser } from '@/lib/supabase/user';
-import { getArticleById, getArticleCommentsPaginated } from '@/lib/articles/queries';
+import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 
 /**
  * 页面级别缓存配置
@@ -24,7 +24,7 @@ export const revalidate = 60;
  * 同一请求内多次调用返回缓存结果
  */
 const getCachedArticle = cache(async (id: string) => {
-  return getArticleById(id);
+  return getArticleDetailById(id);
 });
 
 /**

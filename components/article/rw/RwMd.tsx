@@ -8,17 +8,16 @@
  */
 
 import { useState } from 'react';
-import { X, Sparkles, Coins, Megaphone, Gift } from '@/components/icons';
+import { X, Sparkles, Coins, Megaphone } from '@/components/icons';
 import type { User } from '@supabase/supabase-js';
 import { TabBtn } from './TabBtn';
 import { PtRw } from './PtRw';
 import { AdRw } from './AdRw';
-import { GifRw } from './GifRw';
 
 /**
  * 打赏方式类型
  */
-type RwType = 'points' | 'ad' | 'gift';
+type RwType = 'points' | 'ad';
 
 /**
  * RwMd Props 接口
@@ -101,12 +100,6 @@ export function RwMd({ onClose, currentUser }: RwMdProps) {
             icon={<Megaphone className="w-4 h-4" />}
             label="广告"
           />
-          <TabBtn
-            active={activeTab === 'gift'}
-            onClick={() => setActiveTab('gift')}
-            icon={<Gift className="w-4 h-4" />}
-            label="礼物"
-          />
         </div>
 
         {/* 打赏内容区域 */}
@@ -116,9 +109,6 @@ export function RwMd({ onClose, currentUser }: RwMdProps) {
           )}
           {activeTab === 'ad' && (
             <AdRw onReward={() => handleReward('ad')} />
-          )}
-          {activeTab === 'gift' && (
-            <GifRw onReward={() => handleReward('gift')} />
           )}
         </div>
       </div>

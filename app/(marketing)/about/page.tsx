@@ -138,7 +138,7 @@ export default function AboutPage() {
 
             {/* 技术栈 */}
             <section className="border-t border-slate-200 pt-12">
-              <h3 className="text-2xl font-serif font-bold text-xf-dark mb-6">工具箱</h3>
+              <h3 className="text-2xl font-serif font-bold text-xf-dark mb-6">AI+工具箱</h3>
               <div className="flex flex-wrap gap-3">
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Tailwind</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Node.js</span>
@@ -150,6 +150,8 @@ export default function AboutPage() {
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Next.js</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Trae</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Gemini</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Kimi</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Deepseek</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">幕布</span>
                 
               </div>

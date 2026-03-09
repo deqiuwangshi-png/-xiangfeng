@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EditorState } from './useEditorState'
-import { createArticle } from '@/lib/articles/actions/crud'
+import { createArticle, updateArticle } from '@/lib/articles/actions/crud'
 
 /**
  * 编辑器操作 Hook
@@ -27,6 +27,7 @@ export const useEditorActions = (
    *
    * @description 将当前编辑器内容保存为草稿
    * @requires 标题不能为空
+   * @logic 如果有 draftId 则更新，否则创建新草稿
    */
   const saveDraft = async () => {
     if (!editorState.title.trim()) {
@@ -38,11 +39,22 @@ export const useEditorActions = (
     setEditorState(prev => ({ ...prev, isSaving: true }))
 
     try {
-      await createArticle({
-        title: editorState.title,
-        content: editorState.content,
-        status: 'draft',
-      })
+      if (editorState.draftId) {
+        // 已有草稿ID，执行更新
+        await updateArticle(editorState.draftId, {
+          title: editorState.title,
+          content: editorState.content,
+        })
+      } else {
+        // 无草稿ID，创建新草稿
+        const article = await createArticle({
+          title: editorState.title,
+          content: editorState.content,
+          status: 'draft',
+        })
+        // 保存草稿ID到状态
+        setEditorState(prev => ({ ...prev, draftId: article.id }))
+      }
 
       // 保存成功后跳转到草稿页
       router.push('/drafts')

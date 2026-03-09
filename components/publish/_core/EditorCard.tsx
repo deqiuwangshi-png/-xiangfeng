@@ -50,13 +50,13 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
 
           {!isMounted ? (
             // SSR 占位，避免水合错误
-            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark">
+            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-[#FAFBFD] rounded-lg">
               <span className="opacity-30 italic">开始书写你的故事...（支持Markdown格式）</span>
             </div>
           ) : (
             <EditorContent
               editor={editor}
-              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none"
+              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none bg-[#FAFBFD] rounded-lg"
             />
           )}
         </div>

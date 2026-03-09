@@ -29,11 +29,6 @@ export function AdRw({ onReward }: AdRwProps) {
       <div className="bg-xf-info rounded-xl p-6 text-white text-center">
         <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-80" />
         <h4 className="text-lg font-bold mb-2">观看广告支持作者</h4>
-        <p className="text-sm opacity-80">观看 15 秒广告，作者将获得平台奖励</p>
-      </div>
-      <div className="flex items-center justify-center gap-2 text-sm text-xf-medium">
-        <span>预计作者收益:</span>
-        <span className="text-xf-primary font-bold">+5 积分</span>
       </div>
       <button
         className="w-full py-3 bg-xf-info text-white rounded-xl font-medium hover:opacity-90 transition-opacity"

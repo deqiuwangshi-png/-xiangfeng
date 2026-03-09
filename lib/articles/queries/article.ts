@@ -39,12 +39,14 @@ export interface ArticleWithAuthor {
 }
 
 /**
- * 根据ID获取文章详情（优化版 - 使用关联查询避免 N+1）
+ * 获取文章完整详情（优化版 - 使用关联查询避免 N+1）
  *
+ * @description 返回已发布状态的完整文章数据，用于公开页面展示
+ * @security 添加 status='published' 过滤，防止暴露草稿/归档文章
  * @param id - 文章ID
  * @returns 文章详情（包含作者信息）
  */
-export async function getArticleById(id: string): Promise<ArticleWithAuthor | null> {
+export async function getArticleDetailById(id: string): Promise<ArticleWithAuthor | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -54,6 +56,7 @@ export async function getArticleById(id: string): Promise<ArticleWithAuthor | nu
       author:profiles!author_id(username, avatar_url, bio)
     `)
     .eq('id', id)
+    .eq('status', 'published')
     .single();
 
   if (error || !data) return null;
