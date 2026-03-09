@@ -18,10 +18,6 @@ import { validatePassword } from '@/lib/security/passwordPolicy'
  *
  * 使用说明:
  *   - 修改密码
- * 架构说明:
- *   - 使用'use client'指令
- *   - 纯展示组件，不处理路由
- * 更新时间: 2026-03-02
  */
 
 interface SecuritySettingsFormProps {

@@ -16,10 +16,6 @@ import { IconBox, PrimaryButton } from '@/components/ui'
  * 使用说明:
  *   - 查看已关联账号
  *   - 绑定/解绑第三方账号
- *
- * 架构说明:
- *   - 使用'use client'指令
- *   - 纯展示组件，不处理路由
  * 更新时间: 2026-03-02
  */
 
