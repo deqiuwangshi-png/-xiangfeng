@@ -76,7 +76,7 @@ export default function AboutPage() {
             {/* 引言 */}
             <section>
               <p className="text-xl text-xf-dark/80 leading-relaxed font-serif">
-                我曾是大厂的一颗螺丝，却始终怀念早期互联网的真诚与深度。2023年秋天，我决定独自搭建一个属于深度思考者的精神家园——没有流量算法，没有焦虑制造，只有认知的连接。
+                我曾是大厂的一颗螺丝，却始终怀念早期互联网的真诚与深度。2025年秋天，我决定独自搭建一个属于深度思考者的精神家园——没有流量算法，没有焦虑制造，只有认知的连接。
               </p>
               <div className="flex items-center mt-6 text-xf-medium">
                 <span className="bg-xf-info/10 px-4 py-1.5 rounded-full text-sm">始于热爱</span>
@@ -106,31 +106,31 @@ export default function AboutPage() {
               </h3>
               <div className="space-y-8">
                 <div className="flex gap-5">
-                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2023.09</div>
+                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2025.11</div>
                   <div>
                     <h4 className="font-bold text-xf-dark">理念 &amp; 第一行代码</h4>
-                    <p className="text-xf-medium text-sm mt-1">在咖啡馆写下产品文档，确立「反算法、重连接」的原则。用Vite+Tailwind搭起第一个原型。</p>
+                    <p className="text-xf-medium text-sm mt-1">在AI的帮助下，我写下了产品文档，确立了「反算法、重连接」的原则。用Next+Tailwind搭起了第一个原型。</p>
                   </div>
                 </div>
                 <div className="flex gap-5">
-                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2024.03</div>
+                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2025.12</div>
                   <div>
-                    <h4 className="font-bold text-xf-dark">内测版本 · 50人共创</h4>
-                    <p className="text-xf-medium text-sm mt-1">邀请哲学家、设计师、程序员等跨领域思考者内测，收集200+条反馈，重构了3次信息架构。</p>
+                    <h4 className="font-bold text-xf-dark">重新架构 · 独立开发</h4>
+                    <p className="text-xf-medium text-sm mt-1">将自已的原型页面发送到微信群中帮忙验证是否符合设计。</p>
                   </div>
                 </div>
                 <div className="flex gap-5">
-                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2024.11</div>
+                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2026.1</div>
                   <div>
-                    <h4 className="font-bold text-xf-dark">生态经济模块上线</h4>
-                    <p className="text-xf-medium text-sm mt-1">基于Solidity的价值记录合约部署，创作者开始获得第一笔生态奖励（虽少，但意义重大）。</p>
+                    <h4 className="font-bold text-xf-dark">架构生态模块</h4>
+                    <p className="text-xf-medium text-sm mt-1">尝试融合智能合约，实现公开公平公正的经济生态（虽少，但意义重大）。</p>
                   </div>
                 </div>
                 <div className="flex gap-5">
-                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2025.02</div>
+                  <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2026.02</div>
                   <div>
                     <h4 className="font-bold text-xf-dark">今日 · 仍在进化</h4>
-                    <p className="text-xf-medium text-sm mt-1">每周迭代，与社区共同打磨。下一个目标是「认知星云」可视化工具。</p>
+                    <p className="text-xf-medium text-sm mt-1">每月迭代，与社区共同打磨，实现生态价值。</p>
                   </div>
                 </div>
               </div>
@@ -141,15 +141,17 @@ export default function AboutPage() {
               <h3 className="text-2xl font-serif font-bold text-xf-dark mb-6">工具箱</h3>
               <div className="flex flex-wrap gap-3">
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Tailwind</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">JavaScript</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Node.js</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Solidity</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Figma</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Sui</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">即时设计</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Git</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Vite</span>
                 <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Vercel</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Notion API</span>
-                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">DiceBear</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">飞书</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Next.js</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Trae</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">Gemini</span>
+                <span className="px-5 py-2.5 bg-white rounded-full text-xf-dark border border-slate-200 shadow-sm">幕布</span>
+                
               </div>
             </section>
 

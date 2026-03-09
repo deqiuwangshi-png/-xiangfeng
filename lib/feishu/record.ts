@@ -122,11 +122,10 @@ export async function queryFeishuFeedbacks(options: {
   try {
     const { trackingIds, userEmail } = options;
 
-    {/* 构建过滤条件 - 使用飞书 filter 对象格式 */}
     let filterObj: unknown = null;
 
     if (trackingIds && trackingIds.length > 0) {
-      {/* 按追踪ID查询 - 使用 OR 条件 */}
+
       filterObj = {
         conjunction: 'or',
         conditions: trackingIds.map((id) => ({
@@ -136,7 +135,7 @@ export async function queryFeishuFeedbacks(options: {
         })),
       };
     } else if (userEmail) {
-      {/* 按用户邮箱查询 */}
+
       filterObj = {
         conjunction: 'and',
         conditions: [
@@ -156,7 +155,6 @@ export async function queryFeishuFeedbacks(options: {
       };
     }
 
-    {/* 调用飞书 API 查询 */}
     const result = await feishuRequest<QueryRecordsResponse>(
       `${FEISHU_CONFIG.API_BASE}/bitable/v1/apps/${FEISHU_CONFIG.BASE_ID}/tables/${FEISHU_CONFIG.TABLE_ID}/records/search`,
       {
@@ -168,7 +166,7 @@ export async function queryFeishuFeedbacks(options: {
       }
     );
 
-    {/* 转换记录格式 - 兼容多种数据结构 */}
+
     const records = result.data?.items || result.data?.records || [];
     const feedbackItems = await Promise.all(records.map(convertFeishuRecordToFeedbackItem));
 

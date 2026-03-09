@@ -5,16 +5,6 @@
  *
  * 此文件仅导出 Server Actions（异步函数）
  * 类型和其他导出请从 index.ts 导入
- *
- * 使用示例：
- * ```typescript
- * // Server Actions
- * import { createFeishuFeedback, uploadFileToFeishu } from '@/lib/feishu/api';
- *
- * // 类型和工具函数
- * import type { FeishuFeedbackData } from '@/lib/feishu/index';
- * import { FEISHU_CONFIG } from '@/lib/feishu/index';
- * ```
  */
 
 import {

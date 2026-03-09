@@ -39,17 +39,10 @@ interface UseTasksReturn {
  * @returns {Promise<TaskProgressResponse[]>} 任务列表
  */
 const fetchTasks = async (category?: TaskCategory): Promise<TaskProgressResponse[]> => {
-  console.log('[DEBUG] fetchTasks - 调用 getUserTaskProgress, category:', category)
   try {
-    const result = await getUserTaskProgress(category)
-    console.log('[DEBUG] fetchTasks - 返回结果:', result)
-    console.log('[DEBUG] fetchTasks - 结果长度:', result?.length)
-    console.log('[DEBUG] fetchTasks - 结果类型:', typeof result)
-    console.log('[DEBUG] fetchTasks - 是否是数组:', Array.isArray(result))
-    return result
+    return await getUserTaskProgress(category)
   } catch (err) {
-    console.error('[DEBUG] fetchTasks - 调用异常:', err)
-    console.error('[DEBUG] fetchTasks - 异常消息:', (err as Error)?.message)
+    console.error('获取任务数据失败:', (err as Error)?.message)
     return []
   }
 }
@@ -75,14 +68,6 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
     revalidateOnMount: true,
-    onSuccess: (data) => {
-      // {/* 调试日志 */}
-      console.log('[DEBUG] useTasks SWR onSuccess - data:', data)
-      console.log('[DEBUG] useTasks SWR onSuccess - count:', data?.length)
-    },
-    onError: (err) => {
-      console.error('[DEBUG] useTasks SWR onError:', err)
-    },
   })
 
   /**

@@ -6,10 +6,8 @@
  * @description 展示所有任务卡片，支持分类筛选，使用真实数据
  */
 
-import { useEffect, useState } from 'react'
 import { useTasks } from '../hooks'
-import { getUserTaskProgress } from '@/lib/rewards/actions/tasks'
-import type { TaskCategory, TaskStatus, TaskProgressResponse } from '@/types/rewards'
+import type { TaskCategory, TaskStatus } from '@/types/rewards'
 import {
   Sun,
   MessageCircle,
@@ -105,34 +103,6 @@ export function TaskList({ category }: TaskListProps) {
     category === 'all' ? undefined : category
   )
 
-  // {/* 直接测试 Server Action */}
-  const [directTasks, setDirectTasks] = useState<TaskProgressResponse[]>([])
-  const [directError, setDirectError] = useState<string>('')
-
-  useEffect(() => {
-    const testDirect = async () => {
-      try {
-        console.log('[DEBUG] TaskList - 直接调用 getUserTaskProgress')
-        const result = await getUserTaskProgress(category === 'all' ? undefined : category)
-        console.log('[DEBUG] TaskList - 直接调用结果:', result)
-        console.log('[DEBUG] TaskList - 直接调用结果长度:', result?.length)
-        setDirectTasks(result || [])
-      } catch (err) {
-        console.error('[DEBUG] TaskList - 直接调用错误:', err)
-        setDirectError(String(err))
-      }
-    }
-    testDirect()
-  }, [category])
-
-  // {/* 调试日志 */}
-  console.log('[DEBUG] TaskList - category:', category)
-  console.log('[DEBUG] TaskList - isLoading:', isLoading)
-  console.log('[DEBUG] TaskList - tasks (from SWR):', tasks)
-  console.log('[DEBUG] TaskList - tasks.length (from SWR):', tasks?.length)
-  console.log('[DEBUG] TaskList - directTasks:', directTasks)
-  console.log('[DEBUG] TaskList - directError:', directError)
-
   /**
    * 计算进度百分比
    * @param {number} progress - 当前进度
@@ -219,14 +189,6 @@ export function TaskList({ category }: TaskListProps) {
     return (
       <div className="text-center py-12">
         <p className="text-xf-primary">暂无任务</p>
-        {/* 调试信息显示 */} 
-        <div className="mt-4 p-4 bg-gray-100 rounded text-left text-xs">
-          <p>调试信息:</p>
-          <p>SWR tasks: {tasks?.length || 0}</p>
-          <p>Direct tasks: {directTasks?.length || 0}</p>
-          <p>Direct Error: {directError || '无'}</p>
-          <p>isLoading: {isLoading ? 'true' : 'false'}</p>
-        </div>
       </div>
     )
   }

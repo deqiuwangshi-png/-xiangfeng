@@ -36,7 +36,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#partners" className="hover:text-white transition-colors">
+                <a href="/partners" className="hover:text-white transition-colors">
                   品牌合作
                 </a>
               </li>
