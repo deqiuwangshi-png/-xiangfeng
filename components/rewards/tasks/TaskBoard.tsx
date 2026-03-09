@@ -163,6 +163,7 @@ export function TaskBoard() {
           const percent = calcPercent(task.current_progress, task.target_progress)
           const completed = isCompleted(task.status)
           const claimable = canClaimReward(task.status)
+          const Icon = getIcon(task.icon_name || 'Target')
 
           return (
             <div
@@ -173,6 +174,7 @@ export function TaskBoard() {
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${config.textColor}`} />
                   <span className="font-medium text-xf-dark">{task.title}</span>
                   <span className={`text-xs ${config.bgColor} ${config.textColor} px-2 py-0.5 rounded-full`}>
                     {config.label}

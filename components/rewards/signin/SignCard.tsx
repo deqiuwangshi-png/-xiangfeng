@@ -6,6 +6,7 @@
  * @description 显示连续签到天数、今日签到按钮和7天日历预览
  */
 
+import { memo, useMemo } from 'react'
 import { CalendarCheck, CheckCircle, Loader2 } from '@/components/icons'
 
 /**
@@ -61,7 +62,7 @@ const defaultRewardsConfig: SignInRewardItem[] = [
  * @param {SignCardProps} props - 组件属性
  * @returns {JSX.Element} 签到卡片
  */
-export function SignCard({
+export const SignCard = memo(function SignCard({
   isSigned,
   signDays,
   rewardsConfig,
@@ -69,88 +70,87 @@ export function SignCard({
   onSign,
 }: SignCardProps) {
   {/* 使用数据库配置或默认配置 */}
-  const effectiveConfig = rewardsConfig.length > 0 ? rewardsConfig : defaultRewardsConfig
+  const effectiveConfig = useMemo(() => {
+    return rewardsConfig.length > 0 ? rewardsConfig : defaultRewardsConfig
+  }, [rewardsConfig])
 
   {/* 计算今天是一周中的第几天 (0-6) */}
-  const todayIndex = (signDays - 1) % 7
+  const todayIndex = useMemo(() => {
+    return (signDays - 1) % 7
+  }, [signDays])
 
   /**
    * 获取日期单元格样式
    * @param {number} index - 索引
    * @returns {string} CSS类名
    */
-  const getCellStyle = (index: number) => {
-    if (index < todayIndex) return 'bg-xf-primary text-white opacity-60'
-    if (index === todayIndex) return 'bg-xf-accent text-white'
-    return 'bg-white border-1.5 border-xf-primary text-xf-primary'
-  }
+  const getCellStyle = useMemo(() => {
+    return (index: number) => {
+      if (index < todayIndex) return 'bg-xf-primary text-white opacity-60'
+      if (index === todayIndex) return 'bg-xf-accent text-white'
+      return 'bg-white border-1.5 border-xf-primary text-xf-primary'
+    }
+  }, [todayIndex])
 
   /**
    * 获取今日奖励积分
    * @returns {number} 今日奖励积分
    */
-  const getTodayReward = (): number => {
+  const todayReward = useMemo(() => {
     const dayInCycle = ((signDays - 1) % 7) + 1
     const config = effectiveConfig.find((r) => r.day === dayInCycle)
     return config?.points || 5
-  }
+  }, [signDays, effectiveConfig])
 
   /**
    * 获取明日奖励积分
    * @returns {number} 明日奖励积分
    */
-  const getTomorrowReward = (): number => {
+  const tomorrowReward = useMemo(() => {
     const tomorrowDayInCycle = (signDays % 7) + 1
     const config = effectiveConfig.find((r) => r.day === tomorrowDayInCycle)
     return config?.points || 5
-  }
+  }, [signDays, effectiveConfig])
 
   /**
    * 检查今日是否为大将日
    * @returns {boolean} 是否为大将日
    */
-  const isBonusDay = (): boolean => {
+  const bonusDay = useMemo(() => {
     const dayInCycle = ((signDays - 1) % 7) + 1
     const config = effectiveConfig.find((r) => r.day === dayInCycle)
     return config?.isBonus || false
-  }
+  }, [signDays, effectiveConfig])
 
   /**
    * 获取大将日额外奖励
    * @returns {number} 额外奖励积分
    */
-  const getBonusPoints = (): number => {
+  const bonusPoints = useMemo(() => {
     const dayInCycle = ((signDays - 1) % 7) + 1
     const config = effectiveConfig.find((r) => r.day === dayInCycle)
     return config?.bonusPoints || 0
-  }
+  }, [signDays, effectiveConfig])
 
   /**
    * 获取奖励显示列表
    * @returns {number[]} 奖励列表
    */
-  const getRewardsList = (): number[] => {
+  const rewardsList = useMemo(() => {
     return effectiveConfig
       .sort((a, b) => a.day - b.day)
       .map((r) => r.points)
-  }
+  }, [effectiveConfig])
 
   /**
    * 获取大将日标记列表
    * @returns {boolean[]} 大将日标记列表
    */
-  const getBonusList = (): boolean[] => {
+  const bonusList = useMemo(() => {
     return effectiveConfig
       .sort((a, b) => a.day - b.day)
       .map((r) => r.isBonus)
-  }
-
-  const todayReward = getTodayReward()
-  const tomorrowReward = getTomorrowReward()
-  const bonusDay = isBonusDay()
-  const bonusPoints = getBonusPoints()
-  const rewardsList = getRewardsList()
-  const bonusList = getBonusList()
+  }, [effectiveConfig])
 
   return (
     <div className="lg:col-span-2 card-bg rounded-2xl p-6 relative overflow-hidden">
@@ -216,4 +216,4 @@ export function SignCard({
       </div>
     </div>
   )
-}
+})
