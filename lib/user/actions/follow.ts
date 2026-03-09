@@ -8,6 +8,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { checkFollowUserTask } from '@/lib/rewards/actions/tasks';
 
 /**
  * 关注/取消关注结果
@@ -93,6 +94,11 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
       }
       following = true;
       {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
+      
+      {/* 检测关注用户任务 - 异步执行不阻塞 */}
+      Promise.resolve().then(() => {
+        checkFollowUserTask().catch(console.error);
+      });
     }
 
     return {

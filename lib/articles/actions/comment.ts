@@ -10,6 +10,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ensureUserProfile } from '../helpers/profile';
 import { getArticleCommentsPaginated } from '../queries/comment';
+import { checkCommentArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
  * 评论提交结果
@@ -186,6 +187,11 @@ export async function submitArticleComment(
     }
 
     {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
+
+    {/* 检测评论文章任务 - 异步执行不阻塞 */}
+    Promise.resolve().then(() => {
+      checkCommentArticleTask().catch(console.error);
+    });
 
     return {
       success: true,

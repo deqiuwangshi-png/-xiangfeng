@@ -3,10 +3,13 @@
 /**
  * 任务列表组件
  * @module components/rewards/TaskList
- * @description 展示所有任务卡片，支持分类筛选
+ * @description 展示所有任务卡片，支持分类筛选，使用真实数据
  */
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
+import { useTasks } from '../hooks'
+import { getUserTaskProgress } from '@/lib/rewards/actions/tasks'
+import type { TaskCategory, TaskStatus, TaskProgressResponse } from '@/types/rewards'
 import {
   Sun,
   MessageCircle,
@@ -22,210 +25,66 @@ import {
   Sparkles,
   Globe,
   Check,
+  BookOpen,
+  Trophy,
+  Target,
+  Heart,
 } from '@/components/icons'
 
 /**
  * 分类类型
  * @type CategoryType
  */
-type CategoryType = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'event'
+type CategoryType = 'all' | TaskCategory
 
 /**
- * 任务项接口
- * @interface TaskItem
+ * 图标映射表
+ * @constant iconMap
  */
-interface TaskItem {
-  id: string
-  title: string
-  desc: string
-  category: CategoryType
-  reward: number
-  progress: number
-  total: number
-  icon: React.ElementType
-  iconBg: string
-  iconColor: string
-  timeLeft?: string
-  completed?: boolean
+const iconMap: Record<string, React.ElementType> = {
+  Sun,
+  MessageCircle,
+  Eye,
+  Feather,
+  Bookmark,
+  Users,
+  PenTool,
+  Map,
+  Camera,
+  Scroll,
+  Compass,
+  Sparkles,
+  Globe,
+  Check,
+  BookOpen,
+  Trophy,
+  Target,
+  Heart,
 }
 
 /**
- * 模拟任务数据
- * @constant mockTasks
+ * 分类背景色映射
+ * @constant categoryBgMap
  */
-const mockTasks: TaskItem[] = [
-  {
-    id: '1',
-    title: '记录今日的「灵光一瞬」',
-    desc: '用一句话捕捉今天最触动你的瞬间',
-    category: 'daily',
-    reward: 25,
-    progress: 0,
-    total: 1,
-    icon: Sun,
-    iconBg: 'bg-indigo-100',
-    iconColor: 'text-indigo-600',
-  },
-  {
-    id: '2',
-    title: '给一位陌生人的文章写一句真诚的回应',
-    desc: '不是评论，是共鸣的延续',
-    category: 'daily',
-    reward: 30,
-    progress: 0,
-    total: 1,
-    icon: MessageCircle,
-    iconBg: 'bg-indigo-100',
-    iconColor: 'text-indigo-600',
-  },
-  {
-    id: '3',
-    title: '静观窗外五分钟',
-    desc: '放下手机，纯粹地观察自然或街景',
-    category: 'daily',
-    reward: 20,
-    progress: 0,
-    total: 1,
-    icon: Eye,
-    iconBg: 'bg-indigo-100',
-    iconColor: 'text-indigo-600',
-  },
-  {
-    id: '4',
-    title: '写一封给五年后自己的信',
-    desc: '存入时光胶囊，到期可开启',
-    category: 'weekly',
-    reward: 120,
-    progress: 0,
-    total: 1,
-    icon: Feather,
-    iconBg: 'bg-emerald-100',
-    iconColor: 'text-emerald-600',
-  },
-  {
-    id: '5',
-    title: '整理本周最爱的三篇收藏',
-    desc: '为它们各写一句推荐语',
-    category: 'weekly',
-    reward: 90,
-    progress: 0,
-    total: 3,
-    icon: Bookmark,
-    iconBg: 'bg-emerald-100',
-    iconColor: 'text-emerald-600',
-  },
-  {
-    id: '6',
-    title: '发起一个「三人对谈」',
-    desc: '邀请两位朋友围绕一个话题深度交流',
-    category: 'weekly',
-    reward: 200,
-    progress: 0,
-    total: 1,
-    icon: Users,
-    iconBg: 'bg-emerald-100',
-    iconColor: 'text-emerald-600',
-  },
-  {
-    id: '7',
-    title: '撰写一篇「思想小传」',
-    desc: '梳理自己某个观念的演变历程',
-    category: 'monthly',
-    reward: 300,
-    progress: 0,
-    total: 1,
-    icon: PenTool,
-    iconBg: 'bg-amber-100',
-    iconColor: 'text-amber-600',
-  },
-  {
-    id: '8',
-    title: '绘制「灵感地图」',
-    desc: '用思维导图呈现你感兴趣的知识关联',
-    category: 'monthly',
-    reward: 250,
-    progress: 0,
-    total: 1,
-    icon: Map,
-    iconBg: 'bg-amber-100',
-    iconColor: 'text-amber-600',
-  },
-  {
-    id: '9',
-    title: '拍摄一组「日常诗意」',
-    desc: '用照片记录平凡中的不平凡，组图+短句',
-    category: 'monthly',
-    reward: 280,
-    progress: 0,
-    total: 1,
-    icon: Camera,
-    iconBg: 'bg-amber-100',
-    iconColor: 'text-amber-600',
-  },
-  {
-    id: '10',
-    title: '完成年度「思想年鉴」',
-    desc: '整理这一年最重要的思考与转变',
-    category: 'yearly',
-    reward: 800,
-    progress: 0,
-    total: 1,
-    icon: Scroll,
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-  },
-  {
-    id: '11',
-    title: '完成一次「精神远足」',
-    desc: '深入探索一个陌生领域，输出学习笔记',
-    category: 'yearly',
-    reward: 1000,
-    progress: 0,
-    total: 1,
-    icon: Compass,
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-  },
-  {
-    id: '12',
-    title: '「春日哲思」主题创作',
-    desc: '围绕"新生"写一篇文章或诗',
-    category: 'event',
-    reward: 400,
-    progress: 0,
-    total: 1,
-    icon: Sparkles,
-    iconBg: 'bg-rose-100',
-    iconColor: 'text-rose-500',
-    timeLeft: '剩余 5 天',
-  },
-  {
-    id: '13',
-    title: '「世界哲学日」特别任务',
-    desc: '分享一位你喜欢的哲学家的一句话及感悟',
-    category: 'event',
-    reward: 350,
-    progress: 0,
-    total: 1,
-    icon: Globe,
-    iconBg: 'bg-rose-100',
-    iconColor: 'text-rose-500',
-    timeLeft: '剩余 2 天',
-  },
-  {
-    id: '14',
-    title: '记录今日的「灵光一瞬」',
-    desc: '昨天已记录："黄昏时看到两只鸟并肩飞过，想起远方的朋友。"',
-    category: 'daily',
-    reward: 25,
-    progress: 1,
-    total: 1,
-    icon: Check,
-    iconBg: 'bg-gray-200',
-    iconColor: 'text-gray-500',
-    completed: true,
-  },
-]
+const categoryBgMap: Record<TaskCategory, string> = {
+  daily: 'bg-indigo-100',
+  weekly: 'bg-emerald-100',
+  monthly: 'bg-amber-100',
+  yearly: 'bg-purple-100',
+  event: 'bg-rose-100',
+}
+
+/**
+ * 分类文字色映射
+ * @constant categoryColorMap
+ */
+const categoryColorMap: Record<TaskCategory, string> = {
+  daily: 'text-indigo-600',
+  weekly: 'text-emerald-600',
+  monthly: 'text-amber-600',
+  yearly: 'text-purple-600',
+  event: 'text-rose-500',
+}
 
 /**
  * 任务列表Props
@@ -242,15 +101,37 @@ interface TaskListProps {
  * @returns {JSX.Element} 任务列表
  */
 export function TaskList({ category }: TaskListProps) {
-  const [tasks] = useState<TaskItem[]>(mockTasks)
+  const { tasks, isLoading, claimReward } = useTasks(
+    category === 'all' ? undefined : category
+  )
 
-  /**
-   * 根据分类筛选任务
-   */
-  const filteredTasks = useMemo(() => {
-    if (category === 'all') return tasks
-    return tasks.filter((task) => task.category === category)
-  }, [tasks, category])
+  // {/* 直接测试 Server Action */}
+  const [directTasks, setDirectTasks] = useState<TaskProgressResponse[]>([])
+  const [directError, setDirectError] = useState<string>('')
+
+  useEffect(() => {
+    const testDirect = async () => {
+      try {
+        console.log('[DEBUG] TaskList - 直接调用 getUserTaskProgress')
+        const result = await getUserTaskProgress(category === 'all' ? undefined : category)
+        console.log('[DEBUG] TaskList - 直接调用结果:', result)
+        console.log('[DEBUG] TaskList - 直接调用结果长度:', result?.length)
+        setDirectTasks(result || [])
+      } catch (err) {
+        console.error('[DEBUG] TaskList - 直接调用错误:', err)
+        setDirectError(String(err))
+      }
+    }
+    testDirect()
+  }, [category])
+
+  // {/* 调试日志 */}
+  console.log('[DEBUG] TaskList - category:', category)
+  console.log('[DEBUG] TaskList - isLoading:', isLoading)
+  console.log('[DEBUG] TaskList - tasks (from SWR):', tasks)
+  console.log('[DEBUG] TaskList - tasks.length (from SWR):', tasks?.length)
+  console.log('[DEBUG] TaskList - directTasks:', directTasks)
+  console.log('[DEBUG] TaskList - directError:', directError)
 
   /**
    * 计算进度百分比
@@ -261,51 +142,135 @@ export function TaskList({ category }: TaskListProps) {
   const calcPercent = (progress: number, total: number) =>
     Math.min(Math.round((progress / total) * 100), 100)
 
+  /**
+   * 获取图标组件
+   * @param {string} iconName - 图标名称
+   * @returns {React.ElementType} 图标组件
+   */
+  const getIcon = (iconName: string): React.ElementType => {
+    return iconMap[iconName] || Target
+  }
+
+  /**
+   * 获取分类样式
+   * @param {TaskCategory} taskCategory - 任务分类
+   * @returns {Object} 背景色和文字色
+   */
+  const getCategoryStyle = (taskCategory: TaskCategory) => {
+    return {
+      bg: categoryBgMap[taskCategory] || 'bg-gray-100',
+      color: categoryColorMap[taskCategory] || 'text-gray-600',
+    }
+  }
+
+  /**
+   * 判断是否已完成
+   * @param {TaskStatus} status - 任务状态
+   * @returns {boolean} 是否已完成
+   */
+  const isCompleted = (status: TaskStatus): boolean => {
+    return status === 'completed' || status === 'reward_claimed'
+  }
+
+  /**
+   * 判断是否可领取奖励
+   * @param {TaskStatus} status - 任务状态
+   * @returns {boolean} 是否可领取
+   */
+  const canClaimReward = (status: TaskStatus): boolean => {
+    return status === 'completed'
+  }
+
+  /**
+   * 处理领取奖励
+   * @param {string} taskId - 任务ID
+   */
+  const handleClaimReward = async (taskId: string) => {
+    const result = await claimReward(taskId)
+    if (result.success) {
+      // 领取成功，UI会自动刷新
+      console.log('领取成功，获得积分:', result.points)
+    } else {
+      console.error('领取失败:', result.error)
+    }
+  }
+
+  // 加载状态
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="card-bg rounded-xl p-5 animate-pulse">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-gray-200" />
+              <div className="flex-1">
+                <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+                <div className="h-3 bg-gray-200 rounded w-1/2" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // 空状态
+  if (tasks.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-xf-primary">暂无任务</p>
+        {/* 调试信息显示 */} 
+        <div className="mt-4 p-4 bg-gray-100 rounded text-left text-xs">
+          <p>调试信息:</p>
+          <p>SWR tasks: {tasks?.length || 0}</p>
+          <p>Direct tasks: {directTasks?.length || 0}</p>
+          <p>Direct Error: {directError || '无'}</p>
+          <p>isLoading: {isLoading ? 'true' : 'false'}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
-      {filteredTasks.map((task) => {
-        const Icon = task.icon
-        const percent = calcPercent(task.progress, task.total)
+      {tasks.map((task) => {
+        const Icon = getIcon(task.icon_name)
+        const percent = calcPercent(task.current_progress, task.target_progress)
+        const completed = isCompleted(task.status)
+        const claimable = canClaimReward(task.status)
+        const style = getCategoryStyle(task.category)
 
         return (
           <div
-            key={task.id}
+            key={task.task_id}
             className={`card-bg rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-              task.completed ? 'opacity-70 bg-gray-50' : ''
+              completed ? 'opacity-70 bg-gray-50' : ''
             }`}
           >
             <div className="flex items-start gap-4">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${task.iconBg}`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${style.bg}`}
               >
-                <Icon className={`w-5 h-5 ${task.iconColor}`} />
+                <Icon className={`w-5 h-5 ${style.color}`} />
               </div>
               <div>
                 <h3
                   className={`font-bold text-xf-dark ${
-                    task.completed ? 'line-through' : ''
+                    completed ? 'line-through' : ''
                   }`}
                 >
                   {task.title}
                 </h3>
-                <p className="text-xs text-xf-primary mt-0.5">{task.desc}</p>
-                {task.timeLeft && (
-                  <span className="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full inline-block mt-1">
-                    {task.timeLeft}
-                  </span>
-                )}
-                {!task.completed && (
+                {!completed && (
                   <div className="flex items-center gap-3 mt-2">
                     <div className="w-32 h-1.5 bg-xf-bg rounded-full overflow-hidden">
                       <div
-                        className={`h-1.5 rounded-full ${
-                          task.completed ? 'bg-gray-400' : 'bg-xf-info'
-                        }`}
+                        className="h-1.5 rounded-full bg-xf-info"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
                     <span className="text-xs text-xf-primary">
-                      {task.progress}/{task.total}
+                      {task.current_progress}/{task.target_progress}
                     </span>
                   </div>
                 )}
@@ -314,15 +279,22 @@ export function TaskList({ category }: TaskListProps) {
             <div className="flex items-center gap-4 sm:flex-col sm:items-end">
               <span
                 className={`text-xf-accent font-bold ${
-                  task.completed ? 'line-through' : ''
+                  completed ? 'line-through' : ''
                 }`}
               >
-                +{task.reward}
+                +{task.reward_points}
               </span>
-              {task.completed ? (
+              {completed ? (
                 <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                   已完成
                 </span>
+              ) : claimable ? (
+                <button
+                  onClick={() => handleClaimReward(task.task_id)}
+                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-4 py-2 rounded-full transition"
+                >
+                  领取奖励
+                </button>
               ) : (
                 <button className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-4 py-2 rounded-full transition">
                   去完成

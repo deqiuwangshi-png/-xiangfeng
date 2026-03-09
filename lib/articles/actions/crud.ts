@@ -16,6 +16,7 @@ import { revalidatePath } from 'next/cache';
 import { generateSummary } from '@/lib/utils/html';
 import { getAvtUrl } from '@/lib/utils/getAvtUrl';
 import { ensureUserProfile } from '../helpers/profile';
+import { checkPublishArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
  * 异步刷新页面缓存
@@ -94,6 +95,13 @@ export async function createArticle(data: {
   }
 
   revalidatePathsAsync(['/drafts', '/home']);
+
+  {/* 检测发布文章任务 - 仅当发布正式文章时触发 */}
+  if (data.status === 'published') {
+    Promise.resolve().then(() => {
+      checkPublishArticleTask().catch(console.error);
+    });
+  }
 
   return {
     ...article,

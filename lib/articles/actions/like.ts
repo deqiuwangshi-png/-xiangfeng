@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { checkLikeArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
  * 点赞/取消点赞结果
@@ -90,6 +91,11 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
       {/* 插入成功 = 新点赞 */}
       liked = true;
       {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
+      
+      {/* 检测点赞文章任务 - 异步执行不阻塞 */}
+      Promise.resolve().then(() => {
+        checkLikeArticleTask().catch(console.error);
+      });
     }
 
     {/* 4. 获取最新的点赞数（触发器已自动更新） */}

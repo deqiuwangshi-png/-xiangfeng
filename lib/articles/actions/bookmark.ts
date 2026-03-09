@@ -9,6 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { ensureUserProfile } from '../helpers/profile';
+import { checkCollectArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
  * 收藏/取消收藏结果
@@ -84,6 +85,11 @@ export async function toggleArticleBookmark(articleId: string): Promise<ToggleBo
         return { success: false, favorited: false, favorites: 0, error: '收藏失败' };
       }
       favorited = true;
+      
+      {/* 检测收藏文章任务 - 异步执行不阻塞 */}
+      Promise.resolve().then(() => {
+        checkCollectArticleTask().catch(console.error);
+      });
     }
 
     {/* 获取最新的收藏数 */}

@@ -66,7 +66,7 @@ export function MyRw() {
           我的兑换
         </h2>
         <a
-          href="#"
+          href="/rewards/my"
           className="text-xs text-xf-primary hover:text-xf-accent flex items-center gap-1"
         >
           查看全部

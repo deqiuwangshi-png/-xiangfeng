@@ -458,6 +458,14 @@ export interface TaskProgressResponse {
   task_id: string
   /** 任务标题 */
   title: string
+  /** 任务描述 */
+  description: string | null
+  /** 任务分类 */
+  category: TaskCategory
+  /** 图标名称 */
+  icon_name: string
+  /** 图标颜色 */
+  icon_color: string
   /** 当前进度 */
   current_progress: number
   /** 目标进度 */

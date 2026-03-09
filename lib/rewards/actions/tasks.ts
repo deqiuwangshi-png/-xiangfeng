@@ -9,7 +9,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type {
   Task,
-  UserTaskRecord,
   TaskProgressResponse,
   TaskCategory,
   TaskType,
@@ -21,26 +20,67 @@ import type {
  * @returns {Promise<Task[]>} 任务列表
  */
 export async function getTasks(category?: TaskCategory): Promise<Task[]> {
-  const supabase = await createClient()
+  try {
+    console.log('[DEBUG] getTasks - 开始执行')
+    console.log('[DEBUG] getTasks - 环境变量 URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 20) + '...')
+    const supabase = await createClient()
+    console.log('[DEBUG] getTasks - supabase client 创建成功')
 
-  let query = supabase
-    .from('tasks')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order')
+    // {/* 先测试一个简单的查询，确认连接正常 */}
+    console.log('[DEBUG] getTasks - 测试连接...')
+    const { data: testData, error: testError } = await supabase.from('tasks').select('count').single()
+    console.log('[DEBUG] getTasks - 测试连接结果:', { testData, testError })
 
-  if (category) {
-    query = query.eq('category', category)
-  }
+    // {/* 先查询所有任务，不看 is_active 条件 */}
+    console.log('[DEBUG] getTasks - 查询所有任务（无筛选）...')
+    const { data: allData, error: allError } = await supabase.from('tasks').select('*')
+    console.log('[DEBUG] getTasks - 所有任务:', { count: allData?.length, error: allError })
 
-  const { data, error } = await query
+    let query = supabase
+      .from('tasks')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
 
-  if (error) {
-    console.error('获取任务列表失败:', error)
+    if (category) {
+      query = query.eq('category', category)
+    }
+
+    console.log('[DEBUG] getTasks - 开始查询')
+    const { data, error } = await query
+    console.log('[DEBUG] getTasks - 查询完成')
+
+    // {/* 调试日志 */}
+    console.log('[DEBUG] getTasks - category:', category)
+    console.log('[DEBUG] getTasks - data:', data)
+    console.log('[DEBUG] getTasks - error:', error)
+    console.log('[DEBUG] getTasks - data type:', typeof data)
+    console.log('[DEBUG] getTasks - data isArray:', Array.isArray(data))
+    console.log('[DEBUG] getTasks - data length:', data?.length)
+
+    if (error) {
+      console.error('[DEBUG] getTasks - 查询错误:', error)
+      return []
+    }
+
+    if (!data) {
+      console.log('[DEBUG] getTasks - data is null/undefined')
+      return []
+    }
+
+    if (!Array.isArray(data)) {
+      console.log('[DEBUG] getTasks - data 不是数组:', data)
+      return []
+    }
+
+    console.log('[DEBUG] getTasks - 返回数据:', data.length)
+    return data as Task[]
+  } catch (err) {
+    console.error('[DEBUG] getTasks - catch error:', err)
+    console.error('[DEBUG] getTasks - catch error message:', (err as Error)?.message)
+    console.error('[DEBUG] getTasks - catch error stack:', (err as Error)?.stack)
     return []
   }
-
-  return data as Task[]
 }
 
 /**
@@ -51,42 +91,98 @@ export async function getTasks(category?: TaskCategory): Promise<Task[]> {
 export async function getUserTaskProgress(
   category?: TaskCategory
 ): Promise<TaskProgressResponse[]> {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+    // 获取任务列表（常驻显示，即使用户未登录）
+    const tasks = await getTasks(category)
 
-  // 获取任务列表
-  const tasks = await getTasks(category)
+    // {/* 调试日志 */}
+    console.log('[DEBUG] getUserTaskProgress - tasks count:', tasks?.length)
+    console.log('[DEBUG] getUserTaskProgress - tasks:', tasks)
 
-  // 获取用户任务记录
-  const { data: records, error } = await supabase
-    .from('user_task_records')
-    .select('*')
-    .eq('user_id', user.id)
-    .in(
-      'task_id',
-      tasks.map((t) => t.id)
-    )
+    // 如果 tasks 为空，直接返回空数组
+    if (!tasks || tasks.length === 0) {
+      console.log('[DEBUG] getUserTaskProgress - tasks 为空，返回空数组')
+      return []
+    }
 
-  if (error) {
-    console.error('获取任务进度失败:', error)
+    // 获取当前用户
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // {/* 调试日志 */}
+    console.log('[DEBUG] getUserTaskProgress - user:', user?.id || '未登录')
+
+    // 如果用户未登录，返回默认状态的任务列表
+    if (!user) {
+      const result = tasks.map((task) => ({
+        task_id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        icon_name: task.icon_name,
+        icon_color: task.icon_color,
+        current_progress: 0,
+        target_progress: task.target_count,
+        status: 'pending' as const,
+        reward_points: task.reward_points,
+      }))
+      console.log('[DEBUG] getUserTaskProgress - 未登录返回结果:', result.length)
+      return result
+    }
+
+    // 获取用户任务记录
+    const { data: records, error } = await supabase
+      .from('user_task_records')
+      .select('*')
+      .eq('user_id', user.id)
+      .in(
+        'task_id',
+        tasks.map((t) => t.id)
+      )
+
+    if (error) {
+      console.error('获取任务进度失败:', error)
+      // 出错时仍返回默认状态的任务列表
+      const result = tasks.map((task) => ({
+        task_id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        icon_name: task.icon_name,
+        icon_color: task.icon_color,
+        current_progress: 0,
+        target_progress: task.target_count,
+        status: 'pending' as const,
+        reward_points: task.reward_points,
+      }))
+      console.log('[DEBUG] getUserTaskProgress - 出错返回结果:', result.length)
+      return result
+    }
+
+    const recordMap = new Map(records?.map((r) => [r.task_id, r]))
+
+    const finalResult = tasks.map((task) => {
+      const record = recordMap.get(task.id)
+      return {
+        task_id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        icon_name: task.icon_name,
+        icon_color: task.icon_color,
+        current_progress: record?.current_progress || 0,
+        target_progress: task.target_count,
+        status: record?.status || 'pending',
+        reward_points: task.reward_points,
+      }
+    })
+    console.log('[DEBUG] getUserTaskProgress - 最终返回结果:', finalResult.length)
+    return finalResult
+  } catch (err) {
+    console.error('[DEBUG] getUserTaskProgress - catch error:', err)
     return []
   }
-
-  const recordMap = new Map(records?.map((r) => [r.task_id, r]))
-
-  return tasks.map((task) => {
-    const record = recordMap.get(task.id)
-    return {
-      task_id: task.id,
-      title: task.title,
-      current_progress: record?.current_progress || 0,
-      target_progress: task.target_count,
-      status: record?.status || 'pending',
-      reward_points: task.reward_points,
-    }
-  })
 }
 
 /**
