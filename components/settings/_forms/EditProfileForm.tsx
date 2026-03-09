@@ -21,11 +21,6 @@ import { UserData, UpdateProfileParams } from '@/types/settings'
  *   - 用户名编辑
  *   - 简介编辑
  *   - 位置信息编辑
- *
- * 架构说明:
- *   - 使用'use client'指令
- *   - 使用 Server Action 保存数据
- *   - 保存成功后刷新页面数据
  * 更新时间: 2026-03-02
  */
 
