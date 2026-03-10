@@ -48,3 +48,7 @@ docs/*
 .sql/*
 lib/supabase/migrations/*
 
+
+
+*storybook.log
+storybook-static
