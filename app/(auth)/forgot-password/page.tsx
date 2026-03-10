@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { forgotPassword } from '@/lib/auth';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
@@ -15,6 +16,17 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 使用 Toast 显示错误
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        duration: 4000,
+        position: 'top-center',
+      });
+      setError(null);
+    }
+  }, [error]);
 
   /**
    * 处理表单提交
@@ -48,12 +60,6 @@ export default function ForgotPasswordPage() {
                 <div className="text-center text-xf-medium text-sm mb-4">
                   请输入您的邮箱地址，我们将向您发送重置密码的链接。
                 </div>
-
-                {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                    {error}
-                  </div>
-                )}
 
                 <div>
                   <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">邮箱</label>

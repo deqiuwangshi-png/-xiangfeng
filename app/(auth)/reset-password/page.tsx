@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { resetPassword, REGISTER_ERRORS } from '@/lib/auth';
 import { validatePassword } from '@/lib/security/passwordPolicy';
@@ -22,6 +23,17 @@ export default function ResetPasswordPage() {
   const [isValidLink, setIsValidLink] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // 使用 Toast 显示错误
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        duration: 4000,
+        position: 'top-center',
+      });
+      setError(null);
+    }
+  }, [error]);
 
   {/* 检查链接有效性 */}
   useEffect(() => {
@@ -106,12 +118,6 @@ export default function ResetPasswordPage() {
           <FormCard title={isSuccess ? '重置成功' : '设置新密码'}>
             {!isSuccess ? (
               <form action={handleSubmit} className="space-y-6">
-                {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                    {error}
-                  </div>
-                )}
-
                 <PasswordInput
                   label="新密码"
                   name="password"

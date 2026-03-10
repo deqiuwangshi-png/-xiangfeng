@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { login } from '@/lib/auth';
 import { checkRateLimit, resetRateLimit } from '@/lib/security/rateLimit';
 import { BrandSection } from '@/components/auth/BrandSection';
@@ -32,6 +33,17 @@ function LoginForm() {
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // 使用 Toast 显示错误
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        duration: 4000,
+        position: 'top-center',
+      });
+      setError(null);
+    }
+  }, [error]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -106,12 +118,6 @@ function LoginForm() {
         <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl text-orange-700 text-sm">
           <p className="font-medium">登录尝试次数过多</p>
           <p>请 {remainingTime} 后再试</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-          {error}
         </div>
       )}
 

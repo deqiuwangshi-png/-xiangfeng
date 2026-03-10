@@ -7,9 +7,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { validatePassword } from '@/lib/security/passwordPolicy';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { mapSupabaseError } from '../errorMessages';
+import { validatePasswordMatch, getCurrentUser } from '../utils';
 import type { AuthResult } from './types';
 
 /**
@@ -21,29 +21,22 @@ export async function resetPassword(formData: FormData): Promise<AuthResult> {
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
 
-  // 完整密码策略验证
-  const pwdCheck = validatePassword(password);
-  if (!pwdCheck.valid) {
-    return { success: false, error: pwdCheck.message };
-  }
-
-  if (password !== confirmPassword) {
-    return { success: false, error: '两次输入的密码不一致' };
+  const validation = validatePasswordMatch(password, confirmPassword);
+  if (validation) {
+    return validation;
   }
 
   try {
     const supabase = await createClient();
 
-    // 获取用户用于限流
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     if (!user) {
       return { success: false, error: '链接已过期，请重新申请' };
     }
 
-    // 限流保护
     const rateLimit = checkServerRateLimit(`reset:${user.id}`, {
       maxAttempts: 3,
-      windowMs: 60 * 60 * 1000, // 1小时
+      windowMs: 60 * 60 * 1000,
     });
     if (!rateLimit.allowed) {
       return { success: false, error: '尝试次数过多，请1小时后再试' };

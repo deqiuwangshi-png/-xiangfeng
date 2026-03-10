@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { isAllowedEmail } from '@/lib/auth/utils'
 
 /**
  * 更新邮箱结果接口
@@ -41,6 +42,11 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
     // 检查新邮箱是否与当前邮箱相同
     if (user.email === newEmail) {
       return { success: false, error: '新邮箱不能与当前邮箱相同' }
+    }
+
+    // 验证邮箱域名白名单
+    if (!isAllowedEmail(newEmail)) {
+      return { success: false, error: '暂不支持该邮箱，请使用 QQ邮箱(@qq.com)、Gmail(@gmail.com) 或 139邮箱(@139.com)' }
     }
 
     // 检查新邮箱是否已被其他用户使用

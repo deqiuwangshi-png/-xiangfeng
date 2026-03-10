@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { ArrowLeft, Mail, Shield, CheckCircle, AlertCircle } from '@/components/icons'
 import { IconBox, PrimaryButton } from '@/components/ui'
 import { initiateEmailChange, UpdateEmailResult } from '@/lib/user/updateEmail'
@@ -43,6 +44,17 @@ export function ChangeEmailForm({ currentEmail, onCancel, onSave }: ChangeEmailF
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState<UpdateEmailResult | null>(null)
+
+  // 使用 Toast 显示错误
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
+        duration: 4000,
+        position: 'top-center',
+      })
+      setError('')
+    }
+  }, [error])
 
   /**
    * 处理发送验证邮件
@@ -121,14 +133,6 @@ export function ChangeEmailForm({ currentEmail, onCancel, onSave }: ChangeEmailF
           </div>
         </div>
       </div>
-
-      {/* 错误提示 */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
 
       {/* 成功提示 */}
       {success?.success && (
