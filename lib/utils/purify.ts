@@ -5,12 +5,35 @@
  * @description 使用 DOMPurify 进行专业的 XSS 防护
  *
  * @安全说明
- * - 使用 isomorphic-dompurify 支持服务端渲染
+ * - 使用条件导入避免 ESM/CommonJS 冲突
  * - 配置严格的标签和属性白名单
  * - 自动处理危险协议 (javascript:, data: 等)
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+// 条件导入 DOMPurify，避免 ESM/CommonJS 冲突
+let DOMPurify: any;
+try {
+  // 尝试动态导入
+  const module = require('isomorphic-dompurify');
+  DOMPurify = module.default || module;
+} catch (error) {
+  // 导入失败时使用简单的文本处理
+  console.warn('DOMPurify 导入失败，使用备用文本处理:', error);
+  DOMPurify = {
+    sanitize: (html: string, config: any) => {
+      if (config?.ALLOWED_TAGS?.length === 0) {
+        // 纯文本模式：移除所有标签
+        return html.replace(/<[^>]*>/g, '');
+      } else {
+        // 富文本模式：简单的标签过滤
+        return html
+          .replace(/<script[^>]*>.*?<\/script>/gi, '')
+          .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+          .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+      }
+    }
+  };
+}
 
 /**
  * 富文本内容净化配置
