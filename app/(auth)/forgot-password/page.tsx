@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { useAuthToast } from '@/hooks/useAuthToast';
 import { forgotPassword } from '@/lib/auth';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
@@ -15,18 +15,7 @@ import { FormCard } from '@/components/auth/FormCard';
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // 使用 Toast 显示错误
-  useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        duration: 4000,
-        position: 'top-center',
-      });
-      setError(null);
-    }
-  }, [error]);
+  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
   /**
    * 处理表单提交
@@ -34,16 +23,19 @@ export default function ForgotPasswordPage() {
    */
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    setError(null);
+    const toastId = showLoading('发送中...');
 
     const result = await forgotPassword(formData);
 
+    dismiss(toastId);
+
     if (!result.success) {
-      setError(result.error || '发送失败');
+      showError(result.error || '发送失败');
       setIsLoading(false);
       return;
     }
 
+    showSuccess('重置密码邮件已发送，请检查邮箱');
     setIsSuccess(true);
     setIsLoading(false);
   }

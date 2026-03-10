@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { toast } from 'sonner';
 import { useRegisterForm } from '@/hooks/useRegisterForm';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PwdStrength } from '@/components/auth/PwdStrength';
-import { JSX, useEffect } from 'react';
+import { JSX } from 'react';
 
 /**
  * 注册页面组件
@@ -19,26 +18,13 @@ export default function RegisterPage(): JSX.Element {
   const {
     formData,
     errors,
-    globalError,
     isLoading,
     isSuccess,
     passwordValidation,
     updateField,
     submitForm,
     getPasswordStrengthColor,
-    clearErrors,
   } = useRegisterForm();
-
-  // 使用 Toast 显示全局错误
-  useEffect(() => {
-    if (globalError) {
-      toast.error(globalError, {
-        duration: 4000,
-        position: 'top-center',
-      });
-      clearErrors();
-    }
-  }, [globalError, clearErrors]);
 
   /**
    * 处理表单提交

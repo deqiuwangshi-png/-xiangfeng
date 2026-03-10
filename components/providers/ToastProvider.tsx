@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 
 /**
  * Toast Provider 组件
- * @description 全局 Toast 提示容器
+ * @description 全局 Toast 提示容器，统一认证系统提示样式
  */
 export function ToastProvider() {
   return (

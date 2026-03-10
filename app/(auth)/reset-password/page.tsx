@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { useAuthToast } from '@/hooks/useAuthToast';
 import { createClient } from '@/lib/supabase/client';
 import { resetPassword, REGISTER_ERRORS } from '@/lib/auth';
 import { validatePassword } from '@/lib/security/passwordPolicy';
@@ -19,21 +19,10 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isValidLink, setIsValidLink] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // 使用 Toast 显示错误
-  useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        duration: 4000,
-        position: 'top-center',
-      });
-      setError(null);
-    }
-  }, [error]);
+  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
   {/* 检查链接有效性 */}
   useEffect(() => {
@@ -43,12 +32,12 @@ export default function ResetPasswordPage() {
 
       if (!session) {
         setIsValidLink(false);
-        setError('链接已过期或无效，请重新申请');
+        showError('链接已过期或无效，请重新申请', 'validation');
       }
     };
 
     checkSession();
-  }, []);
+  }, [showError]);
 
   /**
    * 处理表单提交
@@ -56,7 +45,6 @@ export default function ResetPasswordPage() {
    */
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    setError(null);
 
     const pwd = formData.get('password') as string;
     const confirmPwd = formData.get('confirmPassword') as string;
@@ -64,25 +52,29 @@ export default function ResetPasswordPage() {
     {/* 本地验证 */}
     const check = validatePassword(pwd);
     if (!check.valid) {
-      setError(check.message);
+      showError(check.message, 'validation');
       setIsLoading(false);
       return;
     }
 
     if (pwd !== confirmPwd) {
-      setError(REGISTER_ERRORS.PASSWORD_MISMATCH);
+      showError(REGISTER_ERRORS.PASSWORD_MISMATCH, 'validation');
       setIsLoading(false);
       return;
     }
 
+    const toastId = showLoading('处理中...');
     const result = await resetPassword(formData);
 
+    dismiss(toastId);
+
     if (!result.success) {
-      setError(result.error || '重置失败');
+      showError(result.error || '重置失败');
       setIsLoading(false);
       return;
     }
 
+    showSuccess('密码重置成功');
     setIsSuccess(true);
     setIsLoading(false);
   }
@@ -95,7 +87,7 @@ export default function ResetPasswordPage() {
           <div className="w-full max-w-md">
             <MobileBrandTitle />
             <FormCard title="链接已过期">
-              <div className="text-center text-red-600 mb-6">{error}</div>
+              <div className="text-center text-red-600 mb-6">链接已过期或无效，请重新申请</div>
               <button
                 onClick={() => router.push('/forgot-password')}
                 className="w-full bg-xf-primary hover:bg-xf-accent text-white font-semibold py-4 rounded-2xl transition-all"
