@@ -1,39 +1,66 @@
 /**
- * DOMPurify HTML 净化工具
+ * HTML 净化工具
  *
  * @module lib/utils/purify
- * @description 使用 DOMPurify 进行专业的 XSS 防护
+ * @description 使用纯 JavaScript 实现的 XSS 防护
  *
  * @安全说明
- * - 使用条件导入避免 ESM/CommonJS 冲突
+ * - 纯 JavaScript 实现，避免 ESM/CommonJS 冲突
  * - 配置严格的标签和属性白名单
  * - 自动处理危险协议 (javascript:, data: 等)
  */
 
-// 条件导入 DOMPurify，避免 ESM/CommonJS 冲突
-let DOMPurify: any;
-try {
-  // 尝试动态导入
-  const module = require('isomorphic-dompurify');
-  DOMPurify = module.default || module;
-} catch (error) {
-  // 导入失败时使用简单的文本处理
-  console.warn('DOMPurify 导入失败，使用备用文本处理:', error);
-  DOMPurify = {
-    sanitize: (html: string, config: any) => {
-      if (config?.ALLOWED_TAGS?.length === 0) {
-        // 纯文本模式：移除所有标签
-        return html.replace(/<[^>]*>/g, '');
-      } else {
-        // 富文本模式：简单的标签过滤
-        return html
-          .replace(/<script[^>]*>.*?<\/script>/gi, '')
-          .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-          .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+// 净化配置接口
+interface SanitizeConfig {
+  ALLOWED_TAGS?: string[];
+  ALLOWED_ATTR?: string[];
+  ALLOW_DATA_ATTR?: boolean;
+  FORBID_ATTR?: string[];
+  KEEP_CONTENT?: boolean;
+}
+
+// 纯 JavaScript 实现的 HTML 净化函数
+const sanitizeHtml = (html: string, config: SanitizeConfig) => {
+  if (!html || typeof html !== 'string') {
+    return '';
+  }
+
+  if (config?.ALLOWED_TAGS?.length === 0) {
+    // 纯文本模式：移除所有标签
+    return html.replace(/<[^>]*>/g, '');
+  } else {
+    // 富文本模式：使用白名单过滤
+    let sanitized = html;
+
+    // 移除危险标签
+    sanitized = sanitized
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+      .replace(/<object[^>]*>.*?<\/object>/gi, '')
+      .replace(/<embed[^>]*>.*?<\/embed>/gi, '')
+      .replace(/<link[^>]*>.*?<\/link>/gi, '')
+      .replace(/<style[^>]*>.*?<\/style>/gi, '');
+
+    // 移除危险属性
+    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+
+    // 过滤标签，只保留白名单中的标签
+    if (config?.ALLOWED_TAGS && config.ALLOWED_TAGS.length > 0) {
+      const allowedTags = config.ALLOWED_TAGS.join('|');
+      const tagRegex = new RegExp(`<\/?(?!(${allowedTags}))[a-z][a-z0-9]*[^>]*>`, 'gi');
+      sanitized = sanitized.replace(tagRegex, '');
+
+      // 过滤属性，只保留白名单中的属性
+      if (config?.ALLOWED_ATTR && config.ALLOWED_ATTR.length > 0) {
+        const allowedAttrs = config.ALLOWED_ATTR.join('|');
+        const attrRegex = new RegExp(`\s+(?!(${allowedAttrs}))[a-z][a-z0-9-]*\s*=\s*["'][^"']*["']`, 'gi');
+        sanitized = sanitized.replace(attrRegex, '');
       }
     }
-  };
-}
+
+    return sanitized;
+  }
+};
 
 /**
  * 富文本内容净化配置
@@ -99,8 +126,8 @@ export function sanitizeRichText(html: string): string {
     return '';
   }
 
-  // 先使用 DOMPurify 净化
-  let purified = DOMPurify.sanitize(html, RICH_TEXT_CONFIG);
+  // 使用纯 JavaScript 实现的净化函数
+  let purified = sanitizeHtml(html, RICH_TEXT_CONFIG);
 
   // 额外处理：确保所有链接都有安全属性
   purified = purified.replace(
@@ -148,8 +175,8 @@ export function sanitizePlainText(text: string): string {
     return '';
   }
 
-  // 使用 DOMPurify 移除所有标签，只保留文本
-  const purified = DOMPurify.sanitize(text, PLAIN_TEXT_CONFIG);
+  // 使用纯 JavaScript 实现的净化函数
+  const purified = sanitizeHtml(text, PLAIN_TEXT_CONFIG);
 
   // 解码 HTML 实体
   return (

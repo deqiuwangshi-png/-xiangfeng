@@ -35,8 +35,6 @@ const nextConfig: NextConfig = {
   transpilePackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
   // Server Actions 配置
   experimental: {
-    // 禁用 Turbopack，使用传统 Webpack 构建
-    turbo: false,
     // 增加请求体大小限制到 10MB（用于文件上传）
     serverActions: {
       bodySizeLimit: '10mb',
