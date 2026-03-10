@@ -40,18 +40,6 @@ const nextConfig: NextConfig = {
     // 优化包体积
     optimizePackageImports: ['lucide-react'],
   },
-  // Webpack配置 - 解决Vercel部署时的ES模块兼容性问题
-  webpack: (config, { isServer }) => {
-    // 排除jsdom相关模块，避免ES模块与CommonJS冲突
-    if (isServer) {
-      config.externals = config.externals || [];
-      config.externals.push({
-        'jsdom': 'commonjs jsdom',
-        'html-encoding-sniffer': 'commonjs html-encoding-sniffer',
-      });
-    }
-    return config;
-  },
   images: {
     // 图片优化配置
     remotePatterns: [
