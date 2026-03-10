@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
     // 优化包体积
     optimizePackageImports: ['lucide-react'],
   },
+  
+  // Vercel 部署：排除有 ESM/CJS 冲突的包
+  // 这些包将由 Node.js 运行时直接加载，而不是打包到 bundle 中
+  serverExternalPackages: [
+    'jsdom',
+    'html-encoding-sniffer',
+    '@exodus/bytes',
+  ],
   images: {
     // 图片优化配置
     remotePatterns: [
