@@ -31,6 +31,8 @@ const prodCspHeader = `
 `.replace(/\s+/g, ' ').trim();
 
 const nextConfig: NextConfig = {
+  // 加上这一段，把报错的那几个库加进去
+  transpilePackages: ['jsdom', 'html-encoding-sniffer', '@exodus/bytes'],
   // Server Actions 配置
   experimental: {
     // 增加请求体大小限制到 10MB（用于文件上传）
