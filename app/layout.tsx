@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SWRProvider } from "@/components/providers/SWRProvider";
 import "./globals.css";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
         <SWRProvider>
           {children}
         </SWRProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
