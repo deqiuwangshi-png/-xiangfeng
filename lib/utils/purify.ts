@@ -105,7 +105,7 @@ export function sanitizeRichText(html: string): string {
   // 额外处理：确保所有链接都有安全属性
   purified = purified.replace(
     /<a\s+([^>]*)href="([^"]*)"([^>]*)>/gi,
-    (match, before, href, after) => {
+    (match: string, before: string, href: string, after: string) => {
       // 检查是否是危险协议
       const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
       if (dangerousProtocols.test(href)) {
