@@ -51,14 +51,14 @@ export function ShopGrid() {
   }
 
   return (
-    <div className="card-bg rounded-2xl p-6">
+    <div className="card-bg rounded-2xl p-6 flex flex-col min-h-[380px]">
       <h2 className="text-xl font-serif font-bold text-xf-dark mb-4 flex items-center gap-2">
         <ShoppingBag className="w-5 h-5 text-xf-primary" />
         兑换商城
       </h2>
 
       {/* 商品网格 - 2列小屏，3列大屏 */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
         {items.map((item) => {
           const Icon = item.icon
           return (
@@ -84,7 +84,7 @@ export function ShopGrid() {
         })}
       </div>
 
-      {/* 更多商品链接 */}
+      {/* 更多商品链接 - 固定在底部 */}
       <div className="mt-4 text-right">
         <a
           href="/rewards/shop"

@@ -26,6 +26,7 @@ export {
   getUserTaskProgress,
   updateTaskProgress,
   claimTaskReward,
+  acceptTask,
   getTaskCenterData,
   checkReadArticleTask,
   checkPublishArticleTask,
