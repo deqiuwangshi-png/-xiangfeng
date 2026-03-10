@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { resetPassword } from '@/lib/auth/actions';
+import { resetPassword, REGISTER_ERRORS } from '@/lib/auth';
 import { validatePassword } from '@/lib/security/passwordPolicy';
-import { REGISTER_ERRORS } from '@/lib/auth/errorMessages';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';

@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { sanitizeRedirect } from '@/lib/auth/redir'
 
 /**
  * 受保护的路由列表 - 需要登录才能访问
@@ -47,9 +48,11 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
 export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname
 
+  const isProtectedRoute = isMatchingRoute(path, PROTECTED_ROUTES)
+  const isAuthRoute = isMatchingRoute(path, AUTH_ROUTES)
+
   {/* 快速路径：公开路由不需要会话验证，直接返回 */}
-  const isPublicRoute = !isMatchingRoute(path, PROTECTED_ROUTES) &&
-                        !isMatchingRoute(path, AUTH_ROUTES)
+  const isPublicRoute = !isProtectedRoute && !isAuthRoute
   if (isPublicRoute) {
     return NextResponse.next({
       request: { headers: request.headers },
@@ -116,16 +119,19 @@ export async function updateSession(request: NextRequest) {
   }
 
   {/* 路由保护逻辑 */}
-  if (user && isMatchingRoute(path, AUTH_ROUTES)) {
-    {/* 已登录用户访问认证页面，重定向到首页 */}
-    const redirectUrl = request.nextUrl.searchParams.get('redirect')
-    const targetUrl = redirectUrl && !isMatchingRoute(redirectUrl, AUTH_ROUTES)
-      ? redirectUrl
-      : '/home'
-    return NextResponse.redirect(new URL(targetUrl, request.url))
+  if (user && isAuthRoute) {
+    {/* 已登录用户访问认证页面，重定向到首页或安全路径 */}
+    const redirectParam = request.nextUrl.searchParams.get('redirect')
+    let targetPath = sanitizeRedirect(redirectParam, '/home')
+
+    if (isMatchingRoute(targetPath, AUTH_ROUTES)) {
+      targetPath = '/home'
+    }
+
+    return NextResponse.redirect(new URL(targetPath, request.url))
   }
 
-  if (!user && isMatchingRoute(path, PROTECTED_ROUTES)) {
+  if (!user && isProtectedRoute) {
     {/* 未登录用户访问受保护路由，重定向到登录页 */}
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', path)
@@ -133,7 +139,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   {/* 安全头部 - 仅对受保护路由设置，减少开销 */}
-  if (isMatchingRoute(path, PROTECTED_ROUTES)) {
+  if (isProtectedRoute) {
     supabaseResponse.headers.set('X-Frame-Options', 'DENY')
     supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
     supabaseResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')

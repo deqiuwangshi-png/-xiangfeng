@@ -9,6 +9,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { validatePassword } from '@/lib/security/passwordPolicy';
+import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import type { AuthResult } from './types';
 
 /**
@@ -33,6 +34,21 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
 
   try {
     const supabase = await createClient();
+
+    // 获取当前用户
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, error: '未登录或登录已过期' };
+    }
+
+    // 限流保护
+    const rateLimit = checkServerRateLimit(`change:${user.id}`, {
+      maxAttempts: 5,
+      windowMs: 15 * 60 * 1000, // 15分钟
+    });
+    if (!rateLimit.allowed) {
+      return { success: false, error: '尝试次数过多，请15分钟后再试' };
+    }
 
     // 更新密码
     const { error: updateError } = await supabase.auth.updateUser({ password });

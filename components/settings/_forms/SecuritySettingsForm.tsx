@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Key, Eye, EyeOff } from '@/components/icons'
 import { IconBox, FormActions } from '@/components/ui'
-import { changePassword } from '@/lib/auth/actions'
+import { changePassword } from '@/lib/auth'
 import { validatePassword } from '@/lib/security/passwordPolicy'
 
 /**

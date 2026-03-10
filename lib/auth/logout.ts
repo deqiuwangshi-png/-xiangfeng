@@ -4,7 +4,7 @@
  * @description 客户端退出登录，调用Server Action
  */
 
-import { logout as logoutAction } from './actions';
+import { logout as logoutAction } from './actions/logout';
 
 /**
  * 退出登录结果接口

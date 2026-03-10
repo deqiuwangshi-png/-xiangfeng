@@ -15,10 +15,15 @@ import type { AuthResult } from './types';
 /**
  * 注册输入验证
  */
+const USERNAME_REGEX = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
+
 const registerSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
   password: z.string().min(8, '密码至少需要8位'),
-  username: z.string().min(2, '用户名至少需要2位').max(20, '用户名最多20位'),
+  username: z.string()
+    .min(2, '用户名至少需要2位')
+    .max(20, '用户名最多20位')
+    .regex(USERNAME_REGEX, '用户名只能包含字母、数字、下划线和中文'),
 });
 
 /**

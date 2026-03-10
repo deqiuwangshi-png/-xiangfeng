@@ -12,18 +12,22 @@ export function DeleteAccountCard() {
   const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [confirmText, setConfirmText] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleDelete = async () => {
     if (confirmText !== '删除') return
 
     setIsLoading(true)
-    const result = await deleteAccount()
+    setError(null)
+    const result = await deleteAccount(password)
 
     if (result.success) {
       router.push('/')
       router.refresh()
     } else {
+      setError(result.error || '删除失败')
       setIsLoading(false)
     }
   }
@@ -32,6 +36,8 @@ export function DeleteAccountCard() {
     if (isLoading) return
     setShowModal(false)
     setConfirmText('')
+    setPassword('')
+    setError(null)
   }
 
   return (
@@ -83,6 +89,19 @@ export function DeleteAccountCard() {
               <li>点赞和收藏记录</li>
             </ul>
 
+            {/* 密码确认 */}
+            <p className="text-sm text-gray-600 mb-2">
+              输入密码确认身份：
+            </p>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              className="w-full px-3 py-2 border rounded-lg mb-3 focus:outline-none focus:border-red-500"
+              placeholder="输入密码"
+            />
+
             {/* 确认输入 */}
             <p className="text-sm text-gray-600 mb-2">
               输入 <strong className="text-red-600">&ldquo;删除&rdquo;</strong> 确认：
@@ -96,6 +115,13 @@ export function DeleteAccountCard() {
               placeholder="输入“删除”确认"
             />
 
+            {/* 错误提示 */}
+            {error && (
+              <div className="mb-3 p-2 bg-red-50 text-red-600 text-sm rounded-lg">
+                {error}
+              </div>
+            )}
+
             {/* 按钮 */}
             <div className="flex gap-2">
               <button
@@ -107,7 +133,7 @@ export function DeleteAccountCard() {
               </button>
               <button
                 onClick={handleDelete}
-                disabled={isLoading || confirmText !== '删除'}
+                disabled={isLoading || confirmText !== '删除' || !password}
                 className="flex-1 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white rounded-lg text-sm flex items-center justify-center gap-1"
               >
                 <Trash2 className="w-4 h-4" />

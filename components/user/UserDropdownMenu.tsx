@@ -9,7 +9,7 @@
 import { User, Zap, Newspaper, MessageSquare, Settings, LogOut } from 'lucide-react'
 import { useMemo, useEffect, useCallback } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { useLogout } from '@/lib/auth/useLogout'
+import { useLogout } from '@/lib/auth'
 
 /**
  * 下拉菜单项接口

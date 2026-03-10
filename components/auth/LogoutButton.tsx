@@ -7,7 +7,7 @@
 'use client'
 
 import { LogOut } from 'lucide-react'
-import { useLogout, type UseLogoutOptions } from '@/lib/auth/useLogout'
+import { useLogout, type UseLogoutOptions } from '@/lib/auth'
 
 /**
  * LogoutButton 组件属性接口

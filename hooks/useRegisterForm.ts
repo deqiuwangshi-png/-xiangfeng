@@ -2,8 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
-import { REGISTER_ERRORS } from '@/lib/auth/errorMessages';
-import { register } from '@/lib/auth/actions';
+import { REGISTER_ERRORS, register } from '@/lib/auth';
 
 /**
  * 注册表单数据接口

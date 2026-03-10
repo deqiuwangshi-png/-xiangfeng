@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { login } from '@/lib/auth/actions';
+import { login } from '@/lib/auth';
 import { checkRateLimit, resetRateLimit } from '@/lib/security/rateLimit';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';

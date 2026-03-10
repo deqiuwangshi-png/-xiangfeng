@@ -14,19 +14,25 @@ export interface DeleteAccountResult {
 /**
  * 硬删除用户账户
  * 
+ * @param password - 用户密码（二次验证）
  * @returns 删除结果
  * 
  * @description
  * 彻底删除用户账户及关联数据（方案：1A, 2B, 4A）：
- * 1. 删除用户发布的所有文章
- * 2. 匿名化用户的评论（保留内容，用户显示为"已删除用户"）
- * 3. 删除 profiles 表数据
- * 4. 使用 Admin API 彻底删除 Auth 用户
- * 5. 退出登录
+ * 1. 验证密码（二次确认）
+ * 2. 删除用户发布的所有文章
+ * 3. 匿名化用户的评论（保留内容，用户显示为"已删除用户"）
+ * 4. 删除 profiles 表数据
+ * 5. 使用 Admin API 彻底删除 Auth 用户
+ * 6. 退出登录
  * 
  * ⚠️ 此操作不可逆，立即生效
  */
-export async function deleteAccount(): Promise<DeleteAccountResult> {
+export async function deleteAccount(password: string): Promise<DeleteAccountResult> {
+  {/* 验证密码存在 */}
+  if (!password || password.length < 1) {
+    return { success: false, error: '请输入密码以确认删除账户' }
+  }
   try {
     const supabase = await createClient()
     
@@ -38,6 +44,18 @@ export async function deleteAccount(): Promise<DeleteAccountResult> {
     }
 
     const userId = user.id
+    const userEmail = user.email
+
+    // 验证密码（二次确认）
+    if (userEmail) {
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: userEmail,
+        password,
+      })
+      if (verifyError) {
+        return { success: false, error: '密码验证失败，请检查后重试' }
+      }
+    }
 
     // 1. 删除用户发布的所有文章（方案 1A）
     const { error: articlesError } = await supabase

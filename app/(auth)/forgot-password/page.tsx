@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { forgotPassword } from '@/lib/auth/actions';
+import { forgotPassword } from '@/lib/auth';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
