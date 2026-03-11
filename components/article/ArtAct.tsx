@@ -20,6 +20,8 @@ import { RwMd } from './rw/RwMd';
 interface ArtActProps {
   /** 文章ID */
   articleId: string;
+  /** 作者ID */
+  authorId: string;
   /** 当前用户 */
   currentUser: User | null;
   /** 初始点赞数 */
@@ -40,6 +42,7 @@ interface ArtActProps {
  */
 export default function ArtAct({
   articleId,
+  authorId,
   currentUser,
   initialLikeCount = 0,
   initialCommentCount = 0,
@@ -248,6 +251,8 @@ export default function ArtAct({
       {/* 打赏弹窗 */}
       {showRewardModal && (
         <RwMd
+          articleId={articleId}
+          authorId={authorId}
           onClose={() => setShowRewardModal(false)}
           currentUser={currentUser}
         />

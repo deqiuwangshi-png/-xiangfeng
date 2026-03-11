@@ -1,66 +1,66 @@
-'use client';
+'use client'
 
 /**
  * 打赏弹窗组件
- *
  * @module components/article/rw/RwMd
  * @description 文章打赏功能弹窗
  */
 
-import { useState } from 'react';
-import { X, Sparkles, Coins, Megaphone } from '@/components/icons';
-import type { User } from '@supabase/supabase-js';
-import { TabBtn } from './TabBtn';
-import { PtRw } from './PtRw';
-import { AdRw } from './AdRw';
+import { useState } from 'react'
+import { X, Sparkles, Coins, Megaphone } from '@/components/icons'
+import type { User } from '@supabase/supabase-js'
+import { TabBtn } from './TabBtn'
+import { PtRw } from './PtRw'
+import { AdRw } from './AdRw'
 
 /**
  * 打赏方式类型
  */
-type RwType = 'points' | 'ad';
+type RwType = 'points' | 'ad'
 
 /**
  * RwMd Props 接口
  */
 interface RwMdProps {
+  /** 文章ID */
+  articleId: string
+  /** 作者ID */
+  authorId: string
   /** 关闭回调 */
-  onClose: () => void;
+  onClose: () => void
   /** 当前用户 */
-  currentUser: User | null;
+  currentUser: User | null
+  /** 打赏成功回调 */
+  onSuccess?: () => void
 }
 
 /**
  * 打赏弹窗组件
- *
  * @param {RwMdProps} props - 组件属性
  * @returns {JSX.Element} 打赏弹窗
  */
-export function RwMd({ onClose, currentUser }: RwMdProps) {
-  const [activeTab, setActiveTab] = useState<RwType>('points');
+export function RwMd({ articleId, authorId, onClose, currentUser, onSuccess }: RwMdProps) {
+  const [activeTab, setActiveTab] = useState<RwType>('points')
 
   /**
    * 检查用户登录状态
-   *
    * @returns {boolean} 是否已登录
    */
   const checkAuth = () => {
     if (!currentUser) {
-      alert('请先登录');
-      return false;
+      alert('请先登录')
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   /**
-   * 处理打赏
-   *
-   * @param {RwType} type - 打赏类型
+   * 处理打赏成功
    */
-  const handleReward = (type: RwType) => {
-    if (!checkAuth()) return;
-    {/* TODO: 实现具体打赏逻辑 */}
-    console.log('打赏类型:', type);
-  };
+  const handleSuccess = () => {
+    onSuccess?.()
+    onClose()
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -96,22 +96,28 @@ export function RwMd({ onClose, currentUser }: RwMdProps) {
           />
           <TabBtn
             active={activeTab === 'ad'}
-            onClick={() => setActiveTab('ad')}
+            onClick={() => {
+              // 广告打赏暂未开放
+              alert('广告打赏功能即将开放，敬请期待！')
+            }}
             icon={<Megaphone className="w-4 h-4" />}
             label="广告"
+            disabled={true}
           />
         </div>
 
         {/* 打赏内容区域 */}
         <div className="min-h-[200px]">
           {activeTab === 'points' && (
-            <PtRw onReward={() => handleReward('points')} />
+            <PtRw
+              articleId={articleId}
+              authorId={authorId}
+              onSuccess={handleSuccess}
+            />
           )}
-          {activeTab === 'ad' && (
-            <AdRw onReward={() => handleReward('ad')} />
-          )}
+          {activeTab === 'ad' && <AdRw />}
         </div>
       </div>
     </div>
-  );
+  )
 }

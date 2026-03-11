@@ -12,6 +12,7 @@ import {
   getTodaySignInStatus,
   performSignIn,
   getSignInRewardsConfig,
+  getSignInNonce,
 } from '@/lib/rewards/actions/signin'
 import type { SignInResponse } from '@/types/rewards'
 
@@ -81,11 +82,23 @@ const fetchRewardsConfig = async (): Promise<SignInRewardItem[]> => {
 }
 
 /**
- * 执行签到操作
+ * 执行签到操作（带令牌）
  * @returns {Promise<SignInResponse>} 签到结果
  */
 const doSignIn = async (): Promise<SignInResponse> => {
-  return await performSignIn()
+  // 先获取令牌
+  const { nonce } = await getSignInNonce()
+  if (!nonce) {
+    return {
+      success: false,
+      points_earned: 0,
+      consecutive_days: 0,
+      is_bonus_day: false,
+      current_points: 0,
+    }
+  }
+  // 使用令牌执行签到
+  return await performSignIn(nonce)
 }
 
 /**

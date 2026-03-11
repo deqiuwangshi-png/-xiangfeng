@@ -99,7 +99,7 @@ interface TaskListProps {
  * @returns {JSX.Element} 任务列表
  */
 export function TaskList({ category }: TaskListProps) {
-  const { tasks, isLoading, claimReward } = useTasks(
+  const { tasks, isLoading, claimReward, accept } = useTasks(
     category === 'all' ? undefined : category
   )
 
@@ -152,16 +152,47 @@ export function TaskList({ category }: TaskListProps) {
   }
 
   /**
+   * 判断是否已接取（进行中）
+   * @param {TaskStatus} status - 任务状态
+   * @returns {boolean} 是否进行中
+   */
+  const isInProgress = (status: TaskStatus): boolean => {
+    return status === 'in_progress'
+  }
+
+  /**
+   * 判断是否未接取
+   * @param {TaskStatus} status - 任务状态
+   * @returns {boolean} 是否未接取
+   */
+  const isPending = (status: TaskStatus): boolean => {
+    return status === 'pending'
+  }
+
+  /**
    * 处理领取奖励
    * @param {string} taskId - 任务ID
    */
   const handleClaimReward = async (taskId: string) => {
     const result = await claimReward(taskId)
     if (result.success) {
-      // 领取成功，UI会自动刷新
       console.log('领取成功，获得积分:', result.points)
     } else {
       console.error('领取失败:', result.error)
+    }
+  }
+
+  /**
+   * 处理接取任务
+   * @param {string} taskId - 任务ID
+   */
+  const handleAccept = async (taskId: string) => {
+    const result = await accept(taskId)
+    if (result.success) {
+      console.log('接取任务成功')
+    } else {
+      console.error('接取失败:', result.error)
+      alert(result.error || '接取失败')
     }
   }
 
@@ -200,6 +231,8 @@ export function TaskList({ category }: TaskListProps) {
         const percent = calcPercent(task.current_progress, task.target_progress)
         const completed = isCompleted(task.status)
         const claimable = canClaimReward(task.status)
+        const inProgress = isInProgress(task.status)
+        const pending = isPending(task.status)
         const style = getCategoryStyle(task.category)
 
         return (
@@ -223,7 +256,7 @@ export function TaskList({ category }: TaskListProps) {
                 >
                   {task.title}
                 </h3>
-                {!completed && (
+                {(inProgress || claimable) && (
                   <div className="flex items-center gap-3 mt-2">
                     <div className="w-32 h-1.5 bg-xf-bg rounded-full overflow-hidden">
                       <div
@@ -246,20 +279,34 @@ export function TaskList({ category }: TaskListProps) {
               >
                 +{task.reward_points}
               </span>
-              {completed ? (
-                <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+              {/* 已完成 */}
+              {completed && (
+                <span className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full whitespace-nowrap">
                   已完成
                 </span>
-              ) : claimable ? (
+              )}
+              {/* 可领取 */}
+              {claimable && (
                 <button
                   onClick={() => handleClaimReward(task.task_id)}
-                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-4 py-2 rounded-full transition"
+                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-3 py-1.5 rounded-full transition whitespace-nowrap"
                 >
                   领取奖励
                 </button>
-              ) : (
-                <button className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-4 py-2 rounded-full transition">
-                  去完成
+              )}
+              {/* 进行中 */}
+              {inProgress && (
+                <span className="text-xs bg-xf-info/20 text-xf-info px-3 py-1.5 rounded-full whitespace-nowrap">
+                  进行中
+                </span>
+              )}
+              {/* 未接取 */}
+              {pending && (
+                <button
+                  onClick={() => handleAccept(task.task_id)}
+                  className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-3 py-1.5 rounded-full transition whitespace-nowrap"
+                >
+                  接取任务
                 </button>
               )}
             </div>

@@ -7,3 +7,4 @@
 export { useSignIn } from './useSignIn'
 export { usePoints } from './usePoints'
 export { useTasks } from './useTasks'
+export { useShop } from './useShop'

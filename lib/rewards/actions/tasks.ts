@@ -154,8 +154,8 @@ export async function updateTaskProgress(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
-  // 调用数据库函数更新任务进度
-  const { error } = await supabase.rpc('update_task_progress', {
+  // 调用安全进度更新函数（带参数校验和增量限制）
+  const { error } = await supabase.rpc('safe_update_task_prog', {
     p_user_id: user.id,
     p_task_type: taskType,
     p_increment: increment,
@@ -182,8 +182,8 @@ export async function claimTaskReward(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '请先登录' }
 
-  // 调用数据库函数领取奖励
-  const { data, error } = await supabase.rpc('claim_task_reward', {
+  // 调用安全领取函数（带并发保护）
+  const { data, error } = await supabase.rpc('safe_claim_task_reward', {
     p_user_id: user.id,
     p_task_id: taskId,
   })
@@ -193,7 +193,13 @@ export async function claimTaskReward(
     return { success: false, error: error.message }
   }
 
-  return { success: true, points: data }
+  // 解析返回的 JSON 结果
+  const result = data as { success: boolean; points?: number; error?: string }
+  if (!result.success) {
+    return { success: false, error: result.error || '领取失败' }
+  }
+
+  return { success: true, points: result.points }
 }
 
 /**

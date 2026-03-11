@@ -91,7 +91,8 @@ export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeRe
     }
   }
 
-  const { data, error } = await supabase.rpc('exchange_shop_item', {
+  // 调用安全兑换函数（带库存检查和并发保护）
+  const { data, error } = await supabase.rpc('safe_exchange_item', {
     p_user_id: user.id,
     p_item_id: request.item_id,
     p_quantity: request.quantity || 1,

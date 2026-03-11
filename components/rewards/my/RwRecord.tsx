@@ -112,8 +112,8 @@ const statusConfig: Record<
   ExchangeStatus,
   { label: string; bgColor: string; textColor: string }
 > = {
-  pending: { label: '待处理', bgColor: 'bg-gray-100', textColor: 'text-gray-700' },
-  processing: { label: '处理中', bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
+  pending: { label: '准备中', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
+  processing: { label: '准备中', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
   issued: { label: '已发放', bgColor: 'bg-green-100', textColor: 'text-green-700' },
   used: { label: '已使用', bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
   expired: { label: '已过期', bgColor: 'bg-gray-100', textColor: 'text-gray-500' },
@@ -126,8 +126,6 @@ const statusConfig: Record<
  */
 const filterTabs: { key: FilterType; label: string }[] = [
   { key: 'all', label: '全部' },
-  { key: 'pending', label: '待处理' },
-  { key: 'processing', label: '处理中' },
   { key: 'issued', label: '已发放' },
   { key: 'used', label: '已使用' },
   { key: 'expired', label: '已过期' },

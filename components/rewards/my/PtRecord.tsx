@@ -16,6 +16,7 @@ import {
   Star,
   Clock,
   Award,
+  Heart,
   type LucideIcon,
 } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
@@ -68,6 +69,8 @@ const sourceConfig: Record<
   exchange_refund: { label: '兑换退款', icon: Gift, iconColor: 'text-green-600' },
   expire: { label: '积分过期', icon: Clock, iconColor: 'text-gray-500' },
   system: { label: '系统奖励', icon: Star, iconColor: 'text-amber-600' },
+  reward_send: { label: '打赏支出', icon: Heart, iconColor: 'text-rose-500' },
+  reward_receive: { label: '打赏收入', icon: Star, iconColor: 'text-amber-500' },
 }
 
 /**

@@ -7,7 +7,7 @@
  */
 
 import useSWR from 'swr'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   getUserPointsOverview,
   getPointTransactions,
@@ -69,7 +69,7 @@ export function usePoints(): UsePointsReturn {
     revalidateOnMount: true,
   })
 
-  {/* 使用 SWR 获取积分流水 - 10分钟缓存，保持旧数据，有缓存时不重新验证 */}
+  {/* 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新 */}
   const {
     data: transactions = [],
     error: transactionsError,
@@ -77,24 +77,26 @@ export function usePoints(): UsePointsReturn {
     isValidating: isTransactionsValidating,
     mutate: mutateTransactions,
   } = useSWR('user-points-transactions', fetchTransactions, {
-    dedupingInterval: 600000,
+    dedupingInterval: 30000,
     keepPreviousData: true,
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateOnMount: false,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    revalidateOnMount: true,
   })
 
   {/* 加载更多流水的偏移量 */}
   const [offset, setOffset] = useState(20)
 
   /**
-   * 刷新积分数据
+   * 刷新积分数据（包括总览和流水）
    * @returns {Promise<void>}
    */
   const refreshPoints = useCallback(async () => {
-    await mutateOverview()
-  }, [mutateOverview])
+    await Promise.all([
+      mutateOverview(),
+      mutateTransactions(),
+    ])
+  }, [mutateOverview, mutateTransactions])
 
   /**
    * 加载更多流水
@@ -106,7 +108,7 @@ export function usePoints(): UsePointsReturn {
         limit: 20,
         offset,
       })
-      
+
       if (newTransactions.length > 0) {
         await mutateTransactions(
           (currentData) => {
@@ -121,6 +123,18 @@ export function usePoints(): UsePointsReturn {
       console.error('[usePoints] 加载更多流水失败:', error)
     }
   }, [offset, mutateTransactions])
+
+  {/* 监听积分更新事件 */}
+  useEffect(() => {
+    const handlePointsUpdate = () => {
+      refreshPoints()
+    }
+
+    window.addEventListener('points:updated', handlePointsUpdate)
+    return () => {
+      window.removeEventListener('points:updated', handlePointsUpdate)
+    }
+  }, [refreshPoints])
 
   {/* 错误处理 */}
   if (overviewError) {

@@ -18,6 +18,7 @@ export {
   performSignIn,
   getSignInHistory,
   getSignInRewardsConfig,
+  getSignInNonce,
 } from './signin'
 
 // 任务系统
@@ -47,3 +48,11 @@ export {
   useCoupon,
   checkCanExchange,
 } from './shop'
+
+// 打赏系统
+export {
+  rewardArticle,
+  getRewardNonce,
+  getArticleRewardStats,
+  getArticleRewards,
+} from './reward'
