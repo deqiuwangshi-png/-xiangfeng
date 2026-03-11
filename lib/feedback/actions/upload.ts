@@ -1,9 +1,20 @@
 'use server';
 
 import { uploadFileToFeishu } from '@/lib/feishu/api';
+import type { UploadedFile } from '@/types/feedback';
 
 /**
- * 上传附件到飞书多维表格
+ * 单个文件上传结果
+ */
+interface UploadResult {
+  fileId: string;
+  success: boolean;
+  fileToken?: string;
+  error?: string;
+}
+
+/**
+ * 上传单个附件到飞书多维表格
  * 使用飞书 Drive API 上传文件
  *
  * @param formData 包含文件的 FormData
@@ -82,4 +93,49 @@ export async function uploadFeedbackAttachment(formData: FormData) {
       error: error instanceof Error ? error.message : '上传失败',
     };
   }
+}
+
+/**
+ * 批量上传反馈附件到飞书
+ * 在提交反馈时调用，避免提前上传浪费资源
+ *
+ * @param files 待上传文件列表
+ * @returns 每个文件的上传结果
+ */
+export async function uploadFeedbackFiles(
+  files: Pick<UploadedFile, 'id' | 'file'>[]
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = [];
+
+  for (const fileItem of files) {
+    try {
+      const formData = new FormData();
+      formData.append('file', fileItem.file);
+
+      const result = await uploadFeedbackAttachment(formData);
+
+      if (result.success && result.fileToken) {
+        results.push({
+          fileId: fileItem.id,
+          success: true,
+          fileToken: result.fileToken,
+        });
+      } else {
+        results.push({
+          fileId: fileItem.id,
+          success: false,
+          error: result.error || '上传失败',
+        });
+      }
+    } catch (error) {
+      console.error(`上传文件 ${fileItem.file.name} 失败:`, error);
+      results.push({
+        fileId: fileItem.id,
+        success: false,
+        error: error instanceof Error ? error.message : '上传失败',
+      });
+    }
+  }
+
+  return results;
 }

@@ -7,6 +7,7 @@
  * - 操作类：删除、关闭、确认等
  * - 提示类：警告、通知等
  * - 加载类：加载状态
+ * - 文件类：文件类型图标
  */
 
 
@@ -20,9 +21,15 @@ export {
 
 
   AlertTriangle,
+  AlertCircle,
   Bell,
 
 
   Loader2,
   Loader,
+
+
+  FileText,
+  Image,
+  File,
 } from 'lucide-react'
