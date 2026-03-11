@@ -15,4 +15,7 @@ export {
   Users,
   FileText,
   Heart,
+  CreditCard,
+  PlusCircle,
+  Edit2,
 } from 'lucide-react'

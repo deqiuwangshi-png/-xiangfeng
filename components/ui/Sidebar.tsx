@@ -176,7 +176,6 @@ export function Sidebar({ user, profile }: SidebarProps) {
         <div className="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">
           ©2026 相逢
         </div>
-        <div className="text-xs text-xf-primary font-medium xl:hidden">相</div>
       </div>
     </aside>
   )

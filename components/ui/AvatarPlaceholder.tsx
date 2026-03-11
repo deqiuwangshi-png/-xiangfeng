@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { getAvtUrl, isDicebearUrl } from '@/lib/utils/getAvtUrl'
+import { JSX } from 'react'
 
 /**
  * 头像组件
@@ -67,7 +68,7 @@ export function AvatarPlaceholder({
   avatarUrl,
   size = 'md',
   className = '',
-}: AvatarPlaceholderProps) {
+}: AvatarPlaceholderProps): JSX.Element {
   const { px, class: sizeClass } = SIZE_MAP[size]
   const initial = name.charAt(0).toUpperCase()
 
