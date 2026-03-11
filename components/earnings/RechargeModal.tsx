@@ -17,7 +17,7 @@
 
 import { useState, useEffect } from 'react'
 import { X } from '@/components/icons'
-import { Smartphone, CreditCard } from 'lucide-react'
+import { Smartphone } from 'lucide-react'
 
 /**
  * 支付方式接口
@@ -152,7 +152,7 @@ export function RechargeModal() {
           <h3 className="text-xl font-serif font-bold text-xf-info">充值余额</h3>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-xf-bg rounded-lg transition"
+            className="p-2 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -169,10 +169,10 @@ export function RechargeModal() {
                 <button
                   key={value}
                   onClick={() => handleQuickAmount(value)}
-                  className={`py-2 border rounded-xl text-sm font-medium transition ${
+                  className={`py-2 border rounded-xl text-sm font-medium ${
                     !isCustom && amount === value.toString()
                       ? 'border-xf-info bg-xf-info/10 text-xf-info'
-                      : 'border-xf-bg/50 hover:bg-xf-light text-xf-dark'
+                      : 'border-xf-bg/50 text-xf-dark'
                   }`}
                 >
                   ¥{value}
@@ -188,7 +188,7 @@ export function RechargeModal() {
                 value={customAmount}
                 onChange={(e) => handleCustomAmount(e.target.value)}
                 placeholder="自定义金额"
-                className={`w-full pl-10 pr-4 py-3 bg-white rounded-xl border transition-all ${
+                className={`w-full pl-10 pr-4 py-3 bg-white rounded-xl border ${
                   isCustom
                     ? 'border-xf-info focus:border-xf-info'
                     : 'border-xf-bg/50 focus:border-xf-primary'
@@ -212,10 +212,10 @@ export function RechargeModal() {
                   <button
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`w-full flex items-center gap-3 p-4 rounded-xl border transition ${
+                    className={`w-full flex items-center gap-3 p-4 rounded-xl border ${
                       selectedMethod === method.id
                         ? 'border-xf-info bg-xf-info/5'
-                        : 'border-xf-bg/50 hover:bg-xf-light'
+                        : 'border-xf-bg/50'
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -247,7 +247,7 @@ export function RechargeModal() {
           {/* 提交按钮 */}
           <button
             onClick={handleSubmit}
-            className="w-full py-3 bg-xf-info text-white rounded-xl font-medium hover:bg-xf-info/90 transition"
+            className="w-full py-3 bg-xf-info text-white rounded-xl font-medium"
           >
             确认充值 ¥{amount}
           </button>

@@ -106,7 +106,7 @@ export function WithdrawModal() {
           <h3 className="text-xl font-serif font-bold text-xf-accent">提现申请</h3>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-xf-bg rounded-lg transition"
+            className="p-2 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -121,7 +121,7 @@ export function WithdrawModal() {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-xf-bg/50 focus:border-xf-primary transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-xf-bg/50 focus:border-xf-primary"
                 placeholder="输入提现金额"
               />
             </div>
@@ -135,10 +135,10 @@ export function WithdrawModal() {
                 <button
                   key={method.id}
                   onClick={() => setSelectedMethod(method.id)}
-                  className={`withdraw-method py-3 rounded-xl font-medium ${
+                  className={`py-3 rounded-xl font-medium ${
                     selectedMethod === method.id
                       ? 'bg-xf-primary text-white'
-                      : 'bg-xf-light border border-xf-bg/50 hover:bg-xf-bg text-xf-primary'
+                      : 'bg-xf-light border border-xf-bg/50 text-xf-primary'
                   }`}
                 >
                   {method.name}
@@ -149,7 +149,7 @@ export function WithdrawModal() {
 
           <button
             onClick={handleSubmit}
-            className="w-full py-3 bg-xf-primary text-white rounded-xl font-medium hover:bg-xf-primary/90 transition"
+            className="w-full py-3 bg-xf-primary text-white rounded-xl font-medium"
           >
             确认提现
           </button>

@@ -106,14 +106,14 @@ export function EarningsOverview() {
           <div className="flex gap-3 self-end md:self-center">
             <button
               onClick={handleRecharge}
-              className="flex items-center gap-2 px-5 py-2.5 bg-xf-info text-white rounded-xl hover:bg-xf-info/90 transition shadow-sm"
+              className="flex items-center gap-2 px-5 py-2.5 bg-xf-info text-white rounded-xl shadow-sm"
             >
               <ArrowDownCircle className="w-4 h-4" />
               <span className="text-sm font-medium">充值</span>
             </button>
             <button
               onClick={handleWithdraw}
-              className="flex items-center gap-2 px-5 py-2.5 bg-xf-success text-white rounded-xl hover:bg-xf-success/90 transition shadow-sm"
+              className="flex items-center gap-2 px-5 py-2.5 bg-xf-success text-white rounded-xl shadow-sm"
             >
               <ArrowUpCircle className="w-4 h-4" />
               <span className="text-sm font-medium">提现</span>
@@ -122,14 +122,14 @@ export function EarningsOverview() {
         </div>
 
         {/* 快捷入口卡片（积分/优惠券） */}
-        <div className="bg-linear-to-br from-xf-primary to-xf-accent rounded-2xl p-6 text-white shadow-md flex flex-col justify-between">
+        <div className="bg-xf-primary rounded-2xl p-6 text-white shadow-md flex flex-col justify-between">
           <div>
             <p className="text-white/80 text-sm mb-1">我的积分</p>
             <p className="text-3xl font-bold">1,280</p>
           </div>
           <div className="flex justify-between items-center mt-4">
             <span className="text-xs text-white/70">可兑换好礼</span>
-            <button className="px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg text-xs font-medium hover:bg-white/30 transition">
+            <button className="px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg text-xs font-medium">
               去兑换
             </button>
           </div>

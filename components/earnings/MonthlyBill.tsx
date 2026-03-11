@@ -50,7 +50,7 @@ export function MonthlyBill() {
       <p className="text-xs text-xf-primary mt-2">预算使用 75%</p>
 
       {/* 查看详情按钮 */}
-      <button className="w-full mt-4 py-2 border border-xf-bg/60 rounded-xl text-xf-primary text-sm hover:bg-xf-light transition">
+      <button className="w-full mt-4 py-2 border border-xf-bg/60 rounded-xl text-xf-primary text-sm">
         查看账单详情
       </button>
     </div>

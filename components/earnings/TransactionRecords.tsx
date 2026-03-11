@@ -110,7 +110,7 @@ export function TransactionRecords() {
           <List className="w-5 h-5" />
           最近交易
         </h2>
-        <a href="#" className="text-sm text-xf-info hover:underline transition">
+        <a href="#" className="text-sm text-xf-info hover:underline">
           查看全部 →
         </a>
       </div>
@@ -124,7 +124,7 @@ export function TransactionRecords() {
           return (
             <div
               key={transaction.id}
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-xf-bg/30 transition cursor-pointer"
+              className="flex items-center gap-3 p-3 rounded-xl cursor-pointer"
             >
               {/* 图标 */}
               <div className={`w-10 h-10 rounded-full ${transaction.iconBg} flex items-center justify-center ${transaction.iconColor} shrink-0`}>
@@ -153,7 +153,7 @@ export function TransactionRecords() {
       <div className="mt-4 text-center">
         <button
           onClick={handleLoadMore}
-          className="text-sm text-xf-primary hover:text-xf-accent font-medium flex items-center justify-center gap-1 mx-auto transition"
+          className="text-sm text-xf-primary hover:text-xf-accent font-medium flex items-center justify-center gap-1 mx-auto"
         >
           <RefreshCw className="w-4 h-4" />
           加载更多

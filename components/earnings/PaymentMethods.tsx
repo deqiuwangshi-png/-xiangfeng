@@ -123,7 +123,7 @@ export function PaymentMethods() {
         </h2>
         <button
           onClick={handleAddPayment}
-          className="text-sm text-xf-info hover:underline flex items-center gap-1 transition"
+          className="text-sm text-xf-info hover:underline flex items-center gap-1"
         >
           <PlusCircle className="w-4 h-4" />
           添加新卡
@@ -139,7 +139,7 @@ export function PaymentMethods() {
           return (
             <div
               key={method.id}
-              className="border border-xf-bg/50 rounded-xl p-4 flex items-center gap-3 hover:shadow-sm hover:border-xf-primary/30 transition cursor-pointer group"
+              className="border border-xf-bg/50 rounded-xl p-4 flex items-center gap-3 cursor-pointer"
             >
               {/* 图标 */}
               <div className={`w-10 h-10 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor} shrink-0`}>
@@ -165,7 +165,7 @@ export function PaymentMethods() {
                   e.stopPropagation()
                   handleEditPayment(method.id)
                 }}
-                className="text-xf-medium hover:text-xf-accent p-1 rounded-lg hover:bg-xf-bg/50 transition opacity-0 group-hover:opacity-100"
+                className="text-xf-medium p-1 rounded-lg"
               >
                 <Edit2 className="w-4 h-4" />
               </button>

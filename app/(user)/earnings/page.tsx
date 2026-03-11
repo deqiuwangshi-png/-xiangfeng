@@ -28,8 +28,8 @@ export default function EarningsPage() {
         <div className="max-w-6xl mx-auto">
           {/* 标题 */}
           <div className="mb-8">
-            <h1 className="text-3xl font-serif text-xf-accent font-bold mb-2">我的钱包</h1>
-            <p className="text-xf-dark/70">管理资金、支付方式与交易记录</p>
+            <h1 className="text-3xl font-serif text-xf-accent font-bold mb-2">收益中心</h1>
+            <p className="text-xf-dark/70">管理资金收益、支付方式与交易记录</p>
           </div>
 
           {/* 收益概览 + 支付方式 */}
