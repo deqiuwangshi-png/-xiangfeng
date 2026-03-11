@@ -6,59 +6,118 @@
  * @description 显示用户的兑换记录，支持状态筛选和分页
  */
 
-import { useState, useMemo } from 'react'
-import { BookOpen, Crown, Coffee, Sticker, Calendar, Gift } from '@/components/icons'
+import { useState, useMemo, useEffect } from 'react'
+import {
+  BookOpen,
+  Crown,
+  Coffee,
+  Sticker,
+  Calendar,
+  Gift,
+  ShoppingBag,
+  Film,
+  Music,
+  Smartphone,
+  CupSoda,
+  Palette,
+  Sparkles,
+  Zap,
+  type LucideIcon,
+} from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-
-/**
- * 兑换状态类型
- * @type RwStatus
- */
-type RwStatus = 'issued' | 'pending' | 'used'
+import { getExchangeRecords } from '@/lib/rewards/actions'
+import type { ExchangeRecord, ExchangeStatus } from '@/types/rewards'
 
 /**
  * 筛选类型
  * @type FilterType
  */
-type FilterType = 'all' | RwStatus
+type FilterType = 'all' | ExchangeStatus
 
 /**
- * 兑换记录项接口
+ * 兑换记录展示项接口
  * @interface RwRecordItem
  */
 interface RwRecordItem {
   id: string
   name: string
   points: number
-  status: RwStatus
+  status: ExchangeStatus
   date: string
-  icon: React.ElementType
+  icon: LucideIcon
   iconColor: string
 }
 
 /**
- * 模拟兑换记录数据
- * @constant mockRecords
+ * 图标映射配置
+ * @constant iconMapping
  */
-const mockRecords: RwRecordItem[] = [
-  { id: '1', name: '电子书券', points: 500, status: 'issued', date: '2024-05-12', icon: BookOpen, iconColor: 'text-xf-accent' },
-  { id: '2', name: '7天会员', points: 880, status: 'issued', date: '2024-05-10', icon: Crown, iconColor: 'text-amber-600' },
-  { id: '3', name: '咖啡折扣券', points: 200, status: 'pending', date: '2024-05-08', icon: Coffee, iconColor: 'text-xf-primary' },
-  { id: '4', name: '表情包', points: 80, status: 'used', date: '2024-05-05', icon: Sticker, iconColor: 'text-xf-primary' },
-  { id: '5', name: '电子书券', points: 500, status: 'issued', date: '2024-04-28', icon: BookOpen, iconColor: 'text-xf-accent' },
-  { id: '6', name: '咖啡折扣券', points: 200, status: 'used', date: '2024-04-20', icon: Coffee, iconColor: 'text-xf-primary' },
-  { id: '7', name: '7天会员', points: 880, status: 'issued', date: '2024-04-15', icon: Crown, iconColor: 'text-amber-600' },
-  { id: '8', name: '表情包', points: 80, status: 'used', date: '2024-04-10', icon: Sticker, iconColor: 'text-xf-primary' },
-]
+const iconMapping: Record<string, { icon: LucideIcon; color: string }> = {
+  Coffee: { icon: Coffee, color: 'text-xf-primary' },
+  Film: { icon: Film, color: 'text-xf-accent' },
+  Music: { icon: Music, color: 'text-xf-accent' },
+  Crown: { icon: Crown, color: 'text-amber-600' },
+  ShoppingBag: { icon: ShoppingBag, color: 'text-xf-primary' },
+  Bookmark: { icon: BookOpen, color: 'text-xf-primary' },
+  Smartphone: { icon: Smartphone, color: 'text-xf-primary' },
+  CupSoda: { icon: CupSoda, color: 'text-xf-info' },
+  BookOpen: { icon: BookOpen, color: 'text-xf-accent' },
+  Palette: { icon: Palette, color: 'text-purple-600' },
+  Sparkles: { icon: Sparkles, color: 'text-rose-500' },
+  Gift: { icon: Gift, color: 'text-rose-500' },
+  Zap: { icon: Zap, color: 'text-amber-600' },
+  Sticker: { icon: Sticker, color: 'text-xf-primary' },
+}
+
+/**
+ * 获取默认图标配置
+ * @returns {Object} 默认图标和颜色
+ */
+function getDefaultIcon() {
+  return { icon: Gift, color: 'text-xf-accent' }
+}
+
+/**
+ * 将兑换记录转换为展示格式
+ * @param {ExchangeRecord} record - 兑换记录
+ * @param {string} itemName - 商品名称
+ * @param {string} iconName - 图标名称
+ * @param {string} iconColor - 图标颜色
+ * @returns {RwRecordItem} 展示用记录项
+ */
+function mapExchangeToRecord(
+  record: ExchangeRecord,
+  itemName: string,
+  iconName: string,
+  iconColor: string
+): RwRecordItem {
+  const iconConfig = iconMapping[iconName] || getDefaultIcon()
+
+  return {
+    id: record.id,
+    name: itemName,
+    points: record.points_spent,
+    status: record.status,
+    date: new Date(record.created_at).toISOString().split('T')[0],
+    icon: iconConfig.icon,
+    iconColor: iconColor || iconConfig.color,
+  }
+}
 
 /**
  * 状态配置
  * @constant statusConfig
  */
-const statusConfig: Record<RwStatus, { label: string; bgColor: string; textColor: string }> = {
+const statusConfig: Record<
+  ExchangeStatus,
+  { label: string; bgColor: string; textColor: string }
+> = {
+  pending: { label: '待处理', bgColor: 'bg-gray-100', textColor: 'text-gray-700' },
+  processing: { label: '处理中', bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
   issued: { label: '已发放', bgColor: 'bg-green-100', textColor: 'text-green-700' },
-  pending: { label: '待使用', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
   used: { label: '已使用', bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
+  expired: { label: '已过期', bgColor: 'bg-gray-100', textColor: 'text-gray-500' },
+  cancelled: { label: '已取消', bgColor: 'bg-red-100', textColor: 'text-red-700' },
 }
 
 /**
@@ -67,9 +126,11 @@ const statusConfig: Record<RwStatus, { label: string; bgColor: string; textColor
  */
 const filterTabs: { key: FilterType; label: string }[] = [
   { key: 'all', label: '全部' },
+  { key: 'pending', label: '待处理' },
+  { key: 'processing', label: '处理中' },
   { key: 'issued', label: '已发放' },
-  { key: 'pending', label: '待使用' },
   { key: 'used', label: '已使用' },
+  { key: 'expired', label: '已过期' },
 ]
 
 /**
@@ -83,17 +144,78 @@ const PAGE_SIZE = 5
  * @returns {JSX.Element} 兑换记录组件
  */
 export function RwRecord() {
-  const [records] = useState<RwRecordItem[]>(mockRecords)
+  const [records, setRecords] = useState<ExchangeRecord[]>([])
+  const [itemDetails, setItemDetails] = useState<
+    Map<string, { name: string; icon_name: string; icon_color: string }>
+  >(new Map())
+  const [isLoading, setIsLoading] = useState(true)
   const [filter, setFilter] = useState<FilterType>('all')
   const [currentPage, setCurrentPage] = useState(1)
+
+  /**
+   * 加载兑换记录
+   */
+  useEffect(() => {
+    async function loadRecords() {
+      try {
+        setIsLoading(true)
+        const data = await getExchangeRecords({ limit: 50 })
+        setRecords(data)
+
+        {/* 获取商品详情用于显示名称和图标 */}
+        const supabase = (await import('@/lib/supabase/client')).createClient()
+        const itemIds = [...new Set(data.map((r) => r.item_id))]
+
+        if (itemIds.length > 0) {
+          const { data: items } = await supabase
+            .from('shop_items')
+            .select('id, name, icon_name, icon_color')
+            .in('id', itemIds)
+
+          if (items) {
+            const detailsMap = new Map()
+            items.forEach((item) => {
+              detailsMap.set(item.id, {
+                name: item.name,
+                icon_name: item.icon_name,
+                icon_color: item.icon_color,
+              })
+            })
+            setItemDetails(detailsMap)
+          }
+        }
+      } catch (error) {
+        console.error('加载兑换记录失败:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadRecords()
+  }, [])
+
+  /**
+   * 转换后的记录列表
+   */
+  const mappedRecords = useMemo(() => {
+    return records.map((record) => {
+      const details = itemDetails.get(record.item_id)
+      return mapExchangeToRecord(
+        record,
+        details?.name || '未知商品',
+        details?.icon_name || 'Gift',
+        details?.icon_color || ''
+      )
+    })
+  }, [records, itemDetails])
 
   /**
    * 筛选后的记录
    */
   const filteredRecords = useMemo(() => {
-    if (filter === 'all') return records
-    return records.filter((record) => record.status === filter)
-  }, [records, filter])
+    if (filter === 'all') return mappedRecords
+    return mappedRecords.filter((record) => record.status === filter)
+  }, [mappedRecords, filter])
 
   /**
    * 总页数
@@ -126,6 +248,29 @@ export function RwRecord() {
    */
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+  }
+
+  /**
+   * 加载中状态
+   */
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 p-3 bg-xf-light/80 rounded-xl border border-xf-bg/30 animate-pulse"
+          >
+            <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-1/3" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
+            </div>
+            <div className="h-6 bg-gray-200 rounded w-16" />
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
@@ -167,8 +312,12 @@ export function RwRecord() {
                 {/* 内容 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-xf-dark">{record.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${status.bgColor} ${status.textColor}`}>
+                    <span className="font-medium text-sm text-xf-dark">
+                      {record.name}
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${status.bgColor} ${status.textColor}`}
+                    >
                       {status.label}
                     </span>
                   </div>

@@ -63,7 +63,7 @@ export function MyRw() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-serif font-bold text-xf-dark flex items-center gap-2">
           <Archive className="w-5 h-5 text-xf-primary" />
-          我的兑换
+          我的记录
         </h2>
         <a
           href="/rewards/my"
