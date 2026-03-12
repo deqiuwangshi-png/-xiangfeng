@@ -2,7 +2,7 @@
 
 import { FIELD_MAPPING, TYPE_MAPPING, STATUS_MAPPING } from './config';
 import type { FeedbackStatus } from '@/types/feedback';
-import type { FeishuRecord, FeedbackItem } from './types';
+import type { FeishuRecord, FeedbackItem, Attachment } from './types';
 
 /**
  * 反向映射：飞书选项 -> 系统类型
@@ -74,6 +74,31 @@ export async function extractFieldValue(value: unknown): Promise<string> {
 }
 
 /**
+ * 从飞书附件字段中提取附件列表
+ * 飞书附件字段格式: [{ file_token: 'xxx', name: 'xxx', size: 123, type: 'image/png' }]
+ *
+ * @param value 飞书附件字段值
+ * @returns 附件列表
+ */
+export async function extractAttachments(value: unknown): Promise<Attachment[]> {
+  if (!value || !Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => 
+      typeof item === 'object' && item !== null && item.file_token
+    )
+    .map((item) => ({
+      name: String(item.name || item.file_token || '未命名文件'),
+      url: String(item.file_token),
+      fileToken: String(item.file_token),
+      size: typeof item.size === 'number' ? item.size : undefined,
+      type: typeof item.type === 'string' ? item.type : undefined,
+    }));
+}
+
+/**
  * 将飞书记录转换为系统反馈项
  *
  * @param record 飞书记录
@@ -91,6 +116,7 @@ export async function convertFeishuRecordToFeedbackItem(record: FeishuRecord): P
     statusText: await extractFieldValue(fields[FIELD_MAPPING.STATUS]) || '待处理',
     pageId: await extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id,
     contactEmail: await extractFieldValue(fields[FIELD_MAPPING.CONTACT]),
+    attachments: await extractAttachments(fields[FIELD_MAPPING.ATTACHMENTS]),
   };
 }
 

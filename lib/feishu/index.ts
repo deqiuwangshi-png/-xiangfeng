@@ -26,6 +26,8 @@ export type {
   UploadFileResponse,
 } from './types';
 
+export type { Attachment } from '@/types/feedback';
+
 {/* 导出配置 */}
 export { FEISHU_CONFIG, FIELD_MAPPING, TYPE_MAPPING, STATUS_MAPPING } from './config';
 
@@ -34,6 +36,7 @@ export { getAccessToken, clearTokenCache } from './auth';
 export { feishuRequest, feishuRequestWithFormData } from './client';
 export {
   extractFieldValue,
+  extractAttachments,
   convertFeishuRecordToFeedbackItem,
   getFeishuTypeOption,
   getFeishuStatusOption,

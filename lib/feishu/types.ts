@@ -1,6 +1,6 @@
 'use server';
 
-import type { FeedbackType, FeedbackStatus } from '@/types/feedback';
+import type { FeedbackType, FeedbackStatus, Attachment } from '@/types/feedback';
 
 /**
  * 飞书反馈数据接口
@@ -44,7 +44,10 @@ export interface FeedbackItem {
   statusText: string;
   pageId: string;
   contactEmail: string;
+  attachments?: Attachment[];
 }
+
+export type { Attachment };
 
 /**
  * API 响应基础接口

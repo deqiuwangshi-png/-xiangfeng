@@ -30,6 +30,9 @@ export interface Reply {
 export interface Attachment {
   name: string;
   url: string;
+  fileToken?: string;
+  size?: number;
+  type?: string;
 }
 
 /**
