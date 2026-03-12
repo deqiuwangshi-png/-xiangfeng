@@ -11,7 +11,10 @@ import type { CommentListProps } from './types'
  * @param hasMore - 是否还有更多
  * @param loadingMore - 加载中状态
  * @param onLoadMore - 加载更多回调
+ * @param onLike - 点赞回调
+ * @param onDelete - 删除回调
  * @param currentUser - 当前用户
+ * @param likingIds - 正在点赞的评论ID集合
  * @returns 评论列表JSX
  */
 export function CommentList({
@@ -22,6 +25,7 @@ export function CommentList({
   onLike,
   onDelete,
   currentUser,
+  likingIds,
 }: CommentListProps) {
   if (comments.length === 0) {
     return (
@@ -41,6 +45,7 @@ export function CommentList({
           onLike={onLike}
           onDelete={onDelete}
           currentUser={currentUser}
+          isLiking={likingIds?.has(comment.id)}
         />
       ))}
 

@@ -25,6 +25,7 @@ export function useComments(
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [likingIds, setLikingIds] = useState<Set<string>>(new Set())
 
   /**
    * 加载更多评论
@@ -62,30 +63,56 @@ export function useComments(
   }, [])
 
   /**
-   * 切换评论点赞状态
-   * 使用 Server Action 替代 API Route
+   * 切换评论点赞状态（乐观更新）
+   * 1. 立即更新UI
+   * 2. 发送请求
+   * 3. 成功时保持乐观更新结果，不覆盖（避免触发器延迟问题）
+   * 4. 失败时回滚
+   *
+   * @param commentId - 评论ID
    */
   const toggleLike = useCallback(async (commentId: string) => {
+    setLikingIds((prev) => new Set(prev).add(commentId))
+
+    setComments((prev) =>
+      prev.map((comment) => {
+        if (comment.id !== commentId) return comment
+        const newLiked = !comment.liked
+        const newLikes = newLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
+        return { ...comment, liked: newLiked, likes: newLikes }
+      })
+    )
+
     try {
       const result = await toggleCommentLike(commentId)
 
-      if (result.success) {
+      if (!result.success) {
         setComments((prev) =>
-          prev.map((comment) =>
-            comment.id === commentId
-              ? {
-                  ...comment,
-                  liked: result.liked,
-                  likes: result.likes,
-                }
-              : comment
-          )
+          prev.map((comment) => {
+            if (comment.id !== commentId) return comment
+            const prevLiked = !comment.liked
+            const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
+            return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
+          })
         )
-      } else {
         console.error('评论点赞失败:', result.error)
       }
     } catch (error) {
+      setComments((prev) =>
+        prev.map((comment) => {
+          if (comment.id !== commentId) return comment
+          const prevLiked = !comment.liked
+          const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
+          return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
+        })
+      )
       console.error('Failed to like comment:', error)
+    } finally {
+      setLikingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
     }
   }, [])
 
@@ -119,5 +146,6 @@ export function useComments(
     addComment,
     toggleLike,
     deleteComment,
+    likingIds,
   }
 }

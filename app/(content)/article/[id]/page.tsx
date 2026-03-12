@@ -23,8 +23,8 @@ export const revalidate = 60;
  * 缓存文章查询
  * 同一请求内多次调用返回缓存结果
  */
-const getCachedArticle = cache(async (id: string) => {
-  return getArticleDetailById(id);
+const getCachedArticle = cache(async (id: string, userId?: string) => {
+  return getArticleDetailById(id, userId);
 });
 
 /**
@@ -78,13 +78,11 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id: articleId } = await params;
 
-  // ✅ 并行获取所有数据（速度快）
-  // 使用分页加载评论，首屏只加载前10条
-  // 使用缓存函数避免重复查询
-  const [article, { comments, totalCount, hasMore }, user] = await Promise.all([
-    getCachedArticle(articleId),
+  const user = await getCurrentUser();
+
+  const [article, { comments, totalCount, hasMore }] = await Promise.all([
+    getCachedArticle(articleId, user?.id),
     getCachedComments(articleId, 1, 10),
-    getCurrentUser(),
   ]);
 
   if (!article) {
@@ -126,8 +124,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         currentUser={user}
         initialLikeCount={article.likesCount || 0}
         initialCommentCount={totalCount || 0}
-        initialLiked={false} // TODO: 从数据库获取当前用户是否点赞
-        initialBookmarked={false} // TODO: 从数据库获取当前用户是否收藏
+        initialLiked={article.isLiked || false}
+        initialBookmarked={article.isBookmarked || false}
       />
       
       {/* ✅ CommentPanel 接收初始评论数据（分页加载） */}

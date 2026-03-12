@@ -38,17 +38,9 @@ export default function EarningsPage() {
           {/* 支付方式管理 */}
           <PaymentMethods />
 
-          {/* 交易记录 + 月度账单 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 交易记录（占2列） */}
-            <div className="lg:col-span-2">
-              <TransactionRecords />
-            </div>
-
-            {/* 月度账单（占1列） */}
-            <div className="lg:col-span-1">
-              <MonthlyBill />
-            </div>
+          {/* 交易记录 */}
+          <div className="grid grid-cols-1 gap-6">
+            <TransactionRecords />
           </div>
         </div>
       </main>

@@ -25,6 +25,7 @@ const categoryConfig: Record<ShopCategoryType, string> = {
   skin: '皮肤',
   lottery: '抽奖',
   token: '代币',
+  cash: '现金',
 }
 
 /**

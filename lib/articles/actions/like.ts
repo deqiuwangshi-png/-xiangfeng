@@ -88,17 +88,14 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
         return { success: false, liked: false, likes: 0, error: '操作失败' };
       }
     } else {
-      {/* 插入成功 = 新点赞 */}
       liked = true;
-      {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
-      
-      {/* 检测点赞文章任务 - 异步执行不阻塞 */}
       Promise.resolve().then(() => {
         checkLikeArticleTask().catch(console.error);
       });
     }
 
-    {/* 4. 获取最新的点赞数（触发器已自动更新） */}
+    await new Promise(resolve => setTimeout(resolve, 50));
+
     const { data: article } = await supabase
       .from('articles')
       .select('like_count')

@@ -33,6 +33,7 @@ export interface CommentCardProps {
   onLike: (commentId: string) => void
   onDelete: (commentId: string) => void
   currentUser: User | null
+  isLiking?: boolean
 }
 
 {/* CommentList Props 接口 */}
@@ -44,6 +45,7 @@ export interface CommentListProps {
   onLike: (commentId: string) => void
   onDelete: (commentId: string) => void
   currentUser: User | null
+  likingIds?: Set<string>
 }
 
 {/* LoginPrompt Props 接口 */}

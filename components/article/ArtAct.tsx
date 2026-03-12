@@ -72,23 +72,37 @@ export default function ArtAct({
   };
 
   /**
-   * 处理点赞
+   * 处理点赞（乐观更新）
+   * 1. 先保存当前状态用于回滚
+   * 2. 立即更新UI
+   * 3. 发送请求
+   * 4. 成功时保持乐观更新结果，不覆盖（避免触发器延迟问题）
+   * 5. 失败时回滚
    */
   const handleLike = async () => {
     if (!checkAuth()) return;
 
+    const previousLiked = liked;
+    const previousLikeCount = likeCount;
+
+    const newLiked = !previousLiked;
+    const newLikeCount = newLiked ? previousLikeCount + 1 : Math.max(0, previousLikeCount - 1);
+
+    setLiked(newLiked);
+    setLikeCount(newLikeCount);
     setIsLikeLoading(true);
 
     try {
       const result = await toggleArticleLike(articleId);
 
-      if (result.success) {
-        setLiked(result.liked);
-        setLikeCount(result.likes);
-      } else {
+      if (!result.success) {
+        setLiked(previousLiked);
+        setLikeCount(previousLikeCount);
         alert(result.error || '操作失败，请重试');
       }
     } catch (error) {
+      setLiked(previousLiked);
+      setLikeCount(previousLikeCount);
       console.error('Failed to like article:', error);
       alert('网络错误，请检查网络连接');
     } finally {

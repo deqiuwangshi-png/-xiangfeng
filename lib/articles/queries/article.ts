@@ -36,6 +36,8 @@ export interface ArticleWithAuthor {
   readTime: number;
   likesCount: number;
   commentsCount: number;
+  isLiked?: boolean;
+  isBookmarked?: boolean;
 }
 
 /**
@@ -44,9 +46,10 @@ export interface ArticleWithAuthor {
  * @description 返回已发布状态的完整文章数据，用于公开页面展示
  * @security 添加 status='published' 过滤，防止暴露草稿/归档文章
  * @param id - 文章ID
+ * @param userId - 可选，当前用户ID，用于查询点赞/收藏状态
  * @returns 文章详情（包含作者信息）
  */
-export async function getArticleDetailById(id: string): Promise<ArticleWithAuthor | null> {
+export async function getArticleDetailById(id: string, userId?: string): Promise<ArticleWithAuthor | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -61,6 +64,29 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
 
   if (error || !data) return null;
 
+  let isLiked = false;
+  let isBookmarked = false;
+
+  if (userId) {
+    const [likeResult, bookmarkResult] = await Promise.all([
+      supabase
+        .from('article_likes')
+        .select('id')
+        .eq('article_id', id)
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('article_favorites')
+        .select('id')
+        .eq('article_id', id)
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ]);
+
+    isLiked = !!likeResult.data;
+    isBookmarked = !!bookmarkResult.data;
+  }
+
   return {
     ...data,
     author: {
@@ -73,6 +99,8 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
     readTime: Math.ceil(data.content.length / 500),
     likesCount: data.like_count || 0,
     commentsCount: data.comment_count || 0,
+    isLiked,
+    isBookmarked,
   };
 }
 

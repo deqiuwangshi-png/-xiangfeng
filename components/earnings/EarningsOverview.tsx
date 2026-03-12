@@ -10,6 +10,8 @@
 
 import { TrendingUp, Award, Calendar } from '@/components/icons'
 import { ArrowDownCircle, ArrowUpCircle } from 'lucide-react'
+import { usePoints } from '@/components/rewards/hooks'
+import Link from 'next/link'
 
 /**
  * 统计卡片接口
@@ -40,24 +42,24 @@ interface StatCard {
 const statsData: StatCard[] = [
   {
     label: '本月收入',
-    value: '¥3,648.20',
+    value: '¥0.00',
     icon: TrendingUp,
     iconColor: 'text-xf-info',
-    description: '同比增长 +24.5%'
+    description: '同比增长 +0.0%'
   },
   {
     label: '累计收入',
-    value: '¥18,247.80',
+    value: '¥0.00',
     icon: Award,
     iconColor: 'text-xf-warning',
-    description: '已服务 342 位付费用户'
+    description: '已服务 0 位付费用户'
   },
   {
     label: '预计结算',
-    value: '¥1,428.30',
+    value: '¥0.00',
     icon: Calendar,
     iconColor: 'text-xf-accent',
-    description: '结算日期：2024年2月5日'
+    description: '结算日期：待设置'
   }
 ]
 
@@ -66,7 +68,20 @@ const statsData: StatCard[] = [
  *
  * @returns {JSX.Element} 收益概览组件
  */
+/**
+ * 收益概览组件
+ *
+ * @returns {JSX.Element} 收益概览组件
+ */
 export function EarningsOverview() {
+  {/* 获取用户积分数据 */}
+  const { overview, isLoading } = usePoints()
+  const currentPoints = overview?.current_points ?? 0
+  const displayPoints = isLoading ? '-' : currentPoints.toLocaleString()
+
+  {/* 计算可兑换金额（100积分 = 1元） */}
+  const exchangeAmount = isLoading ? '-' : (currentPoints / 100).toFixed(2)
+
   /**
    * 处理充值按钮点击
    *
@@ -98,10 +113,10 @@ export function EarningsOverview() {
           <div>
             <p className="text-sm text-xf-primary mb-1">可用余额</p>
             <div className="flex items-center gap-3">
-              <h2 className="text-4xl font-bold text-xf-accent">¥2,847.50</h2>
+              <h2 className="text-4xl font-bold text-xf-accent">¥0.00</h2>
               <span className="text-xs bg-xf-success/20 text-xf-success px-2 py-1 rounded-full">正常</span>
             </div>
-            <p className="text-xs text-xf-medium mt-2">冻结金额：¥0.00 · 累计收益 ¥18.2k</p>
+            <p className="text-xs text-xf-medium mt-2">冻结金额：¥0.00 · 累计收益 ¥0.00</p>
           </div>
           <div className="flex gap-3 self-end md:self-center">
             <button
@@ -121,17 +136,20 @@ export function EarningsOverview() {
           </div>
         </div>
 
-        {/* 快捷入口卡片（积分/优惠券） */}
+        {/* 快捷入口卡片（积分/兑换比例） */}
         <div className="bg-xf-primary rounded-2xl p-6 text-white shadow-md flex flex-col justify-between">
           <div>
             <p className="text-white/80 text-sm mb-1">我的积分</p>
-            <p className="text-3xl font-bold">1,280</p>
+            <p className="text-3xl font-bold">{displayPoints}</p>
           </div>
           <div className="flex justify-between items-center mt-4">
-            <span className="text-xs text-white/70">可兑换好礼</span>
-            <button className="px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg text-xs font-medium">
+            <span className="text-xs text-white/70">可兑换 ¥{exchangeAmount}</span>
+            <Link
+              href="/rewards/shop"
+              className="px-4 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg text-xs font-medium hover:bg-white/30 transition"
+            >
               去兑换
-            </button>
+            </Link>
           </div>
         </div>
       </div>

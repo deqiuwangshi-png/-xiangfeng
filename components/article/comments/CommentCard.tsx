@@ -10,11 +10,12 @@ import type { CommentCardProps } from './types'
  *
  * @param comment - 评论数据
  * @param onLike - 点赞回调
+ * @param onDelete - 删除回调
  * @param currentUser - 当前用户
+ * @param isLiking - 是否正在点赞中
  * @returns 评论卡片JSX
  */
-export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentCardProps) {
-  {/* 判断是否显示删除按钮 */}
+export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }: CommentCardProps) {
   const canDelete = currentUser?.id === comment.author.id
 
   return (
@@ -38,8 +39,8 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
 
         <div className="comment-actions">
           <div
-            className={`comment-action ${comment.liked ? 'liked' : ''}`}
-            onClick={() => currentUser && onLike(comment.id)}
+            className={`comment-action ${comment.liked ? 'liked' : ''} ${isLiking ? 'opacity-50' : ''}`}
+            onClick={() => !isLiking && currentUser && onLike(comment.id)}
           >
             <Heart
               className={`w-4 h-4 ${comment.liked ? 'fill-current' : ''}`}

@@ -10,8 +10,8 @@
  * 更新时间: 2026-03-11
  */
 
-import { RefreshCw } from '@/components/icons'
 import { CreditCard, FileText, Heart, List } from 'lucide-react'
+import Link from 'next/link'
 
 /**
  * 交易类型
@@ -110,9 +110,9 @@ export function TransactionRecords() {
           <List className="w-5 h-5" />
           最近交易
         </h2>
-        <a href="#" className="text-sm text-xf-info hover:underline">
-          查看全部 →
-        </a>
+        <Link href="/earnings/transactions" className="text-sm text-xf-info hover:underline">
+          查看更多 →
+        </Link>
       </div>
 
       {/* 交易列表 */}
@@ -149,16 +149,7 @@ export function TransactionRecords() {
         })}
       </div>
 
-      {/* 加载更多 */}
-      <div className="mt-4 text-center">
-        <button
-          onClick={handleLoadMore}
-          className="text-sm text-xf-primary hover:text-xf-accent font-medium flex items-center justify-center gap-1 mx-auto"
-        >
-          <RefreshCw className="w-4 h-4" />
-          加载更多
-        </button>
-      </div>
+
     </div>
   )
 }
