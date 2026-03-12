@@ -171,7 +171,7 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Link}
           tooltip="链接"
-          onClick={onShowLinkBubble}
+          onClick={onShowLinkBubble || (() => {})}
           title="链接 (Ctrl+K)"
           isActive={showLinkBubble}
         />

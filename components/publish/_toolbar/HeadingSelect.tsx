@@ -54,7 +54,7 @@ export function HeadingSelect({ editor }: HeadingSelectProps) {
 
   const handleSelect = (level: number) => {
     if (!editor) return
-    editor.chain().focus().toggleHeading({ level }).run()
+    editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()
     setIsOpen(false)
   }
 
