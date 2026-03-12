@@ -51,7 +51,7 @@ export function EditorSkeleton() {
 
           {/* 标题输入骨架 */}
           <div className="mb-8">
-            <div className="h-14 bg-xf-bg/40 rounded-xl animate-pulse w-3/4" />
+            <div className="h-14 bg-white/80 rounded-xl animate-pulse w-3/4" />
           </div>
 
           {/* 内容编辑区域骨架 */}
@@ -60,26 +60,26 @@ export function EditorSkeleton() {
             
             {/* 多行文本骨架 */}
             <div className="pl-6 space-y-4">
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-full" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-5/6" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-4/5" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-full" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-3/4" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-full" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-5/6" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-4/5" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-full" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-3/4" />
               
               {/* 空行 */}
               <div className="h-4" />
               
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-full" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-5/6" />
-              <div className="h-6 bg-xf-bg/40 rounded animate-pulse w-4/5" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-full" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-5/6" />
+              <div className="h-6 bg-white/80 rounded animate-pulse w-4/5" />
             </div>
           </div>
 
           {/* 字符计数骨架 */}
           <div className="mt-8 pt-6 border-t border-xf-bg/50">
             <div className="flex justify-end gap-4">
-              <div className="h-4 bg-xf-bg/40 rounded animate-pulse w-24" />
-              <div className="h-4 bg-xf-bg/40 rounded animate-pulse w-24" />
+              <div className="h-4 bg-white/80 rounded animate-pulse w-24" />
+              <div className="h-4 bg-white/80 rounded animate-pulse w-24" />
             </div>
           </div>
         </div>

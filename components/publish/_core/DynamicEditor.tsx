@@ -10,6 +10,7 @@
  * @module DynamicEditor
  */
 
+import { useState } from 'react'
 import { useEditorState, useEditorActions } from '../hooks'
 import { useTipTapEditor } from '../hooks/useTipTapEditor'
 import { EditorHeader } from '../_header/EditorHeader'
@@ -40,6 +41,9 @@ export default function DynamicEditor({
   initialTitle = '',
   initialContent = ''
 }: DynamicEditorProps) {
+  // 链接气泡菜单状态
+  const [showLinkBubble, setShowLinkBubble] = useState(false)
+
   // 编辑器状态管理（标题和字数统计）
   const {
     editorState,
@@ -81,6 +85,8 @@ export default function DynamicEditor({
           contentLength={editorState.contentLength}
           editor={editor}
           isMounted={isMounted}
+          showLinkBubble={showLinkBubble}
+          onCloseLinkBubble={() => setShowLinkBubble(false)}
         />
       </div>
 
@@ -90,6 +96,8 @@ export default function DynamicEditor({
         onToggleFullscreen={toggleFullscreen}
         onToggleToolbar={toggleToolbar}
         isCollapsed={editorState.isToolbarCollapsed}
+        onShowLinkBubble={() => setShowLinkBubble(true)}
+        showLinkBubble={showLinkBubble}
       />
     </div>
   )

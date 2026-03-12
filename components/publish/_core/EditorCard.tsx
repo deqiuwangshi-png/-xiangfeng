@@ -10,11 +10,13 @@
  * - 采用单向数据流，TipTap 作为唯一数据源
  */
 
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 import { Editor } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react/menus'
 import { TitleInput } from '../_inputs/TitleInput'
 import { CharacterCounter } from './CharacterCounter'
 import { EditorContent } from '@tiptap/react'
+import { LinkInput } from '../_toolbar/LinkInput'
 
 interface EditorCardProps {
   title: string
@@ -24,10 +26,12 @@ interface EditorCardProps {
   contentLength: number
   editor: Editor | null
   isMounted: boolean
+  showLinkBubble?: boolean
+  onCloseLinkBubble?: () => void
 }
 
 export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
-  ({ title, onTitleChange, titleRef, titleLength, contentLength, editor, isMounted }, ref) => {
+  ({ title, onTitleChange, titleRef, titleLength, contentLength, editor, isMounted, showLinkBubble, onCloseLinkBubble }, ref) => {
     return (
       <div
         ref={ref}
@@ -50,14 +54,29 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
 
           {!isMounted ? (
             // SSR 占位，避免水合错误
-            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-[#FAFBFD] rounded-lg">
+            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg">
               <span className="opacity-30 italic">开始书写你的故事...（支持Markdown格式）</span>
             </div>
           ) : (
-            <EditorContent
-              editor={editor}
-              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none bg-[#FAFBFD] rounded-lg"
-            />
+            <>
+              <EditorContent
+                editor={editor}
+                className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none bg-white rounded-lg"
+              />
+              {/* 链接气泡菜单 - 在选区下方显示 */}
+              {editor && (
+                <BubbleMenu
+                  editor={editor}
+                  shouldShow={() => showLinkBubble || false}
+                  className="z-50"
+                >
+                  <LinkInput
+                    editor={editor}
+                    onClose={onCloseLinkBubble || (() => {})}
+                  />
+                </BubbleMenu>
+              )}
+            </>
           )}
         </div>
 

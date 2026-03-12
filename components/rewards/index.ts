@@ -47,4 +47,4 @@ export { MyRw } from './my/MyRw'
  * 福利中心 Hooks 统一出口
  * @module components/rewards/hooks
  */
-export { useSignIn, usePoints } from './hooks'
+export { useSignIn, usePoints, useTasks, useShop } from './hooks'
