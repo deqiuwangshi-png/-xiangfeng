@@ -94,12 +94,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <ReadingProgress />
       
       <nav className="nav-minimal">
-        <div className="flex items-center w-full max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-lg bg-linear-gradient(to-br, var(--xf-primary), var(--xf-accent)) flex items-center justify-center text-white font-bold">相</div>
+        <div className="flex items-center justify-between w-full max-w-7xl mx-auto">
+          {/* 展示性 LOGO，无点击功能 */}
+          <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-gray-900 hidden sm:block">相逢</span>
-          </Link>
-          
+          </div>
+
           <Link href="/home" className="nav-home-btn">
             <Home className="w-4 h-4" />
             <span>返回首页</span>

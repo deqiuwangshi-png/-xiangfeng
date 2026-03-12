@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import type { EditorState } from './useEditorState'
 import { createArticle, updateArticle } from '@/lib/articles/actions/crud'
 
@@ -31,7 +32,7 @@ export const useEditorActions = (
    */
   const saveDraft = async () => {
     if (!editorState.title.trim()) {
-      alert('请输入标题')
+      toast.error('请输入标题')
       titleRef.current?.focus()
       return
     }
@@ -45,6 +46,7 @@ export const useEditorActions = (
           title: editorState.title,
           content: editorState.content,
         })
+        toast.success('草稿更新成功')
       } else {
         // 无草稿ID，创建新草稿
         const article = await createArticle({
@@ -54,12 +56,13 @@ export const useEditorActions = (
         })
         // 保存草稿ID到状态
         setEditorState(prev => ({ ...prev, draftId: article.id }))
+        toast.success('草稿保存成功')
       }
 
       // 保存成功后跳转到草稿页
       router.push('/drafts')
     } catch (error) {
-      alert(error instanceof Error ? error.message : '保存失败')
+      toast.error(error instanceof Error ? error.message : '保存失败')
     } finally {
       setEditorState(prev => ({ ...prev, isSaving: false }))
     }
@@ -74,12 +77,12 @@ export const useEditorActions = (
    */
   const publishContent = async () => {
     if (!editorState.title.trim()) {
-      alert('请输入文章标题')
+      toast.error('请输入文章标题')
       titleRef.current?.focus()
       return
     }
     if (!editorState.content.trim()) {
-      alert('请输入文章内容')
+      toast.error('请输入文章内容')
       return
     }
 
@@ -93,11 +96,12 @@ export const useEditorActions = (
         status: 'published',
       })
 
-      // 直接跳转到文章详情页（不显示 alert，避免阻塞）
+      toast.success('发布成功')
+      // 直接跳转到文章详情页
       router.push(`/article/${article.id}`)
     } catch (error) {
       console.error('发布失败:', error)
-      alert(error instanceof Error ? error.message : '发布失败，请重试')
+      toast.error(error instanceof Error ? error.message : '发布失败，请重试')
     } finally {
       setEditorState(prev => ({ ...prev, isPublishing: false }))
     }

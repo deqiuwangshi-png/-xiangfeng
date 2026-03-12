@@ -76,7 +76,7 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
       } else {
         setError(result.error || '打赏失败')
       }
-    } catch (err) {
+    } catch{
       setError('网络错误，请重试')
     } finally {
       setIsLoading(false)

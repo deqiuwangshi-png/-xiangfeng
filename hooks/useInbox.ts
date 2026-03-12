@@ -87,6 +87,25 @@ export function useInbox() {
   const PAGE_SIZE = 20
 
   /**
+   * 获取未读消息数量
+   * @param userId - 用户ID
+   */
+  const fetchUnreadCount = useCallback(async (userId: string) => {
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_read', false)
+
+    if (error) {
+      console.error('获取未读数失败:', error)
+      return
+    }
+
+    setUnreadCount(count || 0)
+  }, [supabase])
+
+  /**
    * 获取通知列表
    * @param isLoadMore - 是否为加载更多
    */
@@ -120,11 +139,16 @@ export function useInbox() {
     } else {
       setNotifications(formatted)
       setPage(1)
+      // 初始加载时同步未读数
+      const { data: userData } = await supabase.auth.getUser()
+      if (userData.user) {
+        await fetchUnreadCount(userData.user.id)
+      }
     }
 
     setHasMore(formatted.length === PAGE_SIZE)
     setIsLoading(false)
-  }, [supabase, page])
+  }, [supabase, page, fetchUnreadCount])
 
   /**
    * 初始加载数据

@@ -15,6 +15,7 @@ interface ArticleCardProps {
   }
   publishedAt: string
   readTime: number
+  viewsCount?: number
 }
 
 /**
@@ -28,6 +29,7 @@ export function ArticleCard({
   author,
   publishedAt,
   readTime,
+  viewsCount = 0,
 }: ArticleCardProps) {
   // 格式化时间
   const formatTime = (dateString: string) => {
@@ -83,7 +85,7 @@ export function ArticleCard({
           </span>
           <div className="flex items-center gap-1 text-xf-medium text-sm">
             <Eye className="w-4 h-4" />
-            <span>阅读</span>
+            <span>{viewsCount}</span>
           </div>
         </div>
       </article>

@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import type { ShopCategoryType } from '@/types/rewards'
 import { useShop } from '../hooks'
 import { usePoints } from '../hooks'
@@ -45,10 +46,11 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
   const handleExchange = useCallback(
     async (itemId: string, itemName: string, points: number) => {
       if (userPoints < points) {
-        alert('积分不足')
+        toast.error('积分不足')
         return
       }
 
+      {/* confirm 使用原生确认对话框 */}
       if (!confirm(`确认兑换 ${itemName}？\n将消耗 ${points} 积分`)) {
         return
       }
@@ -57,13 +59,13 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
       try {
         const result = await exchange(itemId, 1)
         if (result.success) {
-          alert(`兑换成功！\n${itemName}\n消耗 ${result.pointsSpent} 积分\n剩余 ${result.remainingPoints} 积分`)
+          toast.success(`兑换成功！\n${itemName}\n消耗 ${result.pointsSpent} 积分\n剩余 ${result.remainingPoints} 积分`)
           await refreshPoints()
         } else {
-          alert(result.error || '兑换失败')
+          toast.error(result.error || '兑换失败')
         }
       } catch {
-        alert('兑换失败，请重试')
+        toast.error('兑换失败，请重试')
       } finally {
         setExchangingId(null)
       }

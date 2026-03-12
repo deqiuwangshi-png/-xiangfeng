@@ -8,11 +8,13 @@
  */
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Heart, MessageCircle, Share2, Share, Bookmark, Link as LinkIcon, Sparkles, X } from '@/components/icons';
 import type { User } from '@supabase/supabase-js';
 import { toggleArticleLike } from '@/lib/articles/actions/like';
 import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
 import { RwMd } from './rw/RwMd';
+import { ReportBtn } from './ReportBtn';
 
 /**
  * ArtAct Props 接口
@@ -65,7 +67,7 @@ export default function ArtAct({
    */
   const checkAuth = () => {
     if (!currentUser) {
-      alert('请先登录');
+      toast.error('请先登录');
       return false;
     }
     return true;
@@ -98,13 +100,13 @@ export default function ArtAct({
       if (!result.success) {
         setLiked(previousLiked);
         setLikeCount(previousLikeCount);
-        alert(result.error || '操作失败，请重试');
+        toast.error(result.error || '操作失败，请重试');
       }
     } catch (error) {
       setLiked(previousLiked);
       setLikeCount(previousLikeCount);
       console.error('Failed to like article:', error);
-      alert('网络错误，请检查网络连接');
+      toast.error('网络错误，请检查网络连接');
     } finally {
       setIsLikeLoading(false);
     }
@@ -126,12 +128,12 @@ export default function ArtAct({
         setBookmarked(result.favorited);
       } else {
         setBookmarked(previousBookmarked);
-        alert(result.error || '操作失败，请重试');
+        toast.error(result.error || '操作失败，请重试');
       }
     } catch (error) {
       setBookmarked(previousBookmarked);
       console.error('Failed to bookmark article:', error);
-      alert('网络错误，请检查网络连接');
+      toast.error('网络错误，请检查网络连接');
     }
   };
 
@@ -261,6 +263,13 @@ export default function ArtAct({
         <Bookmark className="douyin-icon" />
         <span className="douyin-count">收藏</span>
       </div>
+
+      {/* 举报按钮 */}
+      <ReportBtn
+        articleId={articleId}
+        authorId={authorId}
+        currentUser={currentUser}
+      />
 
       {/* 打赏弹窗 */}
       {showRewardModal && (

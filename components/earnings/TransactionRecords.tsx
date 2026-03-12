@@ -10,6 +10,7 @@
  * 更新时间: 2026-03-11
  */
 
+import { toast } from 'sonner'
 import { CreditCard, FileText, Heart, List } from 'lucide-react'
 import Link from 'next/link'
 
@@ -99,7 +100,7 @@ export function TransactionRecords() {
    * @returns {void}
    */
   const handleLoadMore = () => {
-    alert('加载更多交易记录（待实现）')
+    toast.info('加载更多交易记录（待实现）')
   }
 
   return (

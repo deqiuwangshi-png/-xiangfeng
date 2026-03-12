@@ -12,7 +12,46 @@ import type {
   TaskProgressResponse,
   TaskCategory,
   TaskType,
+  TaskStatus,
+  UserTaskRecord,
 } from '@/types/rewards'
+
+/**
+ * 检查任务是否已过期
+ * @param {UserTaskRecord} record - 用户任务记录
+ * @returns {boolean} 是否已过期
+ */
+function isTaskExpired(record: UserTaskRecord): boolean {
+  if (!record.period_end) return false
+  const today = new Date().toISOString().split('T')[0]
+  return record.period_end < today
+}
+
+/**
+ * 重置过期任务状态为 pending
+ * @param {string} userId - 用户ID
+ * @param {string} recordId - 记录ID
+ * @returns {Promise<boolean>} 是否成功
+ */
+async function resetExpiredTask(userId: string, recordId: string): Promise<boolean> {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('user_task_records')
+    .update({
+      status: 'pending',
+      current_progress: 0,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', recordId)
+    .eq('user_id', userId)
+  
+  if (error) {
+    console.error('重置过期任务失败:', error)
+    return false
+  }
+  return true
+}
 
 /**
  * 获取任务列表（按分类）
@@ -101,7 +140,6 @@ export async function getUserTaskProgress(
 
     if (error) {
       console.error('获取任务进度失败:', error)
-      // 出错时仍返回默认状态的任务列表
       return tasks.map((task) => ({
         task_id: task.id,
         title: task.title,
@@ -119,7 +157,24 @@ export async function getUserTaskProgress(
     const recordMap = new Map(records?.map((r) => [r.task_id, r]))
 
     return tasks.map((task) => {
-      const record = recordMap.get(task.id)
+      const record = recordMap.get(task.id) as UserTaskRecord | undefined
+      
+      if (record && isTaskExpired(record) && record.status === 'in_progress') {
+        resetExpiredTask(user.id, record.id)
+        return {
+          task_id: task.id,
+          title: task.title,
+          description: task.description,
+          category: task.category,
+          icon_name: task.icon_name,
+          icon_color: task.icon_color,
+          current_progress: 0,
+          target_progress: task.target_count,
+          status: 'pending' as TaskStatus,
+          reward_points: task.reward_points,
+        }
+      }
+      
       return {
         task_id: task.id,
         title: task.title,
@@ -154,7 +209,20 @@ export async function updateTaskProgress(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
-  // 调用安全进度更新函数（带参数校验和增量限制）
+  const today = new Date().toISOString().split('T')[0]
+  const { data: expiredRecords } = await supabase
+    .from('user_task_records')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('status', 'in_progress')
+    .lt('period_end', today)
+
+  if (expiredRecords && expiredRecords.length > 0) {
+    for (const record of expiredRecords) {
+      await resetExpiredTask(user.id, record.id)
+    }
+  }
+
   const { error } = await supabase.rpc('safe_update_task_prog', {
     p_user_id: user.id,
     p_task_type: taskType,
@@ -372,15 +440,21 @@ export async function acceptTask(
     .single()
 
   if (existing) {
-    return { success: false, error: '已接取该任务' }
+    const existingRecord = existing as UserTaskRecord
+    if (existingRecord.status === 'in_progress' && isTaskExpired(existingRecord)) {
+      await resetExpiredTask(user.id, existingRecord.id)
+    } else if (existingRecord.status !== 'pending') {
+      return { success: false, error: '已接取该任务' }
+    }
   }
 
-  // 检查进行中的任务数量（限制5个）
+  const today = new Date().toISOString().split('T')[0]
   const { count: activeCount } = await supabase
     .from('user_task_records')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
     .eq('status', 'in_progress')
+    .gte('period_end', today)
 
   if (activeCount && activeCount >= 5) {
     return { success: false, error: '最多同时接取5个任务' }

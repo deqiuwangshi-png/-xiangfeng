@@ -10,6 +10,7 @@
  * 更新时间: 2026-03-11
  */
 
+import { toast } from 'sonner'
 import { CreditCard, PlusCircle, Edit2 } from '@/components/icons'
 import { Smartphone } from 'lucide-react'
 
@@ -100,7 +101,7 @@ export function PaymentMethods() {
    * @returns {void}
    */
   const handleAddPayment = () => {
-    alert('添加支付方式功能（待实现）')
+    toast.info('添加支付方式功能（待实现）')
   }
 
   /**
@@ -110,7 +111,7 @@ export function PaymentMethods() {
    * @returns {void}
    */
   const handleEditPayment = (id: string) => {
-    alert(`编辑支付方式 ${id}（待实现）`)
+    toast.info(`编辑支付方式 ${id}（待实现）`)
   }
 
   return (

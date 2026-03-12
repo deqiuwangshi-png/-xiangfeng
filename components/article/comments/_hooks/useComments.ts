@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import type { Comment } from '../types'
 import { getArticleComments, deleteArticleComment } from '@/lib/articles/actions/comment'
 import { toggleCommentLike } from '@/lib/articles/actions/like'
@@ -127,13 +128,14 @@ export function useComments(
       if (result.success) {
         setComments((prev) => prev.filter((comment) => comment.id !== commentId))
         setTotalCount((prev) => prev - 1)
+        toast.success('删除成功')
       } else {
         console.error('删除评论失败:', result.error)
-        alert(result.error || '删除评论失败')
+        toast.error(result.error || '删除评论失败')
       }
     } catch (error) {
       console.error('Failed to delete comment:', error)
-      alert('删除评论失败')
+      toast.error('删除评论失败')
     }
   }, [])
 

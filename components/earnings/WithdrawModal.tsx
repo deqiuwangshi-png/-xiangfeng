@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { X } from '@/components/icons'
 
 /**
@@ -81,16 +82,16 @@ export function WithdrawModal() {
 
   /**
    * 处理提现提交
-   * 
+   *
    * @returns {void}
    */
   const handleSubmit = () => {
     if (!amount || parseFloat(amount) <= 0) {
-      alert('请输入有效的提现金额')
+      toast.error('请输入有效的提现金额')
       return
     }
     // 提交提现申请
-    alert(`提现申请已提交：¥${amount}`)
+    toast.success(`提现申请已提交：¥${amount}`)
     handleClose()
   }
 

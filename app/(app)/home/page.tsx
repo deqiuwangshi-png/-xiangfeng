@@ -38,6 +38,7 @@ async function ArticleList() {
           author={article.author}
           publishedAt={article.publishedAt}
           readTime={Math.ceil(article.content.length / 500)}
+          viewsCount={article.viewsCount}
         />
       ))}
     </>

@@ -1,0 +1,77 @@
+'use client'
+
+/**
+ * 举报按钮组件
+ * @module components/article/ReportBtn
+ * @description 文章举报功能入口按钮（空壳实现）
+ */
+
+import { Flag } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { ReportMdl } from './ReportMdl'
+
+/**
+ * ReportBtn Props 接口
+ */
+interface ReportBtnProps {
+  /** 文章ID */
+  articleId: string
+  /** 作者ID */
+  authorId: string
+  /** 当前用户 */
+  currentUser: { id: string } | null
+}
+
+/**
+ * 举报按钮组件
+ *
+ * @param {ReportBtnProps} props - 组件属性
+ * @returns {JSX.Element} 举报按钮组件
+ *
+ * @description
+ * 【空壳实现】举报功能入口按钮
+ *
+ * 后续功能：
+ * - 点击弹出举报弹窗
+ * - 未登录用户提示登录
+ */
+export function ReportBtn({ articleId, authorId, currentUser }: ReportBtnProps) {
+  const [showModal, setShowModal] = useState(false)
+
+  /**
+   * 处理点击举报
+   */
+  const handleClick = () => {
+    if (!currentUser) {
+      toast.error('请先登录', {
+        description: '登录后即可举报违规内容',
+      })
+      return
+    }
+    setShowModal(true)
+  }
+
+  return (
+    <>
+      {/* 举报按钮 */}
+      <div
+        className="douyin-action-btn report-btn"
+        onClick={handleClick}
+        title="举报"
+      >
+        <Flag className="douyin-icon" />
+        <span className="douyin-count">举报</span>
+      </div>
+
+      {/* 举报弹窗 */}
+      {showModal && (
+        <ReportMdl
+          articleId={articleId}
+          authorId={authorId}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </>
+  )
+}

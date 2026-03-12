@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import { toast } from 'sonner'
 import { Send, Loader2 } from '@/components/icons'
 import type { CommentFormProps } from './types'
 
@@ -22,7 +23,7 @@ export function CommentForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentUser) {
-      alert('请先登录后再发表评论')
+      toast.error('请先登录后再发表评论')
       return
     }
 

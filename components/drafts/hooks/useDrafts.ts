@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { DraftService, Article } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
 import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
@@ -201,7 +202,7 @@ export function useDrafts(
           })
 
           if (result.unauthorized.length > 0) {
-            alert(`成功删除 ${result.deleted.length} 篇，${result.unauthorized.length} 篇无权删除`)
+            toast.warning(`成功删除 ${result.deleted.length} 篇，${result.unauthorized.length} 篇无权删除`)
             setIsLoading(false)
             return
           }
@@ -218,9 +219,9 @@ export function useDrafts(
           router.refresh()
         }
 
-        alert('删除成功')
+        toast.success('删除成功')
       } catch (error) {
-        alert(error instanceof Error ? error.message : '删除失败')
+        toast.error(error instanceof Error ? error.message : '删除失败')
         throw error
       } finally {
         setIsLoading(false)
@@ -246,9 +247,9 @@ export function useDrafts(
 
         setDrafts((prev) => DraftService.updateDraftsStatus(prev, selectedIds, status))
         setSelectedIds(new Set())
-        alert(successMessage)
+        toast.success(successMessage)
       } catch (error) {
-        alert(error instanceof Error ? error.message : '操作失败')
+        toast.error(error instanceof Error ? error.message : '操作失败')
       } finally {
         setIsLoading(false)
       }
@@ -283,7 +284,7 @@ export function useDrafts(
   const handleClearAllDrafts = useCallback(async () => {
     const draftArticles = drafts.filter((d) => d.status === 'draft')
     if (draftArticles.length === 0) {
-      alert('没有可清空的草稿')
+      toast.info('没有可清空的草稿')
       return
     }
 

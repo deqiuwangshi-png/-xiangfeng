@@ -6,6 +6,7 @@
  * @description 显示每日、每周、成就任务列表，使用真实数据
  */
 
+import { toast } from 'sonner'
 import { useTasks } from '../hooks'
 import { ListTodo, ArrowRight, Target, BookOpen, Trophy, Users, PenTool, Heart, MessageCircle } from '@/components/icons'
 import type { TaskStatus } from '@/types/rewards'
@@ -98,10 +99,10 @@ export function TaskBoard() {
   const handleAccept = async (taskId: string) => {
     const result = await accept(taskId)
     if (result.success) {
-      console.log('接取任务成功')
+      toast.success('接取任务成功')
     } else {
       console.error('接取失败:', result.error)
-      alert(result.error || '接取失败')
+      toast.error(result.error || '接取失败')
     }
   }
 

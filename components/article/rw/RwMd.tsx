@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { X, Sparkles, Coins, Megaphone } from '@/components/icons'
 import type { User } from '@supabase/supabase-js'
 import { TabBtn } from './TabBtn'
@@ -39,20 +40,8 @@ interface RwMdProps {
  * @param {RwMdProps} props - 组件属性
  * @returns {JSX.Element} 打赏弹窗
  */
-export function RwMd({ articleId, authorId, onClose, currentUser, onSuccess }: RwMdProps) {
+export function RwMd({ articleId, authorId, onClose, onSuccess }: RwMdProps) {
   const [activeTab, setActiveTab] = useState<RwType>('points')
-
-  /**
-   * 检查用户登录状态
-   * @returns {boolean} 是否已登录
-   */
-  const checkAuth = () => {
-    if (!currentUser) {
-      alert('请先登录')
-      return false
-    }
-    return true
-  }
 
   /**
    * 处理打赏成功
@@ -98,7 +87,7 @@ export function RwMd({ articleId, authorId, onClose, currentUser, onSuccess }: R
             active={activeTab === 'ad'}
             onClick={() => {
               // 广告打赏暂未开放
-              alert('广告打赏功能即将开放，敬请期待！')
+              toast.info('广告打赏功能即将开放，敬请期待！')
             }}
             icon={<Megaphone className="w-4 h-4" />}
             label="广告"

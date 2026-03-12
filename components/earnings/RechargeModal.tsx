@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { X } from '@/components/icons'
 import { Smartphone } from 'lucide-react'
 
@@ -127,15 +128,15 @@ export function RechargeModal() {
   const handleSubmit = () => {
     const numAmount = parseFloat(amount)
     if (!amount || numAmount <= 0) {
-      alert('请输入有效的充值金额')
+      toast.error('请输入有效的充值金额')
       return
     }
     if (numAmount < 1) {
-      alert('最小充值金额为1元')
+      toast.error('最小充值金额为1元')
       return
     }
     // 提交充值申请
-    alert(`充值申请：¥${amount}，支付方式：${selectedMethod === 'alipay' ? '支付宝' : '微信支付'}`)
+    toast.success(`充值申请：¥${amount}，支付方式：${selectedMethod === 'alipay' ? '支付宝' : '微信支付'}`)
     handleClose()
   }
 

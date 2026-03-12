@@ -6,6 +6,7 @@
  * @description 展示所有任务卡片，支持分类筛选，使用真实数据
  */
 
+import { toast } from 'sonner'
 import { useTasks } from '../hooks'
 import type { TaskCategory, TaskStatus } from '@/types/rewards'
 import {
@@ -189,10 +190,10 @@ export function TaskList({ category }: TaskListProps) {
   const handleAccept = async (taskId: string) => {
     const result = await accept(taskId)
     if (result.success) {
-      console.log('接取任务成功')
+      toast.success('接取任务成功')
     } else {
       console.error('接取失败:', result.error)
-      alert(result.error || '接取失败')
+      toast.error(result.error || '接取失败')
     }
   }
 
@@ -225,7 +226,7 @@ export function TaskList({ category }: TaskListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {tasks.map((task) => {
         const Icon = getIcon(task.icon_name)
         const percent = calcPercent(task.current_progress, task.target_progress)
@@ -238,42 +239,47 @@ export function TaskList({ category }: TaskListProps) {
         return (
           <div
             key={task.task_id}
-            className={`card-bg rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+            className={`card-bg rounded-xl p-4 ${
               completed ? 'opacity-70 bg-gray-50' : ''
             }`}
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${style.bg}`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${style.bg}`}
               >
-                <Icon className={`w-5 h-5 ${style.color}`} />
+                <Icon className={`w-4 h-4 ${style.color}`} />
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h3
-                  className={`font-bold text-xf-dark ${
+                  className={`font-bold text-xf-dark text-sm ${
                     completed ? 'line-through' : ''
                   }`}
                 >
                   {task.title}
                 </h3>
-                {(inProgress || claimable) && (
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="w-32 h-1.5 bg-xf-bg rounded-full overflow-hidden">
-                      <div
-                        className="h-1.5 rounded-full bg-xf-info"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-xf-primary">
-                      {task.current_progress}/{task.target_progress}
-                    </span>
-                  </div>
+                {task.description && (
+                  <p className={`text-xs text-xf-medium mt-0.5 line-clamp-1 ${completed ? 'line-through' : ''}`}>
+                    {task.description}
+                  </p>
                 )}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex-1 h-1.5 bg-xf-bg rounded-full overflow-hidden">
+                    <div
+                      className={`h-1.5 rounded-full transition-all ${
+                        completed ? 'bg-green-500' : 'bg-xf-info'
+                      }`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-xf-primary whitespace-nowrap">
+                    {task.current_progress}/{task.target_progress}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-4 sm:flex-col sm:items-end">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-xf-bg">
               <span
-                className={`text-xf-accent font-bold ${
+                className={`text-xf-accent font-bold text-sm ${
                   completed ? 'line-through' : ''
                 }`}
               >
@@ -281,7 +287,7 @@ export function TaskList({ category }: TaskListProps) {
               </span>
               {/* 已完成 */}
               {completed && (
-                <span className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full whitespace-nowrap">
+                <span className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full">
                   已完成
                 </span>
               )}
@@ -289,14 +295,14 @@ export function TaskList({ category }: TaskListProps) {
               {claimable && (
                 <button
                   onClick={() => handleClaimReward(task.task_id)}
-                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-3 py-1.5 rounded-full transition whitespace-nowrap"
+                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-2.5 py-1 rounded-full transition"
                 >
                   领取奖励
                 </button>
               )}
               {/* 进行中 */}
               {inProgress && (
-                <span className="text-xs bg-xf-info/20 text-xf-info px-3 py-1.5 rounded-full whitespace-nowrap">
+                <span className="text-xs bg-xf-info/20 text-xf-info px-2.5 py-1 rounded-full">
                   进行中
                 </span>
               )}
@@ -304,7 +310,7 @@ export function TaskList({ category }: TaskListProps) {
               {pending && (
                 <button
                   onClick={() => handleAccept(task.task_id)}
-                  className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-3 py-1.5 rounded-full transition whitespace-nowrap"
+                  className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-2.5 py-1 rounded-full transition"
                 >
                   接取任务
                 </button>
