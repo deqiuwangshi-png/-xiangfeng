@@ -40,6 +40,8 @@ export const REGISTER_ERRORS = {
   USERNAME_ALREADY_TAKEN: '该用户名已被使用，请更换其他用户名',
   /** 邮箱格式不正确 */
   INVALID_EMAIL: '邮箱地址格式不正确，请检查后重试',
+  /** 邮箱不在白名单内 */
+  EMAIL_NOT_ALLOWED: '暂不支持该邮箱，请使用 QQ邮箱(@qq.com)、Gmail(@gmail.com) 或 139邮箱(@139.com)',
   /** 密码不符合要求 */
   PASSWORD_TOO_WEAK: '密码不符合要求，请设置更复杂的密码',
   /** 两次密码不一致 */

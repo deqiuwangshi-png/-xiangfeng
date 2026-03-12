@@ -245,3 +245,158 @@ body {
 .logo-text {
   color: #3A3C6E;
 }
+
+/* 
+ * 行内代码样式
+ * 让用户能够直观识别已格式化的代码文本
+ */
+.prose code {
+  background-color: rgba(106, 91, 138, 0.12);
+  color: #3A3C6E;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+
+/* 代码块（pre > code）不应用行内样式 */
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/*
+ * 引用样式
+ * 浅灰色区块让用户直观识别引用内容
+ */
+.prose blockquote {
+  background-color: rgba(140, 142, 169, 0.1);   /* 浅灰背景 */
+  border-left: 3px solid #6A5B8A;               /* 紫色左边框 */
+  padding: 1em 1.2em;
+  margin: 1em 0;
+  border-radius: 0 8px 8px 0;
+  color: #4a4b5c;
+  font-style: italic;
+}
+
+.prose blockquote p {
+  margin: 0;
+}
+
+/*
+ * 标题样式 H1-H6
+ */
+.prose h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: #25263D;
+  line-height: 1.3;
+}
+
+.prose h2 {
+  font-size: 1.75em;
+  font-weight: 600;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+  color: #25263D;
+  line-height: 1.35;
+}
+
+.prose h3 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-top: 1.3em;
+  margin-bottom: 0.5em;
+  color: #3A3C6E;
+  line-height: 1.4;
+}
+
+.prose h4 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  color: #3A3C6E;
+  line-height: 1.4;
+}
+
+.prose h5 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 1.1em;
+  margin-bottom: 0.5em;
+  color: #4a4b5c;
+  line-height: 1.45;
+}
+
+.prose h6 {
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: #6A5B8A;
+  line-height: 1.5;
+}
+
+/*
+ * 链接样式 - 浅黄色背景
+ */
+.prose a {
+  color: #4A6FA5;
+  background-color: #FFF3CD;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.prose a:hover {
+  background-color: #FFE8A1;
+}
+
+/*
+ * 列表样式修复
+ * 确保有序列表和无序列表正常显示
+ */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+/* 嵌套列表 */
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+.prose ul ul {
+  list-style-type: circle;
+}
+
+.prose ul ul ul {
+  list-style-type: square;
+}

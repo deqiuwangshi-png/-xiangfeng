@@ -122,6 +122,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       {/* ✅ ArticleActions 接收当前用户和文章统计数据 */}
       <ArtAct
         articleId={articleId}
+        authorId={article.author_id}
         currentUser={user}
         initialLikeCount={article.likesCount || 0}
         initialCommentCount={totalCount || 0}

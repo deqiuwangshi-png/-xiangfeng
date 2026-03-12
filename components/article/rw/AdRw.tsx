@@ -1,41 +1,34 @@
-'use client';
+'use client'
 
 /**
  * 广告打赏面板
- *
  * @module components/article/rw/AdRw
- * @description 广告打赏选项面板
+ * @description 广告打赏选项面板（暂未开放）
  */
 
-import { Megaphone } from '@/components/icons';
-
-/**
- * AdRw Props 接口
- */
-interface AdRwProps {
-  /** 打赏回调 */
-  onReward: () => void;
-}
+import { Clock } from '@/components/icons'
 
 /**
  * 广告打赏面板
- *
- * @param {AdRwProps} props - 组件属性
  * @returns {JSX.Element} 广告打赏面板
  */
-export function AdRw({ onReward }: AdRwProps) {
+export function AdRw() {
   return (
     <div className="space-y-4">
-      <div className="bg-xf-info rounded-xl p-6 text-white text-center">
-        <Megaphone className="w-12 h-12 mx-auto mb-3 opacity-80" />
-        <h4 className="text-lg font-bold mb-2">观看广告支持作者</h4>
+      <div className="bg-xf-info/10 rounded-xl p-6 text-center border border-xf-info/20">
+        <Clock className="w-12 h-12 mx-auto mb-3 text-xf-info opacity-80" />
+        <h4 className="text-lg font-bold mb-2 text-xf-dark">即将开放</h4>
+        <p className="text-sm text-xf-medium">
+          广告打赏功能正在开发中<br />
+          敬请期待！
+        </p>
       </div>
       <button
-        className="w-full py-3 bg-xf-info text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
-        onClick={onReward}
+        className="w-full py-3 bg-gray-100 text-gray-400 rounded-xl font-medium cursor-not-allowed"
+        disabled
       >
-        观看广告
+        暂时不可用
       </button>
     </div>
-  );
+  )
 }

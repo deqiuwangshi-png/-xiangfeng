@@ -11,11 +11,12 @@
 import { useEffect, useRef } from 'react'
 import { Editor } from '@tiptap/react'
 import {
-  Bold, Italic, Underline, Heading, Quote, Code,
+  Bold, Italic, Underline, Quote, Code,
   Link, List, ListOrdered, Minus, Eraser, Undo, Redo,
   ArrowUpToLine, Maximize, ChevronDown
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
+import { HeadingSelect } from './HeadingSelect'
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -23,6 +24,8 @@ interface EditorToolbarProps {
   onToggleFullscreen: () => void
   onToggleToolbar: () => void
   isCollapsed: boolean
+  onShowLinkBubble?: () => void
+  showLinkBubble?: boolean
 }
 
 export function EditorToolbar({
@@ -31,6 +34,8 @@ export function EditorToolbar({
   onToggleFullscreen,
   onToggleToolbar,
   isCollapsed,
+  onShowLinkBubble,
+  showLinkBubble,
 }: EditorToolbarProps) {
   const toolbarRef = useRef<HTMLDivElement>(null)
 
@@ -66,9 +71,7 @@ export function EditorToolbar({
       case 'underline':
         editor.chain().focus().toggleUnderline().run()
         break
-      case 'heading':
-        editor.chain().focus().toggleHeading({ level: 2 }).run()
-        break
+
       case 'quote':
         editor.chain().focus().toggleBlockquote().run()
         break
@@ -81,14 +84,7 @@ export function EditorToolbar({
     }
   }
 
-  // 插入链接
-  const handleInsertLink = () => {
-    if (!editor) return
-    const url = window.prompt('输入链接地址:')
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run()
-    }
-  }
+
 
   // 插入列表
   const handleInsertList = (type: 'ul' | 'ol') => {
@@ -152,12 +148,7 @@ export function EditorToolbar({
 
       {/* 标题工具组 */}
       <div className={`flex gap-1 items-center ${isCollapsed ? 'hidden' : ''}`}>
-        <ToolbarButton
-          icon={Heading}
-          tooltip="标题"
-          onClick={() => handleFormatText('heading')}
-          title="标题"
-        />
+        <HeadingSelect editor={editor} />
         <ToolbarButton
           icon={Quote}
           tooltip="引用"
@@ -166,9 +157,9 @@ export function EditorToolbar({
         />
         <ToolbarButton
           icon={Code}
-          tooltip="代码"
+          tooltip="行内代码"
           onClick={() => handleFormatText('code')}
-          title="代码块"
+          title="行内代码"
         />
       </div>
 
@@ -180,8 +171,9 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Link}
           tooltip="链接"
-          onClick={handleInsertLink}
+          onClick={onShowLinkBubble}
           title="链接 (Ctrl+K)"
+          isActive={showLinkBubble}
         />
         <ToolbarButton
           icon={List}

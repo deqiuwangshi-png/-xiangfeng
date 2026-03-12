@@ -3,7 +3,7 @@
  */
 
 export { submitFeedback } from './submit';
-export { uploadFeedbackAttachment } from './upload';
+export { uploadFeedbackAttachment, uploadFeedbackFiles } from './upload';
 export { deleteFeedbackAttachment } from './delete';
 export {
   getFeedbacksByTrackingIds,

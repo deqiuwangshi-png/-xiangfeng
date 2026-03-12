@@ -7,8 +7,21 @@
  */
 
 import { useState, useMemo } from 'react'
-import { Plus, Minus, Calendar, CheckCircle2, Edit3, Gift, Star } from '@/components/icons'
+import {
+  Plus,
+  Minus,
+  Calendar,
+  CheckCircle2,
+  Gift,
+  Star,
+  Clock,
+  Award,
+  Heart,
+  type LucideIcon,
+} from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
+import { usePoints } from '../hooks'
+import type { PointTransaction, PointSourceType } from '@/types/rewards'
 
 /**
  * 积分记录类型
@@ -33,28 +46,52 @@ interface PtRecordItem {
   source: string
   description: string
   date: string
-  icon: React.ElementType
+  icon: LucideIcon
   iconColor: string
 }
 
 /**
- * 模拟积分记录数据
- * @constant mockRecords
+ * 来源配置映射
+ * @constant sourceConfig
  */
-const mockRecords: PtRecordItem[] = [
-  { id: '1', type: 'earn', points: 10, source: '每日签到', description: '连续签到第3天', date: '2024-05-15', icon: CheckCircle2, iconColor: 'text-green-600' },
-  { id: '2', type: 'spend', points: 500, source: '兑换商品', description: '电子书券', date: '2024-05-12', icon: Gift, iconColor: 'text-xf-accent' },
-  { id: '3', type: 'earn', points: 50, source: '发布文章', description: '文章《如何高效写作》获得点赞', date: '2024-05-10', icon: Edit3, iconColor: 'text-xf-primary' },
-  { id: '4', type: 'earn', points: 20, source: '完成任务', description: '完善个人资料', date: '2024-05-09', icon: Star, iconColor: 'text-amber-600' },
-  { id: '5', type: 'spend', points: 880, source: '兑换商品', description: '7天会员', date: '2024-05-08', icon: Gift, iconColor: 'text-xf-accent' },
-  { id: '6', type: 'earn', points: 10, source: '每日签到', description: '连续签到第1天', date: '2024-05-08', icon: CheckCircle2, iconColor: 'text-green-600' },
-  { id: '7', type: 'earn', points: 30, source: '评论互动', description: '优质评论获得作者点赞', date: '2024-05-07', icon: Edit3, iconColor: 'text-xf-primary' },
-  { id: '8', type: 'spend', points: 200, source: '兑换商品', description: '咖啡折扣券', date: '2024-05-05', icon: Gift, iconColor: 'text-xf-accent' },
-  { id: '9', type: 'earn', points: 100, source: '邀请好友', description: '好友成功注册', date: '2024-05-03', icon: Star, iconColor: 'text-amber-600' },
-  { id: '10', type: 'earn', points: 10, source: '每日签到', description: '连续签到第5天', date: '2024-05-01', icon: CheckCircle2, iconColor: 'text-green-600' },
-  { id: '11', type: 'spend', points: 80, source: '兑换商品', description: '表情包', date: '2024-04-28', icon: Gift, iconColor: 'text-xf-accent' },
-  { id: '12', type: 'earn', points: 50, source: '文章被收藏', description: '文章《写作技巧分享》被收藏10次', date: '2024-04-25', icon: Edit3, iconColor: 'text-xf-primary' },
-]
+const sourceConfig: Record<
+  PointSourceType,
+  { label: string; icon: LucideIcon; iconColor: string }
+> = {
+  signin: { label: '每日签到', icon: CheckCircle2, iconColor: 'text-green-600' },
+  signin_bonus: { label: '签到奖励', icon: Star, iconColor: 'text-amber-600' },
+  task_daily: { label: '每日任务', icon: Clock, iconColor: 'text-xf-primary' },
+  task_weekly: { label: '每周任务', icon: Award, iconColor: 'text-xf-primary' },
+  task_monthly: { label: '每月任务', icon: Award, iconColor: 'text-xf-primary' },
+  task_yearly: { label: '年度任务', icon: Award, iconColor: 'text-xf-primary' },
+  task_event: { label: '活动任务', icon: Award, iconColor: 'text-xf-primary' },
+  exchange: { label: '兑换商品', icon: Gift, iconColor: 'text-xf-accent' },
+  exchange_refund: { label: '兑换退款', icon: Gift, iconColor: 'text-green-600' },
+  expire: { label: '积分过期', icon: Clock, iconColor: 'text-gray-500' },
+  system: { label: '系统奖励', icon: Star, iconColor: 'text-amber-600' },
+  reward_send: { label: '打赏支出', icon: Heart, iconColor: 'text-rose-500' },
+  reward_receive: { label: '打赏收入', icon: Star, iconColor: 'text-amber-500' },
+}
+
+/**
+ * 将交易数据转换为展示数据
+ * @param {PointTransaction} transaction - 积分交易记录
+ * @returns {PtRecordItem} 展示用记录项
+ */
+function mapTransactionToRecord(transaction: PointTransaction): PtRecordItem {
+  const config = sourceConfig[transaction.source]
+
+  return {
+    id: transaction.id,
+    type: transaction.type === 'earn' || transaction.type === 'refund' ? 'earn' : 'spend',
+    points: transaction.amount,
+    source: config.label,
+    description: transaction.description || config.label,
+    date: new Date(transaction.created_at).toISOString().split('T')[0],
+    icon: config.icon,
+    iconColor: config.iconColor,
+  }
+}
 
 /**
  * 筛选配置
@@ -77,9 +114,16 @@ const PAGE_SIZE = 5
  * @returns {JSX.Element} 积分记录组件
  */
 export function PtRecord() {
-  const [records] = useState<PtRecordItem[]>(mockRecords)
+  const { transactions, isLoading } = usePoints()
   const [filter, setFilter] = useState<FilterType>('all')
   const [currentPage, setCurrentPage] = useState(1)
+
+  /**
+   * 转换后的记录列表
+   */
+  const records = useMemo(() => {
+    return transactions.map(mapTransactionToRecord)
+  }, [transactions])
 
   /**
    * 筛选后的记录
@@ -120,6 +164,29 @@ export function PtRecord() {
    */
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+  }
+
+  /**
+   * 加载中状态
+   */
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 p-3 bg-xf-light/80 rounded-xl border border-xf-bg/30 animate-pulse"
+          >
+            <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-1/3" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
+            </div>
+            <div className="h-6 bg-gray-200 rounded w-16" />
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (

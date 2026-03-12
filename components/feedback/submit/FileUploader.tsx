@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { UploadCloud } from '@/components/icons';
-import { uploadFeedbackAttachment } from '@/lib/feedback/actions';
+import { useRef } from 'react';
+import { toast } from 'sonner';
+import { UploadCloud, AlertCircle } from '@/components/icons';
 import FileList from './FileList';
 import type { UploadedFile } from '@/types/feedback';
 
@@ -15,6 +15,11 @@ interface FileUploaderProps {
  * 支持的文件扩展名
  */
 const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.md', '.pdf'];
+
+/**
+ * 最大附件数量
+ */
+const MAX_FILE_COUNT = 5;
 
 /**
  * 验证文件类型
@@ -33,20 +38,19 @@ const validateFileType = (file: File): boolean => {
  * @returns 唯一标识符
  */
 const generateId = (): string => {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 };
 
 /**
  * 文件上传组件
- * 处理文件选择、验证、上传到飞书多维表格
- * 文件将保存到飞书 Drive
+ * 处理文件选择、验证，文件仅在提交时才上传至飞书
+ * 支持卡片式展示待上传文件，可取消选择
  *
  * @param files 当前文件列表
  * @param onFilesChange 文件列表变化回调
  */
 export default function FileUploader({ files, onFilesChange }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   /**
    * 验证文件大小
@@ -60,127 +64,61 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
   };
 
   /**
-   * 添加文件到列表（标记为上传中）
-   * 使用函数式更新避免闭包陷阱
+   * 显示错误提示
+   * 使用 sonner toast 统一提示样式
    *
-   * @param file 文件对象
-   * @returns 文件项的唯一ID
+   * @param message 错误消息
    */
-  const addFileToList = (file: File): string => {
-    const id = generateId();
-    const newFile: UploadedFile = { id, file, isUploading: true };
-    onFilesChange((prevFiles: UploadedFile[]) => [...prevFiles, newFile]);
-    return id;
-  };
-
-  /**
-   * 更新文件状态
-   * 使用函数式更新避免闭包陷阱
-   *
-   * @param fileId 文件项唯一ID
-   * @param updates 更新的属性
-   */
-  const updateFileStatus = (fileId: string, updates: Partial<UploadedFile>) => {
-    onFilesChange((prevFiles: UploadedFile[]) =>
-      prevFiles.map((item) => (item.id === fileId ? { ...item, ...updates } : item))
-    );
-  };
-
-  /**
-   * 上传单个文件到飞书
-   * 使用 fileId 跟踪文件状态，避免闭包陷阱
-   *
-   * @param file 文件对象
-   * @param fileId 文件项唯一ID
-   */
-  const uploadSingleFile = async (file: File, fileId: string) => {
-    {/* 创建新的 AbortController 用于取消上传 */}
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      {/* 如果请求被取消，直接返回 */}
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      const result = await uploadFeedbackAttachment(formData);
-
-      {/* 如果请求被取消，不更新状态 */}
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      if (result.success && result.fileToken) {
-        updateFileStatus(fileId, { fileToken: result.fileToken, isUploading: false });
-      } else {
-        updateFileStatus(fileId, {
-          isUploading: false,
-          error: result.error || '上传失败',
-        });
-      }
-    } catch {
-      {/* 如果请求被取消，不更新状态 */}
-      if (abortControllerRef.current?.signal.aborted) {
-        return;
-      }
-      updateFileStatus(fileId, { isUploading: false, error: '上传失败' });
-    } finally {
-      {/* 清理引用 */}
-      if (abortControllerRef.current === controller) {
-        abortControllerRef.current = null;
-      }
-    }
+  const showErrorToast = (message: string) => {
+    toast.error(message, {
+      icon: <AlertCircle className="w-4 h-4 text-xf-error" />,
+      duration: 4000,
+    });
   };
 
   /**
    * 处理文件选择事件
-   * 验证并上传选中的文件
-   * 使用 Promise.all 实现并行上传，避免顺序等待
+   * 仅验证文件并添加到列表，不上传
+   * 验证错误使用 toast 提示，不添加到文件列表
    *
    * @param e 文件选择事件
    */
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
 
-    // 收集所有上传任务
-    const uploadTasks = selectedFiles.map(async (file) => {
+    // 检查是否超过数量限制
+    if (files.length + selectedFiles.length > MAX_FILE_COUNT) {
+      showErrorToast(`最多只能上传 ${MAX_FILE_COUNT} 个附件，当前已有 ${files.length} 个`);
+      // 清空input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    selectedFiles.forEach((file) => {
       // 验证文件类型
       if (!validateFileType(file)) {
-        const invalidTypeFile: UploadedFile = {
-          id: generateId(),
-          file,
-          isUploading: false,
-          error: '仅支持图片(PNG/JPG/JPEG/GIF/WEBP)和文档(MD/PDF)格式',
-        };
-        onFilesChange((prevFiles: UploadedFile[]) => [...prevFiles, invalidTypeFile]);
+        showErrorToast(`「${file.name}」格式不支持，仅接受图片(PNG/JPG/JPEG/GIF/WEBP)和文档(MD/PDF)`);
         return;
       }
 
       // 验证文件大小
       if (!validateFileSize(file)) {
-        const oversizedFile: UploadedFile = {
-          id: generateId(),
-          file,
-          isUploading: false,
-          error: '文件大小超过10MB限制',
-        };
-        onFilesChange((prevFiles: UploadedFile[]) => [...prevFiles, oversizedFile]);
+        showErrorToast(`「${file.name}」大小超过10MB限制`);
         return;
       }
 
-      // 添加到列表并获取唯一ID，然后上传
-      const fileId = addFileToList(file);
-      await uploadSingleFile(file, fileId);
+      // 添加到列表，状态为待上传
+      const newFile: UploadedFile = {
+        id: generateId(),
+        file,
+        status: 'pending',
+      };
+      onFilesChange((prevFiles: UploadedFile[]) => [...prevFiles, newFile]);
     });
 
-    // 等待所有上传任务完成
-    await Promise.all(uploadTasks);
-
-    {/* 清空input以便重复选择相同文件 */}
+    // 清空input以便重复选择相同文件
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -188,38 +126,44 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
 
   /**
    * 移除指定索引的文件
-   * 仅从本地列表移除，飞书文件保留
    *
    * @param index 文件索引
    */
-  const handleRemoveFile = async (index: number) => {
-    // 从列表中移除
+  const handleRemoveFile = (index: number) => {
     onFilesChange(files.filter((_, i) => i !== index));
   };
-
-  /**
-   * 组件卸载时取消正在进行的文件上传
-   */
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
 
   return (
     <div>
       <label className="block text-sm font-medium text-xf-dark mb-2">
         附件上传（可选）
+        <span className="text-xs text-xf-primary ml-2">
+          {files.length}/{MAX_FILE_COUNT}
+        </span>
       </label>
-      <div
-        className="upload-area border-2 border-dashed border-xf-surface bg-xf-light/50 rounded-xl p-6 text-center cursor-pointer hover:border-xf-primary hover:bg-xf-primary/5 transition-all"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <UploadCloud className="w-8 h-8 text-xf-primary mx-auto mb-2" />
-        <p className="text-sm font-medium text-xf-dark">点击或拖拽上传</p>
-        <p className="text-xs text-xf-primary">支持 PNG, JPG, JPEG, GIF, WEBP, MD, PDF 格式，最大10MB</p>
+      <div className="upload-area border-2 border-dashed border-xf-surface bg-xf-light/50 rounded-xl p-6 transition-all">
+        {files.length === 0 ? (
+          <div
+            className="text-center cursor-pointer hover:border-xf-primary hover:bg-xf-primary/5 transition-all -m-6 p-6"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <UploadCloud className="w-8 h-8 text-xf-primary mx-auto mb-2" />
+            <p className="text-sm font-medium text-xf-dark">点击或拖拽上传</p>
+            <p className="text-xs text-xf-primary">支持 PNG, JPG, JPEG, GIF, WEBP, MD, PDF 格式，最大10MB</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <FileList files={files} onRemove={handleRemoveFile} />
+            {files.length < MAX_FILE_COUNT && (
+              <div
+                className="text-center cursor-pointer py-4 border-t border-dashed border-xf-surface hover:bg-xf-primary/5 transition-all rounded-lg"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <p className="text-sm text-xf-primary">+ 继续添加文件</p>
+              </div>
+            )}
+          </div>
+        )}
         <input
           ref={fileInputRef}
           type="file"
@@ -229,8 +173,6 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
           onChange={handleFileSelect}
         />
       </div>
-
-      <FileList files={files} onRemove={handleRemoveFile} />
     </div>
   );
 }

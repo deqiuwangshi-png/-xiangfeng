@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { genNonce, verNonce } from '@/lib/security/nonce'
 import type { SignInResponse, SignInRecord } from '@/types/rewards'
 
 /**
@@ -54,10 +55,24 @@ export async function getTodaySignInStatus(): Promise<{
 }
 
 /**
+ * 获取签到令牌（防重放）
+ * @returns {Promise<{nonce: string | null}>} 令牌
+ */
+export async function getSignInNonce(): Promise<{ nonce: string | null }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { nonce: null }
+  
+  const nonce = await genNonce('signin', user.id)
+  return { nonce }
+}
+
+/**
  * 执行每日签到
+ * @param {string} nonce - 防重放令牌
  * @returns {Promise<SignInResponse>} 签到结果
  */
-export async function performSignIn(): Promise<SignInResponse> {
+export async function performSignIn(nonce: string): Promise<SignInResponse> {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -70,9 +85,22 @@ export async function performSignIn(): Promise<SignInResponse> {
       current_points: 0,
     }
   }
+  
+  // 验证令牌
+  const valid = await verNonce(nonce)
+  if (!valid) {
+    return {
+      success: false,
+      points_earned: 0,
+      consecutive_days: 0,
+      is_bonus_day: false,
+      current_points: 0,
+      error: '请求已过期或重复提交',
+    } as SignInResponse
+  }
 
-  // 调用数据库函数执行签到
-  const { data, error } = await supabase.rpc('perform_daily_signin', {
+  // 调用安全签到函数（带并发保护）
+  const { data, error } = await supabase.rpc('safe_daily_signin', {
     p_user_id: user.id,
   })
 

@@ -11,6 +11,7 @@ import { useCallback } from 'react'
 import {
   getUserTaskProgress,
   claimTaskReward,
+  acceptTask,
 } from '@/lib/rewards/actions/tasks'
 import type { TaskProgressResponse, TaskCategory } from '@/types/rewards'
 
@@ -31,6 +32,8 @@ interface UseTasksReturn {
   refreshTasks: () => Promise<void>
   /** 领取任务奖励 */
   claimReward: (taskId: string) => Promise<{ success: boolean; points?: number; error?: string }>
+  /** 接取任务 */
+  accept: (taskId: string) => Promise<{ success: boolean; error?: string }>
 }
 
 /**
@@ -95,6 +98,23 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     [mutate]
   )
 
+  /**
+   * 接取任务
+   * @param {string} taskId - 任务ID
+   * @returns {Promise<{success: boolean; error?: string}>} 接取结果
+   */
+  const accept = useCallback(
+    async (taskId: string): Promise<{ success: boolean; error?: string }> => {
+      const result = await acceptTask(taskId)
+      if (result.success) {
+        // 接取成功后刷新任务列表
+        await mutate()
+      }
+      return result
+    },
+    [mutate]
+  )
+
   return {
     tasks,
     isLoading,
@@ -102,5 +122,6 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     error,
     refreshTasks,
     claimReward,
+    accept,
   }
 }

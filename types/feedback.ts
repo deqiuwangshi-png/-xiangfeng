@@ -122,6 +122,11 @@ export interface ReplySubmitResult {
 }
 
 /**
+ * 文件上传状态
+ */
+export type FileUploadStatus = 'pending' | 'uploading' | 'uploaded' | 'error';
+
+/**
  * 已上传文件项
  */
 export interface UploadedFile {
@@ -129,6 +134,6 @@ export interface UploadedFile {
   file: File;
   url?: string;  // 外部URL（如Supabase）
   fileToken?: string;  // 飞书文件 file_token
-  isUploading: boolean;
+  status: FileUploadStatus;  // 上传状态
   error?: string;
 }

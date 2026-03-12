@@ -30,6 +30,8 @@ export type PointSourceType =
   | 'exchange_refund'
   | 'expire'
   | 'system'
+  | 'reward_send'
+  | 'reward_receive'
 
 /**
  * 任务分类
@@ -447,6 +449,8 @@ export interface SignInResponse {
   is_bonus_day: boolean
   /** 当前总积分 */
   current_points: number
+  /** 错误信息 */
+  error?: string
 }
 
 /**

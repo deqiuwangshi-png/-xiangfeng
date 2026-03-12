@@ -14,6 +14,8 @@
 import { useEditor, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
+import Underline from '@tiptap/extension-underline'
+import Link from '@tiptap/extension-link'
 import { useEffect, useState, useMemo } from 'react'
 
 /**
@@ -74,29 +76,30 @@ export function useTipTapEditor({
    * 使用 useMemo 避免每次渲染重新创建配置对象
    * 减少不必要的重渲染
    *
-   * 注意：StarterKit 已经包含 link 和 underline
-   * 不需要单独导入，避免重复注册警告
+   * 注意：StarterKit 不包含 underline 和 link 和 underline
+   * 需要单独导入注册
    */
   const editorConfig = useMemo(
     () => ({
       extensions: [
-        // StarterKit 包含：bold, italic, underline, link, list 等常用功能
-        // 不需要单独导入这些扩展
+        // StarterKit 内置功能：bold, italic, code, list, undo/redo 等
         StarterKit.configure({
-          // 禁用不常用的功能，减少包体积
-          heading: false,
-          blockquote: false,
-          codeBlock: false,
-          horizontalRule: false,
-          // 这些功能 StarterKit 默认已包含，不需要显式设置为 true
-          // bulletList: undefined 表示使用默认配置
+          // 显式启用工具栏所需功能（undefined 表示使用默认配置）
+          heading: undefined,
+          blockquote: undefined,
+          horizontalRule: undefined,
         }),
-        // 占位符扩展（StarterKit 不包含）
+        // 占位符扩展
         Placeholder.configure({
           placeholder,
         }),
-        // 注意：不要在这里添加 Link 和 Underline
-        // StarterKit 已经包含它们！
+        // 下划线扩展（StarterKit 不包含）
+        Underline,
+        // 链接扩展（StarterKit 不包含）
+        Link.configure({
+          openOnClick: false,
+          linkOnPaste: true,
+        })
       ],
       content,
       editable: true,

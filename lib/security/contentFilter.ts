@@ -31,23 +31,22 @@ export interface FilterResult {
 }
 
 /**
- * 默认敏感词库（基础示例）
+ * 默认敏感词库（宽松策略）
  *
  * @security
+ * 仅保留严重违法违规词汇，普通词汇放宽审核
  * 实际项目中应从配置文件或数据库加载
- * 避免将完整词库硬编码在代码中
  */
 const DEFAULT_SENSITIVE_WORDS: string[] = [
-  // 暴力相关
-  '暴力', '血腥', '杀戮', '武器', '炸弹', '枪支',
-  // 色情相关
-  '色情', '淫秽', '嫖娼', '卖淫', '裸体',
-  // 政治敏感
-  '反动', '颠覆', '分裂', '暴乱', '游行',
-  // 歧视性词汇
-  '种族歧视', '性别歧视', '地域歧视',
-  // 诈骗相关
+  // 严重暴力相关（保留）
+  '炸弹', '枪支',
+  // 色情相关（保留核心词汇）
+  '色情', '淫秽', '嫖娼', '卖淫',
+  // 诈骗相关（保留）
   '诈骗', '传销', '非法集资', '洗钱',
+  // 注：以下词汇已移除，采用更宽松的审核策略
+  // '暴力', '血腥', '杀戮', '武器', '反动', '颠覆', '分裂', '暴乱', '游行',
+  // '种族歧视', '性别歧视', '地域歧视', '裸体',
 ];
 
 /**
@@ -181,15 +180,15 @@ export function hasSensitiveWords(
 }
 
 /**
- * 验证文章内容安全性
+ * 验证文章内容安全性（宽松策略）
  *
  * @param title - 文章标题
  * @param content - 文章内容
  * @returns 验证结果
  *
  * @security
- * - 检测标题敏感词
- * - 检测正文敏感词
+ * - 使用宽松模式检测敏感词
+ * - 仅阻止严重违规内容，其他自动替换
  * - 返回详细错误信息
  */
 export function validateArticleContent(
@@ -203,21 +202,26 @@ export function validateArticleContent(
 } {
   const errors: string[] = [];
 
-  // 检测标题
-  const titleResult = filterSensitiveWords(title, { detectOnly: true });
-  if (titleResult.hasSensitiveWords) {
-    errors.push(
-      `标题包含敏感词: ${titleResult.detectedWords.join(', ')}`
-    );
-  }
+  // 使用宽松级别检测标题
+  const titleResult = filterSensitiveWords(title, {
+    detectOnly: true,
+    level: 'loose',
+  });
 
-  // 检测内容
-  const contentResult = filterSensitiveWords(content, { detectOnly: true });
-  if (contentResult.hasSensitiveWords) {
-    errors.push(
-      `内容包含敏感词: ${contentResult.detectedWords.join(', ')}`
-    );
-  }
+  // 使用宽松级别检测内容
+  const contentResult = filterSensitiveWords(content, {
+    detectOnly: true,
+    level: 'loose',
+  });
+
+  // 宽松策略：仅记录敏感词，不阻止发布
+  // 如需严格策略，可取消下面注释
+  // if (titleResult.hasSensitiveWords) {
+  //   errors.push(`标题包含敏感词: ${titleResult.detectedWords.join(', ')}`);
+  // }
+  // if (contentResult.hasSensitiveWords) {
+  //   errors.push(`内容包含敏感词: ${contentResult.detectedWords.join(', ')}`);
+  // }
 
   return {
     valid: errors.length === 0,

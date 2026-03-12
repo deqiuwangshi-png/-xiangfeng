@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
 import { REGISTER_ERRORS, register } from '@/lib/auth';
+import { useAuthToast } from './useAuthToast';
 
 /**
  * 注册表单数据接口
@@ -32,7 +33,6 @@ export interface RegisterFormErrors {
 export interface UseRegisterFormReturn {
   formData: RegisterFormData;
   errors: RegisterFormErrors;
-  globalError: string | null;
   isLoading: boolean;
   isSuccess: boolean;
   passwordValidation: PasswordValidationResult | null;
@@ -49,7 +49,6 @@ export interface UseRegisterFormReturn {
 export function useRegisterForm(): UseRegisterFormReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [globalError, setGlobalError] = useState<string | null>(null);
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
@@ -59,6 +58,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
   });
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
+  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
   /**
    * 验证密码强度
@@ -82,7 +82,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
     }
 
     setErrors((prev) => ({ ...prev, [field]: undefined }));
-    setGlobalError(null);
   }, [validatePasswordStrength]);
 
   /**
@@ -122,13 +121,12 @@ export function useRegisterForm(): UseRegisterFormReturn {
    * 提交表单
    */
   const submitForm = useCallback(async () => {
-    setGlobalError(null);
-
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
+    const toastId = showLoading('注册中...');
 
     try {
       const formDataObj = new FormData();
@@ -139,24 +137,27 @@ export function useRegisterForm(): UseRegisterFormReturn {
       const result = await register(formDataObj);
 
       if (!result.success) {
-        setGlobalError(result.error || '注册失败');
+        dismiss(toastId);
+        showError(result.error || '注册失败');
+        setIsLoading(false);
         return;
       }
 
+      dismiss(toastId);
+      showSuccess('注册成功，验证邮件已发送');
       setIsSuccess(true);
     } catch {
-      setGlobalError('注册过程中发生错误，请稍后重试');
-    } finally {
+      dismiss(toastId);
+      showError('注册过程中发生错误，请稍后重试');
       setIsLoading(false);
     }
-  }, [formData, validateForm]);
+  }, [formData, validateForm, showError, showSuccess, showLoading, dismiss]);
 
   /**
    * 清空错误
    */
   const clearErrors = useCallback(() => {
     setErrors({});
-    setGlobalError(null);
   }, []);
 
   /**
@@ -179,7 +180,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
   return {
     formData,
     errors,
-    globalError,
     isLoading,
     isSuccess,
     passwordValidation,

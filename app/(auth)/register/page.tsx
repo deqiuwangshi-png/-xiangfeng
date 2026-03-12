@@ -18,7 +18,6 @@ export default function RegisterPage(): JSX.Element {
   const {
     formData,
     errors,
-    globalError,
     isLoading,
     isSuccess,
     passwordValidation,
@@ -70,7 +69,17 @@ export default function RegisterPage(): JSX.Element {
 
                 {/* 邮箱地址 */}
                 <p className="text-xf-medium mb-2">请检查您的邮箱：</p>
-                <p className="text-xf-dark font-medium mb-4">{formData.email}</p>
+                <p className="text-xf-dark font-medium mb-8">{formData.email}</p>
+
+                {/* 已验证，返回登录按钮 */}
+                <div className="mt-6">
+                  <Link
+                    href="/login"
+                    className="w-full flex items-center justify-center bg-xf-primary hover:bg-xf-accent text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide"
+                  >
+                    已验证，返回登录
+                  </Link>
+                </div>
               </div>
             </FormCard>
           </div>
@@ -86,13 +95,6 @@ export default function RegisterPage(): JSX.Element {
         <div className="w-full max-w-md">
           <MobileBrandTitle />
           <FormCard title="创建账号">
-            {/* 全局错误提示 */}
-            {globalError && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                {globalError}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* 邮箱字段 */}
               <div>

@@ -13,7 +13,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { EarningsOverview, EarningsDetails, WithdrawHistory, WithdrawModal } from '@/components/earnings'
+import { EarningsOverview, PaymentMethods, TransactionRecords, MonthlyBill, WithdrawModal, RechargeModal } from '@/components/earnings'
 import '@/styles/domains/earnings.css'
 
 /**
@@ -28,23 +28,36 @@ export default function EarningsPage() {
         <div className="max-w-6xl mx-auto">
           {/* 标题 */}
           <div className="mb-8">
-            <h1 className="text-3xl font-serif text-xf-accent font-bold mb-2">创作者收益中心</h1>
-            <p className="text-xf-dark/70">管理您的收入与提现</p>
+            <h1 className="text-3xl font-serif text-xf-accent font-bold mb-2">收益中心</h1>
+            <p className="text-xf-dark/70">管理资金收益、支付方式与交易记录</p>
           </div>
 
-          {/* 收益概览 */}
+          {/* 收益概览 + 支付方式 */}
           <EarningsOverview />
 
-          {/* 收益明细 */}
-          <EarningsDetails />
+          {/* 支付方式管理 */}
+          <PaymentMethods />
 
-          {/* 提现记录 */}
-          <WithdrawHistory />
+          {/* 交易记录 + 月度账单 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* 交易记录（占2列） */}
+            <div className="lg:col-span-2">
+              <TransactionRecords />
+            </div>
+
+            {/* 月度账单（占1列） */}
+            <div className="lg:col-span-1">
+              <MonthlyBill />
+            </div>
+          </div>
         </div>
       </main>
 
       {/* 提现模态框 */}
       <WithdrawModal />
+
+      {/* 充值模态框 */}
+      <RechargeModal />
     </>
   )
 }

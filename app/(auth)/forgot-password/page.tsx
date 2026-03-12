@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuthToast } from '@/hooks/useAuthToast';
 import { forgotPassword } from '@/lib/auth';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
@@ -14,7 +15,7 @@ import { FormCard } from '@/components/auth/FormCard';
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
   /**
    * 处理表单提交
@@ -22,16 +23,19 @@ export default function ForgotPasswordPage() {
    */
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    setError(null);
+    const toastId = showLoading('发送中...');
 
     const result = await forgotPassword(formData);
 
+    dismiss(toastId);
+
     if (!result.success) {
-      setError(result.error || '发送失败');
+      showError(result.error || '发送失败');
       setIsLoading(false);
       return;
     }
 
+    showSuccess('重置密码邮件已发送，请检查邮箱');
     setIsSuccess(true);
     setIsLoading(false);
   }
@@ -48,12 +52,6 @@ export default function ForgotPasswordPage() {
                 <div className="text-center text-xf-medium text-sm mb-4">
                   请输入您的邮箱地址，我们将向您发送重置密码的链接。
                 </div>
-
-                {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                    {error}
-                  </div>
-                )}
 
                 <div>
                   <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">邮箱</label>

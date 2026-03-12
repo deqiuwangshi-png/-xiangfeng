@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuthToast } from '@/hooks/useAuthToast';
 import { login } from '@/lib/auth';
 import { checkRateLimit, resetRateLimit } from '@/lib/security/rateLimit';
 import { BrandSection } from '@/components/auth/BrandSection';
@@ -31,7 +32,7 @@ function LoginForm() {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { showError, showLoading, dismiss } = useAuthToast();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -71,23 +72,26 @@ function LoginForm() {
    */
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    setError(null);
 
     {/* 客户端限流检查 - 仅在提交时检查 */}
     const clientLimit = checkRateLimit(getClientId());
     if (!clientLimit.allowed) {
       setIsRateLimited(true);
       setRateLimitReset(clientLimit.resetTime);
-      setError('尝试次数过多，请稍后再试');
+      showError('尝试次数过多，请稍后再试', 'rateLimit');
       setIsLoading(false);
       return;
     }
+
+    {/* 显示加载中 */}
+    const toastId = showLoading('登录中...');
 
     {/* 调用Server Action */}
     const result = await login(formData);
 
     if (!result.success) {
-      setError(result.error || '登录失败');
+      dismiss(toastId);
+      showError(result.error || '登录失败');
       setIsLoading(false);
       return;
     }
@@ -95,7 +99,8 @@ function LoginForm() {
     {/* 登录成功，重置限流 */}
     resetRateLimit(getClientId());
 
-    {/* 登录成功 */}
+    {/* 登录成功 - 登录页无toast，直接跳转 */}
+    dismiss(toastId);
     router.refresh();
     router.push(result.redirectTo || '/home');
   }
@@ -106,12 +111,6 @@ function LoginForm() {
         <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl text-orange-700 text-sm">
           <p className="font-medium">登录尝试次数过多</p>
           <p>请 {remainingTime} 后再试</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-          {error}
         </div>
       )}
 

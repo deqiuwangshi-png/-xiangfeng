@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { REGISTER_ERRORS } from '../errorMessages';
+import { isAllowedEmail } from '../utils';
 import type { AuthResult } from './types';
 
 /**
@@ -39,6 +40,11 @@ export async function register(formData: FormData): Promise<AuthResult> {
   const validation = registerSchema.safeParse({ email, password, username });
   if (!validation.success) {
     return { success: false, error: validation.error.issues[0]?.message || '输入无效' };
+  }
+
+  // 验证邮箱域名白名单
+  if (!isAllowedEmail(email)) {
+    return { success: false, error: REGISTER_ERRORS.EMAIL_NOT_ALLOWED };
   }
 
   const supabase = await createClient();

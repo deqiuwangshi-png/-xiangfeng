@@ -3,69 +3,15 @@
 /**
  * 积分商城完整商品网格组件
  * @module components/rewards/ShopFull
- * @description 积分商城子页面的商品展示组件，支持分类筛选
+ * @description 积分商城子页面的商品展示组件，支持分类筛选，使用真实数据
  */
 
-import { useState, useMemo } from 'react'
+import { useCallback, useState } from 'react'
 import type { ShopCategoryType } from '@/types/rewards'
-import {
-  Film,
-  Music,
-  ShoppingBag,
-  Bookmark,
-  Smartphone,
-  BookOpen,
-  CupSoda,
-  Palette,
-  Sparkles,
-  Gift,
-  Crown,
-  Zap,
-  Coffee,
-} from '@/components/icons'
-
-/**
- * 商品项接口（前端展示用）
- * @interface ShopItem
- */
-interface ShopItem {
-  id: string
-  name: string
-  points: number
-  category: ShopCategoryType
-  icon: React.ElementType
-  iconColor: string
-  iconBg: string
-}
-
-/**
- * 模拟商品数据
- * @constant mockItems
- */
-const mockItems: ShopItem[] = [
-  // 卡券类
-  { id: '1', name: '咖啡兑换券', points: 200, category: 'card', icon: Coffee, iconColor: 'text-xf-accent', iconBg: 'bg-xf-accent/10' },
-  { id: '2', name: '视频月卡', points: 600, category: 'card', icon: Film, iconColor: 'text-xf-accent', iconBg: 'bg-xf-accent/10' },
-  { id: '3', name: '音乐季卡', points: 800, category: 'card', icon: Music, iconColor: 'text-xf-accent', iconBg: 'bg-xf-accent/10' },
-  // 周边类
-  { id: '4', name: '帆布袋', points: 1200, category: 'merch', icon: ShoppingBag, iconColor: 'text-xf-primary', iconBg: 'bg-xf-primary/10' },
-  { id: '5', name: '金属书签', points: 350, category: 'merch', icon: Bookmark, iconColor: 'text-xf-primary', iconBg: 'bg-xf-primary/10' },
-  { id: '6', name: '手机支架', points: 280, category: 'merch', icon: Smartphone, iconColor: 'text-xf-primary', iconBg: 'bg-xf-primary/10' },
-  // 实体类
-  { id: '7', name: '精装笔记本', points: 900, category: 'physical', icon: BookOpen, iconColor: 'text-xf-info', iconBg: 'bg-xf-info/10' },
-  { id: '8', name: '保温杯', points: 1500, category: 'physical', icon: CupSoda, iconColor: 'text-xf-info', iconBg: 'bg-xf-info/10' },
-  // 皮肤类
-  { id: '9', name: '极简白', points: 500, category: 'skin', icon: Palette, iconColor: 'text-purple-600', iconBg: 'bg-purple-100' },
-  { id: '10', name: '墨韵黑', points: 500, category: 'skin', icon: Palette, iconColor: 'text-gray-700', iconBg: 'bg-gray-200' },
-  { id: '11', name: '樱花粉', points: 600, category: 'skin', icon: Palette, iconColor: 'text-pink-500', iconBg: 'bg-pink-100' },
-  // 抽奖类
-  { id: '12', name: '幸运抽奖', points: 100, category: 'lottery', icon: Sparkles, iconColor: 'text-rose-500', iconBg: 'bg-rose-100' },
-  { id: '13', name: '高级抽奖', points: 500, category: 'lottery', icon: Gift, iconColor: 'text-rose-500', iconBg: 'bg-rose-100' },
-  // 代币类
-  { id: '14', name: '100 灵感币', points: 100, category: 'token', icon: Zap, iconColor: 'text-amber-600', iconBg: 'bg-amber-100' },
-  { id: '15', name: '500 灵感币', points: 450, category: 'token', icon: Zap, iconColor: 'text-amber-600', iconBg: 'bg-amber-100' },
-  { id: '16', name: '月度会员', points: 880, category: 'card', icon: Crown, iconColor: 'text-amber-600', iconBg: 'bg-amber-100' },
-]
+import { useShop } from '../hooks'
+import { usePoints } from '../hooks'
+import { getIconComponent } from '@/components/icons/rewards'
+import { Loader2 } from '@/components/icons'
 
 /**
  * 商品网格Props
@@ -84,57 +30,131 @@ interface ShopFullProps {
  * @returns {JSX.Element} 商品网格
  */
 export function ShopFull({ category, userPoints }: ShopFullProps) {
-  const [items] = useState<ShopItem[]>(mockItems)
-
-  /**
-   * 根据分类筛选商品
-   */
-  const filteredItems = useMemo(() => {
-    if (category === 'all') return items
-    return items.filter((item) => item.category === category)
-  }, [items, category])
+  const { items, isLoading, exchange } = useShop(
+    category === 'all' ? undefined : (category as Exclude<ShopCategoryType, 'all'>)
+  )
+  const { refreshPoints } = usePoints()
+  const [exchangingId, setExchangingId] = useState<string | null>(null)
 
   /**
    * 处理兑换按钮点击
+   * @param {string} itemId - 商品ID
    * @param {string} itemName - 商品名称
    * @param {number} points - 所需积分
    */
-  const handleExchange = (itemName: string, points: number) => {
-    if (userPoints >= points) {
-      alert(`兑换成功：${itemName}，消耗 ${points} 积分`)
-    } else {
-      alert(`积分不足，还需 ${points - userPoints} 积分`)
-    }
+  const handleExchange = useCallback(
+    async (itemId: string, itemName: string, points: number) => {
+      if (userPoints < points) {
+        alert('积分不足')
+        return
+      }
+
+      // 确认兑换
+      if (!confirm(`确认兑换 ${itemName}？\n将消耗 ${points} 积分`)) {
+        return
+      }
+
+      setExchangingId(itemId)
+      try {
+        const result = await exchange(itemId, 1)
+        if (result.success) {
+          alert(`兑换成功！\n${itemName}\n消耗 ${result.pointsSpent} 积分\n剩余 ${result.remainingPoints} 积分`)
+          // 刷新积分
+          await refreshPoints()
+        } else {
+          alert(result.error || '兑换失败')
+        }
+      } catch {
+        alert('兑换失败，请重试')
+      } finally {
+        setExchangingId(null)
+      }
+    },
+    [userPoints, exchange, refreshPoints]
+  )
+
+  // 加载状态
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="card-bg rounded-xl p-4 animate-pulse"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-200 mx-auto" />
+            <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto mt-3" />
+            <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto mt-1" />
+            <div className="h-8 bg-gray-200 rounded w-full mx-auto mt-3" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // 空状态
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-12 text-xf-primary">
+        <div className="text-4xl mb-2">🛍️</div>
+        <div className="text-sm">暂无商品</div>
+        <div className="text-xs mt-1 opacity-60">该分类下暂时没有商品</div>
+      </div>
+    )
   }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      {filteredItems.map((item) => {
-        const Icon = item.icon
-        const canAfford = userPoints >= item.points
+      {items.map((item) => {
+        const Icon = getIconComponent(item.icon_name)
+        const canAfford = userPoints >= item.points_price
+        const isExchanging = exchangingId === item.id
 
         return (
           <div
             key={item.id}
             className="card-bg rounded-xl p-4 border border-transparent hover:border-xf-primary/30 cursor-pointer text-center transition-all hover:-translate-y-1"
           >
-            <div className={`w-10 h-10 rounded-full ${item.iconBg} flex items-center justify-center mx-auto`}>
-              <Icon className={`w-5 h-5 ${item.iconColor}`} />
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto"
+              style={{ backgroundColor: item.icon_color + '20' }}
+            >
+              <Icon
+                className="w-6 h-6"
+                style={{ color: item.icon_color }}
+              />
             </div>
-            <div className="font-medium text-sm mt-3 text-xf-dark">{item.name}</div>
-            <div className="text-xf-accent font-bold text-base mt-1">{item.points}</div>
+            <div className="font-medium text-sm mt-3 text-xf-dark">
+              {item.name}
+            </div>
+            <div className="text-xf-accent font-bold text-base mt-1">
+              {item.points_price} 积分
+            </div>
+            {/* 库存提示 */}
+            {item.stock >= 0 && item.stock < 10 && (
+              <div className="text-xs text-rose-500 mt-1">
+                仅剩 {item.stock} 件
+              </div>
+            )}
             <button
-              onClick={() => handleExchange(item.name, item.points)}
-              disabled={!canAfford}
+              onClick={() => handleExchange(item.id, item.name, item.points_price)}
+              disabled={!canAfford || isExchanging}
               className={`
-                mt-3 w-full text-xs py-2 rounded-full transition
+                mt-3 w-full text-xs py-2 rounded-full transition flex items-center justify-center gap-1
                 ${canAfford
                   ? 'bg-white border border-xf-primary/30 text-xf-primary hover:bg-xf-primary hover:text-white'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                 }
               `}
             >
-              {canAfford ? '兑换' : '积分不足'}
+              {isExchanging ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  兑换中...
+                </>
+              ) : (
+                canAfford ? '兑换' : '积分不足'
+              )}
             </button>
           </div>
         )

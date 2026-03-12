@@ -24,7 +24,6 @@ export function RwClient() {
     isSigned,
     consecutiveDays,
     rewardsConfig,
-    isLoading: isSignInLoading,
     isSigning,
     signResult,
     handleSignIn,
@@ -32,7 +31,6 @@ export function RwClient() {
 
   const {
     overview,
-    isLoading: isPointsLoading,
     isValidating: isPointsValidating,
     refreshPoints,
   } = usePoints()
@@ -52,9 +50,7 @@ export function RwClient() {
     current: overview?.current_points || 0,
     earned: overview?.total_earned || 0,
     spent: overview?.total_spent || 0,
-    // 骨架屏条件：无数据且正在加载（有缓存时 overview 有值，不会显示骨架屏）
-    showLoading: !overview && isPointsLoading,
-  }), [overview, isPointsLoading])
+  }), [overview])
 
   return (
     <div className="max-w-6xl mx-auto fade-in-up px-6 md:px-10 pt-8 pb-12">
@@ -70,7 +66,6 @@ export function RwClient() {
           points={pointsData.current}
           totalEarned={pointsData.earned}
           totalSpent={pointsData.spent}
-          isLoading={pointsData.showLoading}
           isValidating={isPointsValidating}
         />
       </div>

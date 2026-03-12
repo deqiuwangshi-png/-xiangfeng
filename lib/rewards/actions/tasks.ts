@@ -154,8 +154,8 @@ export async function updateTaskProgress(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
-  // 调用数据库函数更新任务进度
-  const { error } = await supabase.rpc('update_task_progress', {
+  // 调用安全进度更新函数（带参数校验和增量限制）
+  const { error } = await supabase.rpc('safe_update_task_prog', {
     p_user_id: user.id,
     p_task_type: taskType,
     p_increment: increment,
@@ -182,8 +182,8 @@ export async function claimTaskReward(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '请先登录' }
 
-  // 调用数据库函数领取奖励
-  const { data, error } = await supabase.rpc('claim_task_reward', {
+  // 调用安全领取函数（带并发保护）
+  const { data, error } = await supabase.rpc('safe_claim_task_reward', {
     p_user_id: user.id,
     p_task_id: taskId,
   })
@@ -193,7 +193,13 @@ export async function claimTaskReward(
     return { success: false, error: error.message }
   }
 
-  return { success: true, points: data }
+  // 解析返回的 JSON 结果
+  const result = data as { success: boolean; points?: number; error?: string }
+  if (!result.success) {
+    return { success: false, error: result.error || '领取失败' }
+  }
+
+  return { success: true, points: result.points }
 }
 
 /**
@@ -296,4 +302,106 @@ export async function checkFollowUserTask(): Promise<void> {
  */
 export async function checkCollectArticleTask(): Promise<void> {
   await updateTaskProgress('collect_article')
+}
+
+// ============================================
+// 任务接取功能
+// ============================================
+
+/**
+ * 接取任务
+ * @param {string} taskId - 任务ID
+ * @returns {Promise<{success: boolean; error?: string}>} 接取结果
+ */
+export async function acceptTask(
+  taskId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: '请先登录' }
+
+  // 获取任务信息
+  const { data: task, error: taskError } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('id', taskId)
+    .single()
+
+  if (taskError || !task) {
+    return { success: false, error: '任务不存在' }
+  }
+
+  // 计算周期
+  const now = new Date()
+  let periodStart: string | null = null
+  let periodEnd: string | null = null
+
+  switch (task.category) {
+    case 'daily':
+      periodStart = now.toISOString().split('T')[0]
+      periodEnd = periodStart
+      break
+    case 'weekly': {
+      const day = now.getDay()
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1)
+      const monday = new Date(now.setDate(diff))
+      const sunday = new Date(monday)
+      sunday.setDate(monday.getDate() + 6)
+      periodStart = monday.toISOString().split('T')[0]
+      periodEnd = sunday.toISOString().split('T')[0]
+      break
+    }
+    case 'monthly':
+      periodStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+      periodEnd = lastDay.toISOString().split('T')[0]
+      break
+    default:
+      periodStart = null
+      periodEnd = null
+  }
+
+  // 检查是否已接取
+  const { data: existing } = await supabase
+    .from('user_task_records')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('task_id', taskId)
+    .eq('period_start', periodStart)
+    .single()
+
+  if (existing) {
+    return { success: false, error: '已接取该任务' }
+  }
+
+  // 检查进行中的任务数量（限制5个）
+  const { count: activeCount } = await supabase
+    .from('user_task_records')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'in_progress')
+
+  if (activeCount && activeCount >= 5) {
+    return { success: false, error: '最多同时接取5个任务' }
+  }
+
+  // 创建任务记录
+  const { error: insertError } = await supabase.from('user_task_records').insert({
+    user_id: user.id,
+    task_id: taskId,
+    current_progress: 0,
+    target_progress: task.target_count,
+    status: 'in_progress',
+    started_at: new Date().toISOString(),
+    period_start: periodStart,
+    period_end: periodEnd,
+  })
+
+  if (insertError) {
+    console.error('接取任务失败:', insertError)
+    return { success: false, error: '接取失败，请重试' }
+  }
+
+  return { success: true }
 }
