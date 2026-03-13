@@ -42,7 +42,7 @@ export default function AboutPage() {
                     />
                   </div>
                 </div>
-                <h2 className="text-3xl font-serif font-bold text-xf-dark text-center">Ling 子川</h2>
+                <h2 className="text-3xl font-serif font-bold text-xf-dark text-center">地球-世界玩家</h2>
                 <p className="text-xf-accent text-center mt-1">全栈开发 · 理念驱动</p>
                 {/* 社交图标 */}
                 <div className="flex justify-center gap-4 my-5">
@@ -58,14 +58,6 @@ export default function AboutPage() {
                 </div>
                 <div className="border-t border-slate-100 pt-6 text-center">
                   <p className="text-xf-medium text-sm italic">&ldquo;代码是思考的延伸，社区是思想的共鸣&rdquo;</p>
-                  <div className="mt-6 flex flex-col gap-3">
-                    <a href="mailto:ling@xiangfeng.space" className="w-full py-3 bg-xf-info/10 text-xf-info rounded-xl font-medium border border-xf-info/20 hover:bg-xf-info hover:text-white transition-colors block text-center">
-                      邮件联系
-                    </a>
-                    <Link href="/login" className="w-full py-3 bg-xf-primary text-white rounded-xl font-medium hover:bg-xf-accent transition-colors block text-center">
-                      加入相逢
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
@@ -163,7 +155,7 @@ export default function AboutPage() {
               <p className="text-slate-300 mb-8 max-w-lg">无论你是创作者、读者，还是对独立开发感兴趣的朋友，这里都有一席之地。</p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/login" className="px-8 py-3 bg-white text-xf-dark rounded-xl font-semibold hover:bg-slate-100 transition-colors shadow-lg">
-                  成为早期成员
+                  加入相逢
                 </Link>
                 <a href="mailto:ling@xiangfeng.space" className="px-8 py-3 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
                   给开发者写信

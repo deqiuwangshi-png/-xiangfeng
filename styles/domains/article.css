@@ -211,13 +211,14 @@ body {
   text-indent: 2em;
 }
 
-.reading-mode p:first-of-type {
+/* 首字下沉效果 - 只应用于第一个段落 */
+.reading-mode > p:first-of-type {
   text-indent: 0;
   font-size: 1.2rem;
   color: #4b5563;
 }
 
-.reading-mode p:first-of-type::first-letter {
+.reading-mode > p:first-of-type::first-letter {
   font-size: 3.5rem;
   font-weight: 700;
   color: var(--color-xf-primary);
