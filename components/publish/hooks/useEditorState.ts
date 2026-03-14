@@ -14,6 +14,13 @@ export interface EditorState {
   isPublishing: boolean
 }
 
+const getTextLength = (html: string): number => {
+  if (!html) return 0
+  const withoutTags = html.replace(/<[^>]*>/g, '')
+  const withoutEntities = withoutTags.replace(/&nbsp;|&#160;/g, ' ')
+  return withoutEntities.trim().length
+}
+
 /**
  * 编辑器状态管理 Hook
  * 
@@ -26,7 +33,7 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
     title: initialTitle,
     content: initialContent,
     titleLength: initialTitle.length,
-    contentLength: initialContent.length,
+    contentLength: getTextLength(initialContent),
     isFullscreen: false,
     isToolbarCollapsed: false,
     draftId: initialDraftId,
@@ -39,7 +46,11 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
   }
 
   const updateContent = (content: string) => {
-    setEditorState(prev => ({ ...prev, content, contentLength: content.length }))
+    setEditorState(prev => ({
+      ...prev,
+      content,
+      contentLength: getTextLength(content),
+    }))
   }
 
   const toggleFullscreen = () => {

@@ -38,10 +38,10 @@ const categoryConfig: Record<TaskCategoryType, string> = {
  */
 export function TaskClient() {
   const [activeCategory, setActiveCategory] = useState<TaskCategoryType>('all')
-  
+
   const { overview, isLoading } = usePoints()
-  
-  {/* 有缓存数据时立即显示，无需等待loading */}
+
+  // 有缓存数据时立即显示，无需等待loading
   const currentPoints = overview?.current_points ?? 0
   const displayPoints = overview ? currentPoints : isLoading ? '-' : '0'
 

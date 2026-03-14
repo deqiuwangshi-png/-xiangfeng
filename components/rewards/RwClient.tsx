@@ -45,7 +45,7 @@ export function RwClient() {
     }
   }, [signResult, refreshPoints])
 
-  {/* 使用 useMemo 缓存积分数据，避免每次渲染创建新对象导致子组件重渲染 */}
+  // 使用 useMemo 缓存积分数据，避免每次渲染创建新对象导致子组件重渲染
   const pointsData = useMemo(() => ({
     current: overview?.current_points || 0,
     earned: overview?.total_earned || 0,

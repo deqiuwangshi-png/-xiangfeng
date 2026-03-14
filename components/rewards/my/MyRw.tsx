@@ -91,7 +91,7 @@ const statusConfig: Record<
  * @returns {Object} 状态显示配置
  */
 function getStatusConfig(status: ExchangeStatus) {
-  {/* pending 和 processing 统一显示为"准备中" */}
+  // pending 和 processing 统一显示为"准备中"
   if (status === 'pending' || status === 'processing') {
     return { label: '准备中', bgColor: 'bg-amber-100', textColor: 'text-amber-700' }
   }
@@ -139,11 +139,11 @@ export function MyRw() {
     async function loadRecords() {
       try {
         setIsLoading(true)
-        {/* 只获取最新的4条记录用于首页展示 */}
+        // 只获取最新的4条记录用于首页展示
         const data = await getExchangeRecords({ limit: 4 })
         setRecords(data)
 
-        {/* 获取商品详情 */}
+        // 获取商品详情
         if (data.length > 0) {
           const supabase = (await import('@/lib/supabase/client')).createClient()
           const itemIds = [...new Set(data.map((r) => r.item_id))]

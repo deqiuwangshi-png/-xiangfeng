@@ -13,7 +13,7 @@ import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Quote, Code,
   Link, List, ListOrdered, Minus, Eraser, Undo, Redo,
-  ArrowUpToLine, Maximize, ChevronDown
+  ArrowUpToLine, ChevronDown
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
 import { HeadingSelect } from './HeadingSelect'
@@ -31,7 +31,6 @@ interface EditorToolbarProps {
 export function EditorToolbar({
   editor,
   onFocusTitle,
-  onToggleFullscreen,
   onToggleToolbar,
   isCollapsed,
   onShowLinkBubble,
@@ -117,8 +116,10 @@ export function EditorToolbar({
   return (
     <div
       ref={toolbarRef}
-      className={`fixed bottom-8 bg-white/95 rounded-xl py-4 px-6 shadow-lg flex items-center gap-2 z-50 border border-xf-primary/8 backdrop-blur-md transition-all min-w-[min(90%,800px)] justify-center ${
-        isCollapsed ? 'py-2 px-4 opacity-70 scale-95 hover:opacity-100 hover:scale-100' : ''
+      className={`fixed bottom-8 bg-white/95 shadow-lg flex items-center gap-2 z-50 border border-xf-primary/8 backdrop-blur-md transition-all justify-center ${
+        isCollapsed
+          ? 'rounded-full p-2 min-w-0 opacity-80 hover:opacity-100'
+          : 'rounded-xl py-4 px-6 min-w-[min(90%,800px)]'
       }`}
     >
       {/* 格式化工具组 */}
@@ -225,23 +226,19 @@ export function EditorToolbar({
 
       {/* 视图工具组 */}
       <div className="flex gap-1 items-center">
-        <ToolbarButton
-          icon={ArrowUpToLine}
-          tooltip="跳转到标题"
-          onClick={onFocusTitle}
-          title="跳转到标题"
-        />
-        <ToolbarButton
-          icon={Maximize}
-          tooltip={isCollapsed ? '展开' : '全屏'}
-          onClick={onToggleFullscreen}
-          title="全屏编辑 (F11)"
-        />
+        {!isCollapsed && (
+          <ToolbarButton
+            icon={ArrowUpToLine}
+            tooltip="跳转到标题"
+            onClick={onFocusTitle}
+            title="跳转到标题"
+          />
+        )}
         <ToolbarButton
           icon={ChevronDown}
-          tooltip={isCollapsed ? '展开' : '收起'}
+          tooltip={isCollapsed ? '展开工具栏' : '收起工具栏'}
           onClick={onToggleToolbar}
-          title="收起工具栏"
+          title={isCollapsed ? '展开工具栏' : '收起工具栏'}
         />
       </div>
     </div>

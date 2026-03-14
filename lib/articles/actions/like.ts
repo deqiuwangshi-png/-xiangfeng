@@ -52,7 +52,7 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
   const supabase = await createClient();
 
   try {
-    {/* 1. 获取当前登录用户 */}
+    // 1. 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -61,7 +61,7 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
 
     let liked = false;
 
-    {/* 2. 尝试插入点赞 - 利用唯一约束防重 */}
+    // 2. 尝试插入点赞 - 利用唯一约束防重
     const { error: insertError } = await supabase
       .from('article_likes')
       .insert({
@@ -70,7 +70,7 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
       });
 
     if (insertError) {
-      {/* 唯一约束冲突 (23505) = 已点赞，取消点赞 */}
+      // 唯一约束冲突 (23505) = 已点赞，取消点赞
       if (insertError.code === '23505') {
         const { error: deleteError } = await supabase
           .from('article_likes')
@@ -128,7 +128,7 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
   const supabase = await createClient();
 
   try {
-    {/* 1. 获取当前登录用户 */}
+    // 1. 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -137,7 +137,7 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
 
     let liked = false;
 
-    {/* 2. 尝试插入点赞 - 利用唯一约束防重 */}
+    // 2. 尝试插入点赞 - 利用唯一约束防重
     const { error: insertError } = await supabase
       .from('comment_likes')
       .insert({
@@ -146,7 +146,7 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
       });
 
     if (insertError) {
-      {/* 唯一约束冲突 (23505) = 已点赞，取消点赞 */}
+      // 唯一约束冲突 (23505) = 已点赞，取消点赞
       if (insertError.code === '23505') {
         const { error: deleteError } = await supabase
           .from('comment_likes')
@@ -164,15 +164,15 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
         return { success: false, liked: false, likes: 0, error: '操作失败' };
       }
     } else {
-      {/* 插入成功 = 新点赞 */}
+      // 插入成功 = 新点赞
       liked = true;
-      {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
+      // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
     }
 
-    {/* 4. 等待触发器完成（100ms） */}
+    // 4. 等待触发器完成（100ms）
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    {/* 5. 获取最新的点赞数 */}
+    // 5. 获取最新的点赞数
     const { data: comment } = await supabase
       .from('comments')
       .select('like_count')
@@ -190,4 +190,4 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
   }
 }
 
-{/* 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql */}
+// 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql

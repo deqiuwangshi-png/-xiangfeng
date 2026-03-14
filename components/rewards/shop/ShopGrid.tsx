@@ -29,33 +29,21 @@ export function ShopGrid() {
 
   /**
    * 处理兑换商品
+   * 当前阶段仅提示「敬请期待」，不实际发起兑换请求
    * @param {string} itemId - 商品ID
    * @param {number} points - 所需积分
    */
   const handleExchange = useCallback(
     async (itemId: string, points: number) => {
+      // 兑换功能暂未开放，仅做提示，避免调用未对接的后端流程
       if (userPoints < points) {
         toast.error('积分不足')
         return
       }
 
-      setExchangingId(itemId)
-      try {
-        const result = await exchange(itemId, 1)
-        if (result.success) {
-          toast.success(`兑换成功！消耗 ${result.pointsSpent} 积分`)
-          // 刷新积分显示
-          await refreshPoints()
-        } else {
-          toast.error(result.error || '兑换失败')
-        }
-      } catch {
-        toast.error('兑换失败，请重试')
-      } finally {
-        setExchangingId(null)
-      }
+      toast.info('兑换功能即将上线，当前暂不可用')
     },
-    [userPoints, exchange, refreshPoints]
+    [userPoints]
   )
 
   // 加载状态

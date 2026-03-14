@@ -87,6 +87,7 @@ export default function DynamicEditor({
           isMounted={isMounted}
           showLinkBubble={showLinkBubble}
           onCloseLinkBubble={() => setShowLinkBubble(false)}
+          onPlaceholderClick={focusTitle}
         />
       </div>
 

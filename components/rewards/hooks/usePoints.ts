@@ -54,7 +54,7 @@ const fetchTransactions = async (): Promise<PointTransaction[]> => {
  * @returns {UsePointsReturn} 积分状态和操作
  */
 export function usePoints(): UsePointsReturn {
-  {/* 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取 */}
+  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取
   const {
     data: overview,
     error: overviewError,
@@ -69,7 +69,7 @@ export function usePoints(): UsePointsReturn {
     revalidateOnMount: true,
   })
 
-  {/* 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新 */}
+  // 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新
   const {
     data: transactions = [],
     error: transactionsError,
@@ -84,7 +84,7 @@ export function usePoints(): UsePointsReturn {
     revalidateOnMount: true,
   })
 
-  {/* 加载更多流水的偏移量 */}
+  // 加载更多流水的偏移量
   const [offset, setOffset] = useState(20)
 
   /**
@@ -124,7 +124,7 @@ export function usePoints(): UsePointsReturn {
     }
   }, [offset, mutateTransactions])
 
-  {/* 监听积分更新事件 */}
+  // 监听积分更新事件
   useEffect(() => {
     const handlePointsUpdate = () => {
       refreshPoints()
@@ -136,7 +136,7 @@ export function usePoints(): UsePointsReturn {
     }
   }, [refreshPoints])
 
-  {/* 错误处理 */}
+  // 错误处理
   if (overviewError) {
     console.error('[usePoints] 获取积分总览失败:', overviewError)
   }

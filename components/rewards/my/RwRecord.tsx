@@ -160,7 +160,7 @@ export function RwRecord() {
         const data = await getExchangeRecords({ limit: 50 })
         setRecords(data)
 
-        {/* 获取商品详情用于显示名称和图标 */}
+        // 获取商品详情用于显示名称和图标
         const supabase = (await import('@/lib/supabase/client')).createClient()
         const itemIds = [...new Set(data.map((r) => r.item_id))]
 

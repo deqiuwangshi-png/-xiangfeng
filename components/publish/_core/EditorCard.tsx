@@ -28,10 +28,12 @@ interface EditorCardProps {
   isMounted: boolean
   showLinkBubble?: boolean
   onCloseLinkBubble?: () => void
+  /** 点击占位区域时的回调，用于引导用户开始输入 */
+  onPlaceholderClick?: () => void
 }
 
 export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
-  ({ title, onTitleChange, titleRef, titleLength, contentLength, editor, isMounted, showLinkBubble, onCloseLinkBubble }, ref) => {
+  ({ title, onTitleChange, titleRef, titleLength, contentLength, editor, isMounted, showLinkBubble, onCloseLinkBubble, onPlaceholderClick }, ref) => {
     return (
       <div
         ref={ref}
@@ -54,8 +56,11 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
 
           {!isMounted ? (
             // SSR 占位，避免水合错误
-            <div className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg">
-              <span className="opacity-30 italic">开始书写你的故事...（支持Markdown格式）</span>
+            <div
+              className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg cursor-text"
+              onClick={onPlaceholderClick}
+            >
+              <span className="opacity-30 italic">点击这里开始书写你的故事...（支持Markdown格式）</span>
             </div>
           ) : (
             <>

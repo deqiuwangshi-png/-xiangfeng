@@ -106,10 +106,10 @@ const doSignIn = async (): Promise<SignInResponse> => {
  * @returns {UseSignInReturn} 签到状态和操作
  */
 export function useSignIn(): UseSignInReturn {
-  {/* 获取 SWR 配置用于刷新其他缓存 */}
+  // 获取 SWR 配置用于刷新其他缓存
   const { mutate: globalMutate } = useSWRConfig()
 
-  {/* 使用 SWR 获取签到状态 - 10秒去重，挂载时自动获取 */}
+  // 使用 SWR 获取签到状态 - 10秒去重，挂载时自动获取
   const {
     data: signInStatus,
     error: statusError,
@@ -124,7 +124,7 @@ export function useSignIn(): UseSignInReturn {
     revalidateOnMount: true,
   })
 
-  {/* 使用 SWR 获取奖励配置 - 5分钟缓存，保持旧数据，切换页面不重新获取 */}
+  // 使用 SWR 获取奖励配置 - 5分钟缓存，保持旧数据，切换页面不重新获取
   const {
     data: rewardsConfig = [],
     error: configError,
@@ -138,7 +138,7 @@ export function useSignIn(): UseSignInReturn {
     revalidateOnMount: false,
   })
 
-  {/* 签到操作状态 */}
+  // 签到操作状态
   const [isSigning, setIsSigning] = useState(false)
   const [signResult, setSignResult] = useState<SignInResponse | null>(null)
 
@@ -155,7 +155,7 @@ export function useSignIn(): UseSignInReturn {
       setSignResult(result)
 
       if (result.success) {
-        {/* 乐观更新签到状态缓存 */}
+        // 乐观更新签到状态缓存
         await mutateStatus(
           {
             hasSigned: true,
@@ -164,10 +164,10 @@ export function useSignIn(): UseSignInReturn {
           false
         )
 
-        {/* 刷新积分数据缓存（签到获得积分） */}
+        // 刷新积分数据缓存（签到获得积分）
         await globalMutate('user-points-overview', undefined, { revalidate: true })
       } else {
-        {/* 签到失败时重新验证状态 */}
+        // 签到失败时重新验证状态
         await mutateStatus()
       }
     } catch (error) {
@@ -185,7 +185,7 @@ export function useSignIn(): UseSignInReturn {
     await mutateStatus()
   }, [mutateStatus])
 
-  {/* 错误处理 */}
+  // 错误处理
   if (statusError) {
     console.error('[useSignIn] 获取签到状态失败:', statusError)
   }
