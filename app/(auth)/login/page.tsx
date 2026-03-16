@@ -4,8 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthToast } from '@/hooks/useAuthToast';
-import { login } from '@/lib/auth';
 import { checkRateLimit, resetRateLimit } from '@/lib/security/rateLimit';
+import { createClient } from '@/lib/supabase/client'
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
@@ -86,14 +86,24 @@ function LoginForm() {
     {/* 显示加载中 */}
     const toastId = showLoading('登录中...');
 
-    {/* 调用Server Action */}
-    const result = await login(formData);
+    const email = String(formData.get('email') || '')
+    const password = String(formData.get('password') || '')
 
-    if (!result.success) {
-      dismiss(toastId);
-      showError(result.error || '登录失败');
-      setIsLoading(false);
-      return;
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (error) {
+        dismiss(toastId)
+        showError(error.message || '登录失败')
+        setIsLoading(false)
+        return
+      }
+    } catch (err) {
+      dismiss(toastId)
+      showError(err instanceof Error ? err.message : '登录失败')
+      setIsLoading(false)
+      return
     }
 
     {/* 登录成功，重置限流 */}
@@ -102,7 +112,7 @@ function LoginForm() {
     {/* 登录成功 - 登录页无toast，直接跳转 */}
     dismiss(toastId);
     router.refresh();
-    router.push(result.redirectTo || '/home');
+    router.push(redirectTo || '/home');
   }
 
   return (

@@ -86,7 +86,7 @@ export function TaskBoard() {
   const handleClaimReward = async (taskId: string) => {
     const result = await claimReward(taskId)
     if (result.success) {
-      console.log('领取成功，获得积分:', result.points)
+      toast.success(`领取成功，获得积分: ${result.points}`)
     } else {
       console.error('领取失败:', result.error)
     }

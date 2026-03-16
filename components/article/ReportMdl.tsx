@@ -48,7 +48,9 @@ interface ReportMdlProps {
  * - 提交举报请求
  * - 显示提交结果
  */
-export function ReportMdl({ articleId, authorId, onClose }: ReportMdlProps) {
+export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose }: ReportMdlProps) {
+  void _articleId
+  void _authorId
   const [selectedType, setSelectedType] = useState('')
   const [reason, setReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -67,13 +69,6 @@ export function ReportMdl({ articleId, authorId, onClose }: ReportMdlProps) {
     setIsSubmitting(true)
 
     // 【待实现】调用举报API
-    console.log('举报提交:', {
-      articleId,
-      authorId,
-      type: selectedType,
-      reason,
-    })
-
     // 模拟提交延迟
     await new Promise((resolve) => setTimeout(resolve, 500))
 

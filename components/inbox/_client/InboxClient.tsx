@@ -10,11 +10,21 @@ import { DeleteConfirmDialog } from '../_dialog/DelConfirmDlg'
 import { useInbox } from '@/hooks/useInbox'
 
 /**
+ * 消息页客户端组件属性接口
+ * @interface InboxClientProps
+ * @property {string} userId - 当前用户ID（从服务端传入）
+ */
+interface InboxClientProps {
+  userId: string
+}
+
+/**
  * 消息页客户端组件
  * @description 仅负责渲染，状态逻辑由 useInbox 管理，支持单条和批量删除
+ * @param {InboxClientProps} props - 组件属性，包含从服务端传入的用户ID
  * @returns {JSX.Element} 消息页JSX
  */
-export function InboxClient() {
+export function InboxClient({ userId }: InboxClientProps) {
   const {
     activeFilter,
     setActiveFilter,
@@ -31,7 +41,7 @@ export function InboxClient() {
     selectNotification,
     deleteNotification,
     batchDeleteNotifications,
-  } = useInbox()
+  } = useInbox(userId)
 
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false)
 

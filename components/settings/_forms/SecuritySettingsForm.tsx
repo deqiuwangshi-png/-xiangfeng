@@ -71,7 +71,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
       // 本地验证密码强度
       const passwordCheck = validatePassword(passwordData.newPassword)
       if (!passwordCheck.valid) {
-        setError(passwordCheck.message)
+        setError(passwordCheck.message ?? '密码不符合安全要求')
         setIsLoading(false)
         return
       }

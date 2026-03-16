@@ -10,22 +10,22 @@ import {
   notificationIconMap,
   NotificationWithIcon,
 } from '@/types/notification'
+import {
+  batchDeleteNotifications as batchDeleteNotificationsAction,
+  deleteNotification as deleteNotificationAction,
+  fetchNotificationsPage,
+  fetchUnreadCount as fetchUnreadCountAction,
+  markAllAsRead as markAllAsReadAction,
+  markAsRead as markAsReadAction,
+  type NotificationRow,
+} from '@/lib/notifications/actions'
 
 /**
  * Supabase通知原始数据接口
  * @interface SupabaseNotification
  * @description 对应数据库 notifications 表结构
  */
-interface SupabaseNotification {
-  id: string
-  type: 'article_liked' | 'comment_liked' | 'article_commented' | 'comment_replied' | 'article_favorited' | 'followed' | 'mention' | 'system' | 'announcement'
-  title: string
-  content: string | null
-  actor_id: string | null
-  actor?: { username: string } | null
-  is_read: boolean
-  created_at: string
-}
+type SupabaseNotification = NotificationRow
 
 /**
  * 从Supabase通知数据转换为前端格式
@@ -33,12 +33,19 @@ interface SupabaseNotification {
  * @returns 前端NotificationData格式
  */
 function formatNotification(raw: SupabaseNotification): NotificationData & { createdAt: string } {
+  const actorUsername =
+    !raw.actor
+      ? null
+      : Array.isArray(raw.actor)
+        ? raw.actor[0]?.username
+        : raw.actor.username
+
   return {
     id: raw.id,
     type: raw.type,
     title: raw.title,
     message: raw.content || '',
-    user: raw.actor?.username || '未知用户',
+    user: actorUsername || '未知用户',
     time: formatTime(raw.created_at),
     unread: !raw.is_read,
     createdAt: raw.created_at,
@@ -71,10 +78,10 @@ function formatTime(dateString: string): string {
 /**
  * 消息页面状态管理 Hook
  * @description 管理通知数据、筛选状态和操作逻辑，支持Supabase实时订阅
+ * @param {string} userId - 当前用户ID（从服务端传入）
  * @returns {Object} 通知状态和方法
  */
-export function useInbox() {
-  const supabase = createClient()
+export function useInbox(userId: string) {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all')
   const [notifications, setNotifications] = useState<NotificationData[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -88,22 +95,16 @@ export function useInbox() {
 
   /**
    * 获取未读消息数量
-   * @param userId - 用户ID
+   * @param uid - 用户ID
    */
-  const fetchUnreadCount = useCallback(async (userId: string) => {
-    const { count, error } = await supabase
-      .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('is_read', false)
-
-    if (error) {
-      console.error('获取未读数失败:', error)
-      return
+  const fetchUnreadCount = useCallback(async (uid: string) => {
+    try {
+      const count = await fetchUnreadCountAction({ userId: uid })
+      setUnreadCount(count)
+    } catch (err) {
+      console.error('获取未读数失败:', err)
     }
-
-    setUnreadCount(count || 0)
-  }, [supabase])
+  }, [])
 
   /**
    * 获取通知列表
@@ -112,26 +113,27 @@ export function useInbox() {
   const fetchNotifications = useCallback(async (isLoadMore = false) => {
     setIsLoading(true)
 
-    const currentPage = isLoadMore ? page + 1 : 1
-    const from = (currentPage - 1) * PAGE_SIZE
-    const to = from + PAGE_SIZE - 1
-
-    const { data, error } = await supabase
-      .from('notifications')
-      .select(`
-        *,
-        actor:profiles!actor_id(username)
-      `)
-      .order('created_at', { ascending: false })
-      .range(from, to)
-
-    if (error) {
-      console.error('获取通知失败:', error)
+    if (!userId) {
       setIsLoading(false)
       return
     }
 
-    const formatted = (data as SupabaseNotification[]).map(formatNotification)
+    const currentPage = isLoadMore ? page + 1 : 1
+
+    let rows: SupabaseNotification[] = []
+    try {
+      rows = await fetchNotificationsPage({
+        userId,
+        page: currentPage,
+        pageSize: PAGE_SIZE,
+      })
+    } catch (err) {
+      console.error('获取通知失败:', err)
+      setIsLoading(false)
+      return
+    }
+
+    const formatted = rows.map(formatNotification)
 
     if (isLoadMore) {
       setNotifications(prev => [...prev, ...formatted])
@@ -139,16 +141,12 @@ export function useInbox() {
     } else {
       setNotifications(formatted)
       setPage(1)
-      // 初始加载时同步未读数
-      const { data: userData } = await supabase.auth.getUser()
-      if (userData.user) {
-        await fetchUnreadCount(userData.user.id)
-      }
+      await fetchUnreadCount(userId)
     }
 
     setHasMore(formatted.length === PAGE_SIZE)
     setIsLoading(false)
-  }, [supabase, page, fetchUnreadCount])
+  }, [page, fetchUnreadCount, userId])
 
   /**
    * 初始加载数据
@@ -163,18 +161,59 @@ export function useInbox() {
     }
   }, [fetchNotifications])
 
+  const refreshSilently = useCallback(async () => {
+    if (!userId) return
+
+    try {
+      const [rows, unread] = await Promise.all([
+        fetchNotificationsPage({ userId, page: 1, pageSize: PAGE_SIZE }),
+        fetchUnreadCountAction({ userId }),
+      ])
+
+      const formatted = rows.map(formatNotification)
+      setNotifications(formatted)
+      setUnreadCount(unread)
+      setHasMore(formatted.length === PAGE_SIZE)
+      setPage(1)
+    } catch (err) {
+      console.error('刷新通知失败:', err)
+    }
+  }, [userId])
+
   /**
-   * 实时订阅新通知
-   * @description 使用用户特定的channel名，并过滤当前用户的消息
+   * Realtime 优先：客户端有 session 则订阅 postgres_changes。
+   * 否则降级为轮询（例如仅使用服务端会话、客户端无 JWT 时）。
    */
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null
+    if (!userId) return
 
-    const setupSubscription = async () => {
-      const { data: userData } = await supabase.auth.getUser()
-      const userId = userData.user?.id
+    let channel: ReturnType<ReturnType<typeof createClient>['channel']> | null = null
+    let pollId: number | null = null
+    let cancelled = false
 
-      if (!userId) return
+    const supabase = createClient()
+
+    const startPolling = () => {
+      // 首次进入：放到微任务中执行，避免在 effect body 同步触发 setState 警告
+      queueMicrotask(() => {
+        void refreshSilently()
+      })
+
+      pollId = window.setInterval(() => {
+        if (!isLoading && !isBatchMode) {
+          void refreshSilently()
+        }
+      }, 15000)
+    }
+
+    const setup = async () => {
+      const { data } = await supabase.auth.getSession()
+      const hasSession = Boolean(data.session)
+
+      if (!hasSession) {
+        startPolling()
+        return
+      }
 
       channel = supabase
         .channel(`notifications:${userId}`)
@@ -186,10 +225,8 @@ export function useInbox() {
             table: 'notifications',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
-            const newNotification = formatNotification(payload.new as SupabaseNotification)
-            setNotifications(prev => [newNotification, ...prev])
-            setUnreadCount(prev => prev + 1)
+          () => {
+            if (!cancelled) void refreshSilently()
           }
         )
         .on(
@@ -200,26 +237,34 @@ export function useInbox() {
             table: 'notifications',
             filter: `user_id=eq.${userId}`,
           },
-          (payload) => {
-            const updated = payload.new as SupabaseNotification
-            const old = payload.old as SupabaseNotification
-
-            if (!old.is_read && updated.is_read) {
-              setUnreadCount(prev => Math.max(0, prev - 1))
-            }
+          () => {
+            if (!cancelled) void refreshSilently()
           }
         )
-        .subscribe()
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            // Realtime 失败就降级轮询，保证功能可用
+            if (!cancelled) startPolling()
+          }
+        })
     }
 
-    setupSubscription()
+    void setup()
 
-    return () => {
-      if (channel) {
-        channel.unsubscribe()
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshSilently()
       }
     }
-  }, [supabase])
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      cancelled = true
+      if (pollId) window.clearInterval(pollId)
+      if (channel) supabase.removeChannel(channel)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [userId, refreshSilently, isLoading, isBatchMode])
 
   /**
    * 筛选后的通知列表
@@ -269,38 +314,28 @@ export function useInbox() {
    * 标记所有为已读
    */
   const markAllAsRead = useCallback(async () => {
-    const { data: userData } = await supabase.auth.getUser()
-    const userId = userData.user?.id
-
     if (!userId) return
 
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', userId)
-      .eq('is_read', false)
-
-    if (error) {
-      console.error('标记已读失败:', error)
+    try {
+      await markAllAsReadAction({ userId })
+    } catch (err) {
+      console.error('标记已读失败:', err)
       return
     }
 
     setNotifications(prev => prev.map(n => ({ ...n, unread: false })))
     setUnreadCount(0)
-  }, [supabase])
+  }, [userId])
 
   /**
    * 标记单个为已读
    * @param id - 通知ID
    */
   const markAsRead = useCallback(async (id: string) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', id)
-
-    if (error) {
-      console.error('标记已读失败:', error)
+    try {
+      await markAsReadAction({ id })
+    } catch (err) {
+      console.error('标记已读失败:', err)
       return
     }
 
@@ -308,7 +343,7 @@ export function useInbox() {
       n.id === id ? { ...n, unread: false } : n
     ))
     setUnreadCount(prev => Math.max(0, prev - 1))
-  }, [supabase])
+  }, [])
 
   /**
    * 加载更多（分页）
@@ -359,13 +394,10 @@ export function useInbox() {
   const deleteNotification = useCallback(async (id: string) => {
     const notification = notifications.find(n => n.id === id)
 
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.error('删除消息失败:', error)
+    try {
+      await deleteNotificationAction({ id })
+    } catch (err) {
+      console.error('删除消息失败:', err)
       return
     }
 
@@ -374,7 +406,7 @@ export function useInbox() {
     if (notification?.unread) {
       setUnreadCount(prev => Math.max(0, prev - 1))
     }
-  }, [supabase, notifications])
+  }, [notifications])
 
   /**
    * 批量删除消息
@@ -387,13 +419,10 @@ export function useInbox() {
       n => selectedIds.has(n.id) && n.unread
     ).length
 
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .in('id', ids)
-
-    if (error) {
-      console.error('批量删除消息失败:', error)
+    try {
+      await batchDeleteNotificationsAction({ ids })
+    } catch (err) {
+      console.error('批量删除消息失败:', err)
       return
     }
 
@@ -401,7 +430,7 @@ export function useInbox() {
     setUnreadCount(prev => Math.max(0, prev - unreadDeletedCount))
     setSelectedIds(new Set())
     setIsBatchMode(false)
-  }, [supabase, selectedIds, notifications])
+  }, [selectedIds, notifications])
 
   return {
     activeFilter,

@@ -11,9 +11,8 @@ import type { ReplyQueryResult, ReplySubmitResult } from '@/types/feedback';
  */
 export async function getFeedbackReplies(recordId: string): Promise<ReplyQueryResult> {
   try {
+    void recordId
     // TODO: 从飞书多维表格查询评论
-    console.log('查询反馈评论:', recordId);
-
     return {
       success: true,
       data: [],
@@ -54,8 +53,6 @@ export async function submitReply(recordId: string, content: string): Promise<Re
     }
 
     // TODO: 提交评论到飞书多维表格
-    console.log('提交评论:', recordId, content);
-
     return {
       success: true,
       data: {

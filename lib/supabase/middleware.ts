@@ -81,7 +81,6 @@ export async function updateSession(request: NextRequest) {
       setAll(cookiesToSet) {
         {/* 批量设置Cookie，减少响应对象重建 */}
         const secureOptions: CookieOptions = {
-          httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
         }
@@ -114,7 +113,14 @@ export async function updateSession(request: NextRequest) {
   {/* 获取当前用户 - 仅对需要验证的路由执行 */}
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (userError && userError.message !== 'Auth session missing!') {
+  // 常见的“本地残留 refresh token”错误：用户未登录/已清库/切换项目后会出现。
+  // 这类错误不影响路由保护逻辑（当作未登录处理即可），避免在开发期刷屏。
+  const isIgnorableAuthError =
+    userError?.message === 'Auth session missing!'
+    // supabase-js 会把 code 挂在 error 对象上（不同版本字段可能不完全一致）
+    || (userError as unknown as { code?: string } | null | undefined)?.code === 'refresh_token_not_found'
+
+  if (userError && !isIgnorableAuthError) {
     console.error('Auth error in middleware:', userError.message)
   }
 

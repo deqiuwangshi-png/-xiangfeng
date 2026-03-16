@@ -52,8 +52,6 @@ export async function submitFeedback(feedbackData: FeedbackInput): Promise<Feedb
       };
     }
 
-    console.log('飞书提交成功，记录ID:', feishuResult.recordId);
-
     // 刷新缓存
     revalidatePath('/feedback');
 

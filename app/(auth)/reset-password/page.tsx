@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
     {/* 本地验证 */}
     const check = validatePassword(pwd);
     if (!check.valid) {
-      showError(check.message, 'validation');
+      showError(check.message ?? '密码不符合安全要求', 'validation');
       setIsLoading(false);
       return;
     }

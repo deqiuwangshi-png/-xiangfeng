@@ -23,15 +23,14 @@ export async function createClient() {
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, {
               ...options,
-              // STM 会话设置
-              httpOnly: true,
+              // 允许客户端获取会话（用于 Realtime 等能力），不强行覆盖 httpOnly
               secure: process.env.NODE_ENV === 'production',
               sameSite: 'lax',
             })
-          )
+          })
         } catch {
           // `setAll` 方法从 Server Component 调用。
           // 如果有中间件刷新用户会话，可以忽略此错误。

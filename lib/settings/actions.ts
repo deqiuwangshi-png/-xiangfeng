@@ -131,7 +131,8 @@ export async function updateContentLanguage(
  */
 export async function updateSetting(settingData: UpdateSettingInput): Promise<UpdateSettingResult> {
   try {
-    const validatedData = updateSettingSchema.parse(settingData)
+    // 仅做校验（schema.parse 会抛错），不需要单独使用结果
+    updateSettingSchema.parse(settingData)
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -142,12 +143,6 @@ export async function updateSetting(settingData: UpdateSettingInput): Promise<Up
         error: '用户未登录',
       }
     }
-
-    console.log('更新设置:', {
-      userId: user.id,
-      ...validatedData,
-      updatedAt: new Date().toISOString(),
-    })
 
     revalidatePath('/settings')
 
