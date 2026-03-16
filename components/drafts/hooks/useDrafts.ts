@@ -3,9 +3,14 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 import { DraftService, Article } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
+import { fetchDrafts } from '@/lib/articles/actions/query'
 import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
+
+/** SWR 缓存 Key */
+const DRAFTS_CACHE_KEY = 'drafts/list'
 
 /**
  * useDrafts Hook 返回值接口
@@ -47,10 +52,23 @@ export function useDrafts(
 ): UseDraftsReturn {
   const router = useRouter()
 
-  // 核心状态
-  const [drafts, setDrafts] = useState<DraftData[]>(
-    initialArticles.map(DraftService.convertToDraftData)
+  // 使用 SWR 缓存草稿列表
+  const {
+    data: drafts = [],
+    mutate: mutateDrafts,
+    isLoading: isSWRLoading,
+  } = useSWR(
+    DRAFTS_CACHE_KEY,
+    fetchDrafts,
+    {
+      fallbackData: initialArticles.map(DraftService.convertToDraftData),
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: Infinity, // 页面级别缓存，不重复获取
+      keepPreviousData: true,
+    }
   )
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [activeFilter, setActiveFilter] = useState<DraftFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -194,7 +212,10 @@ export function useDrafts(
 
           // 只更新成功删除的
           const actuallyDeleted = result.deleted
-          setDrafts((prev) => DraftService.removeDrafts(prev, new Set(actuallyDeleted)))
+          mutateDrafts(
+            (prev) => DraftService.removeDrafts(prev || [], new Set(actuallyDeleted)),
+            { revalidate: false }
+          )
           setSelectedIds((prev) => {
             const newSet = new Set(prev)
             actuallyDeleted.forEach((id) => newSet.delete(id))
@@ -208,7 +229,10 @@ export function useDrafts(
           }
         }
 
-        setDrafts((prev) => DraftService.removeDrafts(prev, new Set(ids)))
+        mutateDrafts(
+          (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
+          { revalidate: false }
+        )
         setSelectedIds((prev) => {
           const newSet = new Set(prev)
           ids.forEach((id) => newSet.delete(id))
@@ -227,7 +251,7 @@ export function useDrafts(
         setIsLoading(false)
       }
     },
-    [router]
+    [router, mutateDrafts]
   )
 
 
@@ -245,7 +269,10 @@ export function useDrafts(
           await updateArticleStatus(id, status)
         }
 
-        setDrafts((prev) => DraftService.updateDraftsStatus(prev, selectedIds, status))
+        mutateDrafts(
+          (prev) => DraftService.updateDraftsStatus(prev || [], selectedIds, status),
+          { revalidate: false }
+        )
         setSelectedIds(new Set())
         toast.success(successMessage)
       } catch (error) {
@@ -254,7 +281,7 @@ export function useDrafts(
         setIsLoading(false)
       }
     },
-    [selectedIds]
+    [selectedIds, mutateDrafts]
   )
 
   /**
@@ -301,7 +328,7 @@ export function useDrafts(
     activeFilter,
     searchQuery,
     currentPage,
-    isLoading,
+    isLoading: isLoading || isSWRLoading,
     setActiveFilter: handleFilterChange,
     setSearchQuery: handleSearch,
     setCurrentPage: handlePageChange,

@@ -111,3 +111,40 @@ export async function batchDeleteNotifications(args: { ids: string[] }) {
   if (error) throw error
 }
 
+/**
+ * 获取增量通知（只获取比指定时间更新的通知）
+ * @description 用于 Realtime 触发后的增量更新，避免全量获取
+ * @param args - 参数对象
+ * @param args.userId - 用户ID
+ * @param args.after - 时间戳，只获取此时间之后创建的通知
+ * @returns 新增的通知列表
+ */
+export async function fetchNewNotifications(args: {
+  userId: string
+  after: string
+}): Promise<NotificationRow[]> {
+  const supabase = await createClient()
+  const { userId, after } = args
+
+  const { data, error } = await supabase
+    .from('notifications')
+    .select(
+      `
+        id,
+        type,
+        title,
+        content,
+        actor_id,
+        is_read,
+        created_at,
+        actor:profiles!actor_id(username)
+      `
+    )
+    .eq('user_id', userId)
+    .gt('created_at', after)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []) as unknown as NotificationRow[]
+}
+

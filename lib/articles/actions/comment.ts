@@ -22,8 +22,20 @@ import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
 import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
+import type { Comment } from '@/components/article/comments/types';
 
 export type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
+
+/**
+ * 获取文章评论列表（SWR 缓存用）
+ * @description 获取文章的所有评论，用于 SWR 缓存
+ * @param articleId - 文章ID
+ * @returns 评论列表
+ */
+export async function fetchComments(articleId: string): Promise<Comment[]> {
+  const result = await getArticleCommentsPaginated(articleId, 1, 100);
+  return result.comments as Comment[];
+}
 
 /**
  * 获取文章评论列表（分页）

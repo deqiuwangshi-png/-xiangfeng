@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 import type { Comment } from '../types'
-import { getArticleComments, deleteArticleComment } from '@/lib/articles/actions/comment'
+import { getArticleComments, deleteArticleComment, fetchComments } from '@/lib/articles/actions/comment'
 import { toggleCommentLike } from '@/lib/articles/actions/like'
 
 /**
@@ -21,7 +22,20 @@ export function useComments(
   initialTotalCount: number,
   initialHasMore: boolean
 ) {
-  const [comments, setComments] = useState<Comment[]>(initialComments)
+  // 使用 SWR 缓存评论列表
+  const {
+    data: comments = [],
+    mutate: mutateComments,
+  } = useSWR(
+    articleId ? `comments/${articleId}` : null,
+    () => fetchComments(articleId),
+    {
+      fallbackData: initialComments,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  )
+
   const [totalCount, setTotalCount] = useState(initialTotalCount)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(1)
@@ -43,7 +57,10 @@ export function useComments(
 
       if (result.success && result.comments && result.comments.length > 0) {
         const newComments = result.comments as Comment[]
-        setComments((prev) => [...prev, ...newComments])
+        mutateComments(
+          (prev) => [...(prev || []), ...newComments],
+          { revalidate: false }
+        )
         setTotalCount(result.totalCount || 0)
         setHasMore(result.hasMore || false)
         setPage(nextPage)
@@ -53,15 +70,18 @@ export function useComments(
     } finally {
       setLoadingMore(false)
     }
-  }, [articleId, hasMore, loadingMore, page])
+  }, [articleId, hasMore, loadingMore, mutateComments, page])
 
   /**
    * 添加新评论（乐观更新）
    */
   const addComment = useCallback((newComment: Comment) => {
-    setComments((prev) => [newComment, ...prev])
+    mutateComments(
+      (prev) => [newComment, ...(prev || [])],
+      { revalidate: false }
+    )
     setTotalCount((prev) => prev + 1)
-  }, [])
+  }, [mutateComments])
 
   /**
    * 切换评论点赞状态（乐观更新）
@@ -75,37 +95,43 @@ export function useComments(
   const toggleLike = useCallback(async (commentId: string) => {
     setLikingIds((prev) => new Set(prev).add(commentId))
 
-    setComments((prev) =>
-      prev.map((comment) => {
-        if (comment.id !== commentId) return comment
-        const newLiked = !comment.liked
-        const newLikes = newLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
-        return { ...comment, liked: newLiked, likes: newLikes }
-      })
+    mutateComments(
+      (prev) =>
+        (prev || []).map((comment) => {
+          if (comment.id !== commentId) return comment
+          const newLiked = !comment.liked
+          const newLikes = newLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
+          return { ...comment, liked: newLiked, likes: newLikes }
+        }),
+      { revalidate: false }
     )
 
     try {
       const result = await toggleCommentLike(commentId)
 
       if (!result.success) {
-        setComments((prev) =>
-          prev.map((comment) => {
-            if (comment.id !== commentId) return comment
-            const prevLiked = !comment.liked
-            const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
-            return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
-          })
+        mutateComments(
+          (prev) =>
+            (prev || []).map((comment) => {
+              if (comment.id !== commentId) return comment
+              const prevLiked = !comment.liked
+              const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
+              return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
+            }),
+          { revalidate: false }
         )
         console.error('评论点赞失败:', result.error)
       }
     } catch (error) {
-      setComments((prev) =>
-        prev.map((comment) => {
-          if (comment.id !== commentId) return comment
-          const prevLiked = !comment.liked
-          const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
-          return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
-        })
+      mutateComments(
+        (prev) =>
+          (prev || []).map((comment) => {
+            if (comment.id !== commentId) return comment
+            const prevLiked = !comment.liked
+            const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
+            return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
+          }),
+        { revalidate: false }
       )
       console.error('Failed to like comment:', error)
     } finally {
@@ -115,7 +141,7 @@ export function useComments(
         return next
       })
     }
-  }, [])
+  }, [mutateComments])
 
   /**
    * 删除评论
@@ -126,7 +152,10 @@ export function useComments(
       const result = await deleteArticleComment(commentId)
 
       if (result.success) {
-        setComments((prev) => prev.filter((comment) => comment.id !== commentId))
+        mutateComments(
+          (prev) => (prev || []).filter((comment) => comment.id !== commentId),
+          { revalidate: false }
+        )
         setTotalCount((prev) => prev - 1)
         toast.success('删除成功')
       } else {
@@ -137,7 +166,7 @@ export function useComments(
       console.error('Failed to delete comment:', error)
       toast.error('删除评论失败')
     }
-  }, [])
+  }, [mutateComments])
 
   return {
     comments,
