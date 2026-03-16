@@ -3,20 +3,9 @@
 import Link from 'next/link'
 import { Clock, Eye } from '@/components/icons'
 import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import type { ArticleCardProps } from '@/types'
 
-interface ArticleCardProps {
-  id: string
-  title: string
-  summary: string
-  author: {
-    id: string
-    name: string
-    avatar: string
-  }
-  publishedAt: string
-  readTime: number
-  viewsCount?: number
-}
+export type { ArticleCardProps } from '@/types'
 
 /**
  * 文章卡片组件

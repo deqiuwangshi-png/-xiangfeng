@@ -1,21 +1,12 @@
 /**
  * 密码安全策略模块
- * 
+ *
  * 用于验证密码复杂度，防止弱密码
  */
 
-export interface PasswordValidationResult {
-  valid: boolean;
-  message: string;
-  strength: 'weak' | 'medium' | 'strong';
-  requirements: {
-    minLength: boolean;
-    hasUppercase: boolean;
-    hasLowercase: boolean;
-    hasNumber: boolean;
-    hasSpecialChar: boolean;
-  };
-}
+import type { PasswordValidationResult } from '@/types';
+
+export type { PasswordValidationResult } from '@/types';
 
 interface PasswordPolicy {
   minLength: number;
@@ -78,15 +69,17 @@ export function validatePassword(
       valid: false,
       message: `密码长度至少为 ${opts.minLength} 位`,
       strength: 'weak',
+      score: 0,
       requirements,
     };
   }
-  
+
   if (password.length > opts.maxLength) {
     return {
       valid: false,
       message: `密码长度不能超过 ${opts.maxLength} 位`,
       strength: 'weak',
+      score: 0,
       requirements,
     };
   }
@@ -112,56 +105,64 @@ export function validatePassword(
       valid: false,
       message: `密码需包含：${missingRequirements.join('、')}`,
       strength: 'weak',
+      score: 20,
       requirements,
     };
   }
-  
+
   // 检查常见弱密码
   if (COMMON_PASSWORDS.includes(password.toLowerCase())) {
     return {
       valid: false,
       message: '该密码过于常见，请更换更复杂的密码',
       strength: 'weak',
+      score: 10,
       requirements,
     };
   }
   
-  // 计算密码强度
-  const strength = calculateStrength(password, requirements);
-  
+  // 计算密码强度和分数
+  const { strength, score } = calculateStrength(password, requirements);
+
   return {
     valid: true,
     message: '密码强度符合要求',
     strength,
+    score,
     requirements,
   };
 }
 
 /**
- * 计算密码强度
+ * 计算密码强度和分数
+ * @returns 包含强度等级和分数的对象
  */
 function calculateStrength(
   password: string,
   requirements: PasswordValidationResult['requirements']
-): 'weak' | 'medium' | 'strong' {
+): { strength: 'weak' | 'medium' | 'strong'; score: number } {
   let score = 0;
-  
+
   // 长度得分
   if (password.length >= 12) score += 2;
   else if (password.length >= 8) score += 1;
-  
+
   // 复杂度得分
   if (requirements.hasUppercase) score += 1;
   if (requirements.hasLowercase) score += 1;
   if (requirements.hasNumber) score += 1;
   if (requirements.hasSpecialChar) score += 1;
-  
+
   // 额外长度奖励
   if (password.length >= 16) score += 1;
-  
-  if (score >= 5) return 'strong';
-  if (score >= 3) return 'medium';
-  return 'weak';
+
+  // 根据分数计算强度等级
+  let strength: 'weak' | 'medium' | 'strong';
+  if (score >= 5) strength = 'strong';
+  else if (score >= 3) strength = 'medium';
+  else strength = 'weak';
+
+  return { strength, score };
 }
 
 /**

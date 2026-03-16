@@ -1,4 +1,7 @@
 import { sanitizeRichText } from '@/lib/utils/purify';
+import type { ArticleContentProps } from '@/types';
+
+export type { ArticleContentProps } from '@/types';
 
 /**
  * ArticleContent - 纯展示组件（Server Component）
@@ -13,10 +16,6 @@ import { sanitizeRichText } from '@/lib/utils/purify';
  *
  * @returns {JSX.Element} 文章内容组件
  */
-
-interface ArticleContentProps {
-  content: string;
-}
 
 /**
  * 文章内容组件

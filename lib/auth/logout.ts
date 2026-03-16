@@ -5,14 +5,9 @@
  */
 
 import { logout as logoutAction } from './actions/logout';
+import type { LogoutResult } from '@/types';
 
-/**
- * 退出登录结果接口
- */
-export interface LogoutResult {
-  success: boolean;
-  error?: string;
-}
+export type { LogoutResult } from '@/types';
 
 /**
  * 退出登录

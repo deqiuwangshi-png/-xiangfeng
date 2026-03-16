@@ -1,13 +1,7 @@
 /**
  * 认证操作类型定义
  * @module lib/auth/actions/types
+ * @description 从 @/types 重新导出，保持向后兼容
  */
 
-/**
- * 认证结果接口
- */
-export interface AuthResult {
-  success: boolean;
-  error?: string;
-  message?: string;
-}
+export type { AuthResult } from '@/types';

@@ -5,39 +5,10 @@
  */
 
 import { useState, useCallback } from 'react'
-import { logout, type LogoutResult } from './logout'
+import { logout } from './logout'
+import type { LogoutResult, UseLogoutOptions, UseLogoutReturn } from '@/types';
 
-/**
- * useLogout 配置选项接口
- * @interface UseLogoutOptions
- * @property {string} [redirectTo='/login'] - 退出成功后跳转的路径
- * @property {() => void} [onSuccess] - 退出成功后的回调函数
- * @property {(error: string) => void} [onError] - 退出失败后的回调函数
- */
-export interface UseLogoutOptions {
-  /** 退出成功后跳转的路径，默认为 '/login' */
-  redirectTo?: string
-  /** 退出成功后的回调函数 */
-  onSuccess?: () => void
-  /** 退出失败后的回调函数 */
-  onError?: (error: string) => void
-}
-
-/**
- * useLogout 返回值接口
- * @interface UseLogoutReturn
- * @property {boolean} isLoggingOut - 是否正在退出中
- * @property {() => Promise<void>} handleLogout - 执行退出登录的函数
- * @property {(redirectTo?: string) => Promise<LogoutResult>} logout - 底层退出函数（带跳转参数）
- */
-export interface UseLogoutReturn {
-  /** 是否正在退出中 */
-  isLoggingOut: boolean
-  /** 执行退出登录的函数 */
-  handleLogout: () => Promise<void>
-  /** 底层退出函数（带跳转参数） */
-  logout: (redirectTo?: string) => Promise<LogoutResult>
-}
+export type { UseLogoutOptions, UseLogoutReturn } from '@/types';
 
 /**
  * 退出登录 Hook

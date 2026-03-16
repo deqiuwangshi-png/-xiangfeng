@@ -1,11 +1,6 @@
-import { ArticleWithAuthor } from '@/lib/articles/queries/article';
+import type { ArticleHeaderProps } from '@/types';
 
-/**
- * ArticleHeader Props 接口
- */
-interface ArticleHeaderProps {
-  article: ArticleWithAuthor;
-}
+export type { ArticleHeaderProps } from '@/types';
 
 /**
  * 格式化发布时间

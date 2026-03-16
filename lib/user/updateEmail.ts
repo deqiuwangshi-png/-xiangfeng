@@ -3,16 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isAllowedEmail } from '@/lib/auth/utils'
+import type { UpdateEmailResult } from '@/types'
 
-/**
- * 更新邮箱结果接口
- */
-export interface UpdateEmailResult {
-  success: boolean
-  error?: string
-  needsConfirmation?: boolean
-  message?: string
-}
+export type { UpdateEmailResult } from '@/types'
 
 /**
  * 发起邮箱更换请求

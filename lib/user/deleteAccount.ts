@@ -2,14 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { DeleteAccountResult } from '@/types'
 
-/**
- * 删除账户结果接口
- */
-export interface DeleteAccountResult {
-  success: boolean
-  error?: string
-}
+export type { DeleteAccountResult } from '@/types'
 
 /**
  * 硬删除用户账户

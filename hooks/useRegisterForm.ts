@@ -4,43 +4,7 @@ import { useState, useCallback } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
 import { REGISTER_ERRORS, register } from '@/lib/auth';
 import { useAuthToast } from './useAuthToast';
-
-/**
- * 注册表单数据接口
- */
-export interface RegisterFormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  username: string;
-  terms: boolean;
-}
-
-/**
- * 注册表单验证错误接口
- */
-export interface RegisterFormErrors {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  username?: string;
-  terms?: string;
-}
-
-/**
- * useRegisterForm Hook 返回值接口
- */
-export interface UseRegisterFormReturn {
-  formData: RegisterFormData;
-  errors: RegisterFormErrors;
-  isLoading: boolean;
-  isSuccess: boolean;
-  passwordValidation: PasswordValidationResult | null;
-  updateField: (field: keyof RegisterFormData, value: string | boolean) => void;
-  submitForm: () => Promise<void>;
-  clearErrors: () => void;
-  getPasswordStrengthColor: () => string;
-}
+import type { RegisterFormData, RegisterFormErrors, UseRegisterFormReturn } from '@/types';
 
 /**
  * 注册表单管理 Hook

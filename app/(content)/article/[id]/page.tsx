@@ -11,6 +11,9 @@ import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
 import { getCurrentUser } from '@/lib/supabase/user';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
+import type { ArticlePageProps } from '@/types';
+
+export type { ArticlePageProps } from '@/types';
 
 /**
  * 页面级别缓存配置
@@ -34,12 +37,6 @@ const getCachedArticle = cache(async (id: string, userId?: string) => {
 const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
   return getArticleCommentsPaginated(articleId, page, limit);
 });
-
-interface ArticlePageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
 
 /**
  * 生成页面元数据（SEO）

@@ -1,18 +1,7 @@
 import { DraftData, DraftStatus, DraftFilter } from '@/types/drafts'
+import type { Article } from '@/types'
 
-/**
- * 数据库文章数据接口
- * @description 与 lib/articles/actions/crud.ts 中的 getArticles 返回类型保持一致
- */
-export interface Article {
-  id: string
-  title: string
-  content: string
-  summary: string
-  status: 'draft' | 'published' | 'archived'
-  created_at: string
-  updated_at: string
-}
+export type { Article } from '@/types'
 
 /**
  * 草稿服务类

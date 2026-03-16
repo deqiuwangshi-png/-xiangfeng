@@ -3,16 +3,9 @@
 import React from 'react';
 import { toast } from 'sonner';
 import { CircleAlert, CircleCheck, CircleX, WifiOff, Clock, ShieldAlert, type LucideIcon } from 'lucide-react';
+import type { AuthErrorType } from '@/types';
 
-/**
- * 错误类型枚举
- */
-export type AuthErrorType =
-  | 'network'      // 网络错误
-  | 'validation'   // 验证错误
-  | 'rateLimit'    // 限流错误
-  | 'server'       // 服务器错误
-  | 'unknown';     // 未知错误
+export type { AuthErrorType } from '@/types';
 
 /**
  * 错误码映射

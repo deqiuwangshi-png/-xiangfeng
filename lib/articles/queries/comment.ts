@@ -4,24 +4,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import type { CommentWithAuthor } from '@/types';
 
-/**
- * 评论数据
- */
-export interface CommentWithAuthor {
-  id: string;
-  content: string;
-  created_at: string;
-  likes: number;
-  liked: boolean;
-  author_id: string;
-  article_id: string;
-  author: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-}
+export type { CommentWithAuthor } from '@/types';
 
 /**
  * 获取文章评论列表（优化版 - 使用关联查询避免 N+1）

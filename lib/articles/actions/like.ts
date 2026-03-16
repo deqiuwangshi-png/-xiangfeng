@@ -15,26 +15,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { checkLikeArticleTask } from '@/lib/rewards/actions/tasks';
+import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
-/**
- * 点赞/取消点赞结果
- */
-export interface ToggleLikeResult {
-  success: boolean;
-  liked: boolean;
-  likes: number;
-  error?: string;
-}
-
-/**
- * 评论点赞/取消点赞结果
- */
-export interface ToggleCommentLikeResult {
-  success: boolean;
-  liked: boolean;
-  likes: number;
-  error?: string;
-}
+export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
 /**
  * 文章点赞/取消点赞

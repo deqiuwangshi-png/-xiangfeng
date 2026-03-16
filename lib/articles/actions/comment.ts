@@ -21,58 +21,9 @@ import { CommentSchema, CommentIdSchema } from '../schema';
 import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
+import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
 
-/**
- * 评论提交结果
- */
-export interface SubmitCommentResult {
-  success: boolean;
-  comment?: {
-    id: string;
-    content: string;
-    created_at: string;
-    likes: number;
-    author: {
-      id: string;
-      name: string;
-      avatar?: string;
-    };
-    liked: boolean;
-  };
-  error?: string;
-}
-
-/**
- * 评论列表结果
- */
-export interface GetCommentsResult {
-  success: boolean;
-  comments?: Array<{
-    id: string;
-    content: string;
-    created_at: string;
-    likes: number;
-    liked: boolean;
-    author_id: string;
-    article_id: string;
-    author: {
-      id: string;
-      name: string;
-      avatar?: string;
-    };
-  }>;
-  totalCount?: number;
-  hasMore?: boolean;
-  error?: string;
-}
-
-/**
- * 删除评论结果
- */
-export interface DeleteCommentResult {
-  success: boolean;
-  error?: string;
-}
+export type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
 
 /**
  * 获取文章评论列表（分页）

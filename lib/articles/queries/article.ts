@@ -6,39 +6,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import type { ArticleWithAuthor } from '@/types';
 
-/**
- * 文章作者信息
- */
-interface ArticleAuthor {
-  id: string;
-  name: string;
-  avatar?: string;
-  bio?: string;
-}
-
-/**
- * 完整文章数据
- */
-export interface ArticleWithAuthor {
-  id: string;
-  title: string;
-  content: string;
-  summary: string | null;
-  tags: string[];
-  status: 'draft' | 'published' | 'archived';
-  cover_image: string | null;
-  author_id: string;
-  created_at: string;
-  updated_at: string;
-  author: ArticleAuthor;
-  publishedAt: string;
-  readTime: number;
-  likesCount: number;
-  commentsCount: number;
-  isLiked?: boolean;
-  isBookmarked?: boolean;
-}
+export type { ArticleWithAuthor } from '@/types';
 
 /**
  * 获取文章完整详情（优化版 - 使用关联查询避免 N+1）
