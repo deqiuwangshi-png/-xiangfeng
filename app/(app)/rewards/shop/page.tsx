@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * 积分商城子页面
  * @module app/(app)/rewards/shop/page

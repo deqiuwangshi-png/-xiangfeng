@@ -1,25 +1,16 @@
-'use client'
-
-import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { CommentCardActions } from './CommentCardActions'
 import type { CommentCardProps } from './types'
 
 /**
- * 单条评论卡片组件
- *
- * @param comment - 评论数据
- * @param onLike - 点赞回调
- * @param onDelete - 删除回调
- * @param currentUser - 当前用户
- * @param isLiking - 是否正在点赞中
- * @returns 评论卡片JSX
+ * 评论卡片内容组件 - 服务端组件
+ * ✅ 纯展示内容，服务端渲染
+ * ✅ 头像、作者名、评论内容等静态数据
  */
-export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }: CommentCardProps) {
-  const canDelete = currentUser?.id === comment.author.id
-
+function CommentCardContent({ comment }: { comment: CommentCardProps['comment'] }) {
   return (
-    <div className="comment-item">
+    <>
       <div className="comment-avatar relative">
         <AvatarPlaceholder
           name={comment.author.name}
@@ -36,33 +27,35 @@ export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }
         </div>
 
         <p className="comment-text">{comment.content}</p>
+      </div>
+    </>
+  )
+}
 
-        <div className="comment-actions">
-          <div
-            className={`comment-action ${comment.liked ? 'liked' : ''} ${isLiking ? 'opacity-50' : ''}`}
-            onClick={() => !isLiking && currentUser && onLike(comment.id)}
-          >
-            <Heart
-              className={`w-4 h-4 ${comment.liked ? 'fill-current' : ''}`}
-            />
-            <span>{comment.likes}</span>
-          </div>
-
-          <div className="comment-action">
-            <CornerUpLeft className="w-4 h-4" />
-            <span>回复</span>
-          </div>
-
-          {canDelete && (
-            <div
-              className="comment-action delete"
-              onClick={() => onDelete(comment.id)}
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>删除</span>
-            </div>
-          )}
-        </div>
+/**
+ * 单条评论卡片组件 - 服务端组件 + 客户端交互
+ * ✅ 内容在服务端渲染
+ * ✅ 点赞、删除等交互由客户端组件处理
+ *
+ * @param comment - 评论数据
+ * @param onLike - 点赞回调
+ * @param onDelete - 删除回调
+ * @param currentUser - 当前用户
+ * @param isLiking - 是否正在点赞中
+ * @returns 评论卡片JSX
+ */
+export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }: CommentCardProps) {
+  return (
+    <div className="comment-item">
+      <CommentCardContent comment={comment} />
+      <div className="comment-content">
+        <CommentCardActions
+          comment={comment}
+          currentUser={currentUser}
+          isLiking={isLiking ?? false}
+          onLike={onLike}
+          onDelete={onDelete}
+        />
       </div>
     </div>
   )

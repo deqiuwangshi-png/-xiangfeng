@@ -1,7 +1,10 @@
-'use client'
-
 import { GitMerge, Twitter, Github } from 'lucide-react'
 
+/**
+ * 页脚组件 - 服务端组件
+ * ✅ 纯展示，无客户端交互
+ * ✅ 服务端渲染，SEO友好
+ */
 export default function Footer() {
   return (
     <footer className="bg-xf-dark text-white pt-16 pb-8 border-t border-white/10">

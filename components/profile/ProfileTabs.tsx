@@ -1,91 +1,72 @@
-'use client'
-
 /**
  * 标签页切换组件
- * @returns {JSX.Element} 标签页切换组件
- * 更新时间: 2026-02-20
+ * @module components/profile/ProfileTabs
+ * @description 提供标签页切换功能，使用Context管理状态
  */
 
-import { useState } from 'react'
+'use client'
+
+import { useProfileTabs, TabType } from './ProfileTabsContext'
 
 /**
  * 标签页接口
- * 
+ *
  * @interface Tab
- * @property {string} id - 标签页唯一标识
+ * @property {TabType} id - 标签页唯一标识
  * @property {string} label - 标签页显示文本
  */
 interface Tab {
-  id: string
+  id: TabType
   label: string
 }
 
 /**
  * 标签页配置
- * 
+ *
  * @constant tabs
  * @description 定义个人主页标签页
  */
 const tabs: Tab[] = [
   { id: 'content', label: '我的内容' },
-  { id: 'domain', label: '领域贡献' }
+  { id: 'domain', label: '领域贡献' },
 ]
 
 /**
  * 标签页切换组件
- * 
+ *
  * @function ProfileTabs
  * @returns {JSX.Element} 标签页切换组件
- * 
+ *
  * @description
  * 提供标签页切换功能，包括：
  * - 我的内容标签
  * - 领域贡献标签
- * - 标签页状态管理
- * - 标签页切换事件处理
- * 
+ * - 使用Context管理状态
+ * - 声明式UI，无DOM操作
+ *
  * @state
- * - activeTab: 当前激活的标签页ID
- * 
+ * - activeTab: 从Context获取当前激活的标签页ID
+ *
  * @layout
  * - 使用 flex 布局
  * - 所有间距完全复制原型数值
  */
 export function ProfileTabs() {
-  const [activeTab, setActiveTab] = useState('content')
+  const { activeTab, setActiveTab } = useProfileTabs()
 
   /**
    * 处理标签页切换
-   * 
+   *
    * @function handleTabClick
-   * @param {string} tabId - 标签页ID
+   * @param {TabType} tabId - 标签页ID
    * @returns {void}
-   * 
+   *
    * @description
-   * 更新当前激活的标签页状态
-   * 隐藏所有内容区域，显示对应区域
+   * 通过Context更新当前激活的标签页状态
+   * 触发React重新渲染，条件显示对应内容区域
    */
-  const handleTabClick = (tabId: string) => {
+  const handleTabClick = (tabId: TabType) => {
     setActiveTab(tabId)
-
-    // 隐藏所有内容区域
-    const sections = ['profile-content-section', 'profile-domain-section']
-    sections.forEach(sectionId => {
-      const section = document.getElementById(sectionId)
-      if (section) {
-        section.classList.add('hidden')
-      }
-    })
-
-    // 显示对应区域
-    let targetSectionId = ''
-    if (tabId === 'content') targetSectionId = 'profile-content-section'
-    else if (tabId === 'domain') targetSectionId = 'profile-domain-section'
-
-    const targetSection = document.getElementById(targetSectionId)
-    if (targetSection) {
-      targetSection.classList.remove('hidden')
-    }
   }
 
   return (

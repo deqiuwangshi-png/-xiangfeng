@@ -1,7 +1,6 @@
-'use client';
-
 import { MessageSquare, CheckCircle, Clock } from '@/components/icons';
 import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
+import { FeedbackCardActions } from './FeedbackCardActions';
 
 interface FeedbackCardProps {
   item: FeedbackItem;
@@ -15,18 +14,13 @@ const statusStyles: Record<FeedbackStatus, string> = {
 };
 
 /**
- * 反馈卡片组件
- * 展示单个反馈的摘要信息
- *
- * @param item 反馈数据
- * @param onClick 点击回调
+ * 反馈卡片内容组件 - 服务端组件
+ * ✅ 纯展示，服务端渲染
+ * ✅ 样式和状态渲染在服务端完成
  */
-export default function FeedbackCard({ item, onClick }: FeedbackCardProps) {
+function FeedbackCardContent({ item }: { item: FeedbackItem }) {
   return (
-    <div
-      onClick={() => onClick(item)}
-      className="feedback-card p-4 bg-xf-light/50 rounded-xl hover:bg-white cursor-pointer transition-colors"
-    >
+    <>
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-medium text-xf-dark text-base">{item.title}</h3>
         <span className={`status-badge px-3 py-1 rounded-full text-xs font-semibold shrink-0 ml-2 ${statusStyles[item.status]}`}>
@@ -55,6 +49,22 @@ export default function FeedbackCard({ item, onClick }: FeedbackCardProps) {
           </span>
         )}
       </div>
-    </div>
+    </>
+  );
+}
+
+/**
+ * 反馈卡片组件 - 服务端组件 + 客户端交互
+ * ✅ 内容在服务端渲染
+ * ✅ 点击交互由客户端组件处理
+ *
+ * @param item 反馈数据
+ * @param onClick 点击回调
+ */
+export default function FeedbackCard({ item, onClick }: FeedbackCardProps) {
+  return (
+    <FeedbackCardActions item={item} onClick={onClick}>
+      <FeedbackCardContent item={item} />
+    </FeedbackCardActions>
   );
 }

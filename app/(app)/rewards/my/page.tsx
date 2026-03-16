@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * 我的积分中心页面
  * @module app/(app)/rewards/my/page

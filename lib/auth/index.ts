@@ -15,10 +15,10 @@ export { changePassword } from './actions/change-password';
 // ==================== 类型定义 ====================
 export type { AuthResult } from './actions/types';
 export type { LogoutResult } from './logout';
-export type { UseLogoutOptions, UseLogoutReturn } from './useLogout';
+export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/useLogout';
 
 // ==================== Hooks & 客户端工具 ====================
-export { useLogout } from './useLogout';
+export { useLogout } from '@/hooks/useLogout';
 export { logoutAndRedirect } from './logout';
 
 // ==================== 错误消息（保持兼容）====================

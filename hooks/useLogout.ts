@@ -1,11 +1,11 @@
 /**
  * 退出登录 Hook 模块
- * @module lib/auth/useLogout
+ * @module hooks/useLogout
  * @description 为React组件提供退出登录的状态管理和便捷接口
  */
 
 import { useState, useCallback } from 'react'
-import { logout } from './logout'
+import { logout } from '@/lib/auth/logout'
 import type { LogoutResult, UseLogoutOptions, UseLogoutReturn } from '@/types';
 
 export type { UseLogoutOptions, UseLogoutReturn } from '@/types';

@@ -1,11 +1,10 @@
-'use client'
-
 import { ReactNode } from 'react'
 
 /**
- * 图标容器组件
+ * 图标容器组件 - 服务端组件
  *
  * 作用: 为设置页面提供统一的图标展示容器，替代渐变色背景
+ * ✅ 服务端渲染，减少客户端JavaScript
  *
  * @param {ReactNode} children - 图标内容
  * @param {string} variant - 颜色变体: 'primary' | 'green' | 'blue'

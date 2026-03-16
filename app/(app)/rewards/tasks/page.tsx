@@ -1,5 +1,3 @@
-'use client'
-
 /**
  * 灵感任务子页面
  * @module app/(app)/rewards/tasks/page

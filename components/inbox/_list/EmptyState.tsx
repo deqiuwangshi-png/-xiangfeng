@@ -1,5 +1,3 @@
-'use client'
-
 import { Bell } from '@/components/icons'
 
 interface EmptyStateProps {
@@ -7,6 +5,11 @@ interface EmptyStateProps {
   description?: string
 }
 
+/**
+ * 空状态组件 - 服务端组件
+ * ✅ 纯展示，无客户端交互
+ * ✅ 服务端渲染
+ */
 export function EmptyState({
   title = '暂无通知',
   description = '当有新消息时，会显示在这里',

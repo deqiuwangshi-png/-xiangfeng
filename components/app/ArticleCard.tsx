@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { Clock, Eye } from '@/components/icons'
 import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
@@ -8,8 +6,24 @@ import type { ArticleCardProps } from '@/types'
 export type { ArticleCardProps } from '@/types'
 
 /**
- * 文章卡片组件
- * ✅ 点击整个卡片跳转到文章详情页
+ * 格式化时间为相对时间
+ * 在服务端执行，减少客户端计算
+ */
+function formatTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+  if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}天前`
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
+
+/**
+ * 文章卡片组件 - 服务端组件
+ * ✅ 服务端渲染，SEO友好
+ * ✅ 减少客户端JavaScript
  */
 export function ArticleCard({
   id,
@@ -20,17 +34,8 @@ export function ArticleCard({
   readTime,
   viewsCount = 0,
 }: ArticleCardProps) {
-  // 格式化时间
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
-
-    if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`
-    if (diff < 604800) return `${Math.floor(diff / 86400)}天前`
-    return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-  }
+  // 在服务端预格式化时间
+  const formattedTime = formatTime(publishedAt)
 
   return (
     <Link href={`/article/${id}`}>
@@ -47,7 +52,7 @@ export function ArticleCard({
           <div className="flex-1">
             <div className="font-medium text-xf-dark">{author.name}</div>
             <div className="text-sm text-xf-medium flex items-center gap-2">
-              <span>{formatTime(publishedAt)}</span>
+              <span>{formattedTime}</span>
               <span>·</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
