@@ -9,19 +9,8 @@
 import { Flag } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import type { ReportBtnProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
-
-/**
- * ReportBtn Props 接口
- */
-interface ReportBtnProps {
-  /** 文章ID */
-  articleId: string
-  /** 作者ID */
-  authorId: string
-  /** 当前用户 */
-  currentUser: { id: string } | null
-}
 
 /**
  * 举报按钮组件
@@ -30,7 +19,7 @@ interface ReportBtnProps {
  * @returns {JSX.Element} 举报按钮组件
  *
  * @description
- * 【空壳实现】举报功能入口按钮
+ * 举报功能入口按钮
  *
  * 后续功能：
  * - 点击弹出举报弹窗

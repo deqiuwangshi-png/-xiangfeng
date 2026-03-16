@@ -1,7 +1,5 @@
 import type { ArticleHeaderProps } from '@/types';
 
-export type { ArticleHeaderProps } from '@/types';
-
 /**
  * 格式化发布时间
  * @param {string} dateStr - ISO日期字符串

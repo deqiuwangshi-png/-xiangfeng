@@ -58,6 +58,17 @@ export type {
   LoginPromptProps,
   CommentFormProps,
   ArticlePageProps,
+  ArticleActionBaseProps,
+  ArtActProps,
+  ReportBtnProps,
+  MoreActionsProps,
+  AuthorAvatarProps,
+  ReportMdlProps,
+  RwMdProps,
+  PtRwProps,
+  TabBtnProps,
+  ReadingProgressProps,
+  CommentCardActionsProps,
 } from './article';
 
 // ============================================

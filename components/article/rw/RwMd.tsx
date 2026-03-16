@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { X, Sparkles, Coins, Megaphone } from '@/components/icons'
-import type { User } from '@supabase/supabase-js'
+import type { RwMdProps } from '@/types'
 import { TabBtn } from './TabBtn'
 import { PtRw } from './PtRw'
 import { AdRw } from './AdRw'
@@ -18,22 +18,6 @@ import { AdRw } from './AdRw'
  * 打赏方式类型
  */
 type RwType = 'points' | 'ad'
-
-/**
- * RwMd Props 接口
- */
-interface RwMdProps {
-  /** 文章ID */
-  articleId: string
-  /** 作者ID */
-  authorId: string
-  /** 关闭回调 */
-  onClose: () => void
-  /** 当前用户 */
-  currentUser: User | null
-  /** 打赏成功回调 */
-  onSuccess?: () => void
-}
 
 /**
  * 打赏弹窗组件

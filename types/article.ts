@@ -439,3 +439,160 @@ export interface CommentFormProps {
   /** 是否禁用 */
   disabled?: boolean;
 }
+
+// ============================================
+// 文章操作组件 Props 类型（统一抽取）
+// ============================================
+
+/**
+ * 文章操作基础 Props 接口
+ * @interface ArticleActionBaseProps
+ * @description 文章操作组件共享的基础属性
+ */
+export interface ArticleActionBaseProps {
+  /** 文章ID */
+  articleId: string;
+  /** 作者ID */
+  authorId: string;
+  /** 当前用户 */
+  currentUser: User | null;
+}
+
+/**
+ * 文章操作按钮 Props 接口
+ * @interface ArtActProps
+ * @description 文章操作按钮组件(ArtAct)的属性
+ */
+export interface ArtActProps extends ArticleActionBaseProps {
+  /** 作者名称 */
+  authorName: string;
+  /** 作者头像URL */
+  authorAvatar?: string;
+  /** 初始点赞数 */
+  initialLikeCount?: number;
+  /** 初始评论数 */
+  initialCommentCount?: number;
+  /** 初始点赞状态 */
+  initialLiked?: boolean;
+  /** 初始收藏状态 */
+  initialBookmarked?: boolean;
+}
+
+/**
+ * 举报按钮 Props 接口
+ * @interface ReportBtnProps
+ * @description 举报按钮组件(ReportBtn)的属性
+ */
+export type ReportBtnProps = ArticleActionBaseProps
+
+/**
+ * 更多操作菜单 Props 接口
+ * @interface MoreActionsProps
+ * @description 更多操作菜单组件(MoreActions)的属性
+ */
+export interface MoreActionsProps extends ArticleActionBaseProps {
+  /** 初始收藏状态 */
+  initialBookmarked?: boolean;
+  /** 收藏回调 */
+  onBookmark: () => void;
+  /** 是否正在收藏 */
+  isBookmarkLoading?: boolean;
+}
+
+/**
+ * 作者头像 Props 接口
+ * @interface AuthorAvatarProps
+ * @description 作者头像组件(AuthorAvatar)的属性
+ */
+export interface AuthorAvatarProps extends ArticleActionBaseProps {
+  /** 作者名称 */
+  authorName: string;
+  /** 作者头像URL */
+  authorAvatar?: string;
+}
+
+/**
+ * 举报弹窗 Props 接口
+ * @interface ReportMdlProps
+ * @description 举报弹窗组件(ReportMdl)的属性
+ */
+export interface ReportMdlProps {
+  /** 文章ID */
+  articleId: string;
+  /** 作者ID */
+  authorId: string;
+  /** 关闭回调 */
+  onClose: () => void;
+}
+
+/**
+ * 打赏弹窗 Props 接口
+ * @interface RwMdProps
+ * @description 打赏弹窗组件(RwMd)的属性
+ */
+export interface RwMdProps extends ArticleActionBaseProps {
+  /** 关闭回调 */
+  onClose: () => void;
+  /** 打赏成功回调 */
+  onSuccess?: () => void;
+}
+
+/**
+ * 积分打赏面板 Props 接口
+ * @interface PtRwProps
+ * @description 积分打赏面板组件(PtRw)的属性
+ */
+export interface PtRwProps {
+  /** 文章ID */
+  articleId: string;
+  /** 作者ID */
+  authorId: string;
+  /** 打赏成功回调 */
+  onSuccess?: () => void;
+}
+
+/**
+ * 选项卡按钮 Props 接口
+ * @interface TabBtnProps
+ * @description 选项卡按钮组件(TabBtn)的属性
+ */
+export interface TabBtnProps {
+  /** 是否激活 */
+  active: boolean;
+  /** 点击回调 */
+  onClick: () => void;
+  /** 图标 */
+  icon: React.ReactNode;
+  /** 标签文字 */
+  label: string;
+  /** 是否禁用 */
+  disabled?: boolean;
+}
+
+/**
+ * 阅读进度 Props 接口
+ * @interface ReadingProgressProps
+ * @description 阅读进度组件(ReadingProgress)的属性
+ */
+export interface ReadingProgressProps {
+  /** 文章ID（可选，用于后续扩展） */
+  articleId?: string;
+}
+
+/**
+ * 评论卡片操作 Props 接口
+ * @interface CommentCardActionsProps
+ * @description 评论卡片操作组件(CommentCardActions)的属性
+ */
+export interface CommentCardActionsProps {
+  /** 评论数据 */
+  comment: Comment;
+  /** 当前用户 */
+  currentUser: User | null;
+  /** 是否正在点赞 */
+  isLiking: boolean;
+  /** 点赞回调 */
+  onLike: (id: string) => void;
+  /** 删除回调 */
+  onDelete: (id: string) => void;
+}

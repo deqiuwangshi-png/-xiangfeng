@@ -7,21 +7,11 @@
  */
 
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import { Loader2, Wallet } from '@/components/icons'
+import type { PtRwProps } from '@/types'
 import { usePoints } from '@/components/rewards/hooks'
 import { rewardArticle, getRewardNonce } from '@/lib/rewards/actions'
-
-/**
- * PtRw Props 接口
- */
-interface PtRwProps {
-  /** 文章ID */
-  articleId: string
-  /** 作者ID */
-  authorId: string
-  /** 打赏成功回调 */
-  onSuccess?: () => void
-}
 
 /**
  * 积分打赏面板
@@ -71,6 +61,8 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
         await refreshPoints()
         // 触发全局积分更新事件
         window.dispatchEvent(new CustomEvent('points:updated'))
+        // 显示成功提示
+        toast.success(`打赏成功！赠送了 ${selectedPoints} 积分给作者`)
         // 成功回调
         onSuccess?.()
       } else {

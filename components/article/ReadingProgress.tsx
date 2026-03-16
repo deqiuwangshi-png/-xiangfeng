@@ -15,14 +15,8 @@
  */
 
 import { useEffect, useState, useRef } from 'react';
+import type { ReadingProgressProps } from '@/types';
 import { checkReadArticleTask } from '@/lib/rewards/actions/tasks';
-
-/**
- * ReadingProgress Props 接口
- */
-interface ReadingProgressProps {
-  articleId?: string;
-}
 
 /**
  * 阅读进度组件
@@ -38,7 +32,8 @@ interface ReadingProgressProps {
  * - 最小变化阈值减少渲染
  * - 滚动超过50%时触发阅读任务检测
  */
-export default function ReadingProgress({ }: ReadingProgressProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function ReadingProgress(_props: ReadingProgressProps) {
   const [progress, setProgress] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   const hasTriggeredRef = useRef<boolean>(false);

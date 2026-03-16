@@ -1,12 +1,3 @@
-import type { User } from '@supabase/supabase-js'
-import type {
-  Comment,
-  CommentPanelProps,
-  CommentCardProps,
-  CommentListProps,
-  LoginPromptProps,
-  CommentFormProps,
-} from '@/types'
 
 export type {
   Comment,

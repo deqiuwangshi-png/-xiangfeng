@@ -118,6 +118,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <ArtAct
         articleId={articleId}
         authorId={article.author_id}
+        authorName={article.author.name}
+        authorAvatar={article.author.avatar}
         currentUser={user}
         initialLikeCount={article.likesCount || 0}
         initialCommentCount={totalCount || 0}

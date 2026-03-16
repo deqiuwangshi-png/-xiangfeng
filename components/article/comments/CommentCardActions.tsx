@@ -1,15 +1,7 @@
 'use client'
 
 import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
-import type { Comment } from '@/types/article'
-
-interface CommentCardActionsProps {
-  comment: Comment
-  currentUser: { id: string } | null
-  isLiking: boolean
-  onLike: (id: string) => void
-  onDelete: (id: string) => void
-}
+import type { CommentCardActionsProps } from '@/types'
 
 /**
  * 评论卡片交互组件 - 客户端组件
