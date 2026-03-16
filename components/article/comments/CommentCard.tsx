@@ -5,8 +5,8 @@ import type { CommentCardProps } from './types'
 
 /**
  * 单条评论卡片组件 - 服务端组件 + 客户端交互
- * ✅ 内容在服务端渲染
- * ✅ 点赞、删除等交互由客户端组件处理
+ * 内容在服务端渲染
+ * 点赞、删除等交互由客户端组件处理
  *
  * @param comment - 评论数据
  * @param onLike - 点赞回调

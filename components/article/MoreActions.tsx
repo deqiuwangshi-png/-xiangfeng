@@ -7,10 +7,10 @@
  */
 
 import { useState, useRef, useEffect } from 'react'
-import { toast } from 'sonner'
 import { MoreVertical, Share2, Bookmark, Flag, Link as LinkIcon, X } from 'lucide-react'
 import type { MoreActionsProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 更多操作菜单组件
@@ -31,6 +31,7 @@ export function MoreActions({
   const [showReportModal, setShowReportModal] = useState(false)
   const [shared, setShared] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const { showCopySuccess, showAuthRequired } = useArticleToast()
 
   /**
    * 点击外部关闭菜单
@@ -64,7 +65,7 @@ export function MoreActions({
         navigator.clipboard.writeText(url)
         setShared(true)
         setTimeout(() => setShared(false), 500)
-        toast.success('链接已复制')
+        showCopySuccess('链接')
         break
     }
     setShowShareMenu(false)
@@ -76,9 +77,7 @@ export function MoreActions({
    */
   const handleBookmark = () => {
     if (!currentUser) {
-      toast.error('请先登录', {
-        description: '登录后即可收藏文章',
-      })
+      showAuthRequired('收藏文章')
       setIsOpen(false)
       return
     }
@@ -91,9 +90,7 @@ export function MoreActions({
    */
   const handleReport = () => {
     if (!currentUser) {
-      toast.error('请先登录', {
-        description: '登录后即可举报',
-      })
+      showAuthRequired('举报')
       setIsOpen(false)
       return
     }

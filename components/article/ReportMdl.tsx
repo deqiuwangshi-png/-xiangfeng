@@ -8,8 +8,8 @@
 
 import { useState } from 'react'
 import { X, AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
 import type { ReportMdlProps } from '@/types'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 举报类型配置
@@ -43,6 +43,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
   const [selectedType, setSelectedType] = useState('')
   const [reason, setReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { showError, showInfo } = useArticleToast()
 
   /**
    * 处理提交举报
@@ -51,7 +52,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
    */
   const handleSubmit = async () => {
     if (!selectedType) {
-      toast.error('请选择举报类型')
+      showError('请选择举报类型')
       return
     }
 
@@ -61,9 +62,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
     // 模拟提交延迟
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    toast.info('举报功能开发中', {
-      description: '敬请期待后续版本！',
-    })
+    showInfo('举报功能开发中', '敬请期待后续版本！')
     setIsSubmitting(false)
     onClose()
   }

@@ -106,15 +106,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       
       <div className="main-container pt-14">
         <div className="article-container">
-          {/* ✅ 直接传递完整文章数据 */}
+          {/* 直接传递完整文章数据 */}
           <ArticleHeader article={article} />
           
-          {/* ✅ ArticleContent 改为接收 content 直接渲染 */}
+          {/* ArticleContent 改为接收 content 直接渲染 */}
           <ArticleContent content={article.content} />
         </div>
       </div>
       
-      {/* ✅ ArticleActions 接收当前用户和文章统计数据 */}
+      {/* ArticleActions 接收当前用户和文章统计数据 */}
       <ArtAct
         articleId={articleId}
         authorId={article.author_id}
@@ -127,7 +127,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         initialBookmarked={article.isBookmarked || false}
       />
       
-      {/* ✅ CommentPanel 接收初始评论数据（分页加载） */}
+      {/* CommentPanel 接收初始评论数据（分页加载） */}
       <Suspense fallback={<CommentSkeleton />}>
         <CommentPanel
           articleId={articleId}

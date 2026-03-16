@@ -3,19 +3,15 @@ import type { ArticleContentProps } from '@/types';
 
 /**
  * ArticleContent - 纯展示组件（Server Component）
- *
  * 作用: 安全渲染文章内容
- *
  * @returns {JSX.Element} 文章内容组件
  */
 
 /**
  * 文章内容组件
- *
  * @function ArticleContent
  * @param {ArticleContentProps} props - 组件属性
  * @returns {JSX.Element} 文章内容组件
- *
  * @description
  */
 export default function ArticleContent({ content }: ArticleContentProps) {

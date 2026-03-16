@@ -8,7 +8,6 @@
  */
 
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { Heart, MessageCircle, Sparkles } from '@/components/icons';
 import type { ArtActProps } from '@/types';
 import { toggleArticleLike } from '@/lib/articles/actions/like';
@@ -16,6 +15,7 @@ import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
 import { RwMd } from './rw/RwMd';
 import { AuthorAvatar } from './AuthorAvatar';
 import { MoreActions } from './MoreActions';
+import { useArticleToast } from '@/hooks/useArticleToast';
 
 /**
  * 文章操作按钮组件
@@ -41,6 +41,7 @@ export default function ArtAct({
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [commentCount] = useState(initialCommentCount);
+  const { showSuccess, showError, showNetworkError, showAuthRequired } = useArticleToast();
 
   /**
    * 检查用户是否登录
@@ -49,11 +50,11 @@ export default function ArtAct({
    */
   const checkAuth = () => {
     if (!currentUser) {
-      toast.error('请先登录');
-      return false;
+      showAuthRequired('进行此操作')
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   /**
    * 处理点赞（乐观更新）
@@ -82,13 +83,13 @@ export default function ArtAct({
       if (!result.success) {
         setLiked(previousLiked);
         setLikeCount(previousLikeCount);
-        toast.error(result.error || '操作失败，请重试');
+        showError(result.error || '操作失败', '请稍后重试');
       }
     } catch (error) {
       setLiked(previousLiked);
       setLikeCount(previousLikeCount);
       console.error('Failed to like article:', error);
-      toast.error('网络错误，请检查网络连接');
+      showNetworkError();
     } finally {
       setIsLikeLoading(false);
     }
@@ -99,9 +100,7 @@ export default function ArtAct({
    */
   const handleBookmark = async () => {
     if (!currentUser) {
-      toast.error('请先登录', {
-        description: '登录后即可收藏文章',
-      })
+      showAuthRequired('收藏文章')
       return
     }
 
@@ -114,15 +113,15 @@ export default function ArtAct({
 
       if (result.success) {
         setBookmarked(result.favorited)
-        toast.success(result.favorited ? '收藏成功' : '已取消收藏')
+        showSuccess('收藏', !result.favorited)
       } else {
         setBookmarked(previousBookmarked)
-        toast.error(result.error || '操作失败，请重试')
+        showError(result.error || '操作失败', '请稍后重试')
       }
     } catch (error) {
       setBookmarked(previousBookmarked)
       console.error('Failed to bookmark article:', error)
-      toast.error('网络错误，请检查网络连接')
+      showNetworkError()
     } finally {
       setIsBookmarkLoading(false)
     }

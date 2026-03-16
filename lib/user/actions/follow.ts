@@ -5,6 +5,11 @@
  *
  * @module lib/user/actions/follow
  * @description 处理用户关注和取消关注
+ *
+ * @优化说明
+ * - 使用插入-冲突模式减少数据库查询次数
+ * - 触发器自动维护 followers_count/following_count
+ * - 通知由数据库触发器自动发送
  */
 
 import { createClient } from '@/lib/supabase/server';
@@ -33,6 +38,12 @@ export interface FollowStatusResult {
 /**
  * 关注/取消关注用户
  *
+ * 优化方案：
+ * 1. 直接插入，利用唯一约束判断重复
+ * 2. 冲突时删除（取消关注）
+ * 3. 触发器自动维护计数和发送通知
+ * 4. 减少数据库往返次数
+ *
  * @param targetUserId - 目标用户ID
  * @returns 操作结果
  */
@@ -40,67 +51,57 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
   const supabase = await createClient();
 
   try {
-    {/* 获取当前登录用户 */}
+    // 1. 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return { success: false, following: false, error: '请先登录' };
     }
 
-    {/* 不能关注自己 */}
+    // 2. 不能关注自己
     if (user.id === targetUserId) {
       return { success: false, following: false, error: '不能关注自己' };
     }
 
-    {/* 检查是否已关注 */}
-    const { data: existingFollow, error: checkError } = await supabase
-      .from('follows')
-      .select('id')
-      .eq('follower_id', user.id)
-      .eq('following_id', targetUserId)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('检查关注状态失败:', checkError);
-      return { success: false, following: false, error: '操作失败' };
-    }
-
     let following = false;
 
-    if (existingFollow) {
-      {/* 已关注，取消关注 */}
-      const { error: deleteError } = await supabase
-        .from('follows')
-        .delete()
-        .eq('id', existingFollow.id);
+    // 3. 尝试插入关注 - 利用唯一约束防重
+    const { error: insertError } = await supabase
+      .from('follows')
+      .insert({
+        follower_id: user.id,
+        following_id: targetUserId,
+      });
 
-      if (deleteError) {
-        console.error('取消关注失败:', deleteError);
-        return { success: false, following: false, error: '取消关注失败' };
+    if (insertError) {
+      // 唯一约束冲突 (23505) = 已关注，取消关注
+      if (insertError.code === '23505') {
+        const { error: deleteError } = await supabase
+          .from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('following_id', targetUserId);
+
+        if (deleteError) {
+          console.error('取消关注失败:', deleteError);
+          return { success: false, following: false, error: '取消关注失败' };
+        }
+        following = false;
+      } else {
+        console.error('关注插入失败:', insertError);
+        return { success: false, following: false, error: '操作失败' };
       }
-      following = false;
     } else {
-      {/* 未关注，添加关注 */}
-      const { error: insertError } = await supabase
-        .from('follows')
-        .insert({
-          follower_id: user.id,
-          following_id: targetUserId,
-        });
-
-      if (insertError) {
-        console.error('关注失败:', insertError);
-        return { success: false, following: false, error: '关注失败' };
-      }
+      // 插入成功 = 新关注
       following = true;
-      {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
-      
-      {/* 检测关注用户任务 - 异步执行不阻塞 */}
+      // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
+      // 异步检测任务，不阻塞主流程
       Promise.resolve().then(() => {
         checkFollowUserTask().catch(console.error);
       });
     }
 
+    // 4. 触发器自动维护计数，直接返回结果
     return {
       success: true,
       following,

@@ -7,11 +7,11 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { toast } from 'sonner'
 import { Plus } from 'lucide-react'
 import type { AuthorAvatarProps } from '@/types'
 import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 import { toggleFollow, getFollowStatus } from '@/lib/user/actions/follow'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 作者头像组件
@@ -33,6 +33,7 @@ export function AuthorAvatar({
 }: AuthorAvatarProps) {
   const [isFollowing, setIsFollowing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { showSuccess, showError, showAuthRequired, showWarning } = useArticleToast()
 
   /**
    * 获取初始关注状态
@@ -65,15 +66,13 @@ export function AuthorAvatar({
   const handleFollow = async () => {
     {/* 未登录提示 */}
     if (!currentUser) {
-      toast.error('请先登录', {
-        description: '登录后即可关注作者',
-      })
+      showAuthRequired('关注作者')
       return
     }
 
     {/* 不能关注自己 */}
     if (currentUser.id === authorId) {
-      toast.info('不能关注自己哦')
+      showWarning('不能关注自己')
       return
     }
 
@@ -85,13 +84,13 @@ export function AuthorAvatar({
 
       if (result.success) {
         setIsFollowing(result.following)
-        toast.success(result.following ? '关注成功' : '已取消关注')
+        showSuccess('关注', !result.following)
       } else {
-        toast.error(result.error || '操作失败，请重试')
+        showError(result.error || '操作失败', '请稍后重试')
       }
     } catch (error) {
       console.error('关注操作失败:', error)
-      toast.error('操作失败，请重试')
+      showError('操作失败', '请稍后重试')
     } finally {
       setIsLoading(false)
     }

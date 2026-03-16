@@ -7,11 +7,11 @@
  */
 
 import { useState, useCallback } from 'react'
-import { toast } from 'sonner'
 import { Loader2, Wallet } from '@/components/icons'
 import type { PtRwProps } from '@/types'
 import { usePoints } from '@/components/rewards/hooks'
 import { rewardArticle, getRewardNonce } from '@/lib/rewards/actions'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 积分打赏面板
@@ -23,7 +23,8 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
   const [selectedPoints, setSelectedPoints] = useState(10)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+  const { showSuccess } = useArticleToast()
+
   const { overview, refreshPoints } = usePoints()
   const userPoints = overview?.current_points || 0
   const canAfford = userPoints >= selectedPoints
@@ -62,7 +63,7 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
         // 触发全局积分更新事件
         window.dispatchEvent(new CustomEvent('points:updated'))
         // 显示成功提示
-        toast.success(`打赏成功！赠送了 ${selectedPoints} 积分给作者`)
+        showSuccess('打赏', false, `赠送了 ${selectedPoints} 积分给作者`)
         // 成功回调
         onSuccess?.()
       } else {
@@ -73,7 +74,7 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [articleId, authorId, selectedPoints, canAfford, onSuccess, refreshPoints])
+  }, [canAfford, articleId, authorId, selectedPoints, refreshPoints, showSuccess, onSuccess])
 
   return (
     <div className="space-y-4">

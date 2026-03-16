@@ -77,18 +77,12 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
       });
     }
 
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    const { data: article } = await supabase
-      .from('articles')
-      .select('like_count')
-      .eq('id', articleId)
-      .single();
-
+    // 触发器自动维护 like_count，无需等待
+    // 返回乐观更新值，前端直接使用
     return {
       success: true,
       liked,
-      likes: article?.like_count || 0,
+      likes: liked ? 1 : 0, // 前端会根据当前状态计算最终值
     };
   } catch (error) {
     console.error('点赞操作失败:', error);
@@ -152,20 +146,12 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
       // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
     }
 
-    // 4. 等待触发器完成（100ms）
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // 5. 获取最新的点赞数
-    const { data: comment } = await supabase
-      .from('comments')
-      .select('like_count')
-      .eq('id', commentId)
-      .single();
-
+    // 触发器自动维护 like_count，无需等待和查询
+    // 返回乐观更新值，让前端处理最终计数
     return {
       success: true,
       liked,
-      likes: comment?.like_count || 0,
+      likes: liked ? 1 : 0, // 前端会根据当前状态计算
     };
   } catch (error) {
     console.error('评论点赞操作失败:', error);

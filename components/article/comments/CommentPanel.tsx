@@ -77,9 +77,9 @@ export function CommentPanel({
 
   return (
     <>
-      <div className="comments-overlay" onClick={handleClose} />
+      <div className="comments-overlay" onClick={handleClose} suppressHydrationWarning />
 
-      <div className="comments-panel">
+      <div className="comments-panel" suppressHydrationWarning>
         <div className="comments-header">
           <div className="comments-title">
             <span>评论</span>

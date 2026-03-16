@@ -7,12 +7,12 @@
  */
 
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { X, Sparkles, Coins, Megaphone } from '@/components/icons'
 import type { RwMdProps } from '@/types'
 import { TabBtn } from './TabBtn'
 import { PtRw } from './PtRw'
 import { AdRw } from './AdRw'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 打赏方式类型
@@ -26,6 +26,7 @@ type RwType = 'points' | 'ad'
  */
 export function RwMd({ articleId, authorId, onClose, onSuccess }: RwMdProps) {
   const [activeTab, setActiveTab] = useState<RwType>('points')
+  const { showInfo } = useArticleToast()
 
   /**
    * 处理打赏成功
@@ -71,7 +72,7 @@ export function RwMd({ articleId, authorId, onClose, onSuccess }: RwMdProps) {
             active={activeTab === 'ad'}
             onClick={() => {
               // 广告打赏暂未开放
-              toast.info('广告打赏功能即将开放，敬请期待！')
+              showInfo('广告打赏功能即将开放， ')
             }}
             icon={<Megaphone className="w-4 h-4" />}
             label="广告"

@@ -1,14 +1,19 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { toast } from 'sonner'
+import { useState, useCallback, useRef } from 'react'
 import useSWR from 'swr'
 import type { Comment } from '../types'
 import { getArticleComments, deleteArticleComment, fetchComments } from '@/lib/articles/actions/comment'
 import { toggleCommentLike } from '@/lib/articles/actions/like'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
- * 评论数据管理 Hook
+ * 评论数据管理 Hook - 统一状态管理版本
+ * 
+ * 优化说明：
+ * - 统一使用 SWR 管理所有评论相关状态
+ * - 避免多个独立状态变量导致的同步问题
+ * - 简化状态更新逻辑，提高代码可维护性
  *
  * @param articleId - 文章ID
  * @param initialComments - 初始评论列表
@@ -22,25 +27,37 @@ export function useComments(
   initialTotalCount: number,
   initialHasMore: boolean
 ) {
-  // 使用 SWR 缓存评论列表
+  // 使用 ref 存储初始数据，避免重复初始化
+  const initialDataRef = useRef({
+    comments: initialComments,
+    totalCount: initialTotalCount,
+    hasMore: initialHasMore,
+  })
+
+  // 统一使用 SWR 管理所有评论相关状态
   const {
-    data: comments = [],
+    data: comments = initialDataRef.current.comments,
     mutate: mutateComments,
   } = useSWR(
     articleId ? `comments/${articleId}` : null,
     () => fetchComments(articleId),
     {
-      fallbackData: initialComments,
+      fallbackData: initialDataRef.current.comments,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      revalidateOnMount: false,
     }
   )
 
-  const [totalCount, setTotalCount] = useState(initialTotalCount)
-  const [hasMore, setHasMore] = useState(initialHasMore)
+  // 统一状态管理：所有状态都基于 SWR 数据
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
   const [likingIds, setLikingIds] = useState<Set<string>>(new Set())
+  const { showDeleteSuccess, showError } = useArticleToast()
+
+  // 从 SWR 数据派生的状态，确保一致性
+  const totalCount = comments.length
+  const hasMore = comments.length < initialTotalCount
 
   /**
    * 加载更多评论
@@ -61,8 +78,6 @@ export function useComments(
           (prev) => [...(prev || []), ...newComments],
           { revalidate: false }
         )
-        setTotalCount(result.totalCount || 0)
-        setHasMore(result.hasMore || false)
         setPage(nextPage)
       }
     } catch (error) {
@@ -80,60 +95,74 @@ export function useComments(
       (prev) => [newComment, ...(prev || [])],
       { revalidate: false }
     )
-    setTotalCount((prev) => prev + 1)
   }, [mutateComments])
 
   /**
    * 切换评论点赞状态（乐观更新）
-   * 1. 立即更新UI
-   * 2. 发送请求
-   * 3. 成功时保持乐观更新结果，不覆盖（避免触发器延迟问题）
-   * 4. 失败时回滚
+   * 
+   * 优化说明：
+   * - 先从当前 comments 获取目标评论，确保数据存在
+   * - 使用函数式更新避免闭包陷阱
+   * - 使用 prev || currentComments 确保数据不为空
    *
    * @param commentId - 评论ID
    */
   const toggleLike = useCallback(async (commentId: string) => {
+    const currentComments = comments
+    const targetComment = currentComments.find(c => c.id === commentId)
+
+    if (!targetComment) {
+      console.warn('评论不存在，无法点赞:', commentId)
+      return
+    }
+
+    const originalLiked = targetComment.liked
+    const originalLikes = targetComment.likes ?? 0
+
     setLikingIds((prev) => new Set(prev).add(commentId))
 
+    const newLiked = !targetComment.liked
+    const newLikes = newLiked ? (targetComment.likes ?? 0) + 1 : Math.max(0, (targetComment.likes ?? 0) - 1)
+
     mutateComments(
-      (prev) =>
-        (prev || []).map((comment) => {
+      (prev) => {
+        const dataToUpdate = prev || currentComments
+        return dataToUpdate.map((comment) => {
           if (comment.id !== commentId) return comment
-          const newLiked = !comment.liked
-          const newLikes = newLiked ? comment.likes + 1 : Math.max(0, comment.likes - 1)
           return { ...comment, liked: newLiked, likes: newLikes }
-        }),
-      { revalidate: false }
+        })
+      },
+      false
     )
 
     try {
       const result = await toggleCommentLike(commentId)
 
       if (!result.success) {
-        mutateComments(
-          (prev) =>
-            (prev || []).map((comment) => {
-              if (comment.id !== commentId) return comment
-              const prevLiked = !comment.liked
-              const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
-              return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
-            }),
-          { revalidate: false }
-        )
         console.error('评论点赞失败:', result.error)
+        mutateComments(
+          (prev) => {
+            const dataToUpdate = prev || currentComments
+            return dataToUpdate.map((comment) => {
+              if (comment.id !== commentId) return comment
+              return { ...comment, liked: originalLiked, likes: originalLikes }
+            })
+          },
+          false
+        )
       }
     } catch (error) {
-      mutateComments(
-        (prev) =>
-          (prev || []).map((comment) => {
-            if (comment.id !== commentId) return comment
-            const prevLiked = !comment.liked
-            const prevLikes = prevLiked ? comment.likes - 1 : comment.likes + 1
-            return { ...comment, liked: prevLiked, likes: Math.max(0, prevLikes) }
-          }),
-        { revalidate: false }
-      )
       console.error('Failed to like comment:', error)
+      mutateComments(
+        (prev) => {
+          const dataToUpdate = prev || currentComments
+          return dataToUpdate.map((comment) => {
+            if (comment.id !== commentId) return comment
+            return { ...comment, liked: originalLiked, likes: originalLikes }
+          })
+        },
+        false
+      )
     } finally {
       setLikingIds((prev) => {
         const next = new Set(prev)
@@ -141,7 +170,7 @@ export function useComments(
         return next
       })
     }
-  }, [mutateComments])
+  }, [mutateComments, comments])
 
   /**
    * 删除评论
@@ -156,17 +185,16 @@ export function useComments(
           (prev) => (prev || []).filter((comment) => comment.id !== commentId),
           { revalidate: false }
         )
-        setTotalCount((prev) => prev - 1)
-        toast.success('删除成功')
+        showDeleteSuccess('评论')
       } else {
         console.error('删除评论失败:', result.error)
-        toast.error(result.error || '删除评论失败')
+        showError(result.error || '删除评论失败')
       }
     } catch (error) {
       console.error('Failed to delete comment:', error)
-      toast.error('删除评论失败')
+      showError('删除评论失败')
     }
-  }, [mutateComments])
+  }, [mutateComments, showDeleteSuccess, showError])
 
   return {
     comments,
