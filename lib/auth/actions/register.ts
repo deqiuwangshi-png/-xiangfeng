@@ -9,6 +9,7 @@
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
+import { getAvtUrl } from '@/lib/utils/getAvtUrl';
 import { REGISTER_ERRORS } from '../errorMessages';
 import { isAllowedEmail } from '../utils';
 import type { AuthResult } from './types';
@@ -72,11 +73,14 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   try {
+    // 生成统一头像URL
+    const avatarUrl = getAvtUrl(username);
+    
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username },
+        data: { username, avatar_url: avatarUrl },
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
       },
     });

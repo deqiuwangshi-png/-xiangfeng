@@ -30,6 +30,8 @@ export interface UserData {
   bio: string
   /** 位置信息 */
   location: string
+  /** 个人领域 */
+  domain?: string
 }
 
 /**
@@ -107,6 +109,8 @@ export interface UpdateProfileParams {
   location?: string
   /** 头像URL */
   avatar_url?: string
+  /** 个人领域 */
+  domain?: string
 }
 
 /**
@@ -123,6 +127,7 @@ export interface UpdateProfileResult {
     bio: string
     location: string
     avatar_url: string
+    domain?: string
   }
 }
 

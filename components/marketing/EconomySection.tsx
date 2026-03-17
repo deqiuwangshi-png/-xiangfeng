@@ -1,9 +1,12 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { DollarSign, RefreshCw, Clock, Check } from 'lucide-react'
 import { RevealOnScroll } from './RevealOnScroll'
 
 export default function EconomySection() {
+  const router = useRouter()
+
   const creatorBenefits = [
     { label: '内容价值指数', value: '深度推荐' },
     { label: '生态贡献认证', value: '专属徽章' },
@@ -69,7 +72,7 @@ export default function EconomySection() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => window.location.href = '/login'}
+                  onClick={() => router.push('/login')}
                   className="w-full py-3 bg-xf-light hover:bg-slate-200 text-xf-dark rounded-xl font-medium transition-colors mt-auto"
                 >
                   申请成为创作者
@@ -94,7 +97,7 @@ export default function EconomySection() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => window.location.href = '/login'}
+                  onClick={() => router.push('/login')}
                   className="w-full py-3 bg-white text-xf-primary hover:bg-slate-50 rounded-xl font-bold transition-colors shadow-md mt-auto"
                 >
                   立即免费加入
