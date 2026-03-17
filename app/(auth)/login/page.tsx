@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthToast } from '@/hooks/useAuthToast';
 import { checkRateLimit, resetRateLimit } from '@/lib/security/rateLimit';
-import { createClient } from '@/lib/supabase/client'
+import { login } from '@/lib/auth/actions/login';
+import { sanitizeRedirect } from '@/lib/auth/redir';
 import { BrandSection } from '@/components/auth/BrandSection';
 import { MobileBrandTitle } from '@/components/auth/MobileBrandTitle';
 import { FormCard } from '@/components/auth/FormCard';
@@ -32,11 +33,11 @@ function LoginForm() {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
-  const { showError, showLoading, dismiss } = useAuthToast();
+  const { showError, showLoading, dismiss, successFromLoading } = useAuthToast();
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/home';
+  const redirectTo = sanitizeRedirect(searchParams.get('redirect'), '/home');
 
   {/* 限流倒计时 */}
   useEffect(() => {
@@ -86,33 +87,26 @@ function LoginForm() {
     {/* 显示加载中 */}
     const toastId = showLoading('登录中...');
 
-    const email = String(formData.get('email') || '')
-    const password = String(formData.get('password') || '')
-
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const result = await login(formData);
 
-      if (error) {
+      if (!result.success) {
         dismiss(toastId)
-        showError(error.message || '登录失败')
+        showError(result.error || '登录失败')
         setIsLoading(false)
         return
       }
+
+      resetRateLimit(getClientId());
+
+      successFromLoading(toastId, '登录成功，正在跳转...');
+      router.replace(result.redirectTo || '/home');
     } catch (err) {
       dismiss(toastId)
       showError(err instanceof Error ? err.message : '登录失败')
       setIsLoading(false)
       return
     }
-
-    {/* 登录成功，重置限流 */}
-    resetRateLimit(getClientId());
-
-    {/* 登录成功 - 登录页无toast，直接跳转 */}
-    dismiss(toastId);
-    router.refresh();
-    router.push(redirectTo || '/home');
   }
 
   return (
