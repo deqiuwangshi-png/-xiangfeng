@@ -61,3 +61,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 基于项目背景的安全与性能检查摘要（2026-03）
+
+在确认问题前，先按本项目背景做审计前提：
+
+- 该项目是「长期重构中的 Next.js + Supabase 社区产品」，当前阶段目标以“功能可用 + 风险收敛 + 逐步演进”为主，不是一次性做完所有企业级优化。
+- 本次检查范围聚焦 `home / publish / drafts / inbox / rewards` 五个核心页面，重点看“是否存在高风险安全问题”“是否有明显性能瓶颈”“是否偏离 Next.js 主流实践”。
+
+在以上背景下，当前结论如下：
+
+- 架构方向总体合理：已采用 App Router、Server Components、Suspense、动态导入、Server Actions 与 Supabase 会话中间件，符合 Next.js 主流实践。
+- 安全优先级最高的问题在消息通知模块：部分 Server Actions 基于外部参数执行查询/更新，建议在 Action 内统一以当前登录用户做资源归属校验，降低越权访问风险。
+- 性能上最值得优先处理两点：
+  - 发布页自动保存与跳转耦合，可能引入不必要导航与请求开销；
+  - 文章管理页批量状态更新采用串行调用，数据量增大时延迟会明显上升。
+- 建议执行顺序：先做通知模块鉴权与写回一致性，再优化发布页自动保存策略，最后推进批量接口与列表查询瘦身。
