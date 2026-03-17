@@ -6,7 +6,7 @@
 
 'use client'
 
-import { User, Zap, Newspaper, MessageSquare, Settings, LogOut} from 'lucide-react'
+import { User, Newspaper, MessageSquare, Settings, LogOut} from 'lucide-react'
 import { useMemo, useEffect, useCallback } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useLogout } from '@/lib/auth'
@@ -80,7 +80,6 @@ export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdo
    */
   const menuItems: DropdownItem[] = useMemo(() => [
     { label: '个人主页', icon: User, href: '/profile' },
-    { label: '收益中心', icon: Zap, href: '/earnings' },
     { label: '更新公告', icon: Newspaper, href: '/updates' },
     { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
     { label: '用户设置', icon: Settings, href: '/settings' },

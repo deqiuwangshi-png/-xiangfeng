@@ -12,7 +12,6 @@ const PROTECTED_ROUTES = [
   '/inbox',
   '/profile',   
   '/settings',
-  '/earnings',
   '/feedback',
   '/updates',
 ]

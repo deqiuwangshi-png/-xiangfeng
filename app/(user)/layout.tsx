@@ -7,7 +7,6 @@ import { Sidebar } from '@/components/ui/Sidebar'
 import { getCurrentUser, getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/user.css'
-import '@/styles/domains/earnings.css'
 import '@/styles/domains/feedback.css'
 import '@/styles/domains/inbox.css'
 
