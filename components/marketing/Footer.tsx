@@ -1,4 +1,5 @@
-import { GitMerge, Twitter, Github } from 'lucide-react'
+import { Twitter, Github } from 'lucide-react'
+import { Logo } from '@/components/icons'
 
 /**
  * 页脚组件 - 服务端组件
@@ -12,10 +13,7 @@ export default function Footer() {
         <div className="grid grid-cols-4 gap-12 mb-12">
           <div className="col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-xf-primary rounded-lg flex items-center justify-center">
-                <GitMerge className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-serif text-2xl font-bold">相逢</span>
+              <Logo size="sm" />
             </div>
             <p className="text-slate-400 max-w-sm leading-relaxed mb-6">
               相逢是一个价值驱动的深度思考者生态，致力于构建可持续的知识经济生态系统。

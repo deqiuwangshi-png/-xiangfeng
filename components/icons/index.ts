@@ -27,6 +27,6 @@ export * from './settings'
 export * from './profile'
 export * from './earnings'
 export * from './rewards'
+export * from './Logo'
 
-// 导出 LucideIcon 类型供全站使用
 export type { LucideIcon } from 'lucide-react'
