@@ -33,7 +33,7 @@ function LoginForm() {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
-  const { showError, showLoading, dismiss } = useAuthToast();
+  const { showError, showLoading, dismiss, successFromLoading } = useAuthToast();
 
   const router = useRouter();
   const searchParams = useSearchParams();
