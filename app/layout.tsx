@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SWRProvider } from "@/components/providers/SWRProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
@@ -45,6 +46,7 @@ export default function RootLayout({
           <ToastProvider />
         </SWRProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
