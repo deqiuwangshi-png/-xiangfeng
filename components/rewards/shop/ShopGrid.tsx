@@ -6,7 +6,7 @@
  * @description 福利中心首页的兑换商城卡片组件，使用真实数据
  */
 
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { ShoppingBag, ArrowRight, Loader2 } from '@/components/icons'
@@ -19,9 +19,8 @@ import { getIconComponent } from '@/components/icons/rewards'
  * @returns {JSX.Element} 兑换商城面板
  */
 export function ShopGrid() {
-  const { items, isLoading, exchange } = useShop()
-  const { overview, refreshPoints } = usePoints()
-  const [exchangingId, setExchangingId] = useState<string | null>(null)
+  const { items, isLoading } = useShop()
+  const { overview } = usePoints()
 
   const userPoints = overview?.current_points || 0
 
@@ -111,7 +110,6 @@ export function ShopGrid() {
         {displayItems.map((item) => {
           const Icon = getIconComponent(item.icon_name)
           const canAfford = userPoints >= item.points_price
-          const isExchanging = exchangingId === item.id
 
           return (
             <div
@@ -141,17 +139,10 @@ export function ShopGrid() {
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                   }
                 `}
-                disabled={!canAfford || isExchanging}
+                disabled={!canAfford}
                 onClick={() => handleExchange(item.id, item.points_price)}
               >
-                {isExchanging ? (
-                  <>
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    兑换中
-                  </>
-                ) : (
-                  '兑换'
-                )}
+                兑换
               </button>
             </div>
           )

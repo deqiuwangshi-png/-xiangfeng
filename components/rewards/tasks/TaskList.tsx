@@ -100,7 +100,7 @@ interface TaskListProps {
  * @returns {JSX.Element} 任务列表
  */
 export function TaskList({ category }: TaskListProps) {
-  const { tasks, isLoading, claimReward, accept } = useTasks(
+  const { tasks, isLoading, claimReward, accept, claimingTaskIds, acceptingTaskIds } = useTasks(
     category === 'all' ? undefined : category
   )
 
@@ -295,9 +295,14 @@ export function TaskList({ category }: TaskListProps) {
               {claimable && (
                 <button
                   onClick={() => handleClaimReward(task.task_id)}
-                  className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-2.5 py-1 rounded-full transition"
+                  disabled={claimingTaskIds.has(task.task_id)}
+                  className={`text-xs px-2.5 py-1 rounded-full transition ${
+                    claimingTaskIds.has(task.task_id)
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-xf-accent hover:bg-xf-accent/90 text-white'
+                  }`}
                 >
-                  领取奖励
+                  {claimingTaskIds.has(task.task_id) ? '领取中...' : '领取奖励'}
                 </button>
               )}
               {/* 进行中 */}
@@ -310,9 +315,14 @@ export function TaskList({ category }: TaskListProps) {
               {pending && (
                 <button
                   onClick={() => handleAccept(task.task_id)}
-                  className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-2.5 py-1 rounded-full transition"
+                  disabled={acceptingTaskIds.has(task.task_id)}
+                  className={`text-xs px-2.5 py-1 rounded-full transition ${
+                    acceptingTaskIds.has(task.task_id)
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary'
+                  }`}
                 >
-                  接取任务
+                  {acceptingTaskIds.has(task.task_id) ? '接取中...' : '接取任务'}
                 </button>
               )}
             </div>

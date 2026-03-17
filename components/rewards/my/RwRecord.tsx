@@ -25,8 +25,8 @@ import {
   type LucideIcon,
 } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-import { getExchangeRecords } from '@/lib/rewards/actions'
-import type { ExchangeRecord, ExchangeStatus } from '@/types/rewards'
+import { getExchangeRecords, type ExchangeRecordWithItem } from '@/lib/rewards/actions'
+import type { ExchangeStatus } from '@/types/rewards'
 
 /**
  * 筛选类型
@@ -142,16 +142,13 @@ const PAGE_SIZE = 5
  * @returns {JSX.Element} 兑换记录组件
  */
 export function RwRecord() {
-  const [records, setRecords] = useState<ExchangeRecord[]>([])
-  const [itemDetails, setItemDetails] = useState<
-    Map<string, { name: string; icon_name: string; icon_color: string }>
-  >(new Map())
+  const [records, setRecords] = useState<ExchangeRecordWithItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [filter, setFilter] = useState<FilterType>('all')
   const [currentPage, setCurrentPage] = useState(1)
 
   /**
-   * 加载兑换记录
+   * 加载兑换记录（P1-3: 服务端已关联查询商品详情，无需二次请求）
    */
   useEffect(() => {
     async function loadRecords() {
@@ -159,29 +156,6 @@ export function RwRecord() {
         setIsLoading(true)
         const data = await getExchangeRecords({ limit: 50 })
         setRecords(data)
-
-        // 获取商品详情用于显示名称和图标
-        const supabase = (await import('@/lib/supabase/client')).createClient()
-        const itemIds = [...new Set(data.map((r) => r.item_id))]
-
-        if (itemIds.length > 0) {
-          const { data: items } = await supabase
-            .from('shop_items')
-            .select('id, name, icon_name, icon_color')
-            .in('id', itemIds)
-
-          if (items) {
-            const detailsMap = new Map()
-            items.forEach((item) => {
-              detailsMap.set(item.id, {
-                name: item.name,
-                icon_name: item.icon_name,
-                icon_color: item.icon_color,
-              })
-            })
-            setItemDetails(detailsMap)
-          }
-        }
       } catch (error) {
         console.error('加载兑换记录失败:', error)
       } finally {
@@ -193,19 +167,18 @@ export function RwRecord() {
   }, [])
 
   /**
-   * 转换后的记录列表
+   * 转换后的记录列表（P1-3: 直接使用服务端返回的商品详情）
    */
   const mappedRecords = useMemo(() => {
-    return records.map((record) => {
-      const details = itemDetails.get(record.item_id)
-      return mapExchangeToRecord(
+    return records.map((record) =>
+      mapExchangeToRecord(
         record,
-        details?.name || '未知商品',
-        details?.icon_name || 'Gift',
-        details?.icon_color || ''
+        record.item_name,
+        record.item_icon_name,
+        record.item_icon_color
       )
-    })
-  }, [records, itemDetails])
+    )
+  }, [records])
 
   /**
    * 筛选后的记录

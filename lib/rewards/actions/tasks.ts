@@ -156,11 +156,14 @@ export async function getUserTaskProgress(
 
     const recordMap = new Map(records?.map((r) => [r.task_id, r]))
 
-    return tasks.map((task) => {
+    {/* P1-2: 先收集所有过期任务，批量重置后再返回结果 */}
+    const expiredTasks: { task: typeof tasks[0]; record: UserTaskRecord }[] = []
+
+    const result = tasks.map((task) => {
       const record = recordMap.get(task.id) as UserTaskRecord | undefined
-      
+
       if (record && isTaskExpired(record) && record.status === 'in_progress') {
-        resetExpiredTask(user.id, record.id)
+        expiredTasks.push({ task, record })
         return {
           task_id: task.id,
           title: task.title,
@@ -174,7 +177,7 @@ export async function getUserTaskProgress(
           reward_points: task.reward_points,
         }
       }
-      
+
       return {
         task_id: task.id,
         title: task.title,
@@ -188,6 +191,15 @@ export async function getUserTaskProgress(
         reward_points: task.reward_points,
       }
     })
+
+    {/* 批量等待过期任务重置完成 */}
+    if (expiredTasks.length > 0) {
+      await Promise.all(
+        expiredTasks.map(({ record }) => resetExpiredTask(user!.id, record.id))
+      )
+    }
+
+    return result
   } catch (err) {
     console.error('获取用户任务进度异常:', (err as Error)?.message)
     return []
@@ -430,25 +442,10 @@ export async function acceptTask(
       periodEnd = null
   }
 
-  // 检查是否已接取
-  const { data: existing } = await supabase
-    .from('user_task_records')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('task_id', taskId)
-    .eq('period_start', periodStart)
-    .single()
-
-  if (existing) {
-    const existingRecord = existing as UserTaskRecord
-    if (existingRecord.status === 'in_progress' && isTaskExpired(existingRecord)) {
-      await resetExpiredTask(user.id, existingRecord.id)
-    } else if (existingRecord.status !== 'pending') {
-      return { success: false, error: '已接取该任务' }
-    }
-  }
-
+  {/* P0-4: 原子化接取 - 使用 insert 的 onConflict 处理并发竞态 */}
   const today = new Date().toISOString().split('T')[0]
+
+  // 先检查活跃任务数（上限检查）
   const { count: activeCount } = await supabase
     .from('user_task_records')
     .select('*', { count: 'exact', head: true })
@@ -460,20 +457,33 @@ export async function acceptTask(
     return { success: false, error: '最多同时接取5个任务' }
   }
 
-  // 创建任务记录
-  const { error: insertError } = await supabase.from('user_task_records').insert({
-    user_id: user.id,
-    task_id: taskId,
-    current_progress: 0,
-    target_progress: task.target_count,
-    status: 'in_progress',
-    started_at: new Date().toISOString(),
-    period_start: periodStart,
-    period_end: periodEnd,
-  })
+  // 原子插入：利用唯一约束 (user_id, task_id, period_start) 防止并发重复接取
+  const { data: inserted, error: insertError } = await supabase
+    .from('user_task_records')
+    .insert({
+      user_id: user.id,
+      task_id: taskId,
+      current_progress: 0,
+      target_progress: task.target_count,
+      status: 'in_progress',
+      started_at: new Date().toISOString(),
+      period_start: periodStart,
+      period_end: periodEnd,
+    })
+    .select('id')
 
+  // 处理插入错误
   if (insertError) {
+    // 唯一约束冲突表示已接取
+    if (insertError.code === '23505') {
+      return { success: false, error: '已接取该任务' }
+    }
     console.error('接取任务失败:', insertError)
+    return { success: false, error: '接取失败，请重试' }
+  }
+
+  // 确认插入成功
+  if (!inserted || inserted.length === 0) {
     return { success: false, error: '接取失败，请重试' }
   }
 

@@ -80,6 +80,7 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
     status: item.status,
     created_at: item.created_at,
     updated_at: item.updated_at,
+    published_at: item.published_at,
   }));
 }
 
