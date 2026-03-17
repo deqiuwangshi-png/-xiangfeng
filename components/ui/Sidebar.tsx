@@ -9,6 +9,7 @@
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserProfileSection } from '@/components/user/UserProfileSection'
 
@@ -146,7 +147,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
           }
           
           return (
-            <a
+            <Link
               key={item.id}
               href={item.href}
               onMouseEnter={handleMouseEnter}
@@ -156,7 +157,6 @@ export function Sidebar({ user, profile }: SidebarProps) {
                 ${isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'}
               `}
             >
-              {/* 激活状态指示器 */}
               <div
                 className={`
                   nav-active-indicator absolute left-0 h-[60%] w-1 bg-xf-accent rounded-r 
@@ -166,7 +166,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
               />
               <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>
-            </a>
+            </Link>
           )
         })}
       </nav>

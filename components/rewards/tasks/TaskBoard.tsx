@@ -7,6 +7,7 @@
  */
 
 import { toast } from 'sonner'
+import Link from 'next/link'
 import { useTasks } from '../hooks'
 import { ListTodo, ArrowRight, Target, BookOpen, Trophy, Users, PenTool, Heart, MessageCircle } from '@/components/icons'
 import type { TaskStatus } from '@/types/rewards'
@@ -172,13 +173,13 @@ export function TaskBoard() {
           <p className="text-xs mt-1 opacity-60">任务将在不久后上线</p>
         </div>
         <div className="mt-5 text-right">
-          <a
+          <Link
             href="/rewards/tasks"
             className="text-xs text-xf-primary hover:text-xf-accent flex items-center justify-end gap-1"
           >
             所有任务
             <ArrowRight className="w-3 h-3" />
-          </a>
+          </Link>
         </div>
       </div>
     )

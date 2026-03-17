@@ -1,10 +1,11 @@
 import { Twitter, Github } from 'lucide-react'
+import Link from 'next/link'
 import { Logo } from '@/components/icons'
 
 /**
  * 页脚组件 - 服务端组件
- * ✅ 纯展示，无客户端交互
- * ✅ 服务端渲染，SEO友好
+ * 纯展示，无客户端交互
+ * 服务端渲染，SEO友好
  */
 export default function Footer() {
   return (
@@ -32,14 +33,14 @@ export default function Footer() {
             <h4 className="font-bold text-lg mb-6">关于产品</h4>
             <ul className="space-y-3 text-slate-400">
               <li>
-                <a href="/about" className="hover:text-white transition-colors">
+                <Link href="/about" className="hover:text-white transition-colors">
                   关于我们
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/partners" className="hover:text-white transition-colors">
+                <Link href="/partners" className="hover:text-white transition-colors">
                   品牌合作
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -48,14 +49,14 @@ export default function Footer() {
             <h4 className="font-bold text-lg mb-6">支持帮助</h4>
             <ul className="space-y-3 text-slate-400">
               <li>
-                <a href="privacy" className="hover:text-slate-300 transition-colors">
+                <Link href="/privacy" className="hover:text-slate-300 transition-colors">
                   隐私政策
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="terms" className="hover:text-slate-300 transition-colors">
+                <Link href="/terms" className="hover:text-slate-300 transition-colors">
                   服务条款
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

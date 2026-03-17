@@ -8,6 +8,7 @@
 
 import { User, Newspaper, MessageSquare, Settings, LogOut} from 'lucide-react'
 import { useMemo, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useLogout } from '@/lib/auth'
 
@@ -144,9 +145,9 @@ export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdo
             {item.label}
           </button>
         ) : (
-          <a
+          <Link
             key={item.href}
-            href={item.href}
+            href={item.href!}
             onClick={onClose}
             className={`
               flex items-center gap-3 px-5 py-3 text-sm 
@@ -159,7 +160,7 @@ export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdo
           >
             <item.icon className="w-4 h-4" />
             {item.label}
-          </a>
+          </Link>
         )
       ))}
     </div>

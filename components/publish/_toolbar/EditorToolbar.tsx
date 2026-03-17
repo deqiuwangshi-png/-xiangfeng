@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Quote, Code,
-  Link, List, ListOrdered, Minus, Eraser, Undo, Redo,
+  List, ListOrdered, Minus, Eraser, Undo, Redo,
   ArrowUpToLine, ChevronDown
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
@@ -24,8 +24,6 @@ interface EditorToolbarProps {
   onToggleFullscreen: () => void
   onToggleToolbar: () => void
   isCollapsed: boolean
-  onShowLinkBubble?: () => void
-  showLinkBubble?: boolean
 }
 
 export function EditorToolbar({
@@ -33,8 +31,6 @@ export function EditorToolbar({
   onFocusTitle,
   onToggleToolbar,
   isCollapsed,
-  onShowLinkBubble,
-  showLinkBubble,
 }: EditorToolbarProps) {
   const toolbarRef = useRef<HTMLDivElement>(null)
 
@@ -169,13 +165,6 @@ export function EditorToolbar({
 
       {/* 插入工具组 */}
       <div className={`flex gap-1 items-center ${isCollapsed ? 'hidden' : ''}`}>
-        <ToolbarButton
-          icon={Link}
-          tooltip="链接"
-          onClick={onShowLinkBubble || (() => {})}
-          title="链接 (Ctrl+K)"
-          isActive={showLinkBubble}
-        />
         <ToolbarButton
           icon={List}
           tooltip="列表"
