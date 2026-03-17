@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from '@/components/icons'
+import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
 import { AvatarPlaceholder, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
+import { getAvtUrl } from '@/lib/utils/getAvtUrl'
 import { UserData, UpdateProfileParams } from '@/types/settings'
 
 /**
@@ -39,6 +40,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
     bio: initialData?.bio || '',
     location: initialData?.location || '',
     avatar_url: initialData?.avatar_url || '',
+    domain: initialData?.domain || '',
   })
 
   /**
@@ -50,11 +52,10 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   /**
-   * 生成新的随机头像
+   * 生成新的统一头像
    */
   const generateNewAvatar = () => {
-    const seed = Math.random().toString(36).substring(7)
-    const newAvatarUrl = `https://api.dicebear.com/7.x/micah/svg?seed=${seed}&backgroundColor=B6CAD7`
+    const newAvatarUrl = getAvtUrl(formData.username)
     setFormData(prev => ({ ...prev, avatar_url: newAvatarUrl }))
   }
 
@@ -73,6 +74,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
         bio: formData.bio,
         location: formData.location,
         avatar_url: formData.avatar_url,
+        domain: formData.domain,
       }
 
       const result = await updateProfile(params)
@@ -181,19 +183,39 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
               </div>
             </div>
 
-            {/* 第二行：所在城市 */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
-                <MapPin className="w-5 h-5 text-xf-primary" />
-                所在城市
-              </label>
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => handleChange('location', e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
-                placeholder="请输入所在城市"
-              />
+            {/* 第二行：所在城市和个人领域 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 所在城市 - 缩短长度 */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
+                  <MapPin className="w-5 h-5 text-xf-primary" />
+                  所在城市
+                </label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
+                  placeholder="如：北京"
+                  maxLength={20}
+                />
+              </div>
+
+              {/* 个人领域 */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-lg font-bold text-xf-dark text-layer-1">
+                  <Filter className="w-5 h-5 text-xf-primary" />
+                  个人领域
+                </label>
+                <input
+                  type="text"
+                  value={formData.domain || ''}
+                  onChange={(e) => handleChange('domain', e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all"
+                  placeholder="如：前端开发、产品设计等"
+                  maxLength={30}
+                />
+              </div>
             </div>
           </div>
         </div>

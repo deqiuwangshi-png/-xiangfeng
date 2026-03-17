@@ -73,8 +73,8 @@ export function useRegisterForm(): UseRegisterFormReturn {
 
     if (!formData.username) {
       newErrors.username = '请输入用户名';
-    } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]{2,50}$/.test(formData.username)) {
-      newErrors.username = '用户名2-50字符，仅支持字母、数字、下划线和中文';
+    } else if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]{2,20}$/.test(formData.username)) {
+      newErrors.username = '用户名2-20字符，仅支持字母、数字、下划线和中文';
     }
 
     setErrors(newErrors);

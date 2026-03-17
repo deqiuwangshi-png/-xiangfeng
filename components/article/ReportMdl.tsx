@@ -8,7 +8,8 @@
 
 import { useState } from 'react'
 import { X, AlertTriangle } from 'lucide-react'
-import { toast } from 'sonner'
+import type { ReportMdlProps } from '@/types'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 举报类型配置
@@ -20,18 +21,6 @@ const REPORT_TYPES = [
   { id: 'infringement', label: '侵权', desc: '侵犯他人知识产权或隐私' },
   { id: 'other', label: '其他', desc: '其他违规行为' },
 ]
-
-/**
- * ReportMdl Props 接口
- */
-interface ReportMdlProps {
-  /** 文章ID */
-  articleId: string
-  /** 作者ID */
-  authorId: string
-  /** 关闭回调 */
-  onClose: () => void
-}
 
 /**
  * 举报弹窗组件
@@ -54,15 +43,16 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
   const [selectedType, setSelectedType] = useState('')
   const [reason, setReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { showError, showInfo } = useArticleToast()
 
   /**
    * 处理提交举报
    *
-   * 【空壳实现】后续接入真实API
+   * 后续接入真实API
    */
   const handleSubmit = async () => {
     if (!selectedType) {
-      toast.error('请选择举报类型')
+      showError('请选择举报类型')
       return
     }
 
@@ -72,9 +62,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
     // 模拟提交延迟
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    toast.info('举报功能开发中', {
-      description: '敬请期待后续版本！',
-    })
+    showInfo('举报功能开发中', '敬请期待后续版本！')
     setIsSubmitting(false)
     onClose()
   }
@@ -149,7 +137,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
         {/* 提示信息 */}
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
           <p className="text-xs text-amber-700">
-            <strong>注意：</strong>恶意举报将被扣除50积分。举报成功可获得100积分奖励。
+            <strong>注意：</strong>恶意举报将被扣除100积分。举报成功可获得100积分奖励。
           </p>
         </div>
 

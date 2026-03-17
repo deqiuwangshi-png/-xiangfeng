@@ -1,8 +1,11 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { RevealOnScroll } from './RevealOnScroll'
 
 export default function CTASection() {
+  const router = useRouter()
+
   return (
     <section className="py-20 bg-xf-light/50">
       <RevealOnScroll>
@@ -12,7 +15,7 @@ export default function CTASection() {
             <p className="text-lg text-xf-medium mb-10 max-w-2xl mx-auto">加入相逢，成为知识生态系统的一部分，共同创造价值，共享成长</p>
             
             <button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => router.push('/login')}
               className="px-10 py-4 bg-xf-primary hover:bg-xf-accent text-white rounded-2xl font-semibold text-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95"
             >
               立即开始

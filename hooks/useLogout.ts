@@ -22,20 +22,11 @@ export type { UseLogoutOptions, UseLogoutReturn } from '@/types';
  * 
  * @example
  * // 自定义跳转路径和回调
- * const { isLoggingOut, handleLogout } = useLogout({
- *   redirectTo: '/',
- *   onSuccess: () => console.log('退出成功'),
- *   onError: (err) => console.error('退出失败:', err)
- * })
  * 
  * @example
- * // 在JSX中使用
- * <button onClick={handleLogout} disabled={isLoggingOut}>
- *   {isLoggingOut ? '退出中...' : '退出登录'}
- * </button>
  */
 export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
-  const { redirectTo = '/login', onSuccess, onError } = options
+  const { redirectTo = '/', onSuccess, onError } = options
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   /**

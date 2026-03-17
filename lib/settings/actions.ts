@@ -144,6 +144,31 @@ export async function updateSetting(settingData: UpdateSettingInput): Promise<Up
       }
     }
 
+    // 构建更新数据对象
+    const updateData: Record<string, unknown> = {
+      user_id: user.id,
+      updated_at: new Date().toISOString(),
+    }
+
+    // 根据分类和key构建字段名
+    const fieldName = `${settingData.category}_${settingData.key}`
+    updateData[fieldName] = settingData.value
+
+    // 使用upsert更新或创建设置记录
+    const { error } = await supabase
+      .from('user_settings')
+      .upsert(updateData, {
+        onConflict: 'user_id',
+      })
+
+    if (error) {
+      console.error('更新设置失败:', error)
+      return {
+        success: false,
+        error: '保存失败，请稍后重试',
+      }
+    }
+
     revalidatePath('/settings')
 
     return {
@@ -234,3 +259,87 @@ export const updateContentSettings = createSettingUpdater('content')
  * @returns 更新结果
  */
 export const updateAdvancedSettings = createSettingUpdater('advanced')
+
+/**
+ * 用户统计数据接口
+ */
+export interface UserStats {
+  articles: number
+  followers: number
+  likes: number
+  nodes: number
+}
+
+/**
+ * 获取用户统计数据
+ * @returns 用户统计数据
+ */
+export async function getUserStats(): Promise<{ success: boolean; data?: UserStats; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    // 获取当前用户
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return { success: false, error: '未登录或登录已过期' }
+    }
+
+    // 获取文章数量
+    const { count: articlesCount, error: articlesError } = await supabase
+      .from('articles')
+      .select('*', { count: 'exact', head: true })
+      .eq('author_id', user.id)
+      .eq('status', 'published')
+
+    if (articlesError) {
+      console.error('获取文章数量失败:', articlesError)
+    }
+
+    // 获取关注者数量
+    const { count: followersCount, error: followersError } = await supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', user.id)
+
+    if (followersError) {
+      console.error('获取关注者数量失败:', followersError)
+    }
+
+    // 获取获赞总数
+    const { data: likesData, error: likesError } = await supabase
+      .from('articles')
+      .select('like_count')
+      .eq('author_id', user.id)
+      .eq('status', 'published')
+
+    if (likesError) {
+      console.error('获取获赞数失败:', likesError)
+    }
+
+    const totalLikes = likesData?.reduce((sum, article) => sum + (article.like_count || 0), 0) || 0
+
+    // 获取节点数量（用户加入的社群/节点）
+    const { count: nodesCount, error: nodesError } = await supabase
+      .from('user_nodes')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    if (nodesError) {
+      console.error('获取节点数量失败:', nodesError)
+    }
+
+    return {
+      success: true,
+      data: {
+        articles: articlesCount || 0,
+        followers: followersCount || 0,
+        likes: totalLikes,
+        nodes: nodesCount || 0,
+      },
+    }
+  } catch (err) {
+    console.error('获取用户统计数据失败:', err)
+    return { success: false, error: '获取统计数据失败' }
+  }
+}

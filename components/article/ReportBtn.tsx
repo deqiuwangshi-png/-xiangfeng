@@ -8,20 +8,9 @@
 
 import { Flag } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import type { ReportBtnProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
-
-/**
- * ReportBtn Props 接口
- */
-interface ReportBtnProps {
-  /** 文章ID */
-  articleId: string
-  /** 作者ID */
-  authorId: string
-  /** 当前用户 */
-  currentUser: { id: string } | null
-}
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 举报按钮组件
@@ -30,7 +19,7 @@ interface ReportBtnProps {
  * @returns {JSX.Element} 举报按钮组件
  *
  * @description
- * 【空壳实现】举报功能入口按钮
+ * 举报功能入口按钮
  *
  * 后续功能：
  * - 点击弹出举报弹窗
@@ -38,15 +27,14 @@ interface ReportBtnProps {
  */
 export function ReportBtn({ articleId, authorId, currentUser }: ReportBtnProps) {
   const [showModal, setShowModal] = useState(false)
+  const { showAuthRequired } = useArticleToast()
 
   /**
    * 处理点击举报
    */
   const handleClick = () => {
     if (!currentUser) {
-      toast.error('请先登录', {
-        description: '登录后即可举报违规内容',
-      })
+      showAuthRequired('举报违规内容')
       return
     }
     setShowModal(true)

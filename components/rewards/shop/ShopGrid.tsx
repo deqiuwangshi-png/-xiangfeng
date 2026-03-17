@@ -8,6 +8,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 import { ShoppingBag, ArrowRight, Loader2 } from '@/components/icons'
 import { useShop } from '../hooks'
 import { usePoints } from '../hooks'
@@ -86,13 +87,13 @@ export function ShopGrid() {
           </div>
         </div>
         <div className="mt-4 text-right">
-          <a
+          <Link
             href="/rewards/shop"
             className="text-xs text-xf-primary hover:text-xf-accent flex items-center justify-end gap-1"
           >
             更多商品
             <ArrowRight className="w-3 h-3" />
-          </a>
+          </Link>
         </div>
       </div>
     )

@@ -1,13 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+/**
+ * 消息页客户端组件
+ * @module components/inbox/_client/InboxClient
+ * @description 使用 SWR 全局缓存，实现页面级别状态持久化
+ */
+
+import { useState, useCallback } from 'react'
 import { InboxHeader } from '../_header/InboxHeader'
 import { FilterTabs } from '../_filters/FilterTabs'
 import { NotifList } from '../_list/NotifList'
 import { EmptyState } from '../_list/EmptyState'
 import { CardSkeleton } from '../_list/CardSkeleton'
 import { DeleteConfirmDialog } from '../_dialog/DelConfirmDlg'
-import { useInbox } from '@/hooks/useInbox'
+import { useInboxCache, useInboxRealtime } from '@/hooks/useInboxCache'
+import type { FilterType } from '@/types/notification'
 
 /**
  * 消息页客户端组件属性接口
@@ -20,51 +27,99 @@ interface InboxClientProps {
 
 /**
  * 消息页客户端组件
- * @description 仅负责渲染，状态逻辑由 useInbox 管理，支持单条和批量删除
+ * @description 使用 SWR 全局缓存，页面切换不重复加载，支持 Realtime 增量更新
  * @param {InboxClientProps} props - 组件属性，包含从服务端传入的用户ID
  * @returns {JSX.Element} 消息页JSX
  */
 export function InboxClient({ userId }: InboxClientProps) {
-  const {
-    activeFilter,
-    setActiveFilter,
-    groupedNotifications,
-    isLoading,
-    hasMore,
-    isBatchMode,
-    selectedCount,
-    markAllAsRead,
-    markAsRead,
-    loadMore,
-    toggleBatchMode,
-    cancelBatchMode,
-    selectNotification,
-    deleteNotification,
-    batchDeleteNotifications,
-  } = useInbox(userId)
-
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all')
+  const [isBatchMode, setIsBatchMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false)
 
-  const handleBatchDeleteClick = () => {
-    if (selectedCount > 0) {
+  const {
+    groupedNotifications,
+    isLoading,
+    isValidating,
+    hasMore,
+    unreadCount,
+    loadMore,
+    refresh,
+    markAllAsRead: markAllAsReadCache,
+    markAsRead: markAsReadCache,
+    deleteNotification: deleteNotificationCache,
+    batchDeleteNotifications: batchDeleteNotificationsCache,
+  } = useInboxCache(userId, activeFilter)
+
+  {/* 订阅 Realtime，收到新通知时触发增量更新 */}
+  useInboxRealtime(userId, refresh)
+
+  {/* 切换批量模式 */}
+  const toggleBatchMode = useCallback(() => {
+    setIsBatchMode(prev => !prev)
+    setSelectedIds(new Set())
+  }, [])
+
+  {/* 取消批量模式 */}
+  const cancelBatchMode = useCallback(() => {
+    setIsBatchMode(false)
+    setSelectedIds(new Set())
+  }, [])
+
+  {/* 选择/取消选择通知 */}
+  const selectNotification = useCallback((id: string, selected: boolean) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev)
+      if (selected) {
+        newSet.add(id)
+      } else {
+        newSet.delete(id)
+      }
+      return newSet
+    })
+  }, [])
+
+  {/* 标记所有为已读 */}
+  const handleMarkAllAsRead = useCallback(async () => {
+    await markAllAsReadCache()
+  }, [markAllAsReadCache])
+
+  {/* 标记单个为已读 */}
+  const handleMarkAsRead = useCallback(async (id: string) => {
+    await markAsReadCache(id)
+  }, [markAsReadCache])
+
+  {/* 删除通知 */}
+  const handleDeleteNotification = useCallback(async (id: string) => {
+    await deleteNotificationCache(id)
+  }, [deleteNotificationCache])
+
+  {/* 批量删除 */}
+  const handleBatchDeleteClick = useCallback(() => {
+    if (selectedIds.size > 0) {
       setShowBatchDeleteDialog(true)
     }
-  }
+  }, [selectedIds.size])
 
-  const handleConfirmBatchDelete = () => {
-    batchDeleteNotifications()
+  {/* 确认批量删除 */}
+  const handleConfirmBatchDelete = useCallback(async () => {
+    await batchDeleteNotificationsCache(Array.from(selectedIds))
     setShowBatchDeleteDialog(false)
-  }
+    setSelectedIds(new Set())
+    setIsBatchMode(false)
+  }, [batchDeleteNotificationsCache, selectedIds])
 
   return (
     <div className="max-w-3xl mx-auto px-8 pt-8 pb-20">
       <InboxHeader
-        onMarkAllAsRead={markAllAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
         onBatchDelete={handleBatchDeleteClick}
         isBatchMode={isBatchMode}
         onToggleBatchMode={toggleBatchMode}
-        selectedCount={selectedCount}
+        selectedCount={selectedIds.size}
         onCancelBatch={cancelBatchMode}
+        unreadCount={unreadCount}
+        isValidating={isValidating}
       />
 
       <FilterTabs
@@ -77,10 +132,10 @@ export function InboxClient({ userId }: InboxClientProps) {
       ) : groupedNotifications.length > 0 ? (
         <NotifList
           groupedNotifications={groupedNotifications}
-          onMarkAsRead={markAsRead}
+          onMarkAsRead={handleMarkAsRead}
           onLoadMore={loadMore}
           hasMore={hasMore}
-          onDelete={deleteNotification}
+          onDelete={handleDeleteNotification}
           isBatchMode={isBatchMode}
           onSelect={selectNotification}
         />
@@ -96,7 +151,7 @@ export function InboxClient({ userId }: InboxClientProps) {
         isOpen={showBatchDeleteDialog}
         onClose={() => setShowBatchDeleteDialog(false)}
         onConfirm={handleConfirmBatchDelete}
-        count={selectedCount}
+        count={selectedIds.size}
       />
     </div>
   )

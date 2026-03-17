@@ -4,10 +4,9 @@
  */
 
 import { Sidebar } from '@/components/ui/Sidebar'
-import { getCurrentUser, getCurrentUserWithProfile } from '@/lib/supabase/user'
+import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/user.css'
-import '@/styles/domains/earnings.css'
 import '@/styles/domains/feedback.css'
 import '@/styles/domains/inbox.css'
 
@@ -17,20 +16,26 @@ import '@/styles/domains/inbox.css'
  * @description 用户中心页面的共享布局
  * 使用getCurrentUserWithProfile()获取包含profiles表数据的用户信息
  * 确保侧边栏头像与编辑个人资料页面保持一致
+ * 
+ * 性能优化：
+ * - 只调用一次getCurrentUserWithProfile()，避免重复查询
+ * - 从profile构建user对象，减少数据库往返
  */
 export default async function UserLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  // 获取当前用户及资料信息（包含profiles表数据）
-  const user = await getCurrentUser()
   const profile = await getCurrentUserWithProfile()
 
-  // 如果未登录，重定向到登录页
-  if (!user) {
+  if (!profile) {
     redirect('/login')
   }
+
+  const user = {
+    id: profile.id,
+    email: profile.email,
+  } as const
 
   return (
     <div className="flex h-screen bg-xf-light">

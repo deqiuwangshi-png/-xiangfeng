@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef } from 'react'
-import { toast } from 'sonner'
 import { Send, Loader2 } from '@/components/icons'
 import type { CommentFormProps } from './types'
+import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**
  * 评论表单组件
@@ -19,11 +19,12 @@ export function CommentForm({
   disabled = false,
 }: CommentFormProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { showAuthRequired } = useArticleToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentUser) {
-      toast.error('请先登录后再发表评论')
+      showAuthRequired('发表评论')
       return
     }
 

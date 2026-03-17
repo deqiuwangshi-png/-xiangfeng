@@ -3,8 +3,8 @@ import type { LoginPromptProps } from './types'
 
 /**
  * 登录提示组件 - 服务端组件
- * ✅ 纯展示，无客户端状态
- * ✅ 链接使用标准 <a> 标签，无需客户端路由
+ * 纯展示，无客户端状态
+ * 链接使用标准 <a> 标签，无需客户端路由
  *
  * @param hiddenCount - 隐藏的评论数量
  * @returns 登录提示JSX

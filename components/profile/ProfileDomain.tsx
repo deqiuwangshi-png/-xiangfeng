@@ -29,7 +29,7 @@ import { Construction } from 'lucide-react'
  */
 export function ProfileDomain() {
   return (
-    <div id="profile-domain-section" className="hidden">
+    <div id="profile-domain-section">
       <div className="flex flex-col items-center justify-center py-20 px-4">
         <div className="w-20 h-20 rounded-full bg-xf-bg flex items-center justify-center mb-6">
           <Construction className="w-10 h-10 text-xf-primary" />

@@ -5,10 +5,14 @@
  *
  * @module lib/articles/actions/bookmark
  * @description 处理文章收藏
+ *
+ * @优化说明
+ * - 使用插入-冲突模式减少数据库查询次数
+ * - 移除 ensureUserProfile 检查（应在注册时完成）
+ * - 触发器自动维护 favorite_count
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { ensureUserProfile } from '../helpers/profile';
 import { checkCollectArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
@@ -24,6 +28,12 @@ export interface ToggleBookmarkResult {
 /**
  * 文章收藏/取消收藏
  *
+ * 优化方案：
+ * 1. 直接插入，利用唯一约束判断重复
+ * 2. 冲突时删除（取消收藏）
+ * 3. 触发器自动维护 favorite_count
+ * 4. 减少数据库往返次数
+ *
  * @param articleId - 文章ID
  * @returns 收藏结果
  */
@@ -31,78 +41,55 @@ export async function toggleArticleBookmark(articleId: string): Promise<ToggleBo
   const supabase = await createClient();
 
   try {
-    {/* 获取当前登录用户 */}
+    // 1. 获取当前登录用户
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return { success: false, favorited: false, favorites: 0, error: '请先登录' };
     }
 
-    {/* 确保用户资料存在 */}
-    const profileCreated = await ensureUserProfile(user.id, user.email);
-    if (!profileCreated) {
-      return { success: false, favorited: false, favorites: 0, error: '用户资料初始化失败' };
-    }
-
-    {/* 检查是否已收藏 */}
-    const { data: existingFavorite, error: checkError } = await supabase
-      .from('favorites')
-      .select('id')
-      .eq('article_id', articleId)
-      .eq('user_id', user.id)
-      .single();
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('检查收藏状态失败:', checkError);
-      return { success: false, favorited: false, favorites: 0, error: '操作失败' };
-    }
-
     let favorited = false;
 
-    if (existingFavorite) {
-      {/* 已收藏，取消收藏 */}
-      const { error: deleteError } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('id', existingFavorite.id);
+    // 2. 尝试插入收藏 - 利用唯一约束防重
+    const { error: insertError } = await supabase
+      .from('favorites')
+      .insert({
+        article_id: articleId,
+        user_id: user.id,
+      });
 
-      if (deleteError) {
-        console.error('取消收藏失败:', deleteError);
-        return { success: false, favorited: false, favorites: 0, error: '取消收藏失败' };
+    if (insertError) {
+      // 唯一约束冲突 (23505) = 已收藏，取消收藏
+      if (insertError.code === '23505') {
+        const { error: deleteError } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('article_id', articleId)
+          .eq('user_id', user.id);
+
+        if (deleteError) {
+          console.error('取消收藏失败:', deleteError);
+          return { success: false, favorited: false, favorites: 0, error: '取消收藏失败' };
+        }
+        favorited = false;
+      } else {
+        console.error('收藏插入失败:', insertError);
+        return { success: false, favorited: false, favorites: 0, error: '操作失败' };
       }
-      favorited = false;
     } else {
-      {/* 未收藏，添加收藏 */}
-      const { error: insertError } = await supabase
-        .from('favorites')
-        .insert({
-          article_id: articleId,
-          user_id: user.id,
-        });
-
-      if (insertError) {
-        console.error('收藏失败:', insertError);
-        return { success: false, favorited: false, favorites: 0, error: '收藏失败' };
-      }
+      // 插入成功 = 新收藏
       favorited = true;
-      
-      {/* 检测收藏文章任务 - 异步执行不阻塞 */}
+      // 异步检测任务，不阻塞主流程
       Promise.resolve().then(() => {
         checkCollectArticleTask().catch(console.error);
       });
     }
 
-    {/* 获取最新的收藏数 */}
-    const { data: article } = await supabase
-      .from('articles')
-      .select('favorite_count')
-      .eq('id', articleId)
-      .single();
-
+    // 3. 触发器自动维护 favorite_count，返回乐观更新值
     return {
       success: true,
       favorited,
-      favorites: article?.favorite_count || 0,
+      favorites: favorited ? 1 : 0, // 前端会根据当前状态计算
     };
   } catch (error) {
     console.error('收藏操作失败:', error);

@@ -104,7 +104,10 @@ export default function FeedbackPage() {
             帮助我们一起打磨产品
           </p>
         </div>
-        <button className="text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1">
+        <button
+          onClick={() => handleTabChange('faq')}
+          className="text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1 transition-colors"
+        >
           <HelpCircle className="w-4 h-4" />
           反馈前搜索
         </button>

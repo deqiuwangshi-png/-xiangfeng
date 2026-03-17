@@ -6,23 +6,7 @@
  * @description 打赏弹窗中的选项卡切换按钮
  */
 
-import React from 'react'
-
-/**
- * TabBtn Props 接口
- */
-interface TabBtnProps {
-  /** 是否激活 */
-  active: boolean
-  /** 点击回调 */
-  onClick: () => void
-  /** 图标 */
-  icon: React.ReactNode
-  /** 标签文字 */
-  label: string
-  /** 是否禁用 */
-  disabled?: boolean
-}
+import type { TabBtnProps } from '@/types'
 
 /**
  * 选项卡按钮组件

@@ -87,13 +87,16 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
   /**
    * 上传所有待上传文件
    *
-   * @returns 上传成功的fileToken数组
+   * @returns 上传结果对象，包含成功token列表和失败文件列表
    */
-  const uploadPendingFiles = useCallback(async (): Promise<string[]> => {
+  const uploadPendingFiles = useCallback(async (): Promise<{
+    successfulTokens: string[];
+    failedFiles: { id: string; name: string; error?: string }[];
+  }> => {
     const pendingFiles = uploadedFiles.filter((f) => f.status === 'pending');
 
     if (pendingFiles.length === 0) {
-      return [];
+      return { successfulTokens: [], failedFiles: [] };
     }
 
     // 将所有待上传文件标记为上传中
@@ -104,8 +107,10 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     const uploadResults = await uploadFeedbackFiles(pendingFiles);
 
     const successfulTokens: string[] = [];
+    const failedFiles: { id: string; name: string; error?: string }[] = [];
 
     uploadResults.forEach((result) => {
+      const file = pendingFiles.find((f) => f.id === result.fileId);
       if (result.success && result.fileToken) {
         updateFileStatus(result.fileId, {
           status: 'uploaded',
@@ -117,10 +122,15 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
           status: 'error',
           error: result.error || '上传失败',
         });
+        failedFiles.push({
+          id: result.fileId,
+          name: file?.file.name || '未知文件',
+          error: result.error,
+        });
       }
     });
 
-    return successfulTokens;
+    return { successfulTokens, failedFiles };
   }, [uploadedFiles, updateFileStatus]);
 
   /**
@@ -132,6 +142,12 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
   const handleSubmit = useCallback(
     async (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
+
+      // 防止重复提交
+      if (isSubmitting) {
+        return;
+      }
+
       setSubmitError('');
 
       const error = validateForm();
@@ -144,12 +160,11 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
 
       try {
         // 先上传所有待上传文件
-        const attachmentTokens = await uploadPendingFiles();
+        const { successfulTokens, failedFiles } = await uploadPendingFiles();
 
-        // 检查是否有文件上传失败
-        const failedFiles = uploadedFiles.filter((f) => f.status === 'error');
+        // 检查是否有文件上传失败（直接使用上传结果，不依赖state快照）
         if (failedFiles.length > 0) {
-          setSubmitError(`部分文件上传失败: ${failedFiles.map((f) => f.file.name).join(', ')}`);
+          setSubmitError(`部分文件上传失败: ${failedFiles.map((f) => f.name).join(', ')}`);
           setIsSubmitting(false);
           return;
         }
@@ -160,7 +175,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
           title: title.trim(),
           description: description.trim(),
           contactEmail: contactEmail.trim() || undefined,
-          attachments: attachmentTokens.length > 0 ? attachmentTokens : undefined,
+          attachments: successfulTokens.length > 0 ? successfulTokens : undefined,
         });
 
         if (result.success && result.trackingId) {

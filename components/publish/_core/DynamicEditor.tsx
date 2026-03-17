@@ -6,15 +6,16 @@
  * 使用动态导入避免首屏加载 TipTap 的巨大包体积
  * 仅在需要时加载编辑器代码，显著减少初始 JS 大小
  * 采用单向数据流：TipTap 编辑器作为唯一数据源
+ * 支持编辑模式：接收draftId用于更新草稿
  *
  * @module DynamicEditor
  */
 
-import { useState } from 'react'
 import { useEditorState, useEditorActions } from '../hooks'
 import { useTipTapEditor } from '../hooks/useTipTapEditor'
+import { useAutoSave } from '../hooks/useAutoSave'
 import { EditorHeader } from '../_header/EditorHeader'
-import { EditorCard } from '../_core/EditorCard'  
+import { EditorCard } from '../_core/EditorCard'
 import { EditorToolbar } from '../_toolbar/EditorToolbar'
 
 /**
@@ -25,6 +26,8 @@ interface DynamicEditorProps {
   initialTitle?: string
   /** 初始内容 */
   initialContent?: string
+  /** 草稿ID（编辑模式） */
+  draftId?: string | null
 }
 
 /**
@@ -39,11 +42,9 @@ interface DynamicEditorProps {
  */
 export default function DynamicEditor({
   initialTitle = '',
-  initialContent = ''
+  initialContent = '',
+  draftId = null,
 }: DynamicEditorProps) {
-  // 链接气泡菜单状态
-  const [showLinkBubble, setShowLinkBubble] = useState(false)
-
   // 编辑器状态管理（标题和字数统计）
   const {
     editorState,
@@ -52,7 +53,7 @@ export default function DynamicEditor({
     toggleFullscreen,
     toggleToolbar,
     setEditorState,
-  } = useEditorState(initialTitle, initialContent)
+  } = useEditorState(initialTitle, initialContent, draftId)
 
   // 编辑器操作（保存、发布）
   const {
@@ -61,6 +62,12 @@ export default function DynamicEditor({
     publishContent,
     focusTitle,
   } = useEditorActions(editorState, setEditorState)
+
+  // 从状态中解构出loading状态
+  const { isSaving, isPublishing } = editorState
+
+  // 接入自动保存功能（每30秒自动保存 + 离开页面前保存）
+  useAutoSave(editorState, saveDraft)
 
   // TipTap 编辑器实例 - 作为内容唯一数据源
   const { editor, isMounted } = useTipTapEditor({
@@ -74,6 +81,8 @@ export default function DynamicEditor({
       <EditorHeader
         onSaveDraft={saveDraft}
         onPublish={publishContent}
+        isSaving={isSaving}
+        isPublishing={isPublishing}
       />
 
       <div className="max-w-[840px] mx-auto px-4 py-8 md:py-12 fade-in">
@@ -85,8 +94,6 @@ export default function DynamicEditor({
           contentLength={editorState.contentLength}
           editor={editor}
           isMounted={isMounted}
-          showLinkBubble={showLinkBubble}
-          onCloseLinkBubble={() => setShowLinkBubble(false)}
           onPlaceholderClick={focusTitle}
         />
       </div>
@@ -97,8 +104,6 @@ export default function DynamicEditor({
         onToggleFullscreen={toggleFullscreen}
         onToggleToolbar={toggleToolbar}
         isCollapsed={editorState.isToolbarCollapsed}
-        onShowLinkBubble={() => setShowLinkBubble(true)}
-        showLinkBubble={showLinkBubble}
       />
     </div>
   )

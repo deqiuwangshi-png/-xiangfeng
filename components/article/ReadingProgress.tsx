@@ -2,27 +2,13 @@
 
 /**
  * 阅读进度组件
- *
  * 作用: 显示文章阅读进度条，检测阅读任务
- *
- * 优化点:
- * - 使用 requestAnimationFrame 节流，减少 setState 触发频率
- * - 只有进度变化超过 1% 才更新，避免过度渲染
- * - 使用 GPU 加速提升动画性能
- * - 滚动超过50%时触发阅读任务检测（仅触发一次）
- *
  * @returns {JSX.Element} 阅读进度组件
  */
 
 import { useEffect, useState, useRef } from 'react';
+import type { ReadingProgressProps } from '@/types';
 import { checkReadArticleTask } from '@/lib/rewards/actions/tasks';
-
-/**
- * ReadingProgress Props 接口
- */
-interface ReadingProgressProps {
-  articleId?: string;
-}
 
 /**
  * 阅读进度组件
@@ -38,7 +24,8 @@ interface ReadingProgressProps {
  * - 最小变化阈值减少渲染
  * - 滚动超过50%时触发阅读任务检测
  */
-export default function ReadingProgress({ }: ReadingProgressProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function ReadingProgress(_props: ReadingProgressProps) {
   const [progress, setProgress] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
   const hasTriggeredRef = useRef<boolean>(false);

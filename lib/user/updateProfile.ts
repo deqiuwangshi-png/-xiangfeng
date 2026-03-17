@@ -39,6 +39,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
         bio: params.bio,
         location: params.location,
         avatar_url: params.avatar_url,
+        domain: params.domain,
         updated_at: now,
       }, {
         onConflict: 'id'
@@ -56,6 +57,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
         bio: params.bio,
         location: params.location,
         avatar_url: params.avatar_url,
+        domain: params.domain,
       }
     })
 
@@ -76,6 +78,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
         bio: params.bio || '',
         location: params.location || '',
         avatar_url: params.avatar_url || '',
+        domain: params.domain || '',
       }
     }
 

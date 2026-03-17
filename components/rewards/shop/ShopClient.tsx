@@ -22,10 +22,7 @@ const categoryConfig: Record<ShopCategoryType, string> = {
   card: '卡券',
   merch: '周边',
   physical: '实体',
-  skin: '皮肤',
   lottery: '抽奖',
-  token: '代币',
-  cash: '现金',
 }
 
 /**

@@ -10,6 +10,39 @@
 import { createClient } from '@/lib/supabase/server';
 import { generateSummary } from '@/lib/utils/html';
 import { getAvtUrl } from '@/lib/utils/getAvtUrl';
+import type { DraftData } from '@/types/drafts';
+
+/**
+ * 获取草稿列表（SWR 缓存用）
+ * @description 获取当前用户的所有文章，用于草稿页 SWR 缓存
+ * @returns 草稿数据列表
+ */
+export async function fetchDrafts(): Promise<DraftData[]> {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('用户未登录');
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('author_id', user.id)
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`获取失败: ${error.message}`);
+  }
+
+  return (data || []).map(item => ({
+    id: item.id,
+    title: item.title,
+    content: item.content,
+    summary: item.excerpt || generateSummary(item.content, 100),
+    status: item.status,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+  }));
+}
 
 /**
  * 获取当前用户的文章列表（草稿页用）
@@ -131,5 +164,37 @@ export async function getPublicArticleById(id: string) {
     likesCount: data.like_count || 0,
     commentsCount: data.comment_count || 0,
     viewsCount: data.view_count || 0,
+  };
+}
+
+/**
+ * 获取文章详情（编辑用）
+ *
+ * @description 获取当前用户的文章详情，用于编辑草稿
+ * @param id - 文章ID
+ * @returns 文章详情，如果不是当前用户文章返回null
+ */
+export async function getArticleById(id: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('用户未登录');
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('id', id)
+    .eq('author_id', user.id)
+    .single();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    title: data.title,
+    content: data.content,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
   };
 }

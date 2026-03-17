@@ -1,20 +1,13 @@
 'use client'
 
 import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
-import type { Comment } from '@/types/article'
-
-interface CommentCardActionsProps {
-  comment: Comment
-  currentUser: { id: string } | null
-  isLiking: boolean
-  onLike: (id: string) => void
-  onDelete: (id: string) => void
-}
+import { useArticleToast } from '@/hooks/useArticleToast'
+import type { CommentCardActionsProps } from '@/types'
 
 /**
  * 评论卡片交互组件 - 客户端组件
- * ✅ 处理点赞、回复、删除等交互
- * ✅ 包裹服务端渲染的内容
+ * 处理点赞、回复、删除等交互
+ * 包裹服务端渲染的内容
  */
 export function CommentCardActions({
   comment,
@@ -24,12 +17,28 @@ export function CommentCardActions({
   onDelete,
 }: CommentCardActionsProps) {
   const canDelete = currentUser?.id === comment.author.id
+  const { showAuthRequired } = useArticleToast()
+
+  /**
+   * 处理点赞点击
+   * - 未登录时提示登录
+   * - 已登录时执行点赞
+   */
+  const handleLikeClick = () => {
+    if (!currentUser) {
+      showAuthRequired('点赞评论')
+      return
+    }
+    if (!isLiking) {
+      onLike(comment.id)
+    }
+  }
 
   return (
     <div className="comment-actions">
       <div
         className={`comment-action ${comment.liked ? 'liked' : ''} ${isLiking ? 'opacity-50' : ''}`}
-        onClick={() => !isLiking && currentUser && onLike(comment.id)}
+        onClick={handleLikeClick}
       >
         <Heart
           className={`w-4 h-4 ${comment.liked ? 'fill-current' : ''}`}
@@ -37,10 +46,12 @@ export function CommentCardActions({
         <span>{comment.likes}</span>
       </div>
 
+      {/* 回复功能暂未实现，先隐藏
       <div className="comment-action">
         <CornerUpLeft className="w-4 h-4" />
         <span>回复</span>
       </div>
+      */}
 
       {canDelete && (
         <div

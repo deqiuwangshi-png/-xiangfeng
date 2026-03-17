@@ -198,6 +198,162 @@ body {
   border-bottom: 1px solid rgba(229, 231, 235, 0.8);
 }
 
+/* ====== 作者头像+关注按钮 ====== */
+.author-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.author-avatar-wrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.author-avatar-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.author-avatar-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* 关注按钮 - 白色圆形加号 */
+.follow-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid var(--color-xf-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.follow-btn:hover {
+  transform: scale(1.1);
+  background: var(--color-xf-primary);
+}
+
+.follow-btn:hover svg {
+  color: white !important;
+}
+
+.follow-btn.following {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.follow-btn.following:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.follow-btn.following:hover svg {
+  color: white !important;
+}
+
+.follow-btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ====== 更多操作菜单 ====== */
+.more-actions-container {
+  position: relative;
+}
+
+.more-actions-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  min-width: 120px;
+  z-index: 100;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.more-action-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.more-action-item:hover {
+  background: rgba(106, 91, 138, 0.1);
+  color: var(--color-xf-primary);
+}
+
+.more-action-item.bookmarked {
+  color: #FF9800;
+}
+
+.more-action-item.bookmarked:hover {
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.more-action-item.report:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.more-action-item.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.more-btn.active {
+  background: var(--color-xf-primary);
+  border-color: var(--color-xf-primary);
+}
+
+.more-btn.active .douyin-icon {
+  color: white;
+}
+
 /* ====== 文章正文 (阅读模式) ====== */
 .reading-mode {
   font-size: 1.125rem;
@@ -412,6 +568,12 @@ body {
 
 .comment-content {
   flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .comment-author {

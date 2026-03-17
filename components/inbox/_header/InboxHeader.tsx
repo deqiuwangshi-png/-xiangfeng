@@ -1,6 +1,12 @@
 'use client'
 
-import { Bell, CheckCheck, Trash2, X, CheckSquare } from '@/components/icons'
+/**
+ * 消息页头部组件
+ * @module components/inbox/_header/InboxHeader
+ * @description 包含标题、未读数量、全部已读、批量删除等功能按钮
+ */
+
+import { Bell, CheckCheck, Trash2, X, CheckSquare, Loader2 } from '@/components/icons'
 
 /**
  * 消息页头部组件属性接口
@@ -11,6 +17,8 @@ import { Bell, CheckCheck, Trash2, X, CheckSquare } from '@/components/icons'
  * @property {() => void} onToggleBatchMode - 切换批量模式回调
  * @property {number} selectedCount - 选中的消息数量
  * @property {() => void} onCancelBatch - 取消批量模式回调
+ * @property {number} unreadCount - 未读消息数量
+ * @property {boolean} isValidating - 是否正在验证（后台更新中）
  */
 interface InboxHeaderProps {
   onMarkAllAsRead: () => void
@@ -19,11 +27,13 @@ interface InboxHeaderProps {
   onToggleBatchMode?: () => void
   selectedCount?: number
   onCancelBatch?: () => void
+  unreadCount?: number
+  isValidating?: boolean
 }
 
 /**
  * 消息页头部组件
- * @description 包含标题、全部已读、批量删除等功能按钮
+ * @description 包含标题、未读数量、全部已读、批量删除等功能按钮
  * @param {InboxHeaderProps} props - 组件属性
  * @returns {JSX.Element} 头部组件JSX
  */
@@ -34,13 +44,30 @@ export function InboxHeader({
   onToggleBatchMode,
   selectedCount = 0,
   onCancelBatch,
+  unreadCount = 0,
+  isValidating = false,
 }: InboxHeaderProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-      <h1 className="text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
-        <Bell className="w-6 h-6 text-xf-primary" />
-        消息通知
-      </h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
+          <Bell className="w-6 h-6 text-xf-primary" />
+          消息通知
+        </h1>
+        {/* 未读数量徽章 */}
+        {unreadCount > 0 && (
+          <span className="px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+        {/* 后台更新指示器 */}
+        {isValidating && (
+          <span className="flex items-center gap-1 text-xs text-gray-400">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            更新中
+          </span>
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
         {/* 批量模式下的操作按钮 */}

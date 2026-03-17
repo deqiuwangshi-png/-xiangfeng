@@ -11,7 +11,6 @@
 
 import { GitMerge } from '@/components/icons'
 import { useUpdates } from '@/hooks/useUpdates'
-import { LATEST_VERSION } from '@/constants/updates'
 import { FilterButton, VersionCard, MonthHeader } from '@/components/updates'
 import { UpdateType } from '@/types/updates'
 import { MonthlyUpdate } from '@/types/updates'
@@ -40,7 +39,7 @@ import { MonthlyUpdate } from '@/types/updates'
  * @styles
  * 严格遵循更新日志.html原型文件样式
  */
-export function UpdatesClient({ initialUpdates }: { initialUpdates: MonthlyUpdate[], latestVersion: string }) {
+export function UpdatesClient({ initialUpdates, latestVersion }: { initialUpdates: MonthlyUpdate[], latestVersion: string }) {
   const { filteredUpdates, activeFilter, handleFilterChange } = useUpdates(initialUpdates)
 
   return (
@@ -62,7 +61,7 @@ export function UpdatesClient({ initialUpdates }: { initialUpdates: MonthlyUpdat
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-bold text-xf-dark mb-1">当前版本</h3>
-              <p className="text-xf-medium">相逢 <span className="font-bold text-xf-accent">{LATEST_VERSION}</span></p>
+              <p className="text-xf-medium">相逢 <span className="font-bold text-xf-accent">{latestVersion}</span></p>
             </div>
             <div className="px-4 py-2 bg-xf-accent/10 text-xf-accent rounded-lg text-sm font-medium">
               最新稳定版
@@ -111,8 +110,8 @@ export function UpdatesClient({ initialUpdates }: { initialUpdates: MonthlyUpdat
               isFirst={index === 0}
             />
             
-            {update.versions.map((version, vIndex) => (
-              <VersionCard key={vIndex} version={version} />
+            {update.versions.map((version) => (
+              <VersionCard key={version.version} version={version} />
             ))}
           </div>
         ))}

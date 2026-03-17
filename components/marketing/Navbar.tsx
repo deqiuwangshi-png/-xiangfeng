@@ -1,10 +1,13 @@
 'use client'
 
-import { GitMerge } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Logo } from '@/components/icons'
 
 export default function Navbar() {
+  const router = useRouter()
+
   useEffect(() => {
     const handleScroll = () => {
       const navbar = document.getElementById('navbar')
@@ -27,12 +30,9 @@ export default function Navbar() {
       className="sticky top-0 z-50 w-full transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-white/20"
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 bg-xf-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-            <GitMerge className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-serif text-2xl font-bold logo-text tracking-tight">相逢</span>
-        </a>
+        <Link href="/" className="flex items-center group">
+          <Logo size="sm" className="group-hover:scale-105 transition-transform duration-300" />
+        </Link>
 
         <div className="flex items-center gap-8">
           <Link
@@ -63,7 +63,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <button
-            onClick={() => window.location.href = '/login'}
+            onClick={() => router.push('/login')}
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
           >
             登录

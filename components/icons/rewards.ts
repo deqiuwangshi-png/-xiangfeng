@@ -50,6 +50,7 @@ import {
   TrendingUp,
   Trophy,
   Users,
+  Wallet,
   Zap,
   type LucideIcon,
 } from 'lucide-react'
@@ -101,6 +102,7 @@ export {
   TrendingUp,
   Trophy,
   Users,
+  Wallet,
   Zap,
 }
 
@@ -156,6 +158,7 @@ const iconMap: Record<string, LucideIcon> = {
   TrendingUp,
   Trophy,
   Users,
+  Wallet,
   Zap,
 }
 
