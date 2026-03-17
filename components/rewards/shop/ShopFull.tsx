@@ -73,50 +73,6 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
     [userPoints, exchange, refreshPoints]
   )
 
-  {/* 现金分类：显示空壳组件 */}
-  if (category === 'cash') {
-    return (
-      <div className="card-bg rounded-2xl p-8 text-center">
-        <div className="w-20 h-20 bg-linear-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-4xl">💰</span>
-        </div>
-        <h3 className="text-xl font-bold text-xf-accent mb-3">积分兑换现金</h3>
-        <div className="max-w-md mx-auto space-y-3 text-sm text-xf-medium">
-          <div className="flex items-center justify-between bg-xf-light/50 rounded-lg px-4 py-3">
-            <span>兑换比例</span>
-            <span className="font-bold text-xf-accent">100积分 = 1元</span>
-          </div>
-          <div className="flex items-center justify-between bg-xf-light/50 rounded-lg px-4 py-3">
-            <span>最低兑换</span>
-            <span className="font-bold text-rose-500">100元（10,000积分）</span>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-left">
-            <div className="flex items-start gap-2">
-              <span className="text-amber-500 mt-0.5">⚠️</span>
-              <div className="text-xs text-amber-700">
-                <div className="font-medium mb-1">兑换说明</div>
-                <ul className="space-y-1 list-disc list-inside">
-                  <li>现金兑换需要较高门槛</li>
-                  <li>最低兑换金额为100元</li>
-                  <li>兑换后积分将立即扣除</li>
-                  <li>现金将在1-3个工作日到账</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-6 text-xs text-xf-primary">
-          当前可用积分：<span className="font-bold text-xf-accent">{userPoints.toLocaleString()}</span>
-          {userPoints < 10000 && (
-            <span className="text-rose-500 ml-2">
-              （还需 {(10000 - userPoints).toLocaleString()} 积分可兑换）
-            </span>
-          )}
-        </div>
-      </div>
-    )
-  }
-
   // 加载状态
   if (isLoading) {
     return (
