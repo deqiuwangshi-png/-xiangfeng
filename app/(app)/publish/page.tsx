@@ -11,17 +11,12 @@ import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
  * 3. 骨架屏优化感知性能
  * 4. 支持编辑模式：通过URL参数edit获取草稿ID
  *
- * @param searchParams - URL查询参数
  * @returns 发布页JSX
  */
-export default function PublishPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+export default function PublishPage() {
   return (
     <Suspense fallback={<EditorSkeleton />}>
-      <PublishPageClient searchParams={searchParams} />
+      <PublishPageClient />
     </Suspense>
   )
 }
