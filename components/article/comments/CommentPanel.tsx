@@ -8,7 +8,7 @@
  * @returns {JSX.Element} 评论面板组件
  */
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { X } from '@/components/icons'
 import { useComments } from './_hooks/useComments'
 import { useCommentSubmit } from './_hooks/useCommentSub'
@@ -33,6 +33,7 @@ export function CommentPanel({
   currentUser,
 }: CommentPanelProps) {
   const commentsListRef = useRef<HTMLDivElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
 
   {/* 使用自定义hooks管理状态 */}
   const {
@@ -62,24 +63,39 @@ export function CommentPanel({
     !currentUser && comments.length > MAX_COMMENTS_WITHOUT_LOGIN
 
   /**
+   * 打开评论面板
+   */
+  const handleOpen = () => {
+    setIsOpen(true)
+    document.body.classList.add('comments-open', 'no-scroll')
+  }
+
+  /**
    * 关闭评论面板
    */
   const handleClose = () => {
-    const commentPanel = document.querySelector('.comments-panel') as HTMLElement
-    const overlay = document.querySelector('.comments-overlay') as HTMLElement
-
-    if (commentPanel && overlay) {
-      commentPanel.classList.remove('active')
-      overlay.classList.remove('active')
-      document.body.classList.remove('comments-open', 'no-scroll')
-    }
+    setIsOpen(false)
+    document.body.classList.remove('comments-open', 'no-scroll')
   }
+
+  /**
+   * 监听自定义事件打开面板
+   */
+  useEffect(() => {
+    const handleOpenEvent = () => handleOpen()
+    window.addEventListener('open-comments-panel', handleOpenEvent)
+    return () => window.removeEventListener('open-comments-panel', handleOpenEvent)
+  }, [])
 
   return (
     <>
-      <div className="comments-overlay" onClick={handleClose} suppressHydrationWarning />
+      <div
+        className={`comments-overlay ${isOpen ? 'active' : ''}`}
+        onClick={handleClose}
+        suppressHydrationWarning
+      />
 
-      <div className="comments-panel" suppressHydrationWarning>
+      <div className={`comments-panel ${isOpen ? 'active' : ''}`} suppressHydrationWarning>
         <div className="comments-header">
           <div className="comments-title">
             <span>评论</span>

@@ -34,7 +34,14 @@ export function useComments(
     hasMore: initialHasMore,
   })
 
-  // 统一使用 SWR 管理所有评论相关状态
+  // 统一状态管理
+  const [page, setPage] = useState(1)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [likingIds, setLikingIds] = useState<Set<string>>(new Set())
+  const [totalCount, setTotalCount] = useState(initialTotalCount)
+  const { showDeleteSuccess, showError } = useArticleToast()
+
+  // 使用 SWR 管理评论列表
   const {
     data: comments = initialDataRef.current.comments,
     mutate: mutateComments,
@@ -49,15 +56,8 @@ export function useComments(
     }
   )
 
-  // 统一状态管理：所有状态都基于 SWR 数据
-  const [page, setPage] = useState(1)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [likingIds, setLikingIds] = useState<Set<string>>(new Set())
-  const { showDeleteSuccess, showError } = useArticleToast()
-
   // 从 SWR 数据派生的状态，确保一致性
-  const totalCount = comments.length
-  const hasMore = comments.length < initialTotalCount
+  const hasMore = comments.length < totalCount
 
   /**
    * 加载更多评论
@@ -95,6 +95,8 @@ export function useComments(
       (prev) => [newComment, ...(prev || [])],
       { revalidate: false }
     )
+    // 增加总数
+    setTotalCount((prev) => prev + 1)
   }, [mutateComments])
 
   /**
@@ -185,6 +187,8 @@ export function useComments(
           (prev) => (prev || []).filter((comment) => comment.id !== commentId),
           { revalidate: false }
         )
+        // 减少总数
+        setTotalCount((prev) => Math.max(0, prev - 1))
         showDeleteSuccess('评论')
       } else {
         console.error('删除评论失败:', result.error)

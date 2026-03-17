@@ -129,16 +129,10 @@ export default function ArtAct({
 
   /**
    * 打开评论面板
+   * 使用自定义事件触发，避免直接操作DOM
    */
   const handleCommentsClick = () => {
-    const commentPanel = document.querySelector('.comments-panel') as HTMLElement;
-    const overlay = document.querySelector('.comments-overlay') as HTMLElement;
-
-    if (commentPanel && overlay) {
-      commentPanel.classList.add('active');
-      overlay.classList.add('active');
-      document.body.classList.add('comments-open', 'no-scroll');
-    }
+    window.dispatchEvent(new CustomEvent('open-comments-panel'));
   };
 
   return (

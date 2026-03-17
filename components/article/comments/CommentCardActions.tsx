@@ -46,10 +46,12 @@ export function CommentCardActions({
         <span>{comment.likes}</span>
       </div>
 
+      {/* 回复功能暂未实现，先隐藏
       <div className="comment-action">
         <CornerUpLeft className="w-4 h-4" />
         <span>回复</span>
       </div>
+      */}
 
       {canDelete && (
         <div
