@@ -6,7 +6,7 @@
  * @description 实现页面级别缓存，避免重复获取，支持增量更新
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -20,7 +20,10 @@ import {
 import {
   fetchNotificationsPage,
   fetchUnreadCount as fetchUnreadCountAction,
-  fetchNewNotifications,
+  markAllAsRead as markAllAsReadAction,
+  markAsRead as markAsReadAction,
+  deleteNotification as deleteNotificationAction,
+  batchDeleteNotifications as batchDeleteNotificationsAction,
   type NotificationRow,
 } from '@/lib/notifications/actions'
 
@@ -163,6 +166,10 @@ interface UseInboxCacheReturn {
   hasMore: boolean
   /** 当前页码 */
   currentPage: number
+  /** 当前筛选类型 */
+  activeFilter: FilterType
+  /** 设置筛选类型（会自动重置分页） */
+  setActiveFilter: (filter: FilterType) => void
   /** 加载更多 */
   loadMore: () => Promise<void>
   /** 刷新数据（增量更新） */
@@ -181,15 +188,19 @@ interface UseInboxCacheReturn {
  * 消息通知 SWR 全局缓存 Hook
  * @description 实现页面级别缓存，避免重复获取，支持增量更新
  * @param userId - 当前用户ID
- * @param activeFilter - 当前筛选类型
  * @returns 通知状态和方法
  */
-export function useInboxCache(
-  userId: string,
-  activeFilter: FilterType
-): UseInboxCacheReturn {
+export function useInboxCache(userId: string): UseInboxCacheReturn {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [activeFilter, setActiveFilterState] = useState<FilterType>('all')
+
+  // P1-3: 封装筛选切换逻辑，在切换时同步重置分页状态
+  const setActiveFilter = useCallback((filter: FilterType) => {
+    setActiveFilterState(filter)
+    setCurrentPage(1)
+    setHasMore(true)
+  }, [])
 
   // 使用 SWR 缓存通知列表
   const {
@@ -205,6 +216,12 @@ export function useInboxCache(
       revalidateOnReconnect: false,
       dedupingInterval: Infinity, // 页面级别缓存，不重复获取
       keepPreviousData: true,
+      // P1-1: 根据第一页返回数据量设置 hasMore
+      onSuccess: (data) => {
+        if (data.length < PAGE_SIZE) {
+          setHasMore(false)
+        }
+      },
     }
   )
 
@@ -264,57 +281,52 @@ export function useInboxCache(
     }
   }, [userId, hasMore, currentPage, mutateNotifications])
 
-  // 刷新数据（增量更新）
+  // 刷新数据（增量更新 + 同步已存在通知的更新）
   const refresh = useCallback(async () => {
     if (!userId) return
 
     try {
-      // 获取当前缓存中最新通知的时间
-      const latestNotification = notifications[0]
-      const afterTime = latestNotification?.createdAt || new Date(0).toISOString()
-
-      // 获取新增通知（增量获取）
-      const [newRows, newUnreadCount] = await Promise.all([
-        fetchNewNotifications({ userId, after: afterTime }),
+      // P0-2: 重新获取第一页数据，同步所有通知的最新状态（包括已读变更）
+      const [rows, newUnreadCount] = await Promise.all([
+        fetchNotificationsPage({ userId, page: 1, pageSize: PAGE_SIZE * currentPage }),
         fetchUnreadCountAction({ userId }),
       ])
 
-      if (newRows.length === 0) {
-        // 没有新通知，只更新未读数量
-        await mutateUnreadCount(newUnreadCount, { revalidate: false })
-        return
-      }
+      const refreshedNotifications = rows.map(formatNotification)
 
-      const newNotifications = newRows.map(formatNotification)
-
-      // 合并新数据：新数据添加到前面
-      await mutateNotifications(
-        (prev = []) => {
-          const existingIds = new Set(prev.map(n => n.id))
-          const trulyNew = newNotifications.filter(n => !existingIds.has(n.id))
-          return [...trulyNew, ...prev]
-        },
-        { revalidate: false }
-      )
+      // 更新通知列表（会覆盖现有数据，同步所有字段的最新状态）
+      await mutateNotifications(refreshedNotifications, { revalidate: false })
 
       // 更新未读数量
       await mutateUnreadCount(newUnreadCount, { revalidate: false })
     } catch (err) {
       console.error('刷新通知失败:', err)
     }
-  }, [userId, notifications, mutateNotifications, mutateUnreadCount])
+  }, [userId, currentPage, mutateNotifications, mutateUnreadCount])
 
-  // 标记所有为已读（乐观更新）
-  const markAllAsRead = useCallback(() => {
+  // 标记所有为已读（乐观更新 + 后端持久化）
+  const markAllAsRead = useCallback(async () => {
+    // 乐观更新
     mutateNotifications(
       (prev = []) => prev.map(n => ({ ...n, unread: false })),
       { revalidate: false }
     )
     mutateUnreadCount(0, { revalidate: false })
-  }, [mutateNotifications, mutateUnreadCount])
 
-  // 标记单个为已读（乐观更新）
-  const markAsRead = useCallback((id: string) => {
+    // P0-1: 调用后端持久化
+    try {
+      await markAllAsReadAction({ userId })
+    } catch (err) {
+      console.error('标记全部已读失败:', err)
+      // 失败时刷新数据恢复状态
+      mutateNotifications()
+      mutateUnreadCount()
+    }
+  }, [userId, mutateNotifications, mutateUnreadCount])
+
+  // 标记单个为已读（乐观更新 + 后端持久化）
+  const markAsRead = useCallback(async (id: string) => {
+    // 乐观更新
     mutateNotifications(
       (prev = []) => prev.map(n =>
         n.id === id ? { ...n, unread: false } : n
@@ -325,12 +337,23 @@ export function useInboxCache(
       (prev = 0) => Math.max(0, prev - 1),
       { revalidate: false }
     )
+
+    // P0-1: 调用后端持久化
+    try {
+      await markAsReadAction({ id })
+    } catch (err) {
+      console.error('标记已读失败:', err)
+      // 失败时刷新数据恢复状态
+      mutateNotifications()
+      mutateUnreadCount()
+    }
   }, [mutateNotifications, mutateUnreadCount])
 
-  // 删除通知（乐观更新）
-  const deleteNotification = useCallback((id: string) => {
+  // 删除通知（乐观更新 + 后端持久化）
+  const deleteNotification = useCallback(async (id: string) => {
     const notification = notifications.find(n => n.id === id)
 
+    // 乐观更新
     mutateNotifications(
       (prev = []) => prev.filter(n => n.id !== id),
       { revalidate: false }
@@ -342,14 +365,25 @@ export function useInboxCache(
         { revalidate: false }
       )
     }
+
+    // P0-1: 调用后端持久化
+    try {
+      await deleteNotificationAction({ id })
+    } catch (err) {
+      console.error('删除通知失败:', err)
+      // 失败时刷新数据恢复状态
+      mutateNotifications()
+      mutateUnreadCount()
+    }
   }, [notifications, mutateNotifications, mutateUnreadCount])
 
-  // 批量删除通知（乐观更新）
-  const batchDeleteNotifications = useCallback((ids: string[]) => {
+  // 批量删除通知（乐观更新 + 后端持久化）
+  const batchDeleteNotifications = useCallback(async (ids: string[]) => {
     const unreadDeletedCount = notifications.filter(
       n => ids.includes(n.id) && n.unread
     ).length
 
+    // 乐观更新
     mutateNotifications(
       (prev = []) => prev.filter(n => !ids.includes(n.id)),
       { revalidate: false }
@@ -361,6 +395,16 @@ export function useInboxCache(
         { revalidate: false }
       )
     }
+
+    // P0-1: 调用后端持久化
+    try {
+      await batchDeleteNotificationsAction({ ids })
+    } catch (err) {
+      console.error('批量删除通知失败:', err)
+      // 失败时刷新数据恢复状态
+      mutateNotifications()
+      mutateUnreadCount()
+    }
   }, [notifications, mutateNotifications, mutateUnreadCount])
 
   return {
@@ -371,6 +415,8 @@ export function useInboxCache(
     unreadCount,
     hasMore,
     currentPage,
+    activeFilter,
+    setActiveFilter,
     loadMore,
     refresh,
     markAllAsRead,
@@ -397,48 +443,43 @@ export function useInboxRealtime(
     callbackRef.current = onNewNotification
   }, [onNewNotification])
 
-  useSWR(
-    userId ? [`${INBOX_CACHE_KEY}/realtime`, userId] : null,
-    async () => {
-      const supabase = createClient()
+  // P1-2: 使用 useEffect 管理订阅生命周期，确保正确清理
+  useEffect(() => {
+    if (!userId) return
 
-      const channel = supabase
-        .channel(`notifications:${userId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userId}`,
-          },
-          () => {
-            callbackRef.current()
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${userId}`,
-          },
-          () => {
-            callbackRef.current()
-          }
-        )
-        .subscribe()
+    const supabase = createClient()
 
-      // 返回清理函数
-      return () => {
-        supabase.removeChannel(channel)
-      }
-    },
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: Infinity,
+    const channel = supabase
+      .channel(`notifications:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          callbackRef.current()
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          callbackRef.current()
+        }
+      )
+      .subscribe()
+
+    // 返回清理函数
+    return () => {
+      supabase.removeChannel(channel)
     }
-  )
+  }, [userId])
 }

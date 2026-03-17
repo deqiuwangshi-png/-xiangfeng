@@ -86,10 +86,15 @@ export async function markAsRead(args: { id: string }) {
   const supabase = await createClient()
   const { id } = args
 
+  // P2-1: 获取当前用户并校验归属
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未登录')
+
   const { error } = await supabase
     .from('notifications')
     .update({ is_read: true, read_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', user.id) // 确保只能标记自己的通知
 
   if (error) throw error
 }
@@ -98,7 +103,15 @@ export async function deleteNotification(args: { id: string }) {
   const supabase = await createClient()
   const { id } = args
 
-  const { error } = await supabase.from('notifications').delete().eq('id', id)
+  // P2-1: 获取当前用户并校验归属
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未登录')
+
+  const { error } = await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id) // 确保只能删除自己的通知
   if (error) throw error
 }
 
@@ -107,7 +120,15 @@ export async function batchDeleteNotifications(args: { ids: string[] }) {
   const { ids } = args
   if (ids.length === 0) return
 
-  const { error } = await supabase.from('notifications').delete().in('id', ids)
+  // P2-1: 获取当前用户并校验归属
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('未登录')
+
+  const { error } = await supabase
+    .from('notifications')
+    .delete()
+    .in('id', ids)
+    .eq('user_id', user.id) // 确保只能删除自己的通知
   if (error) throw error
 }
 

@@ -14,7 +14,6 @@ import { EmptyState } from '../_list/EmptyState'
 import { CardSkeleton } from '../_list/CardSkeleton'
 import { DeleteConfirmDialog } from '../_dialog/DelConfirmDlg'
 import { useInboxCache, useInboxRealtime } from '@/hooks/useInboxCache'
-import type { FilterType } from '@/types/notification'
 
 /**
  * 消息页客户端组件属性接口
@@ -32,7 +31,6 @@ interface InboxClientProps {
  * @returns {JSX.Element} 消息页JSX
  */
 export function InboxClient({ userId }: InboxClientProps) {
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all')
   const [isBatchMode, setIsBatchMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showBatchDeleteDialog, setShowBatchDeleteDialog] = useState(false)
@@ -43,13 +41,15 @@ export function InboxClient({ userId }: InboxClientProps) {
     isValidating,
     hasMore,
     unreadCount,
+    activeFilter,
+    setActiveFilter,
     loadMore,
     refresh,
     markAllAsRead: markAllAsReadCache,
     markAsRead: markAsReadCache,
     deleteNotification: deleteNotificationCache,
     batchDeleteNotifications: batchDeleteNotificationsCache,
-  } = useInboxCache(userId, activeFilter)
+  } = useInboxCache(userId)
 
   {/* 订阅 Realtime，收到新通知时触发增量更新 */}
   useInboxRealtime(userId, refresh)
@@ -138,6 +138,7 @@ export function InboxClient({ userId }: InboxClientProps) {
           onDelete={handleDeleteNotification}
           isBatchMode={isBatchMode}
           onSelect={selectNotification}
+          selectedIds={selectedIds}
         />
       ) : (
         <EmptyState
