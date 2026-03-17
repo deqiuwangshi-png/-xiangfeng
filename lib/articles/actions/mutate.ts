@@ -99,20 +99,39 @@ export async function createArticle(data: {
   const sanitizedTitle = sanitizePlainText(validatedData.title);
   const excerpt = generateExcerpt(sanitizedContent, 100);
 
+  // 构建插入数据，直接发布时设置 published_at
+  const insertData: {
+    title: string;
+    content: string;
+    excerpt: string;
+    status: 'draft' | 'published';
+    author_id: string;
+    tags: string[];
+    like_count: number;
+    comment_count: number;
+    view_count: number;
+    published_at?: string;
+  } = {
+    title: sanitizedTitle,
+    content: sanitizedContent,
+    excerpt,
+    status: validatedData.status,
+    author_id: user.id,
+    tags: [],
+    like_count: 0,
+    comment_count: 0,
+    view_count: 0,
+  };
+
+  // 直接发布时设置发布时间
+  if (validatedData.status === 'published') {
+    insertData.published_at = new Date().toISOString();
+  }
+
   const { data: article, error } = await supabase
     .from('articles')
-    .insert({
-      title: sanitizedTitle,
-      content: sanitizedContent,
-      excerpt,
-      status: validatedData.status,
-      author_id: user.id,
-      tags: [],
-      like_count: 0,
-      comment_count: 0,
-      view_count: 0,
-    })
-    .select('id, title, content, excerpt, status, created_at, updated_at')
+    .insert(insertData)
+    .select('id, title, content, excerpt, status, created_at, updated_at, published_at')
     .single();
 
   if (error) {

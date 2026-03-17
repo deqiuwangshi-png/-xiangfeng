@@ -6,7 +6,7 @@
  * @description 实现页面级别缓存，避免重复获取，支持增量更新
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'

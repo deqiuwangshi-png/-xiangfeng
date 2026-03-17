@@ -113,8 +113,8 @@ export interface ArticleCardData {
   summary: string;
   /** 作者信息 */
   author: ArticleAuthor;
-  /** 发布时间 */
-  publishedAt: string;
+  /** 发布时间 - 可能为 null（如草稿未发布） */
+  publishedAt: string | null;
   /** 阅读时长（分钟） */
   readTime: number;
   /** 浏览数 */

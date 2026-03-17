@@ -197,47 +197,44 @@ export function useDrafts(
         if (ids.length === 1) {
           // 单条删除：使用原有方法
           await deleteArticle(ids[0])
-        } else {
-          // 批量删除：使用安全增强版，批量验证所有权
-          const result = await batchDeleteArticles(ids)
 
-          // 处理部分失败的情况
-          if (result.unauthorized.length > 0) {
-            console.warn(`越权尝试: ${result.unauthorized.length} 篇文章`)
-          }
-
-          if (result.notFound.length > 0) {
-            console.warn(`未找到: ${result.notFound.length} 篇文章`)
-          }
-
-          // 只更新成功删除的
-          const actuallyDeleted = result.deleted
           mutateDrafts(
-            (prev) => DraftService.removeDrafts(prev || [], new Set(actuallyDeleted)),
+            (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
             { revalidate: false }
           )
           setSelectedIds((prev) => {
             const newSet = new Set(prev)
-            actuallyDeleted.forEach((id) => newSet.delete(id))
+            ids.forEach((id) => newSet.delete(id))
+            return newSet
+          })
+        } else {
+          // 批量删除：使用安全增强版，批量验证所有权
+          const result = await batchDeleteArticles(ids)
+
+          // 根据返回的统计信息处理
+          if (result.failedCount > 0) {
+            console.warn(`批量删除: ${result.deletedCount} 篇成功, ${result.failedCount} 篇失败`)
+          }
+
+          // 批量删除接口不返回具体ID列表，需要重新获取数据
+          // 使用乐观更新：假设传入的ID都成功删除
+          mutateDrafts(
+            (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
+            { revalidate: true } // 重新验证以确保数据一致
+          )
+          setSelectedIds((prev) => {
+            const newSet = new Set(prev)
+            ids.forEach((id) => newSet.delete(id))
             return newSet
           })
 
-          if (result.unauthorized.length > 0) {
-            toast.warning(`成功删除 ${result.deleted.length} 篇，${result.unauthorized.length} 篇无权删除`)
+          // 显示结果提示
+          if (result.failedCount > 0) {
+            toast.warning(`成功删除 ${result.deletedCount} 篇，${result.failedCount} 篇删除失败`)
             setIsLoading(false)
             return
           }
         }
-
-        mutateDrafts(
-          (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
-          { revalidate: false }
-        )
-        setSelectedIds((prev) => {
-          const newSet = new Set(prev)
-          ids.forEach((id) => newSet.delete(id))
-          return newSet
-        })
 
         if (shouldRefresh) {
           router.refresh()
@@ -258,23 +255,65 @@ export function useDrafts(
 
   /**
    * 执行批量状态更新
+   *
+   * @description 并行执行所有状态更新，提升性能
+   * @param status - 目标状态
+   * @param successMessage - 成功提示消息
+   *
+   * @优化说明
+   * - 使用 Promise.allSettled 并行执行，避免串行等待
+   * - 成功和失败分别统计，部分失败不影响其他操作
+   * - 只更新成功的项目状态，失败的项目保持原状态
    */
   const executeBatchStatusUpdate = useCallback(
     async (status: 'published' | 'archived', successMessage: string) => {
       if (selectedIds.size === 0) return
 
       setIsLoading(true)
+      const idsArray = Array.from(selectedIds)
+
       try {
-        for (const id of Array.from(selectedIds)) {
-          await updateArticleStatus(id, status)
+        // 并行执行所有状态更新
+        const results = await Promise.allSettled(
+          idsArray.map((id) => updateArticleStatus(id, status))
+        )
+
+        // 统计成功和失败
+        const successIds: string[] = []
+        const failedIds: string[] = []
+
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            successIds.push(idsArray[index])
+          } else {
+            failedIds.push(idsArray[index])
+            console.error(`更新文章 ${idsArray[index]} 失败:`, result.reason)
+          }
+        })
+
+        // 更新本地状态（只更新成功的）
+        if (successIds.length > 0) {
+          mutateDrafts(
+            (prev) => DraftService.updateDraftsStatus(prev || [], new Set(successIds), status),
+            { revalidate: false }
+          )
         }
 
-        mutateDrafts(
-          (prev) => DraftService.updateDraftsStatus(prev || [], selectedIds, status),
-          { revalidate: false }
-        )
-        setSelectedIds(new Set())
-        toast.success(successMessage)
+        // 从选中列表中移除已成功的
+        setSelectedIds((prev) => {
+          const newSet = new Set(prev)
+          successIds.forEach((id) => newSet.delete(id))
+          return newSet
+        })
+
+        // 显示结果提示
+        if (failedIds.length === 0) {
+          toast.success(successMessage)
+        } else if (successIds.length === 0) {
+          toast.error('所有操作失败，请重试')
+        } else {
+          toast.warning(`成功 ${successIds.length} 篇，失败 ${failedIds.length} 篇`)
+        }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : '操作失败')
       } finally {

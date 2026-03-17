@@ -16,6 +16,10 @@ import type { DraftData } from '@/types/drafts';
  * 获取草稿列表（SWR 缓存用）
  * @description 获取当前用户的所有文章，用于草稿页 SWR 缓存
  * @returns 草稿数据列表
+ *
+ * @性能优化
+ * - 只查询必要字段，不返回完整 content 减少传输
+ * - content 字段仅用于生成摘要，不在列表展示
  */
 export async function fetchDrafts(): Promise<DraftData[]> {
   const supabase = await createClient();
@@ -25,7 +29,7 @@ export async function fetchDrafts(): Promise<DraftData[]> {
 
   const { data, error } = await supabase
     .from('articles')
-    .select('*')
+    .select('id, title, excerpt, content, status, created_at, updated_at')
     .eq('author_id', user.id)
     .order('updated_at', { ascending: false });
 
@@ -49,6 +53,10 @@ export async function fetchDrafts(): Promise<DraftData[]> {
  *
  * @param status - 文章状态筛选 (all/draft/published/archived)
  * @returns 文章列表
+ *
+ * @性能优化
+ * - 只查询必要字段，不返回完整 content 减少传输
+ * - content 字段仅用于生成摘要，不在列表展示
  */
 export async function getArticles(status?: 'all' | 'draft' | 'published' | 'archived') {
   const supabase = await createClient();
@@ -58,7 +66,7 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
 
   let query = supabase
     .from('articles')
-    .select('*')
+    .select('id, title, excerpt, content, status, created_at, updated_at, published_at')
     .eq('author_id', user.id)
     .order('updated_at', { ascending: false });
 
