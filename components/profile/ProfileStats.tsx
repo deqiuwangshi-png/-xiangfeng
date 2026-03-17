@@ -7,6 +7,7 @@
  */
 
 import { FileText, Users, ThumbsUp, Share2 } from 'lucide-react'
+import type { UserStats } from '@/lib/settings/actions'
 
 /**
  * 统计项接口
@@ -29,44 +30,48 @@ interface StatItem {
 /**
  * 统计数据配置
  * 
- * @constant statsData
- * @description 定义用户统计数据
+ * @param stats 用户统计数据
+ * @returns 统计项配置数组
  */
-const statsData: StatItem[] = [
-  {
-    value: '0',
-    label: '文章',
-    icon: FileText,
-    iconGradient: 'from-blue-100 to-blue-200',
-    iconColor: 'text-xf-info'
-  },
-  {
-    value: '0',
-    label: '关注者',
-    icon: Users,
-    iconGradient: 'from-purple-100 to-purple-200',
-    iconColor: 'text-xf-primary'
-  },
-  {
-    value: '0',
-    label: '获赞',
-    icon: ThumbsUp,
-    iconGradient: 'from-indigo-100 to-indigo-200',
-    iconColor: 'text-xf-accent'
-  },
-  {
-    value: '0',
-    label: '节点',
-    icon: Share2,
-    iconGradient: 'from-green-100 to-green-200',
-    iconColor: 'text-xf-success'
-  }
-]
+function getStatsData(stats: UserStats): StatItem[] {
+  return [
+    {
+      value: String(stats.articles),
+      label: '文章',
+      icon: FileText,
+      iconGradient: 'from-blue-100 to-blue-200',
+      iconColor: 'text-xf-info'
+    },
+    {
+      value: String(stats.followers),
+      label: '关注者',
+      icon: Users,
+      iconGradient: 'from-purple-100 to-purple-200',
+      iconColor: 'text-xf-primary'
+    },
+    {
+      value: String(stats.likes),
+      label: '获赞',
+      icon: ThumbsUp,
+      iconGradient: 'from-indigo-100 to-indigo-200',
+      iconColor: 'text-xf-accent'
+    },
+    {
+      value: String(stats.nodes),
+      label: '节点',
+      icon: Share2,
+      iconGradient: 'from-green-100 to-green-200',
+      iconColor: 'text-xf-success'
+    }
+  ]
+}
 
 /**
  * 数据统计组件
  * 
  * @function ProfileStats
+ * @param {Object} props - 组件属性
+ * @param {UserStats} props.stats - 用户统计数据
  * @returns {JSX.Element} 数据统计组件
  * 
  * @description
@@ -81,7 +86,9 @@ const statsData: StatItem[] = [
  * - 响应式设计（移动端2列，桌面端4列）
  * - 所有间距完全复制原型数值
  */
-export function ProfileStats() {
+export function ProfileStats({ stats }: { stats: UserStats }) {
+  const statsData = getStatsData(stats)
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
       {statsData.map((stat) => (

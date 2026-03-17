@@ -99,7 +99,7 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
     selectedFiles.forEach((file) => {
       // 验证文件类型
       if (!validateFileType(file)) {
-        showErrorToast(`「${file.name}」格式不支持，仅接受图片(PNG/JPG/JPEG/GIF/WEBP)和文档(MD/PDF)`);
+        showErrorToast(`「${file.name}」格式不支持，仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)和文档格式(MD, PDF)`);
         return;
       }
 

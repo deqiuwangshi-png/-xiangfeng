@@ -6,14 +6,66 @@ import { createClient } from '@/lib/supabase/server';
  * 从 Supabase Storage 删除文件
  *
  * @param fileUrl 文件的公开访问URL
+ * @param feedbackId 关联的反馈ID（用于权限校验）
  * @returns 删除结果
+ *
+ * @安全说明
+ * - 验证当前用户是否登录
+ * - 验证文件是否属于当前用户的反馈
+ * - 防止越权删除他人文件
  */
-export async function deleteFeedbackAttachment(fileUrl: string): Promise<{
+export async function deleteFeedbackAttachment(
+  fileUrl: string,
+  feedbackId: string
+): Promise<{
   success: boolean;
   error?: string;
 }> {
   try {
     const supabase = await createClient();
+
+    // 获取当前用户
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return {
+        success: false,
+        error: '用户未登录',
+      };
+    }
+
+    // 验证反馈归属：检查该反馈是否属于当前用户
+    const { data: feedbackData, error: feedbackError } = await supabase
+      .from('feedback')
+      .select('user_id, attachments')
+      .eq('id', feedbackId)
+      .single();
+
+    if (feedbackError || !feedbackData) {
+      return {
+        success: false,
+        error: '反馈不存在',
+      };
+    }
+
+    // 验证当前用户是否为反馈所有者
+    if (feedbackData.user_id !== user.id) {
+      return {
+        success: false,
+        error: '无权删除此附件',
+      };
+    }
+
+    // 验证文件URL是否在该反馈的附件列表中
+    const attachments = feedbackData.attachments || [];
+    const isAttachmentExist = attachments.some((url: string) => url.includes(fileUrl) || fileUrl.includes(url));
+
+    if (!isAttachmentExist) {
+      return {
+        success: false,
+        error: '附件不属于该反馈',
+      };
+    }
 
     {/* 从URL中提取文件路径 */}
     const url = new URL(fileUrl);

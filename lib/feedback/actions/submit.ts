@@ -14,7 +14,7 @@ const feedbackSchema = z.object({
   title: z.string().min(1, '反馈标题不能为空').max(200, '反馈标题不能超过200字符'),
   description: z.string().min(1, '详细描述不能为空').max(5000, '详细描述不能超过5000字符'),
   contactEmail: z.email('邮箱格式不正确').optional().or(z.literal('')),
-  attachments: z.array(z.url('附件链接格式不正确')).optional(),
+  attachments: z.array(z.string().min(1, '附件token不能为空')).max(10, '附件数量不能超过10个').optional(),
 });
 
 /**

@@ -16,6 +16,7 @@ export {
   getArticles,
   getPublishedArticles,
   getPublicArticleById,
+  getArticleById,
 } from './query';
 
 // 增删改操作

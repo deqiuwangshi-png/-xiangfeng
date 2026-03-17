@@ -28,6 +28,7 @@ import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getUserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
+import { getUserStats } from '@/lib/settings/actions'
 
 /**
  * 个人主页页面组件
@@ -75,14 +76,20 @@ export default async function ProfilePage() {
   // 构造用户显示信息（与 Sidebar 一致），优先使用 profile 数据
   const userData = getUserDisplayInfo(user, profile)
 
+  // 获取用户统计数据
+  const statsResult = await getUserStats()
+  const stats = statsResult.success && statsResult.data
+    ? statsResult.data
+    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
+
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth">
       <div className="max-w-6xl mx-auto fade-in-up">
         {/* 个人资料头部 - 传递真实用户数据 */}
         <ProfileHeader user={userData} />
 
-        {/* 数据统计 */}
-        <ProfileStats />
+        {/* 数据统计 - 传递真实统计数据 */}
+        <ProfileStats stats={stats} />
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">

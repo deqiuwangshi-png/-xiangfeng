@@ -111,7 +111,7 @@ export async function ProfileContent() {
                 <div>
                   <span className="text-sm font-bold text-xf-dark block">我的文章</span>
                   <span className="text-xs text-xf-medium font-medium">
-                    发布于 {formatDistanceToNow(article.created_at)}
+                    发布于 {formatDistanceToNow(article.published_at || article.created_at)}
                   </span>
                 </div>
               </div>

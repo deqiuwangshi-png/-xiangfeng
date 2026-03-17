@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { EditorState } from './useEditorState'
-import { createArticle, updateArticle } from '@/lib/articles/actions/crud'
+import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
 
 /**
  * 编辑器操作 Hook
@@ -72,7 +72,8 @@ export const useEditorActions = (
    * 发布文章
    *
    * @description 将当前编辑器内容发布为正式文章
-   * @requires 标题和内容都不能为空
+   * @requires 标题和内容都不能为空（内容检查纯文本长度，避免HTML标签干扰）
+   * @logic 如果有draftId则更新原草稿状态为published，否则创建新文章
    * @redirects 发布成功后跳转到文章详情页
    */
   const publishContent = async () => {
@@ -81,7 +82,9 @@ export const useEditorActions = (
       titleRef.current?.focus()
       return
     }
-    if (!editorState.content.trim()) {
+    // 检查纯文本长度，避免HTML标签（如<p></p>）通过校验
+    const textContent = editorState.content.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim()
+    if (!textContent || textContent.length === 0) {
       toast.error('请输入文章内容')
       return
     }
@@ -89,16 +92,30 @@ export const useEditorActions = (
     setEditorState(prev => ({ ...prev, isPublishing: true }))
 
     try {
-      // 发布文章
-      const article = await createArticle({
-        title: editorState.title,
-        content: editorState.content,
-        status: 'published',
-      })
+      let articleId: string
 
-      toast.success('发布成功')
+      if (editorState.draftId) {
+        // 有草稿ID，先更新内容，再更新状态为已发布
+        await updateArticle(editorState.draftId, {
+          title: editorState.title,
+          content: editorState.content,
+        })
+        await updateArticleStatus(editorState.draftId, 'published')
+        articleId = editorState.draftId
+        toast.success('草稿发布成功')
+      } else {
+        // 无草稿ID，创建新文章
+        const article = await createArticle({
+          title: editorState.title,
+          content: editorState.content,
+          status: 'published',
+        })
+        articleId = article.id
+        toast.success('发布成功')
+      }
+
       // 直接跳转到文章详情页
-      router.push(`/article/${article.id}`)
+      router.push(`/article/${articleId}`)
     } catch (error) {
       console.error('发布失败:', error)
       toast.error(error instanceof Error ? error.message : '发布失败，请重试')

@@ -166,3 +166,35 @@ export async function getPublicArticleById(id: string) {
     viewsCount: data.view_count || 0,
   };
 }
+
+/**
+ * 获取文章详情（编辑用）
+ *
+ * @description 获取当前用户的文章详情，用于编辑草稿
+ * @param id - 文章ID
+ * @returns 文章详情，如果不是当前用户文章返回null
+ */
+export async function getArticleById(id: string) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('用户未登录');
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('id', id)
+    .eq('author_id', user.id)
+    .single();
+
+  if (error || !data) return null;
+
+  return {
+    id: data.id,
+    title: data.title,
+    content: data.content,
+    status: data.status,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
