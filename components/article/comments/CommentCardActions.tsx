@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, CornerUpLeft, Trash2 } from '@/components/icons'
+import { Heart, Trash2 } from '@/components/icons'
 import { useArticleToast } from '@/hooks/useArticleToast'
 import type { CommentCardActionsProps } from '@/types'
 
