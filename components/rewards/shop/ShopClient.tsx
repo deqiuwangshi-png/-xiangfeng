@@ -7,7 +7,8 @@
  */
 
 import { useState } from 'react'
-import { ArrowLeft, Coins, Link } from '@/components/icons'
+import Link from 'next/link'
+import { ArrowLeft, Coins } from '@/components/icons'
 import { ShopNav } from './ShopNav'
 import { ShopFull } from './ShopFull'
 import { usePoints } from '../hooks/usePoints'
