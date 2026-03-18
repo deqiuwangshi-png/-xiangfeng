@@ -6,9 +6,9 @@ import { Trash2 } from '@/components/icons'
  * DraftsHeader Props 接口
  */
 interface DraftsHeaderProps {
-  /** 文章数量 */
+  /** 草稿数量 */
   draftCount: number
-  /** 清空文章按钮点击回调 */
+  /** 清空草稿按钮点击回调 */
   onClearAllDrafts: () => void
 }
 
@@ -21,8 +21,8 @@ interface DraftsHeaderProps {
  *
  * @description
  * 纯展示组件，职责：
- * 1. 显示页面标题和文章数量
- * 2. 提供清空文章按钮
+ * 1. 显示页面标题和草稿数量
+ * 2. 提供清空草稿按钮（仅删除状态为 draft 的文章）
  *
  * 不管理任何状态，所有交互通过回调函数传递给父组件
  */
@@ -46,14 +46,14 @@ export function DraftsHeader({
 
           {/* 右侧：操作按钮 */}
           <div className="flex items-center gap-3">
-            {/* 清空文章按钮 */}
+            {/* 清空草稿按钮 */}
             <button
               onClick={onClearAllDrafts}
               disabled={draftCount === 0}
               className="text-sm text-xf-danger hover:text-red-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-4 h-4" />
-              <span className="hidden sm:inline">清空文章</span>
+              <span className="hidden sm:inline">清空草稿</span>
             </button>
           </div>
         </div>

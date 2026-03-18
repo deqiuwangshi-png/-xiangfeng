@@ -1,26 +1,10 @@
 import type { Metadata } from "next";
-import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SWRProvider } from "@/components/providers/SWRProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 
-/**
- * 无衬线字体配置 - 用于正文和UI元素
- */
-const notoSansSC = Noto_Sans_SC({
-  weight: ["400", "500", "700"],
-  variable: "--font-sans",
-});
-
-/**
- * 衬线字体配置 - 用于标题和强调文本
- */
-const notoSerifSC = Noto_Serif_SC({
-  weight: ["500", "700"],
-  variable: "--font-serif",
-});
 
 export const metadata: Metadata = {
   title: "相逢 Xiangfeng - 不止相遇，更是改变",
@@ -40,7 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${notoSansSC.variable} ${notoSerifSC.variable} antialiased`}>
+      {/*
+        @体验修复 U-02: 使用系统字体栈
+        - 通过 CSS 变量定义字体族
+        - 优先使用系统自带中文字体，无需网络下载
+      */}
+      <body className={`font-serif antialiased`}>
         <SWRProvider>
           {children}
           <ToastProvider />

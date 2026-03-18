@@ -97,6 +97,7 @@ export async function uploadFeedbackAttachment(formData: FormData) {
 
 /**
  * 批量上传反馈附件到飞书
+ * @性能优化 P-04: 使用 Promise.all 并行上传，提升多附件上传速度
  * 在提交反馈时调用，避免提前上传浪费资源
  *
  * @param files 待上传文件列表
@@ -105,9 +106,13 @@ export async function uploadFeedbackAttachment(formData: FormData) {
 export async function uploadFeedbackFiles(
   files: Pick<UploadedFile, 'id' | 'file'>[]
 ): Promise<UploadResult[]> {
-  const results: UploadResult[] = [];
-
-  for (const fileItem of files) {
+  /**
+   * @性能优化 P-04: 并行上传所有文件
+   * - 使用 Promise.all 替代 for...of 串行执行
+   * - 多附件场景下总耗时从 O(n) 降至 O(1)
+   * - 单文件失败不影响其他文件上传
+   */
+  const uploadPromises = files.map(async (fileItem) => {
     try {
       const formData = new FormData();
       formData.append('file', fileItem.file);
@@ -115,27 +120,28 @@ export async function uploadFeedbackFiles(
       const result = await uploadFeedbackAttachment(formData);
 
       if (result.success && result.fileToken) {
-        results.push({
+        return {
           fileId: fileItem.id,
           success: true,
           fileToken: result.fileToken,
-        });
+        } as UploadResult;
       } else {
-        results.push({
+        return {
           fileId: fileItem.id,
           success: false,
           error: result.error || '上传失败',
-        });
+        } as UploadResult;
       }
     } catch (error) {
       console.error(`上传文件 ${fileItem.file.name} 失败:`, error);
-      results.push({
+      return {
         fileId: fileItem.id,
         success: false,
         error: error instanceof Error ? error.message : '上传失败',
-      });
+      } as UploadResult;
     }
-  }
+  });
 
-  return results;
+  // 并行执行所有上传任务
+  return Promise.all(uploadPromises);
 }

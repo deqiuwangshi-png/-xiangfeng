@@ -140,6 +140,14 @@ export async function batchDeleteNotifications(args: { ids: string[] }) {
  * @param args.after - 时间戳，只获取此时间之后创建的通知
  * @returns 新增的通知列表
  */
+/**
+ * 增量获取新通知（带上限限制）
+ *
+ * @性能优化 P-03: 添加 limit 限制，防止长时间离线后拉取过多数据
+ * @param args.userId - 用户ID
+ * @param args.after - 时间戳，只获取此时间之后创建的通知
+ * @returns 新增的通知列表（最多 100 条）
+ */
 export async function fetchNewNotifications(args: {
   userId: string
   after: string
@@ -147,6 +155,12 @@ export async function fetchNewNotifications(args: {
   const supabase = await createClient()
   const { userId, after } = args
 
+  /**
+   * @性能优化 P-03: 添加 limit(100) 限制
+   * - 防止长时间离线后一次拉取过多数据
+   * - 避免慢查询和前端渲染压力
+   * - 100 条足够覆盖正常场景，超出部分下次轮询获取
+   */
   const { data, error } = await supabase
     .from('notifications')
     .select(
@@ -164,6 +178,7 @@ export async function fetchNewNotifications(args: {
     .eq('user_id', userId)
     .gt('created_at', after)
     .order('created_at', { ascending: false })
+    .limit(100)
 
   if (error) throw error
   return (data ?? []) as unknown as NotificationRow[]

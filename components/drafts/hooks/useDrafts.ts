@@ -346,6 +346,8 @@ export function useDrafts(
 
   /**
    * 处理清空所有草稿
+   *
+   * @description 只删除状态为 draft 的草稿，已发布/归档的文章不受影响
    */
   const handleClearAllDrafts = useCallback(async () => {
     const draftArticles = drafts.filter((d) => d.status === 'draft')

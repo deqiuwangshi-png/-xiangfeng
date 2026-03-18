@@ -10,12 +10,6 @@ import { User, Lock, Bell, Palette, Filter, Settings2 } from '@/components/icons
  * @param {string} activeTab - 当前激活的标签页ID
  * @param {function} onTabChange - 标签页切换回调函数
  * @returns {JSX.Element} 设置导航组件
- * 
- * 使用说明:
- *   显示设置导航菜单
- *   处理导航项点击
- *   管理激活状态
- * 
  * 架构说明:
  *   - 使用'use client'指令
  *   - 接收当前激活的标签页
@@ -63,17 +57,6 @@ export function SettingsNav({ activeTab, onTabChange }: SettingsNavProps) {
           )
         })}
       </nav>
-
-      <div className="mt-8 pt-6 border-t border-xf-bg/40">
-        <div className="text-center">
-          <div className="text-xs text-xf-primary font-medium mb-2">
-            相逢版本
-          </div>
-          <div className="text-sm text-xf-accent font-bold">
-            V2.3.1
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

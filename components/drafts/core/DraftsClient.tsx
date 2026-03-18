@@ -151,16 +151,19 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
       case 'batch':
         return selectedIds.size
       case 'clear':
-        return filteredDrafts.filter((d) => d.status === 'draft').length
+        return draftCount
       default:
         return 0
     }
   }
 
+  // 计算草稿数量（用于清空草稿按钮显示）
+  const draftCount = filteredDrafts.filter((d) => d.status === 'draft').length
+
   return (
     <>
       <DraftsHeader
-        draftCount={filteredDrafts.length}
+        draftCount={draftCount}
         onClearAllDrafts={handleOpenClearModal}
       />
 

@@ -33,13 +33,16 @@ function LoginForm() {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
-  const { showError, showLoading, dismiss, successFromLoading } = useAuthToast();
+  const { showError, showLoading, dismiss } = useAuthToast();
 
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = sanitizeRedirect(searchParams.get('redirect'), '/home');
 
-  {/* 限流倒计时 */}
+  /**
+   * 限流倒计时 - 按分钟粒度更新
+   * @性能优化 P-05: 从每秒更新改为每分钟更新，减少重渲染
+   */
   useEffect(() => {
     if (!isRateLimited || rateLimitReset === 0) return;
 
@@ -58,11 +61,16 @@ function LoginForm() {
     // 立即更新一次
     updateRemainingTime();
 
+    /**
+     * @性能优化 P-05: 使用 60 秒间隔替代 1 秒
+     * - 显示粒度是分钟，无需每秒更新
+     * - 减少不必要的重渲染和 CPU 消耗
+     */
     const interval = setInterval(() => {
       if (!updateRemainingTime()) {
         clearInterval(interval);
       }
-    }, 1000);
+    }, 60000); // 60 秒更新一次
 
     return () => clearInterval(interval);
   }, [isRateLimited, rateLimitReset]);
@@ -146,8 +154,20 @@ function LoginForm() {
         <input type="hidden" name="redirectTo" value={redirectTo} />
 
         <div className="flex items-center justify-between text-sm">
+          {/*
+            @体验修复 U-01: 记住我功能
+            - 添加 name="rememberMe" 参与表单提交
+            - 使用 defaultChecked 保持状态
+            - 后端可根据此值调整会话过期时间
+          */}
           <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
-            <input type="checkbox" className="custom-checkbox" disabled={isLoading} />
+            <input
+              type="checkbox"
+              name="rememberMe"
+              className="custom-checkbox"
+              disabled={isLoading}
+              defaultChecked={false}
+            />
             <span>记住我</span>
           </label>
           <Link href="/forgot-password" className="text-xf-info hover:text-xf-accent transition font-medium">
