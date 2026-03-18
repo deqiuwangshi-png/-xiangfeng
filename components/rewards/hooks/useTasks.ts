@@ -118,7 +118,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
         })
       }
     },
-    [claimTaskReward, mutate, claimingTaskIds]
+    [mutate, claimingTaskIds]
   )
 
   /**
@@ -150,7 +150,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
         })
       }
     },
-    [acceptTask, mutate, acceptingTaskIds]
+    [mutate, acceptingTaskIds]
   )
 
   return {
