@@ -112,7 +112,6 @@ export function useSignIn(): UseSignInReturn {
   // 使用 SWR 获取签到状态 - 10秒去重，挂载时自动获取
   const {
     data: signInStatus,
-    error: statusError,
     isLoading: isStatusLoading,
     isValidating: isStatusValidating,
     mutate: mutateStatus,
@@ -127,7 +126,6 @@ export function useSignIn(): UseSignInReturn {
   // 使用 SWR 获取奖励配置 - 5分钟缓存，保持旧数据，切换页面不重新获取
   const {
     data: rewardsConfig = [],
-    error: configError,
     isLoading: isConfigLoading,
     isValidating: isConfigValidating,
   } = useSWR('signin-rewards-config', fetchRewardsConfig, {
@@ -170,8 +168,8 @@ export function useSignIn(): UseSignInReturn {
         // 签到失败时重新验证状态
         await mutateStatus()
       }
-    } catch (error) {
-      console.error('[useSignIn] 签到失败:', error)
+    } catch {
+      // 签到失败时状态已由mutateStatus处理
     } finally {
       setIsSigning(false)
     }
@@ -185,13 +183,7 @@ export function useSignIn(): UseSignInReturn {
     await mutateStatus()
   }, [mutateStatus])
 
-  // 错误处理
-  if (statusError) {
-    console.error('[useSignIn] 获取签到状态失败:', statusError)
-  }
-  if (configError) {
-    console.error('[useSignIn] 获取奖励配置失败:', configError)
-  }
+  // 错误处理：已在SWR配置中处理
 
   return {
     isSigned: signInStatus?.hasSigned || false,

@@ -58,11 +58,7 @@ export default function ReadingProgress(_props: ReadingProgressProps) {
         if (newProgress >= 50 && !hasTriggeredRef.current) {
           hasTriggeredRef.current = true
           // 异步触发阅读任务检测
-          checkReadArticleTask().then((taskSuccess) => {
-            if (!taskSuccess) {
-              console.warn('[任务系统] 阅读文章任务进度更新失败')
-            }
-          })
+          checkReadArticleTask()
         }
       });
     };

@@ -349,8 +349,6 @@ export interface CommentCardProps {
   onDelete: (commentId: string) => void;
   /** 当前用户 */
   currentUser: User | null;
-  /** 是否正在点赞 */
-  isLiking?: boolean;
 }
 
 /**
@@ -373,8 +371,6 @@ export interface CommentListProps {
   onDelete: (commentId: string) => void;
   /** 当前用户 */
   currentUser: User | null;
-  /** 正在点赞的评论ID集合 */
-  likingIds?: Set<string>;
 }
 
 /**
@@ -589,8 +585,6 @@ export interface CommentCardActionsProps {
   comment: Comment;
   /** 当前用户 */
   currentUser: User | null;
-  /** 是否正在点赞 */
-  isLiking: boolean;
   /** 点赞回调 */
   onLike: (id: string) => void;
   /** 删除回调 */

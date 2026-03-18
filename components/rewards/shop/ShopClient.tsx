@@ -7,7 +7,7 @@
  */
 
 import { useState } from 'react'
-import { ArrowLeft, Coins } from '@/components/icons'
+import { ArrowLeft, Coins, Link } from '@/components/icons'
 import { ShopNav } from './ShopNav'
 import { ShopFull } from './ShopFull'
 import { usePoints } from '../hooks/usePoints'
@@ -56,12 +56,12 @@ export function ShopClient() {
               {displayPoints}
             </span>
           </div>
-          <a
+          <Link
             href="/rewards"
             className="text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1 bg-white px-4 py-2 rounded-full shadow-soft"
           >
             <ArrowLeft className="w-4 h-4" /> 返回福利中心
-          </a>
+          </Link>
         </div>
       </div>
 

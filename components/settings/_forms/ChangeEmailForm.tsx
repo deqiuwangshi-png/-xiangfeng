@@ -91,8 +91,7 @@ export function ChangeEmailForm({ currentEmail, onCancel, onSave }: ChangeEmailF
       } else {
         setError(result.error || '更换邮箱失败')
       }
-    } catch (error) {
-      console.error('更换邮箱失败:', error)
+    } catch {
       setError('更换邮箱失败，请稍后重试')
     } finally {
       setIsLoading(false)

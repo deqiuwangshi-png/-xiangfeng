@@ -85,10 +85,9 @@ export default function ArtAct({
         setLikeCount(previousLikeCount);
         showError(result.error || '操作失败', '请稍后重试');
       }
-    } catch (error) {
+    } catch {
       setLiked(previousLiked);
       setLikeCount(previousLikeCount);
-      console.error('Failed to like article:', error);
       showNetworkError();
     } finally {
       setIsLikeLoading(false);
@@ -118,9 +117,8 @@ export default function ArtAct({
         setBookmarked(previousBookmarked)
         showError(result.error || '操作失败', '请稍后重试')
       }
-    } catch (error) {
+    } catch {
       setBookmarked(previousBookmarked)
-      console.error('Failed to bookmark article:', error)
       showNetworkError()
     } finally {
       setIsBookmarkLoading(false)

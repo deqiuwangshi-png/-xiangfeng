@@ -16,9 +16,8 @@
  * 更新时间: 2026-02-20
  */
 
-import { MessageSquare, UserPlus, UserCheck, MapPin, Star } from '@/components/icons'
+import { UserPlus, UserCheck, MapPin, Star } from '@/components/icons'
 import { useState } from 'react'
-import Link from 'next/link'
 import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
 import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 
@@ -92,6 +91,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
 
             <div className="flex gap-3 mt-4 md:mt-0">
+              {/* TODO: 发消息功能待开发中
               <Link
                 href="/chat"
                 className="px-6 py-3 bg-white border border-xf-bg/60 text-xf-primary rounded-xl font-medium flex items-center gap-2"
@@ -99,6 +99,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
                 <MessageSquare className="w-4 h-4" />
                 发消息
               </Link>
+              */}
               <button
                 onClick={handleFollowClick}
                 className={`px-6 py-3 rounded-xl font-semibold flex items-center gap-2 ${

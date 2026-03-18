@@ -26,6 +26,7 @@ export type {
   PasswordValidationResult,
   UpdateEmailResult,
   DeleteAccountResult,
+  DeactivateAccountResult,
   RateLimitResult,
 } from './auth';
 
@@ -183,6 +184,15 @@ export type {
   MonthlyUpdate,
   FilterType as UpdatesFilterType,
 } from './updates';
+
+// ============================================
+// 登录历史模块
+// ============================================
+export type {
+  LoginType,
+  LoginHistoryItem,
+  GetLoginHistoryResult,
+} from './loginHistory';
 
 // ============================================
 // Supabase 数据库类型

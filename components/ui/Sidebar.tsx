@@ -12,6 +12,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserProfileSection } from '@/components/user/UserProfileSection'
+import { useInboxCache } from '@/hooks/useInboxCache'
 
 /**
  * 导航项接口
@@ -97,6 +98,9 @@ export function Sidebar({ user, profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
+  {/* 使用客户端缓存获取未读消息数量 */}
+  const { unreadCount } = useInboxCache(user?.id || '')
+
   /**
    * 预加载关键路由
    */
@@ -146,6 +150,8 @@ export function Sidebar({ user, profile }: SidebarProps) {
             }
           }
           
+          const showBadge = item.id === 'inbox' && unreadCount > 0
+
           return (
             <Link
               key={item.id}
@@ -164,7 +170,15 @@ export function Sidebar({ user, profile }: SidebarProps) {
                   ${isActive ? 'opacity-100 h-[80%]' : 'opacity-0'}
                 `}
               />
-              <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <div className="relative">
+                <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
+                {/* 未读消息红点徽章 */}
+                {showBadge && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center px-1.5 text-[10px] font-medium bg-red-500 text-white rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
               <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>
             </Link>
           )

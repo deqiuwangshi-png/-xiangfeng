@@ -51,11 +51,9 @@ export function useCommentSubmit(
         } else {
           const errorMsg = result.error || '评论发表失败，请重试'
           setSubmitError(errorMsg)
-          console.error('评论提交失败:', result)
           return false
         }
-      } catch (error) {
-        console.error('Failed to submit comment:', error)
+      } catch {
         setSubmitError('网络错误，请检查网络连接后重试')
         return false
       } finally {

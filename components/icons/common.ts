@@ -18,6 +18,7 @@ export {
   Check,
   CheckSquare,
   CheckCheck,
+  Power,
 
 
   AlertTriangle,

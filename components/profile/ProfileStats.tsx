@@ -56,12 +56,20 @@ function getStatsData(stats: UserStats): StatItem[] {
       iconGradient: 'from-indigo-100 to-indigo-200',
       iconColor: 'text-xf-accent'
     },
+    // TODO: 节点功能待开发中
+    // {
+    //   value: String(stats.nodes),
+    //   label: '节点',
+    //   icon: Share2,
+    //   iconGradient: 'from-green-100 to-green-200',
+    //   iconColor: 'text-xf-success'
+    // },
     {
-      value: String(stats.nodes),
-      label: '节点',
+      value: '-',
+      label: '节点(待开发)',
       icon: Share2,
-      iconGradient: 'from-green-100 to-green-200',
-      iconColor: 'text-xf-success'
+      iconGradient: 'from-gray-100 to-gray-200',
+      iconColor: 'text-gray-400'
     }
   ]
 }

@@ -57,13 +57,13 @@ export function DeleteAccountCard() {
         </button>
       </div>
 
-      {/* 删除确认弹窗 */}
+      {/* 删除确认弹窗 - 无遮罩层 */}
       {showModal && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
-          onClick={(e) => e.target === e.currentTarget && handleClose()}
-        >
-          <div className="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl relative">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+          <div
+            className="bg-white rounded-xl max-w-sm w-full p-5 shadow-2xl border border-gray-200 relative pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* 关闭按钮 */}
             <button
               onClick={handleClose}

@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
+import { LoginHistoryDialog } from '../_dialogs/LoginHistoryDialog'
 import { PRIVACY_VISIBILITY_OPTIONS, MESSAGE_PERMISSION_OPTIONS } from '@/types/settings'
 
 /**
@@ -22,6 +24,8 @@ import { PRIVACY_VISIBILITY_OPTIONS, MESSAGE_PERMISSION_OPTIONS } from '@/types/
  */
 
 export function PrivacySection() {
+  const [showLoginHistory, setShowLoginHistory] = useState(false)
+
   return (
     <SettingsSection id="settings-privacy-section" title="隐私与安全">
       <div className="space-y-8">
@@ -58,12 +62,21 @@ export function PrivacySection() {
           description="查看最近的登录活动"
           controlType="button"
           control={
-            <button className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all">
+            <button
+              onClick={() => setShowLoginHistory(true)}
+              className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
+            >
               查看登录历史
             </button>
           }
         />
       </div>
+
+      {/* 登录历史弹窗 */}
+      <LoginHistoryDialog
+        isOpen={showLoginHistory}
+        onClose={() => setShowLoginHistory(false)}
+      />
     </SettingsSection>
   )
 }

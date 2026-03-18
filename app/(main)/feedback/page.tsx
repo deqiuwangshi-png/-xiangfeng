@@ -50,8 +50,8 @@ export default function FeedbackPage() {
       } else {
         setFeedbackItems([]);
       }
-    } catch (error) {
-      console.error('加载反馈失败:', error);
+    } catch {
+      setFeedbackItems([]);
     } finally {
       setIsLoading(false);
     }

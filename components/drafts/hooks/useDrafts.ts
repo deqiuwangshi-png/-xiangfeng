@@ -178,6 +178,19 @@ export function useDrafts(
   )
 
   /**
+   * 校准分页状态
+   * @description 删除数据后，如果当前页超出新的总页数，则自动回退到最后一页
+   */
+  const calibratePage = useCallback(() => {
+    const newTotalPages = DraftService.getTotalPages(filteredDrafts, itemsPerPage)
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages)
+    } else if (newTotalPages === 0) {
+      setCurrentPage(1)
+    }
+  }, [filteredDrafts, currentPage, itemsPerPage])
+
+  /**
    * 执行删除草稿的核心逻辑（安全增强版）
    *
    * @param ids - 要删除的文章ID数组
@@ -212,9 +225,7 @@ export function useDrafts(
           const result = await batchDeleteArticles(ids)
 
           // 根据返回的统计信息处理
-          if (result.failedCount > 0) {
-            console.warn(`批量删除: ${result.deletedCount} 篇成功, ${result.failedCount} 篇失败`)
-          }
+          // 失败情况已在下方toast提示中处理
 
           // 批量删除接口不返回具体ID列表，需要重新获取数据
           // 使用乐观更新：假设传入的ID都成功删除
@@ -240,6 +251,9 @@ export function useDrafts(
           router.refresh()
         }
 
+        {/* 删除后校准分页状态，防止页码越界 */}
+        calibratePage()
+
         toast.success('删除成功')
       } catch (error) {
         toast.error(error instanceof Error ? error.message : '删除失败')
@@ -248,7 +262,7 @@ export function useDrafts(
         setIsLoading(false)
       }
     },
-    [router, mutateDrafts]
+    [router, mutateDrafts, calibratePage]
   )
 
 
@@ -287,7 +301,6 @@ export function useDrafts(
             successIds.push(idsArray[index])
           } else {
             failedIds.push(idsArray[index])
-            console.error(`更新文章 ${idsArray[index]} 失败:`, result.reason)
           }
         })
 

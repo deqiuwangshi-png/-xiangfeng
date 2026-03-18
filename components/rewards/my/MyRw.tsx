@@ -165,8 +165,8 @@ export function MyRw() {
             setItemDetails(detailsMap)
           }
         }
-      } catch (error) {
-        console.error('加载兑换记录失败:', error)
+      } catch {
+        // 加载失败时保持空状态
       } finally {
         setIsLoading(false)
       }

@@ -47,8 +47,7 @@ export function ContentLanguage({ currentLanguage, onChange }: ContentLanguagePr
         } else {
           setError(result.error || '保存失败')
         }
-      } catch (err) {
-        console.error('保存语言设置失败:', err)
+      } catch {
         setError('保存失败，请稍后重试')
       } finally {
         setIsLoading(false)

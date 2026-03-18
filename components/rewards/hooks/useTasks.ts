@@ -48,8 +48,7 @@ interface UseTasksReturn {
 const fetchTasks = async (category?: TaskCategory): Promise<TaskProgressResponse[]> => {
   try {
     return await getUserTaskProgress(category)
-  } catch (err) {
-    console.error('获取任务数据失败:', (err as Error)?.message)
+  } catch {
     return []
   }
 }

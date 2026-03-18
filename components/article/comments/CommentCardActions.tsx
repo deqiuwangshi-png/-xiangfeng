@@ -6,13 +6,11 @@ import type { CommentCardActionsProps } from '@/types'
 
 /**
  * 评论卡片交互组件 - 客户端组件
- * 处理点赞、回复、删除等交互
- * 包裹服务端渲染的内容
+ * 处理点赞、删除等交互
  */
 export function CommentCardActions({
   comment,
   currentUser,
-  isLiking,
   onLike,
   onDelete,
 }: CommentCardActionsProps) {
@@ -29,15 +27,13 @@ export function CommentCardActions({
       showAuthRequired('点赞评论')
       return
     }
-    if (!isLiking) {
-      onLike(comment.id)
-    }
+    onLike(comment.id)
   }
 
   return (
     <div className="comment-actions">
       <div
-        className={`comment-action ${comment.liked ? 'liked' : ''} ${isLiking ? 'opacity-50' : ''}`}
+        className={`comment-action ${comment.liked ? 'liked' : ''}`}
         onClick={handleLikeClick}
       >
         <Heart
@@ -45,13 +41,6 @@ export function CommentCardActions({
         />
         <span>{comment.likes}</span>
       </div>
-
-      {/* 回复功能暂未实现，先隐藏
-      <div className="comment-action">
-        <CornerUpLeft className="w-4 h-4" />
-        <span>回复</span>
-      </div>
-      */}
 
       {canDelete && (
         <div

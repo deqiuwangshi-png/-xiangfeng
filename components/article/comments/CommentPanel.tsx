@@ -45,8 +45,7 @@ export function CommentPanel({
     addComment,
     toggleLike,
     deleteComment,
-    likingIds,
-  } = useComments(articleId, initialComments, initialTotalCount, initialHasMore)
+  } = useComments(articleId, initialComments, initialTotalCount)
 
   const { sending, submitError, submit, clearError } = useCommentSubmit(
     articleId,
@@ -115,7 +114,6 @@ export function CommentPanel({
             onLike={toggleLike}
             onDelete={deleteComment}
             currentUser={currentUser}
-            likingIds={likingIds}
           />
 
           {/* 未登录时显示登录提示 */}

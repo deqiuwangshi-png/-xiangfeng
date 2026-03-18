@@ -64,7 +64,6 @@ export async function ProfileContent() {
     articles = await getArticles('published')
   } catch (err) {
     error = err instanceof Error ? err.message : '获取文章失败'
-    console.error('获取用户文章失败:', err)
   }
 
   {/* 错误状态 */}

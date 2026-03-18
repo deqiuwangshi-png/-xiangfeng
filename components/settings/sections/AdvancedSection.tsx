@@ -3,6 +3,7 @@
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { DangerZone } from '../_danger/DangerZone'
+import { DeactivateAccountCard } from '../_danger/DeactivateAccountCard'
 import { DeleteAccountCard } from '../_danger/DeleteAccountCard'
 
 /**
@@ -41,20 +42,7 @@ export function AdvancedSection() {
         <DangerZone title="危险区域">
           <div className="space-y-6">
             {/* 停用账户 */}
-            <SettingItem
-              label="停用账户"
-              description="暂时停用你的账户，可以随时恢复"
-              controlType="button"
-              control={
-                <button 
-                  disabled
-                  className="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-400 rounded-xl font-medium cursor-not-allowed"
-                  title="功能开发中"
-                >
-                  停用账户
-                </button>
-              }
-            />
+            <DeactivateAccountCard />
 
             {/* 删除账户 */}
             <DeleteAccountCard />

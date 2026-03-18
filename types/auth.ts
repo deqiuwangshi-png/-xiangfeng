@@ -239,6 +239,20 @@ export interface DeleteAccountResult {
   message?: string;
 }
 
+/**
+ * 停用账号结果接口
+ * @interface DeactivateAccountResult
+ * @description 停用账号操作的返回结果
+ */
+export interface DeactivateAccountResult {
+  /** 是否成功 */
+  success: boolean;
+  /** 错误信息 */
+  error?: string;
+  /** 成功消息 */
+  message?: string;
+}
+
 // ============================================
 // 限流相关类型
 // ============================================

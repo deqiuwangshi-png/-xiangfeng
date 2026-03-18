@@ -44,7 +44,6 @@ export function InboxHeader({
   onToggleBatchMode,
   selectedCount = 0,
   onCancelBatch,
-  unreadCount = 0,
   isValidating = false,
 }: InboxHeaderProps) {
   return (
@@ -54,12 +53,6 @@ export function InboxHeader({
           <Bell className="w-6 h-6 text-xf-primary" />
           消息通知
         </h1>
-        {/* 未读数量徽章 */}
-        {unreadCount > 0 && (
-          <span className="px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
         {/* 后台更新指示器 */}
         {isValidating && (
           <span className="flex items-center gap-1 text-xs text-gray-400">

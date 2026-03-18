@@ -48,8 +48,8 @@ export function AuthorAvatar({
       if (result.success && result.following !== undefined) {
         setIsFollowing(result.following)
       }
-    } catch (error) {
-      console.error('获取关注状态失败:', error)
+    } catch {
+      // 获取失败时保持默认状态
     }
   }, [authorId, currentUser])
 
@@ -88,8 +88,7 @@ export function AuthorAvatar({
       } else {
         showError(result.error || '操作失败', '请稍后重试')
       }
-    } catch (error) {
-      console.error('关注操作失败:', error)
+    } catch {
       showError('操作失败', '请稍后重试')
     } finally {
       setIsLoading(false)

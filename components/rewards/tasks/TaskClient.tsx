@@ -7,7 +7,7 @@
  */
 
 import { useState } from 'react'
-import { ArrowLeft, Sparkles, Moon } from '@/components/icons'
+import { ArrowLeft, Sparkles, Moon, Link } from '@/components/icons'
 import { TaskList } from './TaskList'
 import { CategoryNav } from './CategoryNav'
 import { usePoints } from '../hooks/usePoints'
@@ -55,12 +55,12 @@ export function TaskClient() {
           </h1>
           <p className="text-xf-primary mt-1 text-sm">不是为了打卡，而是为了遇见更好的自己</p>
         </div>
-        <a
+        <Link 
           href="/rewards"
           className="text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1 bg-white px-4 py-2 rounded-full shadow-soft"
         >
           <ArrowLeft className="w-4 h-4" /> 返回福利中心
-        </a>
+        </Link>
       </div>
 
       {/* 今日状态卡片 - 有缓存时立即显示积分 */}
