@@ -177,9 +177,12 @@ export async function submitArticleComment(
     {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
 
     {/* 检测评论文章任务 - 异步执行不阻塞 */}
-    Promise.resolve().then(() => {
-      checkCommentArticleTask().catch(console.error);
-    });
+    Promise.resolve().then(async () => {
+      const taskSuccess = await checkCommentArticleTask()
+      if (!taskSuccess) {
+        console.warn('[任务系统] 评论任务进度更新失败，不影响评论提交')
+      }
+    })
 
     return {
       success: true,

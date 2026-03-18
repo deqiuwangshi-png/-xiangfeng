@@ -243,6 +243,13 @@ export async function updateTaskProgress(
 
   if (error) {
     console.error('更新任务进度失败:', error)
+    {/* P0-4: 添加错误分类，便于问题诊断 */}
+    const errorMessage = error.message || ''
+    if (errorMessage.includes('42883') || errorMessage.includes('operator does not exist')) {
+      console.error('[任务系统] 类型错误：task_type 与 text 不匹配，请联系管理员修复数据库函数')
+    } else if (errorMessage.includes('permission denied')) {
+      console.error('[任务系统] 权限错误：当前用户无权限执行此操作')
+    }
     return false
   }
 
@@ -331,57 +338,64 @@ export async function getTaskCenterData(): Promise<{
 /**
  * 检测阅读文章任务
  * 在文章阅读时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkReadArticleTask(): Promise<void> {
-  await updateTaskProgress('read_article')
+export async function checkReadArticleTask(): Promise<boolean> {
+  return await updateTaskProgress('read_article')
 }
 
 /**
  * 检测发布文章任务
  * 在文章发布时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkPublishArticleTask(): Promise<void> {
-  await updateTaskProgress('publish_article')
+export async function checkPublishArticleTask(): Promise<boolean> {
+  return await updateTaskProgress('publish_article')
 }
 
 /**
  * 检测发布想法任务
  * 在想法发布时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkPublishIdeaTask(): Promise<void> {
-  await updateTaskProgress('publish_idea')
+export async function checkPublishIdeaTask(): Promise<boolean> {
+  return await updateTaskProgress('publish_idea')
 }
 
 /**
  * 检测点赞文章任务
  * 在文章点赞时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkLikeArticleTask(): Promise<void> {
-  await updateTaskProgress('like_article')
+export async function checkLikeArticleTask(): Promise<boolean> {
+  return await updateTaskProgress('like_article')
 }
 
 /**
  * 检测评论文章任务
  * 在发表评论时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkCommentArticleTask(): Promise<void> {
-  await updateTaskProgress('comment_article')
+export async function checkCommentArticleTask(): Promise<boolean> {
+  return await updateTaskProgress('comment_article')
 }
 
 /**
  * 检测关注用户任务
  * 在关注用户时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkFollowUserTask(): Promise<void> {
-  await updateTaskProgress('follow_user')
+export async function checkFollowUserTask(): Promise<boolean> {
+  return await updateTaskProgress('follow_user')
 }
 
 /**
  * 检测收藏文章任务
  * 在收藏文章时调用
+ * @returns {Promise<boolean>} 是否成功更新进度
  */
-export async function checkCollectArticleTask(): Promise<void> {
-  await updateTaskProgress('collect_article')
+export async function checkCollectArticleTask(): Promise<boolean> {
+  return await updateTaskProgress('collect_article')
 }
 
 // ============================================
@@ -446,12 +460,13 @@ export async function acceptTask(
   const today = new Date().toISOString().split('T')[0]
 
   // 先检查活跃任务数（上限检查）
+  // 注意：period_end 为 null 的 event/yearly 任务也是活跃任务
   const { count: activeCount } = await supabase
     .from('user_task_records')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
     .eq('status', 'in_progress')
-    .gte('period_end', today)
+    .or(`period_end.gte.${today},period_end.is.null`)
 
   if (activeCount && activeCount >= 5) {
     return { success: false, error: '最多同时接取5个任务' }

@@ -143,9 +143,12 @@ export async function createArticle(data: {
 
   // 检测发布文章任务 - 仅当发布正式文章时触发
   if (data.status === 'published') {
-    Promise.resolve().then(() => {
-      checkPublishArticleTask().catch(console.error);
-    });
+    Promise.resolve().then(async () => {
+      const taskSuccess = await checkPublishArticleTask()
+      if (!taskSuccess) {
+        console.warn('[任务系统] 发布文章任务进度更新失败，不影响文章发布')
+      }
+    })
   }
 
   return {

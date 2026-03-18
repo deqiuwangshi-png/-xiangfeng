@@ -53,6 +53,12 @@ export function useComments(
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       revalidateOnMount: false,
+      /**
+       * @BUG修复: 禁用请求去重间隔
+       * - 防止 SWR 在后台自动重新请求覆盖本地乐观更新
+       * - 避免评论"消失"问题
+       */
+      dedupingInterval: 0,
     }
   )
 
@@ -89,10 +95,20 @@ export function useComments(
 
   /**
    * 添加新评论（乐观更新）
+   *
+   * @BUG修复: 防止重复添加相同 ID 的评论
+   * - 检查列表中是否已存在相同 ID
+   * - 避免快速发送多条评论时出现的"消失"问题
    */
   const addComment = useCallback((newComment: Comment) => {
     mutateComments(
-      (prev) => [newComment, ...(prev || [])],
+      (prev) => {
+        // 防止重复添加相同 ID 的评论
+        const exists = prev?.some((c) => c.id === newComment.id)
+        if (exists) return prev || []
+
+        return [newComment, ...(prev || [])]
+      },
       { revalidate: false }
     )
     // 增加总数
