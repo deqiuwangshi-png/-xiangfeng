@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { ArrowLeft, Mail, Shield, CheckCircle, AlertCircle } from '@/components/icons'
+import { ArrowLeft, Mail, Shield, CheckCircle } from '@/components/icons'
 import { IconBox, PrimaryButton } from '@/components/ui'
 import { initiateEmailChange, UpdateEmailResult } from '@/lib/user/updateEmail'
 

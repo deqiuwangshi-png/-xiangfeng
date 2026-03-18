@@ -9,7 +9,7 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { ShoppingBag, ArrowRight, Loader2 } from '@/components/icons'
+import { ShoppingBag, ArrowRight } from '@/components/icons'
 import { useShop } from '../hooks'
 import { usePoints } from '../hooks'
 import { getIconComponent } from '@/components/icons/rewards'

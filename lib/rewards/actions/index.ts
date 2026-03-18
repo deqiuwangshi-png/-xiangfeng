@@ -47,8 +47,10 @@ export {
   getExchangeDetail,
   useCoupon,
   checkCanExchange,
-  type ExchangeRecordWithItem,
 } from './shop'
+
+// 商城系统类型单独导出
+export type { ExchangeRecordWithItem } from './shop'
 
 // 打赏系统
 export {
