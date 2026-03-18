@@ -4,7 +4,6 @@
  * 飞书 API Server Actions 导出入口
  *
  * 此文件仅导出 Server Actions（异步函数）
- * 类型和其他导出请从 index.ts 导入
  */
 
 import {
