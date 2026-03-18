@@ -80,9 +80,12 @@ export async function toggleArticleBookmark(articleId: string): Promise<ToggleBo
       // 插入成功 = 新收藏
       favorited = true;
       // 异步检测任务，不阻塞主流程
-      Promise.resolve().then(() => {
-        checkCollectArticleTask().catch(console.error);
-      });
+      Promise.resolve().then(async () => {
+        const taskSuccess = await checkCollectArticleTask()
+        if (!taskSuccess) {
+          console.warn('[任务系统] 收藏文章任务进度更新失败，不影响收藏操作')
+        }
+      })
     }
 
     // 3. 触发器自动维护 favorite_count，返回乐观更新值

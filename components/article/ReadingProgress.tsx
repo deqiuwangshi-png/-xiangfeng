@@ -56,9 +56,13 @@ export default function ReadingProgress(_props: ReadingProgressProps) {
 
         // 检测阅读任务：滚动超过50%且未触发过
         if (newProgress >= 50 && !hasTriggeredRef.current) {
-          hasTriggeredRef.current = true;
+          hasTriggeredRef.current = true
           // 异步触发阅读任务检测
-          checkReadArticleTask().catch(console.error);
+          checkReadArticleTask().then((taskSuccess) => {
+            if (!taskSuccess) {
+              console.warn('[任务系统] 阅读文章任务进度更新失败')
+            }
+          })
         }
       });
     };

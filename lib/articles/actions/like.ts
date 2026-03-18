@@ -72,9 +72,12 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
       }
     } else {
       liked = true;
-      Promise.resolve().then(() => {
-        checkLikeArticleTask().catch(console.error);
-      });
+      Promise.resolve().then(async () => {
+        const taskSuccess = await checkLikeArticleTask()
+        if (!taskSuccess) {
+          console.warn('[任务系统] 点赞文章任务进度更新失败，不影响点赞操作')
+        }
+      })
     }
 
     // 触发器自动维护 like_count，无需等待

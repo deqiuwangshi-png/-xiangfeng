@@ -96,9 +96,12 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
       following = true;
       // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
       // 异步检测任务，不阻塞主流程
-      Promise.resolve().then(() => {
-        checkFollowUserTask().catch(console.error);
-      });
+      Promise.resolve().then(async () => {
+        const taskSuccess = await checkFollowUserTask()
+        if (!taskSuccess) {
+          console.warn('[任务系统] 关注用户任务进度更新失败，不影响关注操作')
+        }
+      })
     }
 
     // 4. 触发器自动维护计数，直接返回结果
