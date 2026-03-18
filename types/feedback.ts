@@ -52,6 +52,7 @@ export interface FeedbackItem {
   attachments?: Attachment[];
   contactEmail?: string;
   userEmail?: string;
+  trackingId?: string;
 }
 
 /**

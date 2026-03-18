@@ -33,9 +33,11 @@ const getCachedArticle = cache(async (id: string, userId?: string) => {
 /**
  * 缓存评论查询
  * 同一请求内多次调用返回缓存结果
+ *
+ * @性能优化 P1: 传入 currentUserId 用于判断当前用户点赞状态
  */
-const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
-  return getArticleCommentsPaginated(articleId, page, limit);
+const getCachedComments = cache(async (articleId: string, page: number, limit: number, currentUserId?: string | null) => {
+  return getArticleCommentsPaginated(articleId, page, limit, currentUserId);
 });
 
 /**
@@ -79,7 +81,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const [article, { comments, totalCount, hasMore }] = await Promise.all([
     getCachedArticle(articleId, user?.id),
-    getCachedComments(articleId, 1, 10),
+    getCachedComments(articleId, 1, 10, user?.id),
   ]);
 
   if (!article) {

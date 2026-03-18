@@ -96,6 +96,10 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
  * 获取已发布文章（首页用，所有人可见）
  *
  * @returns 已发布文章列表
+ *
+ * @性能优化 P1: 只查询必要字段，不返回完整 content
+ * - 首页卡片只需要摘要，不需要完整正文
+ * - 减少数据传输量和内存开销
  */
 export async function getPublishedArticles() {
   const supabase = await createClient();
@@ -103,7 +107,17 @@ export async function getPublishedArticles() {
   const { data, error } = await supabase
     .from('articles')
     .select(`
-      *,
+      id,
+      title,
+      excerpt,
+      status,
+      created_at,
+      updated_at,
+      published_at,
+      author_id,
+      like_count,
+      comment_count,
+      view_count,
       author:profiles(username, avatar_url)
     `)
     .eq('status', 'published')
@@ -116,16 +130,15 @@ export async function getPublishedArticles() {
   return (data || []).map(item => ({
     id: item.id,
     title: item.title,
-    summary: item.excerpt || generateSummary(item.content, 100),
-    content: item.content,
+    summary: item.excerpt || '',
     status: item.status,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     publishedAt: item.published_at,
     author: {
       id: item.author_id,
-      name: item.author?.username || '匿名',
-      avatar: item.author?.avatar_url || getAvtUrl(item.author_id),
+      name: (item.author as { username?: string })?.username || '匿名',
+      avatar: (item.author as { avatar_url?: string })?.avatar_url || getAvtUrl(item.author_id),
     },
     likesCount: item.like_count || 0,
     commentsCount: item.comment_count || 0,

@@ -36,6 +36,8 @@ export interface FeishuRecord {
  * 反馈项接口
  */
 export interface FeedbackItem {
+  userEmail: string;
+  trackingId: string;
   id: string;
   title: string;
   description: string;

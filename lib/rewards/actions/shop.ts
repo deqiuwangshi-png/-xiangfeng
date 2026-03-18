@@ -179,11 +179,11 @@ export async function getExchangeRecords({
   }
 
   {/* 扁平化返回数据 */}
-  return (data || []).map((record: any) => ({
+  return (data || []).map((record) => ({
     ...record,
-    item_name: record.shop_items?.name || '未知商品',
-    item_icon_name: record.shop_items?.icon_name || 'Gift',
-    item_icon_color: record.shop_items?.icon_color || '#6366f1',
+    item_name: (record.shop_items as { name?: string })?.name || '未知商品',
+    item_icon_name: (record.shop_items as { icon_name?: string })?.icon_name || 'Gift',
+    item_icon_color: (record.shop_items as { icon_color?: string })?.icon_color || '#6366f1',
   })) as ExchangeRecordWithItem[]
 }
 
