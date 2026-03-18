@@ -24,6 +24,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
+    <meta name="msvalidate.01" content="2C8C448F5364105CE31A05CCB3994092" />
+    <meta name="google-site-verification" content="OnmNwulVS1xwiFr3pKL54p_0qTpoHRsi63cLm9cC8i4" />
       {/*
         @体验修复 U-02: 使用系统字体栈
         - 通过 CSS 变量定义字体族
