@@ -87,7 +87,7 @@ export function RwClient() {
       {/* 任务中心 & 兑换商城 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <TaskBoard />
-        <ShopGrid />
+        <ShopGrid userPoints={pointsData.current} />
       </div>
 
       {/* 我的兑换 */}

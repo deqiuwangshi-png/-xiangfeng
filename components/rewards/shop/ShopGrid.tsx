@@ -11,18 +11,24 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { ShoppingBag, ArrowRight } from '@/components/icons'
 import { useShop } from '../hooks'
-import { usePoints } from '../hooks'
 import { getIconComponent } from '@/components/icons/rewards'
 
 /**
+ * ShopGrid Props 接口
+ * @interface ShopGridProps
+ */
+interface ShopGridProps {
+  /** 用户当前积分 */
+  userPoints: number
+}
+
+/**
  * 兑换商城组件
+ * @param {ShopGridProps} props - 组件属性
  * @returns {JSX.Element} 兑换商城面板
  */
-export function ShopGrid() {
+export function ShopGrid({ userPoints }: ShopGridProps) {
   const { items, isLoading } = useShop()
-  const { overview } = usePoints()
-
-  const userPoints = overview?.current_points || 0
 
   // 只展示前6个商品
   const displayItems = items.slice(0, 6)

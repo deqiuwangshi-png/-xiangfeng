@@ -25,8 +25,8 @@ import {
   type LucideIcon,
 } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-import { getExchangeRecords, type ExchangeRecordWithItem } from '@/lib/rewards/actions'
-import type { ExchangeRecord, ExchangeStatus } from '@/types/rewards'
+import { getExchangeRecords } from '@/lib/rewards/actions'
+import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
 
 /**
  * 筛选类型
@@ -79,23 +79,17 @@ function getDefaultIcon() {
 
 /**
  * 将兑换记录转换为展示格式
- * @param {ExchangeRecord} record - 兑换记录
- * @param {string} itemName - 商品名称
- * @param {string} iconName - 图标名称
- * @param {string} iconColor - 图标颜色
+ * @param {ExchangeRecordWithItem} record - 兑换记录
  * @returns {RwRecordItem} 展示用记录项
  */
-function mapExchangeToRecord(
-  record: ExchangeRecord,
-  itemName: string,
-  iconName: string,
-  iconColor: string
-): RwRecordItem {
+function mapExchangeToRecord(record: ExchangeRecordWithItem): RwRecordItem {
+  const iconName = record.item?.icon_name || 'Gift'
+  const iconColor = record.item?.icon_color || ''
   const iconConfig = iconMapping[iconName] || getDefaultIcon()
 
   return {
     id: record.id,
-    name: itemName,
+    name: record.item?.name || '未知商品',
     points: record.points_spent,
     status: record.status,
     date: new Date(record.created_at).toISOString().split('T')[0],
@@ -170,14 +164,7 @@ export function RwRecord() {
    * 转换后的记录列表（P1-3: 直接使用服务端返回的商品详情）
    */
   const mappedRecords = useMemo(() => {
-    return records.map((record) =>
-      mapExchangeToRecord(
-        record,
-        record.item_name,
-        record.item_icon_name,
-        record.item_icon_color
-      )
-    )
+    return records.map(mapExchangeToRecord)
   }, [records])
 
   /**

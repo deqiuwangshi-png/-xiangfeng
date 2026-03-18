@@ -6,7 +6,7 @@
  * @description 显示用户已兑换的物品列表（首页预览）
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   Archive,
   ArrowRight,
@@ -25,8 +25,8 @@ import {
   Zap,
   type LucideIcon,
 } from '@/components/icons'
-import { getExchangeRecords } from '@/lib/rewards/actions'
-import type { ExchangeRecord, ExchangeStatus } from '@/types/rewards'
+import { useExchangeRecords } from '../hooks'
+import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
 
 /**
  * 兑换项展示接口
@@ -100,24 +100,20 @@ function getStatusConfig(status: ExchangeStatus) {
 
 /**
  * 将兑换记录转换为展示格式
- * @param {ExchangeRecord} record - 兑换记录
- * @param {Object} itemDetails - 商品详情
+ * @param {ExchangeRecordWithItem} record - 兑换记录
  * @returns {RwItem} 展示用记录项
  */
-function mapExchangeToItem(
-  record: ExchangeRecord,
-  itemDetails: { name: string; icon_name: string; icon_color: string }
-): RwItem {
-  const iconConfig = iconMapping[itemDetails.icon_name] || getDefaultIcon()
+function mapExchangeToItem(record: ExchangeRecordWithItem): RwItem {
+  const iconConfig = iconMapping[record.item?.icon_name || ''] || getDefaultIcon()
 
   return {
     id: record.id,
-    name: itemDetails.name,
+    name: record.item?.name || '未知商品',
     date: new Date(record.created_at).toISOString().split('T')[0],
     points: record.points_spent,
     status: record.status,
     icon: iconConfig.icon,
-    iconColor: itemDetails.icon_color || iconConfig.color,
+    iconColor: record.item?.icon_color || iconConfig.color,
   }
 }
 
@@ -126,68 +122,14 @@ function mapExchangeToItem(
  * @returns {JSX.Element} 我的兑换面板
  */
 export function MyRw() {
-  const [records, setRecords] = useState<ExchangeRecord[]>([])
-  const [itemDetails, setItemDetails] = useState<
-    Map<string, { name: string; icon_name: string; icon_color: string }>
-  >(new Map())
-  const [isLoading, setIsLoading] = useState(true)
+  const { records, isLoading } = useExchangeRecords({ limit: 4 })
 
   /**
-   * 加载最新兑换记录
-   */
-  useEffect(() => {
-    async function loadRecords() {
-      try {
-        setIsLoading(true)
-        // 只获取最新的4条记录用于首页展示
-        const data = await getExchangeRecords({ limit: 4 })
-        setRecords(data)
-
-        // 获取商品详情
-        if (data.length > 0) {
-          const supabase = (await import('@/lib/supabase/client')).createClient()
-          const itemIds = [...new Set(data.map((r) => r.item_id))]
-
-          const { data: items } = await supabase
-            .from('shop_items')
-            .select('id, name, icon_name, icon_color')
-            .in('id', itemIds)
-
-          if (items) {
-            const detailsMap = new Map()
-            items.forEach((item) => {
-              detailsMap.set(item.id, {
-                name: item.name,
-                icon_name: item.icon_name,
-                icon_color: item.icon_color,
-              })
-            })
-            setItemDetails(detailsMap)
-          }
-        }
-      } catch {
-        // 加载失败时保持空状态
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadRecords()
-  }, [])
-
-  /**
-   * 转换后的展示数据
+   * 转换后的展示数据（只取前4条）
    */
   const items = useMemo(() => {
-    return records.map((record) => {
-      const details = itemDetails.get(record.item_id)
-      return mapExchangeToItem(record, {
-        name: details?.name || '未知商品',
-        icon_name: details?.icon_name || 'Gift',
-        icon_color: details?.icon_color || '',
-      })
-    })
-  }, [records, itemDetails])
+    return records.slice(0, 4).map(mapExchangeToItem)
+  }, [records])
 
   /**
    * 加载中状态
@@ -238,7 +180,7 @@ export function MyRw() {
       </div>
 
       {/* 兑换列表 */}
-      {items.length > 0 && (
+      {items.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {items.map((item) => {
             const Icon = item.icon
@@ -267,6 +209,17 @@ export function MyRw() {
               </div>
             )
           })}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-xf-primary">
+          <div className="text-3xl mb-2">🎁</div>
+          <div className="text-sm">暂无兑换记录</div>
+          <a
+            href="/rewards/shop"
+            className="text-xs text-xf-primary hover:text-xf-accent mt-2 inline-block"
+          >
+            去商城看看 →
+          </a>
         </div>
       )}
     </div>

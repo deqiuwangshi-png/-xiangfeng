@@ -7,7 +7,8 @@
  */
 
 import { useState } from 'react'
-import { ArrowLeft, Sparkles, Moon, Link } from '@/components/icons'
+import Link from 'next/link'
+import { ArrowLeft, Sparkles, Moon } from '@/components/icons'
 import { TaskList } from './TaskList'
 import { CategoryNav } from './CategoryNav'
 import { usePoints } from '../hooks/usePoints'

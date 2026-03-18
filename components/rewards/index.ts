@@ -42,6 +42,9 @@ export { ShopNav } from './shop/ShopNav'
  * @module components/rewards/my
  */
 export { MyRw } from './my/MyRw'
+export { RwCenter } from './my/RwCenter'
+export { RwRecord } from './my/RwRecord'
+export { PtRecord } from './my/PtRecord'
 
 /**
  * 福利中心 Hooks 统一出口

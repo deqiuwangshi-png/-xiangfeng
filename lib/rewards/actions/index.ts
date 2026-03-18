@@ -49,8 +49,7 @@ export {
   checkCanExchange,
 } from './shop'
 
-// 商城系统类型单独导出
-export type { ExchangeRecordWithItem } from './shop'
+// ExchangeRecordWithItem 类型已从 types/rewards 导出
 
 // 打赏系统
 export {

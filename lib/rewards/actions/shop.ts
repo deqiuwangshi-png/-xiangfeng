@@ -13,6 +13,7 @@ import type {
   ExchangeRequest,
   ExchangeResponse,
   ShopItemCategory,
+  ExchangeRecordWithItem,
 } from '@/types/rewards'
 
 /**
@@ -134,16 +135,6 @@ export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeRe
 }
 
 /**
- * 兑换记录（含商品详情）
- * @interface ExchangeRecordWithItem
- */
-export interface ExchangeRecordWithItem extends ExchangeRecord {
-  item_name: string
-  item_icon_name: string
-  item_icon_color: string
-}
-
-/**
  * 获取用户兑换记录（含商品详情）
  * @param {Object} params - 查询参数
  * @param {number} params.limit - 限制数量
@@ -178,12 +169,14 @@ export async function getExchangeRecords({
     return []
   }
 
-  {/* 扁平化返回数据 */}
+  {/* 转换为标准格式 */}
   return (data || []).map((record) => ({
     ...record,
-    item_name: (record.shop_items as { name?: string })?.name || '未知商品',
-    item_icon_name: (record.shop_items as { icon_name?: string })?.icon_name || 'Gift',
-    item_icon_color: (record.shop_items as { icon_color?: string })?.icon_color || '#6366f1',
+    item: record.shop_items ? {
+      name: (record.shop_items as { name?: string })?.name || '未知商品',
+      icon_name: (record.shop_items as { icon_name?: string })?.icon_name || 'Gift',
+      icon_color: (record.shop_items as { icon_color?: string })?.icon_color || '',
+    } : null,
   })) as ExchangeRecordWithItem[]
 }
 

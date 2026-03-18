@@ -22,7 +22,7 @@ const prodCspHeader = `
   style-src 'self' 'unsafe-inline' https://www.gstatic.com;
   img-src 'self' https://*.supabase.co https://api.dicebear.com https://*.supabase.in data: blob:;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co https://*.supabase.in;
+  connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in;
   media-src 'self';
   object-src 'none';
   frame-src 'self';

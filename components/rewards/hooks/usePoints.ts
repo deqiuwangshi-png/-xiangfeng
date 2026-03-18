@@ -57,14 +57,13 @@ export function usePoints(): UsePointsReturn {
   // 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取
   const {
     data: overview,
-    error: overviewError,
     isLoading: isOverviewLoading,
     isValidating: isOverviewValidating,
     mutate: mutateOverview,
   } = useSWR('user-points-overview', fetchPointsOverview, {
     dedupingInterval: 300000,
     keepPreviousData: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: true,
     revalidateOnMount: true,
   })
@@ -72,14 +71,13 @@ export function usePoints(): UsePointsReturn {
   // 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新
   const {
     data: transactions = [],
-    error: transactionsError,
     isLoading: isTransactionsLoading,
     isValidating: isTransactionsValidating,
     mutate: mutateTransactions,
   } = useSWR('user-points-transactions', fetchTransactions, {
     dedupingInterval: 30000,
     keepPreviousData: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: true,
     revalidateOnMount: true,
   })

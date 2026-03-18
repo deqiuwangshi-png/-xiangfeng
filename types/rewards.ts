@@ -398,6 +398,22 @@ export interface ExchangeRecord {
 // ============================================
 
 /**
+ * 兑换记录（含商品详情）
+ * @interface ExchangeRecordWithItem
+ */
+export interface ExchangeRecordWithItem extends ExchangeRecord {
+  /** 商品信息 */
+  item: {
+    /** 商品名称 */
+    name: string
+    /** 商品图标名称 */
+    icon_name: string
+    /** 商品图标颜色 */
+    icon_color: string
+  } | null
+}
+
+/**
  * 用户积分总览（视图）
  * @interface UserPointsOverview
  */
