@@ -14,23 +14,19 @@ import type { CommentWithAuthor } from '@/types';
 export type { CommentWithAuthor } from '@/types';
 
 /**
- * 获取当前用户ID（辅助函数）
- */
-async function getCurrentUserId(): Promise<string | null> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
-}
-
-/**
  * 获取文章评论列表（优化版 - 使用关联查询避免 N+1）
  *
  * @param articleId - 文章ID
+ * @param currentUserId - 当前用户ID（可选，避免重复获取）
  * @returns 评论列表（包含作者信息和当前用户点赞状态）
+ *
+ * @性能优化 P-02: 通过参数传入 currentUserId，避免重复调用 auth.getUser()
  */
-export async function getArticleComments(articleId: string): Promise<CommentWithAuthor[]> {
+export async function getArticleComments(
+  articleId: string,
+  currentUserId?: string | null
+): Promise<CommentWithAuthor[]> {
   const supabase = await createClient();
-  const currentUserId = await getCurrentUserId();
 
   // 使用单个查询获取评论、作者信息和当前用户点赞状态
   const { data, error } = await supabase
@@ -68,26 +64,36 @@ export async function getArticleComments(articleId: string): Promise<CommentWith
  * @param articleId - 文章ID
  * @param page - 页码（从1开始）
  * @param limit - 每页数量
+ * @param currentUserId - 当前用户ID（可选，避免重复获取）
  * @returns 评论列表、总数和是否还有更多
+ *
+ * @性能优化 P-01: 使用 estimated 替代 exact 计数，大表下性能更好
+ * @性能优化 P-02: 通过参数传入 currentUserId，避免重复调用 auth.getUser()
  */
 export async function getArticleCommentsPaginated(
   articleId: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  currentUserId?: string | null
 ): Promise<{ comments: CommentWithAuthor[]; totalCount: number; hasMore: boolean }> {
   const supabase = await createClient();
-  const currentUserId = await getCurrentUserId();
 
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
+  /**
+   * @性能优化 P-01: 使用 estimated 替代 exact 计数
+   * - exact: 精确计数，需要全表扫描，大数据量时性能差
+   * - estimated: 估算计数，使用 PostgreSQL 统计信息，性能更好
+   * - planned: 计划计数，返回查询计划中的估计行数
+   */
   const { data, error, count } = await supabase
     .from('comments')
     .select(
       `*,
       author:profiles!user_id(username, avatar_url),
       comment_likes!left(user_id)`,
-      { count: 'exact' }
+      { count: 'estimated' }
     )
     .eq('article_id', articleId)
     .order('created_at', { ascending: false })

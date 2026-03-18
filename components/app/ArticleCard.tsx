@@ -8,9 +8,23 @@ export type { ArticleCardProps } from '@/types'
 /**
  * 格式化时间为相对时间
  * 在服务端执行，减少客户端计算
+ *
+ * @param dateString - 日期字符串，可能为 null 或 undefined
+ * @returns 格式化后的时间字符串
  */
-function formatTime(dateString: string): string {
+function formatTime(dateString: string | null | undefined): string {
+  // 处理 null/undefined/空字符串情况
+  if (!dateString) {
+    return '未知时间'
+  }
+
   const date = new Date(dateString)
+
+  // 处理无效日期
+  if (isNaN(date.getTime())) {
+    return '未知时间'
+  }
+
   const now = new Date()
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
 

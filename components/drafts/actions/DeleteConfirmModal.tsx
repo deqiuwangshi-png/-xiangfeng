@@ -85,15 +85,15 @@ const getModalConfig = (mode: DeleteMode, count = 0, itemName = '') => {
       }
     case 'clear':
       return {
-        title: '确认清空文章',
+        title: '确认清空草稿',
         description: (
           <>
             此操作将永久删除
             <span className="font-semibold text-red-500 mx-1">{count}</span>
-            篇文章
+            篇草稿
           </>
         ),
-        warningText: '清空后，所有文章内容将被永久删除，无法恢复',
+        warningText: '清空后，所有草稿将被永久删除，已发布的文章不受影响',
         confirmText: '确认清空',
       }
   }

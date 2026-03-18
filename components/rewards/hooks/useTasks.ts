@@ -7,7 +7,7 @@
  */
 
 import useSWR from 'swr'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import {
   getUserTaskProgress,
   claimTaskReward,
@@ -28,6 +28,10 @@ interface UseTasksReturn {
   isValidating: boolean
   /** 错误信息 */
   error: Error | null
+  /** 正在领取奖励的任务ID集合 */
+  claimingTaskIds: Set<string>
+  /** 正在接取的任务ID集合 */
+  acceptingTaskIds: Set<string>
   /** 刷新任务数据 */
   refreshTasks: () => Promise<void>
   /** 领取任务奖励 */
@@ -57,6 +61,10 @@ const fetchTasks = async (category?: TaskCategory): Promise<TaskProgressResponse
  */
 export function useTasks(category?: TaskCategory): UseTasksReturn {
   const cacheKey = category ? `tasks-${category}` : 'tasks-all'
+
+  // P1-4: 请求中状态管理
+  const [claimingTaskIds, setClaimingTaskIds] = useState<Set<string>>(new Set())
+  const [acceptingTaskIds, setAcceptingTaskIds] = useState<Set<string>>(new Set())
 
   // 使用 SWR 获取任务数据 - 5分钟去重，挂载时自动获取
   const {
@@ -88,14 +96,29 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
    */
   const claimReward = useCallback(
     async (taskId: string): Promise<{ success: boolean; points?: number; error?: string }> => {
-      const result = await claimTaskReward(taskId)
-      if (result.success) {
-        // 领取成功后刷新任务列表
-        await mutate()
+      // P1-4: 防止重复请求
+      if (claimingTaskIds.has(taskId)) {
+        return { success: false, error: '正在处理中' }
       }
-      return result
+
+      setClaimingTaskIds(prev => new Set(prev).add(taskId))
+
+      try {
+        const result = await claimTaskReward(taskId)
+        if (result.success) {
+          // 领取成功后刷新任务列表
+          await mutate()
+        }
+        return result
+      } finally {
+        setClaimingTaskIds(prev => {
+          const next = new Set(prev)
+          next.delete(taskId)
+          return next
+        })
+      }
     },
-    [mutate]
+    [claimTaskReward, mutate, claimingTaskIds]
   )
 
   /**
@@ -105,14 +128,29 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
    */
   const accept = useCallback(
     async (taskId: string): Promise<{ success: boolean; error?: string }> => {
-      const result = await acceptTask(taskId)
-      if (result.success) {
-        // 接取成功后刷新任务列表
-        await mutate()
+      // P1-4: 防止重复请求
+      if (acceptingTaskIds.has(taskId)) {
+        return { success: false, error: '正在处理中' }
       }
-      return result
+
+      setAcceptingTaskIds(prev => new Set(prev).add(taskId))
+
+      try {
+        const result = await acceptTask(taskId)
+        if (result.success) {
+          // 接取成功后刷新任务列表
+          await mutate()
+        }
+        return result
+      } finally {
+        setAcceptingTaskIds(prev => {
+          const next = new Set(prev)
+          next.delete(taskId)
+          return next
+        })
+      }
     },
-    [mutate]
+    [acceptTask, mutate, acceptingTaskIds]
   )
 
   return {
@@ -120,6 +158,8 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     isLoading,
     isValidating,
     error,
+    claimingTaskIds,
+    acceptingTaskIds,
     refreshTasks,
     claimReward,
     accept,

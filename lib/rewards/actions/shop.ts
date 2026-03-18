@@ -91,11 +91,33 @@ export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeRe
     }
   }
 
+  {/* P0-1: 服务端输入校验 - 验证 item_id 和 quantity */}
+  if (!request.item_id || typeof request.item_id !== 'string' || request.item_id.length < 1) {
+    console.error('兑换失败: 无效的商品ID')
+    return {
+      success: false,
+      exchange_id: '',
+      points_spent: 0,
+      remaining_points: 0,
+    }
+  }
+
+  const quantity = Math.floor(Number(request.quantity) || 1)
+  if (quantity < 1 || quantity > 100 || !Number.isFinite(quantity)) {
+    console.error('兑换失败: 数量必须在 1-100 之间')
+    return {
+      success: false,
+      exchange_id: '',
+      points_spent: 0,
+      remaining_points: 0,
+    }
+  }
+
   // 调用安全兑换函数（带库存检查和并发保护）
   const { data, error } = await supabase.rpc('safe_exchange_item', {
     p_user_id: user.id,
     p_item_id: request.item_id,
-    p_quantity: request.quantity || 1,
+    p_quantity: quantity,
   })
 
   if (error) {
@@ -112,11 +134,21 @@ export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeRe
 }
 
 /**
- * 获取用户兑换记录
+ * 兑换记录（含商品详情）
+ * @interface ExchangeRecordWithItem
+ */
+export interface ExchangeRecordWithItem extends ExchangeRecord {
+  item_name: string
+  item_icon_name: string
+  item_icon_color: string
+}
+
+/**
+ * 获取用户兑换记录（含商品详情）
  * @param {Object} params - 查询参数
  * @param {number} params.limit - 限制数量
  * @param {number} params.offset - 偏移量
- * @returns {Promise<ExchangeRecord[]>} 兑换记录列表
+ * @returns {Promise<ExchangeRecordWithItem[]>} 兑换记录列表（含商品详情）
  */
 export async function getExchangeRecords({
   limit = 20,
@@ -124,15 +156,19 @@ export async function getExchangeRecords({
 }: {
   limit?: number
   offset?: number
-} = {}): Promise<ExchangeRecord[]> {
+} = {}): Promise<ExchangeRecordWithItem[]> {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
+  {/* P1-3: 使用外键关联查询，避免客户端二次请求 */}
   const { data, error } = await supabase
     .from('exchange_records')
-    .select('*')
+    .select(`
+      *,
+      shop_items!inner(name, icon_name, icon_color)
+    `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
@@ -142,7 +178,13 @@ export async function getExchangeRecords({
     return []
   }
 
-  return data as ExchangeRecord[]
+  {/* 扁平化返回数据 */}
+  return (data || []).map((record: any) => ({
+    ...record,
+    item_name: record.shop_items?.name || '未知商品',
+    item_icon_name: record.shop_items?.icon_name || 'Gift',
+    item_icon_color: record.shop_items?.icon_color || '#6366f1',
+  })) as ExchangeRecordWithItem[]
 }
 
 /**
@@ -182,7 +224,8 @@ export async function useCoupon(exchangeId: string): Promise<boolean> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
-  const { error } = await supabase
+  {/* P0-3: 检查实际更新行数，防止"未更新也返回true" */}
+  const { data, error } = await supabase
     .from('exchange_records')
     .update({
       status: 'used',
@@ -191,9 +234,16 @@ export async function useCoupon(exchangeId: string): Promise<boolean> {
     .eq('id', exchangeId)
     .eq('user_id', user.id)
     .eq('status', 'issued')
+    .select('id')
 
   if (error) {
     console.error('使用卡券失败:', error)
+    return false
+  }
+
+  {/* 检查是否真的有记录被更新 */}
+  if (!data || data.length === 0) {
+    console.error('使用卡券失败: 未找到符合条件的记录')
     return false
   }
 
@@ -238,30 +288,32 @@ export async function checkCanExchange(
     return { canExchange: false, reason: '积分不足' }
   }
 
-  // 检查每日限制
+  // 检查每日限制 - P0-2: 使用 sum(quantity) 而不是 count
   if (item.daily_limit) {
     const today = new Date().toISOString().split('T')[0]
-    const { count } = await supabase
+    const { data: dailyData } = await supabase
       .from('exchange_records')
-      .select('*', { count: 'exact', head: true })
+      .select('quantity')
       .eq('user_id', user.id)
       .eq('item_id', itemId)
       .gte('created_at', today)
 
-    if ((count || 0) + quantity > item.daily_limit) {
+    const dailyTotal = (dailyData || []).reduce((sum, r) => sum + (r.quantity || 1), 0)
+    if (dailyTotal + quantity > item.daily_limit) {
       return { canExchange: false, reason: '超出今日兑换限制' }
     }
   }
 
-  // 检查用户总限制
+  // 检查用户总限制 - P0-2: 使用 sum(quantity) 而不是 count
   if (item.user_total_limit) {
-    const { count } = await supabase
+    const { data: totalData } = await supabase
       .from('exchange_records')
-      .select('*', { count: 'exact', head: true })
+      .select('quantity')
       .eq('user_id', user.id)
       .eq('item_id', itemId)
 
-    if ((count || 0) + quantity > item.user_total_limit) {
+    const totalExchanged = (totalData || []).reduce((sum, r) => sum + (r.quantity || 1), 0)
+    if (totalExchanged + quantity > item.user_total_limit) {
       return { canExchange: false, reason: '超出兑换次数限制' }
     }
   }

@@ -14,6 +14,7 @@ import { type NotificationGroup } from '@/types/notification'
  * @property {(id: string) => void} onDelete - 删除回调函数
  * @property {boolean} isBatchMode - 是否处于批量模式
  * @property {(id: string, selected: boolean) => void} onSelect - 选择回调函数
+ * @property {Set<string>} selectedIds - 选中的通知ID集合
  */
 interface NotifListProps {
   groupedNotifications: NotificationGroup[]
@@ -23,6 +24,7 @@ interface NotifListProps {
   onDelete?: (id: string) => void
   isBatchMode?: boolean
   onSelect?: (id: string, selected: boolean) => void
+  selectedIds?: Set<string>
 }
 
 /**
@@ -39,6 +41,7 @@ export function NotifList({
   onDelete,
   isBatchMode = false,
   onSelect,
+  selectedIds = new Set(),
 }: NotifListProps) {
   return (
     <div className="space-y-6">
@@ -57,6 +60,7 @@ export function NotifList({
                 onDelete={onDelete}
                 isBatchMode={isBatchMode}
                 onSelect={onSelect}
+                isSelected={selectedIds.has(notification.id)}
               />
             ))}
           </div>

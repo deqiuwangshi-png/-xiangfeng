@@ -41,8 +41,17 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
       .replace(/<link[^>]*>.*?<\/link>/gi, '')
       .replace(/<style[^>]*>.*?<\/style>/gi, '');
 
-    // 移除危险属性
-    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+    /**
+     * 移除危险事件属性
+     * @安全修复 S-01: 支持无引号、单引号、双引号形式
+     * 匹配模式: onerror=alert(1), onerror='alert(1)', onerror="alert(1)"
+     */
+    // 双引号形式: onerror="..."
+    sanitized = sanitized.replace(/on\w+\s*=\s*"[^"]*"/gi, '');
+    // 单引号形式: onerror='...'
+    sanitized = sanitized.replace(/on\w+\s*=\s*'[^']*'/gi, '');
+    // 无引号形式: onerror=... (匹配到空格或标签结束)
+    sanitized = sanitized.replace(/on\w+\s*=\s*[^\s>]+/gi, '');
 
     // 过滤标签，只保留白名单中的标签
     if (config?.ALLOWED_TAGS && config.ALLOWED_TAGS.length > 0) {
@@ -53,8 +62,15 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
       // 过滤属性，只保留白名单中的属性
       if (config?.ALLOWED_ATTR && config.ALLOWED_ATTR.length > 0) {
         const allowedAttrs = config.ALLOWED_ATTR.join('|');
-        const attrRegex = new RegExp(`\s+(?!(${allowedAttrs}))[a-z][a-z0-9-]*\s*=\s*["'][^"']*["']`, 'gi');
-        sanitized = sanitized.replace(attrRegex, '');
+        // 匹配双引号属性
+        const attrRegexDouble = new RegExp(`\\s+(?!(${allowedAttrs}))[a-z][a-z0-9-]*\\s*=\\s*"[^"]*"`, 'gi');
+        sanitized = sanitized.replace(attrRegexDouble, '');
+        // 匹配单引号属性
+        const attrRegexSingle = new RegExp(`\\s+(?!(${allowedAttrs}))[a-z][a-z0-9-]*\\s*=\\s*'[^']*'`, 'gi');
+        sanitized = sanitized.replace(attrRegexSingle, '');
+        // 匹配无引号属性
+        const attrRegexNoQuote = new RegExp(`\\s+(?!(${allowedAttrs}))[a-z][a-z0-9-]*\\s*=\\s*[^\\s>]+`, 'gi');
+        sanitized = sanitized.replace(attrRegexNoQuote, '');
       }
     }
 
@@ -129,31 +145,74 @@ export function sanitizeRichText(html: string): string {
   // 使用纯 JavaScript 实现的净化函数
   let purified = sanitizeHtml(html, RICH_TEXT_CONFIG);
 
-  // 额外处理：确保所有链接都有安全属性
+  /**
+   * 额外处理：确保所有链接都有安全属性
+   * @安全修复 S-01: 支持单引号和无引号的 href 属性
+   */
+  // 处理双引号 href: <a href="...">
   purified = purified.replace(
     /<a\s+([^>]*)href="([^"]*)"([^>]*)>/gi,
+    (match: string, before: string, href: string, after: string) => {
+      return processLinkAttribute(match, before, href, after, '"');
+    }
+  );
+  // 处理单引号 href: <a href='...'>
+  purified = purified.replace(
+    /<a\s+([^>]*)href='([^']*)'([^>]*)>/gi,
+    (match: string, before: string, href: string, after: string) => {
+      return processLinkAttribute(match, before, href, after, "'");
+    }
+  );
+  // 处理无引号 href: <a href=...> (简化处理，不重构属性)
+  purified = purified.replace(
+    /<a\s+([^>]*)href=([^\s>]*)\s*([^>]*)>/gi,
     (match: string, before: string, href: string, after: string) => {
       // 检查是否是危险协议
       const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
       if (dangerousProtocols.test(href)) {
         return '<a href="#">';
       }
-
-      // 确保有 target="_blank" 和 rel="noopener noreferrer"
-      const hasTarget = /target\s*=\s*"[^"]*"/i.test(match);
-      const hasRel = /rel\s*=\s*"[^"]*"/i.test(match);
-
-      let safeAttrs = `href="${href}"`;
-      if (before.trim()) safeAttrs = `${before.trim()} ${safeAttrs}`;
-      if (after.trim()) safeAttrs = `${safeAttrs} ${after.trim()}`;
-      if (!hasTarget) safeAttrs += ' target="_blank"';
-      if (!hasRel) safeAttrs += ' rel="noopener noreferrer nofollow"';
-
-      return `<a ${safeAttrs}>`;
+      // 无引号形式直接替换为安全形式
+      return `<a ${before.trim()} href="${href}" target="_blank" rel="noopener noreferrer nofollow" ${after.trim()}>`;
     }
   );
 
   return purified;
+}
+
+/**
+ * 处理链接属性
+ * @param match - 完整匹配字符串
+ * @param before - href 前的属性
+ * @param href - 链接地址
+ * @param after - href 后的属性
+ * @param quote - 引号类型
+ * @returns 处理后的安全链接标签
+ */
+function processLinkAttribute(
+  match: string,
+  before: string,
+  href: string,
+  after: string,
+  quote: string
+): string {
+  // 检查是否是危险协议
+  const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
+  if (dangerousProtocols.test(href)) {
+    return '<a href="#">';
+  }
+
+  // 确保有 target="_blank" 和 rel="noopener noreferrer"
+  const hasTarget = /target\s*=\s*["']?[^"'>\s]*["']?/i.test(match);
+  const hasRel = /rel\s*=\s*["']?[^"'>\s]*["']?/i.test(match);
+
+  let safeAttrs = `href=${quote}${href}${quote}`;
+  if (before.trim()) safeAttrs = `${before.trim()} ${safeAttrs}`;
+  if (after.trim()) safeAttrs = `${safeAttrs} ${after.trim()}`;
+  if (!hasTarget) safeAttrs += ' target="_blank"';
+  if (!hasRel) safeAttrs += ' rel="noopener noreferrer nofollow"';
+
+  return `<a ${safeAttrs}>`;
 }
 
 /**

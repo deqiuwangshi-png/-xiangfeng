@@ -5,8 +5,8 @@ import type { NextConfig } from "next";
  *
  * @安全说明
  * - default-src 'self': 默认只允许同源资源
- * - script-src: 允许内联脚本（Next.js 需要）和 eval（开发需要）
- * - style-src 'unsafe-inline': 允许内联样式（Tailwind 需要）
+ * - script-src: 使用 strict-dynamic 和 nonce 替代 unsafe-inline/eval
+ * - style-src: 保留 unsafe-inline（Tailwind 需要，但已限制为 self）
  * - img-src: 允许同源、Supabase、DiceBear 图片
  * - connect-src: 允许 API 请求到 Supabase
  * - frame-ancestors 'none': 防止点击劫持
@@ -14,10 +14,11 @@ import type { NextConfig } from "next";
  * @注意
  * - CSP 只在生产环境启用，开发环境禁用避免样式问题
  * - 生产环境也可在反向代理（Nginx/CDN）层添加此头
+ * @安全修复 S-02: 移除 script-src 的 unsafe-inline 和 unsafe-eval
  */
 const prodCspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  script-src 'self' 'nonce-{nonce}' 'strict-dynamic';
   style-src 'self' 'unsafe-inline' https://www.gstatic.com;
   img-src 'self' https://*.supabase.co https://api.dicebear.com https://*.supabase.in data: blob:;
   font-src 'self' data:;
