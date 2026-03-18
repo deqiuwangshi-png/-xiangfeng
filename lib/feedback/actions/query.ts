@@ -2,6 +2,7 @@
 
 import { getCurrentUser } from './auth';
 import { queryFeishuFeedbacks } from '@/lib/feishu/api';
+import { isValidTrackingId } from '@/lib/feedback/utils';
 import type { FeedbackQueryResult } from '@/types/feedback';
 
 /**
@@ -9,6 +10,7 @@ import type { FeedbackQueryResult } from '@/types/feedback';
  * 优先按 trackingIds 查询（包含未登录用户的反馈），
  * 已登录用户额外按邮箱查询并合并结果
  *
+ * @安全增强 P1: 添加 trackingId 格式校验和归属校验
  * @param trackingIds 追踪ID数组
  * @returns 反馈列表
  */
@@ -23,12 +25,31 @@ export async function getFeedbacksByTrackingIds(trackingIds: string[]): Promise<
 
     // 1. 优先按 trackingIds 查询（包含匿名提交和已登录用户提交的反馈）
     if (trackingIds && trackingIds.length > 0) {
-      const trackingResult = await queryFeishuFeedbacks({ trackingIds });
-      if (trackingResult.success && trackingResult.data) {
-        for (const item of trackingResult.data) {
-          if (!seenIds.has(item.id)) {
-            allFeedbacks.push(item);
-            seenIds.add(item.id);
+      /**
+       * @安全增强 P1: 过滤无效的 trackingId
+       * - 防止恶意构造的 ID 被用于枚举攻击
+       * - 只保留符合格式的 ID
+       */
+      const validTrackingIds = trackingIds.filter(id => isValidTrackingId(id));
+
+      if (validTrackingIds.length > 0) {
+        const trackingResult = await queryFeishuFeedbacks({ trackingIds: validTrackingIds });
+        if (trackingResult.success && trackingResult.data) {
+          for (const item of trackingResult.data) {
+            /**
+             * @安全增强 P1: 归属校验
+             * - 已登录用户只能看到与自己邮箱关联的反馈
+             * - 未登录用户只能看到与自己 trackingId 关联的反馈
+             * - 防止通过猜测 trackingId 读取他人反馈
+             */
+            const isOwner = userEmail
+              ? item.userEmail === userEmail
+              : validTrackingIds.includes(item.trackingId as string);
+
+            if (isOwner && !seenIds.has(item.id)) {
+              allFeedbacks.push(item);
+              seenIds.add(item.id);
+            }
           }
         }
       }

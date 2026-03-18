@@ -29,11 +29,20 @@ export const useEditorActions = (
    * @description 将当前编辑器内容保存为草稿
    * @requires 标题不能为空
    * @logic 如果有 draftId 则更新，否则创建新草稿
+   * @param options - 保存选项
+   * @param options.silent - 是否静默保存（不显示 toast，不跳转）
+   * @param options.skipIfEmpty - 如果标题为空是否跳过保存
    */
-  const saveDraft = async () => {
+  const saveDraft = async (options?: { silent?: boolean; skipIfEmpty?: boolean }) => {
+    const { silent = false, skipIfEmpty = false } = options || {}
+
+    // 自动保存时如果标题为空可以跳过
     if (!editorState.title.trim()) {
-      toast.error('请输入标题')
-      titleRef.current?.focus()
+      if (skipIfEmpty) return
+      if (!silent) {
+        toast.error('请输入标题')
+        titleRef.current?.focus()
+      }
       return
     }
 
@@ -46,7 +55,7 @@ export const useEditorActions = (
           title: editorState.title,
           content: editorState.content,
         })
-        toast.success('草稿更新成功')
+        if (!silent) toast.success('草稿更新成功')
       } else {
         // 无草稿ID，创建新草稿
         const article = await createArticle({
@@ -56,13 +65,17 @@ export const useEditorActions = (
         })
         // 保存草稿ID到状态
         setEditorState(prev => ({ ...prev, draftId: article.id }))
-        toast.success('草稿保存成功')
+        if (!silent) toast.success('草稿保存成功')
       }
 
-      // 保存成功后跳转到草稿页
-      router.push('/drafts')
+      // 只有手动保存才跳转到草稿页
+      if (!silent) {
+        router.push('/drafts')
+      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '保存失败')
+      if (!silent) {
+        toast.error(error instanceof Error ? error.message : '保存失败')
+      }
     } finally {
       setEditorState(prev => ({ ...prev, isSaving: false }))
     }

@@ -37,7 +37,7 @@ async function ArticleList() {
           summary={article.summary}
           author={article.author}
           publishedAt={article.publishedAt}
-          readTime={Math.ceil(article.content.length / 500)}
+          readTime={Math.ceil((article.summary?.length || 0) / 300) || 1}
           viewsCount={article.viewsCount}
         />
       ))}

@@ -26,7 +26,7 @@ import {
 } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
 import { getExchangeRecords, type ExchangeRecordWithItem } from '@/lib/rewards/actions'
-import type { ExchangeStatus } from '@/types/rewards'
+import type { ExchangeRecord, ExchangeStatus } from '@/types/rewards'
 
 /**
  * 筛选类型

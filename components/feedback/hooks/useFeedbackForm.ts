@@ -191,10 +191,20 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
         setIsSubmitting(false);
       }
     },
+    // 警告说明：React Hook useCallback 的依赖数组中包含 'uploadedFiles'，
+    // 但 'uploadedFiles' 在 useCallback 内部并没有被直接使用，而是通过 setUploadedFiles 的函数式更新来访问。
+    // 这会导致不必要的重新创建 handleSubmit 函数，因为 uploadedFiles 每次变化都会触发 useCallback 更新。
+    // 
+    // 实际上，uploadPendingFiles 已经通过它自己的 useCallback 依赖了 uploadedFiles，
+    // 所以 handleSubmit 只需要依赖 uploadPendingFiles 即可，不需要再单独依赖 uploadedFiles。
+    // 当前这种写法虽然功能正确，但会导致性能优化失效。
+    //
+    // 解决方案：从依赖数组中移除 'uploadedFiles'，因为 uploadPendingFiles 已经封装了对 uploadedFiles 的依赖
     [
+      isSubmitting,
       validateForm,
       uploadPendingFiles,
-      uploadedFiles,
+      // uploadedFiles, // 已移除：uploadPendingFiles 已经依赖了 uploadedFiles
       selectedType,
       title,
       description,

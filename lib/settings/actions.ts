@@ -26,6 +26,30 @@ const updateSettingSchema = z.object({
 })
 
 /**
+ * 允许的设置字段白名单
+ * @安全增强 P2: 防止任意字段写入
+ */
+const ALLOWED_SETTING_KEYS: Record<string, string[]> = {
+  privacy: ['profile_visible', 'show_email', 'allow_follow'],
+  notifications: ['email_notify', 'push_notify', 'comment_notify'],
+  appearance: ['theme', 'font_size', 'compact_mode'],
+  content: ['language', 'default_sort', 'items_per_page'],
+  advanced: ['auto_save', 'keyboard_shortcuts', 'beta_features'],
+}
+
+/**
+ * 验证设置 key 是否在白名单中
+ * @param category - 设置分类
+ * @param key - 设置键名
+ * @returns 是否合法
+ */
+function isValidSettingKey(category: string, key: string): boolean {
+  const allowedKeys = ALLOWED_SETTING_KEYS[category]
+  if (!allowedKeys) return false
+  return allowedKeys.includes(key)
+}
+
+/**
  * 获取用户内容设置
  * @returns 内容设置结果
  */
@@ -134,6 +158,18 @@ export async function updateSetting(settingData: UpdateSettingInput): Promise<Up
     // 仅做校验（schema.parse 会抛错），不需要单独使用结果
     updateSettingSchema.parse(settingData)
 
+    /**
+     * @安全增强 P2: 白名单校验
+     * - 防止通过构造恶意 key 写入任意字段
+     * - 只允许预定义的设置项
+     */
+    if (!isValidSettingKey(settingData.category, settingData.key)) {
+      return {
+        success: false,
+        error: '无效的设置项',
+      }
+    }
+
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -150,7 +186,7 @@ export async function updateSetting(settingData: UpdateSettingInput): Promise<Up
       updated_at: new Date().toISOString(),
     }
 
-    // 根据分类和key构建字段名
+    // 根据分类和key构建字段名（已通过白名单校验，安全）
     const fieldName = `${settingData.category}_${settingData.key}`
     updateData[fieldName] = settingData.value
 
