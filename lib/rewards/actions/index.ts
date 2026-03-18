@@ -47,6 +47,7 @@ export {
   getExchangeDetail,
   useCoupon,
   checkCanExchange,
+  type ExchangeRecordWithItem,
 } from './shop'
 
 // 打赏系统
