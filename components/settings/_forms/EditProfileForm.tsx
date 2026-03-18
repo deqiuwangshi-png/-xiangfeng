@@ -84,8 +84,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
       } else {
         setError(result.error || '保存失败，请稍后重试')
       }
-    } catch (error) {
-      console.error('保存失败:', error)
+    } catch {
       setError('保存失败，请稍后重试')
     } finally {
       setIsLoading(false)

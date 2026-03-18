@@ -130,7 +130,6 @@ export const useEditorActions = (
       // 直接跳转到文章详情页
       router.push(`/article/${articleId}`)
     } catch (error) {
-      console.error('发布失败:', error)
       toast.error(error instanceof Error ? error.message : '发布失败，请重试')
     } finally {
       setEditorState(prev => ({ ...prev, isPublishing: false }))

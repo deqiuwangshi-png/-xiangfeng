@@ -99,8 +99,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
       // 密码修改成功，会话已失效，跳转到登录页
       onSave()
       router.push('/login?message=password_changed')
-    } catch (error) {
-      console.error('保存失败:', error)
+    } catch {
       setError('修改密码过程中发生错误，请稍后重试')
     } finally {
       setIsLoading(false)

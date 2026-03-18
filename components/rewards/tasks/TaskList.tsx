@@ -178,8 +178,6 @@ export function TaskList({ category }: TaskListProps) {
     const result = await claimReward(taskId)
     if (result.success) {
       toast.success(`领取成功，获得积分: ${result.points}`)
-    } else {
-      console.error('领取失败:', result.error)
     }
   }
 
@@ -192,7 +190,6 @@ export function TaskList({ category }: TaskListProps) {
     if (result.success) {
       toast.success('接取任务成功')
     } else {
-      console.error('接取失败:', result.error)
       toast.error(result.error || '接取失败')
     }
   }

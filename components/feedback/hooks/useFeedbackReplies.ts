@@ -42,8 +42,8 @@ export function useFeedbackReplies({ pageId }: UseFeedbackRepliesOptions): UseFe
       if (result.success && result.data) {
         setReplies(result.data);
       }
-    } catch (error) {
-      console.error('加载评论失败:', error);
+    } catch {
+      // 加载失败时保持空状态
     } finally {
       setIsLoading(false);
     }

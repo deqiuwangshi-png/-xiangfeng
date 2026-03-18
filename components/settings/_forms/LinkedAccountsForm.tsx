@@ -68,8 +68,8 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
             : account
         )
       )
-    } catch (error) {
-      console.error('操作失败:', error)
+    } catch {
+      // 操作失败时状态已回滚
     } finally {
       setIsLoading(false)
     }

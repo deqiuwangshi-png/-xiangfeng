@@ -184,8 +184,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
         } else {
           setSubmitError(result.error || '提交失败，请稍后重试');
         }
-      } catch (error) {
-        console.error('提交反馈失败:', error);
+      } catch {
         setSubmitError('提交失败，请稍后重试');
       } finally {
         setIsSubmitting(false);

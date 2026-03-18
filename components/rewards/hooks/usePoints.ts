@@ -119,8 +119,8 @@ export function usePoints(): UsePointsReturn {
         )
         setOffset((prev) => prev + 20)
       }
-    } catch (error) {
-      console.error('[usePoints] 加载更多流水失败:', error)
+    } catch {
+      // 加载失败时保持现有数据
     }
   }, [offset, mutateTransactions])
 
@@ -136,13 +136,7 @@ export function usePoints(): UsePointsReturn {
     }
   }, [refreshPoints])
 
-  // 错误处理
-  if (overviewError) {
-    console.error('[usePoints] 获取积分总览失败:', overviewError)
-  }
-  if (transactionsError) {
-    console.error('[usePoints] 获取积分流水失败:', transactionsError)
-  }
+  // 错误处理：已在SWR配置中处理
 
   return {
     overview: overview || null,

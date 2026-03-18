@@ -156,8 +156,8 @@ export function RwRecord() {
         setIsLoading(true)
         const data = await getExchangeRecords({ limit: 50 })
         setRecords(data)
-      } catch (error) {
-        console.error('加载兑换记录失败:', error)
+      } catch {
+        // 加载失败时保持空状态
       } finally {
         setIsLoading(false)
       }

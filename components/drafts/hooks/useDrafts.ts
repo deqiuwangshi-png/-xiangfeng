@@ -225,9 +225,7 @@ export function useDrafts(
           const result = await batchDeleteArticles(ids)
 
           // 根据返回的统计信息处理
-          if (result.failedCount > 0) {
-            console.warn(`批量删除: ${result.deletedCount} 篇成功, ${result.failedCount} 篇失败`)
-          }
+          // 失败情况已在下方toast提示中处理
 
           // 批量删除接口不返回具体ID列表，需要重新获取数据
           // 使用乐观更新：假设传入的ID都成功删除
@@ -303,7 +301,6 @@ export function useDrafts(
             successIds.push(idsArray[index])
           } else {
             failedIds.push(idsArray[index])
-            console.error(`更新文章 ${idsArray[index]} 失败:`, result.reason)
           }
         })
 

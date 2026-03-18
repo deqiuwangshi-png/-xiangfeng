@@ -43,8 +43,8 @@ export function useComments(
         setComments((prev) => [...prev, ...(result.comments as Comment[])])
         setPage(nextPage)
       }
-    } catch (error) {
-      console.error('加载更多评论失败:', error)
+    } catch {
+      // 错误已在UI中处理
     } finally {
       setLoadingMore(false)
     }
@@ -94,8 +94,7 @@ export function useComments(
           )
         )
       }
-    } catch (error) {
-      console.error('点赞失败:', error)
+    } catch {
       // 恢复状态
       setComments((prev) =>
         prev.map((c) =>
@@ -122,8 +121,7 @@ export function useComments(
         } else {
           showError(result.error || '删除评论失败')
         }
-      } catch (error) {
-        console.error('删除评论失败:', error)
+      } catch {
         showError('删除评论失败')
       }
     },
