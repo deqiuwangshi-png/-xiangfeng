@@ -2,13 +2,13 @@
 
 /**
  * 编辑器工具栏组件
- * 
+ *
  * 与 TipTap 编辑器集成
  * - 保持原有 UI 样式
  * - 通过 editor 实例操作编辑器
+ * - 使用简单布局流，相对于内容区域居中定位
  */
 
-import { useEffect, useRef } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Quote, Code,
@@ -32,25 +32,6 @@ export function EditorToolbar({
   onToggleToolbar,
   isCollapsed,
 }: EditorToolbarProps) {
-  const toolbarRef = useRef<HTMLDivElement>(null)
-
-  // 调整工具栏位置
-  useEffect(() => {
-    const adjustToolbarPosition = () => {
-      const editorContainer = document.querySelector('.max-w-\\[840px\\]')
-      const toolbar = toolbarRef.current
-      if (!editorContainer || !toolbar) return
-
-      const editorRect = editorContainer.getBoundingClientRect()
-      const editorCenter = editorRect.left + editorRect.width / 2
-      toolbar.style.left = `${editorCenter}px`
-      toolbar.style.transform = 'translateX(-50%)'
-    }
-
-    adjustToolbarPosition()
-    window.addEventListener('resize', adjustToolbarPosition)
-    return () => window.removeEventListener('resize', adjustToolbarPosition)
-  }, [isCollapsed])
 
   // 格式化文本
   const handleFormatText = (format: string) => {
@@ -111,11 +92,10 @@ export function EditorToolbar({
 
   return (
     <div
-      ref={toolbarRef}
-      className={`fixed bottom-8 bg-white/95 shadow-lg flex items-center gap-2 z-50 border border-xf-primary/8 backdrop-blur-md transition-all justify-center ${
+      className={`bg-white/95 shadow-lg flex items-center gap-2 border border-xf-primary/8 backdrop-blur-md transition-all justify-center ${
         isCollapsed
           ? 'rounded-full p-2 min-w-0 opacity-80 hover:opacity-100'
-          : 'rounded-xl py-4 px-6 min-w-[min(90%,800px)]'
+          : 'rounded-xl py-4 px-6 w-full max-w-[800px]'
       }`}
     >
       {/* 格式化工具组 */}

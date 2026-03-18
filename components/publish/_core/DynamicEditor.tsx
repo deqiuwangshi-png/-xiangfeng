@@ -77,7 +77,7 @@ export default function DynamicEditor({
   })
 
   return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth publish-page-container">
+    <div className="relative">
       <EditorHeader
         onSaveDraft={saveDraft}
         onPublish={publishContent}
@@ -85,7 +85,8 @@ export default function DynamicEditor({
         isPublishing={isPublishing}
       />
 
-      <div className="max-w-[840px] mx-auto px-4 py-8 md:py-12 fade-in">
+      {/* 内容区域容器 - 工具栏将相对于此容器定位 */}
+      <div className="max-w-[840px] mx-auto px-4 py-8 md:py-12 pb-32 fade-in">
         <EditorCard
           title={editorState.title}
           onTitleChange={updateTitle}
@@ -96,15 +97,18 @@ export default function DynamicEditor({
           isMounted={isMounted}
           onPlaceholderClick={focusTitle}
         />
-      </div>
 
-      <EditorToolbar
-        editor={editor}
-        onFocusTitle={focusTitle}
-        onToggleFullscreen={toggleFullscreen}
-        onToggleToolbar={toggleToolbar}
-        isCollapsed={editorState.isToolbarCollapsed}
-      />
+        {/* 工具栏 - 使用 sticky 定位相对于内容区域底部 */}
+        <div className="sticky bottom-8 flex justify-center z-50 mt-8">
+          <EditorToolbar
+            editor={editor}
+            onFocusTitle={focusTitle}
+            onToggleFullscreen={toggleFullscreen}
+            onToggleToolbar={toggleToolbar}
+            isCollapsed={editorState.isToolbarCollapsed}
+          />
+        </div>
+      </div>
     </div>
   )
 }

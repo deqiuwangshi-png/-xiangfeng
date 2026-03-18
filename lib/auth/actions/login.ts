@@ -13,6 +13,8 @@ import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit, resetServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
 import { LOGIN_ERRORS, mapSupabaseError } from '../errorMessages';
 import { sanitizeRedirect } from '../redir';
+import { activateAccount } from '@/lib/user/deactivateAccount';
+import { recordLoginHistory } from '@/lib/auth/loginHistory';
 import type { AuthResult } from './types';
 
 /**
@@ -63,11 +65,21 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
 
   try {
     const supabase = await createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
       const friendlyError = mapSupabaseError(signInError.message, 'login');
       return { success: false, error: friendlyError || LOGIN_ERRORS.INVALID_CREDENTIALS };
+    }
+
+    {/* 登录成功，自动激活账户（如果之前被停用） */}
+    if (signInData.user) {
+      await activateAccount(signInData.user.id)
+    }
+
+    {/* 记录登录历史 */}
+    if (signInData.user) {
+      await recordLoginHistory(signInData.user.id, 'password', true, false)
     }
 
     // 登录成功，重置限流

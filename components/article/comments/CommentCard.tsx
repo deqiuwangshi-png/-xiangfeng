@@ -12,10 +12,9 @@ import type { CommentCardProps } from './types'
  * @param onLike - 点赞回调
  * @param onDelete - 删除回调
  * @param currentUser - 当前用户
- * @param isLiking - 是否正在点赞中
  * @returns 评论卡片JSX
  */
-export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }: CommentCardProps) {
+export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentCardProps) {
   return (
     <div className="comment-item">
       {/* 头像区域 */}
@@ -43,7 +42,6 @@ export function CommentCard({ comment, onLike, onDelete, currentUser, isLiking }
         <CommentCardActions
           comment={comment}
           currentUser={currentUser}
-          isLiking={isLiking ?? false}
           onLike={onLike}
           onDelete={onDelete}
         />

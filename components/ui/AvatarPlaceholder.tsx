@@ -85,6 +85,8 @@ export function AvatarPlaceholder({
         height={px}
         className={`rounded-full object-cover ${sizeClass} ${className}`}
         unoptimized={isDicebearUrl(finalAvatarUrl)}
+        loading="eager"
+        priority={isDicebearUrl(finalAvatarUrl)}
       />
     )
   }

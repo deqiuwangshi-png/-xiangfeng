@@ -31,7 +31,7 @@ export function DraftsHeader({
   onClearAllDrafts,
 }: DraftsHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-xf-border">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* 左侧：标题和数量 */}

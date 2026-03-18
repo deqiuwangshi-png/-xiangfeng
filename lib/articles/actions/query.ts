@@ -100,6 +100,9 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
  * @性能优化 P1: 只查询必要字段，不返回完整 content
  * - 首页卡片只需要摘要，不需要完整正文
  * - 减少数据传输量和内存开销
+ *
+ * @业务规则
+ * - 过滤停用用户(is_active=false)的文章
  */
 export async function getPublishedArticles() {
   const supabase = await createClient();
@@ -118,9 +121,10 @@ export async function getPublishedArticles() {
       like_count,
       comment_count,
       view_count,
-      author:profiles(username, avatar_url)
+      author:profiles!inner(username, avatar_url, is_active)
     `)
     .eq('status', 'published')
+    .eq('author.is_active', true)
     .order('published_at', { ascending: false });
 
   if (error) {
@@ -152,6 +156,9 @@ export async function getPublishedArticles() {
  * @description 只返回已发布状态的文章，用于公开页面展示
  * @param id - 文章ID
  * @returns 文章详情
+ *
+ * @业务规则
+ * - 停用用户(is_active=false)的文章不可见
  */
 export async function getPublicArticleById(id: string) {
   const supabase = await createClient();
@@ -160,10 +167,11 @@ export async function getPublicArticleById(id: string) {
     .from('articles')
     .select(`
       *,
-      author:profiles(username, avatar_url, bio)
+      author:profiles!inner(username, avatar_url, bio, is_active)
     `)
     .eq('id', id)
     .eq('status', 'published')
+    .eq('author.is_active', true)
     .single();
 
   if (error || !data) return null;

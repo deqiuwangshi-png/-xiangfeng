@@ -53,7 +53,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
           {!isMounted ? (
             // SSR 占位，避免水合错误
             <div
-              className="min-h-[60vh] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg cursor-text"
+              className="min-h-[400px] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg cursor-text"
               onClick={onPlaceholderClick}
             >
               <span className="opacity-30 italic">点击这里开始书写你的故事...（支持Markdown格式）</span>
@@ -61,7 +61,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
           ) : (
             <EditorContent
               editor={editor}
-              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[60vh] prose prose-lg max-w-none outline-none bg-white rounded-lg"
+              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[400px] prose prose-lg max-w-none outline-none bg-white rounded-lg"
             />
           )}
         </div>

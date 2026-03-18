@@ -22,7 +22,7 @@
  */
 export function EditorSkeleton() {
   return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth publish-page-container">
+    <div className="relative">
       {/* 顶部操作栏骨架 */}
       <div className="sticky top-0 z-20 glass border-b border-white/50">
         <div className="max-w-[840px] mx-auto px-4 py-3 flex items-center justify-between">
@@ -55,9 +55,9 @@ export function EditorSkeleton() {
           </div>
 
           {/* 内容编辑区域骨架 */}
-          <div className="relative py-0">
+          <div className="relative py-0 min-h-[400px]">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-xf-bg/30 rounded" />
-            
+
             {/* 多行文本骨架 */}
             <div className="pl-6 space-y-4">
               <div className="h-6 bg-white/80 rounded animate-pulse w-full" />
