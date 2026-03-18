@@ -107,6 +107,9 @@ export async function extractAttachments(value: unknown): Promise<Attachment[]> 
 export async function convertFeishuRecordToFeedbackItem(record: FeishuRecord): Promise<FeedbackItem> {
   const fields = record.fields;
 
+  const trackingId = await extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id;
+  const contactEmail = await extractFieldValue(fields[FIELD_MAPPING.CONTACT]);
+
   return {
     id: record.record_id,
     title: await extractFieldValue(fields[FIELD_MAPPING.TITLE]),
@@ -114,8 +117,10 @@ export async function convertFeishuRecordToFeedbackItem(record: FeishuRecord): P
     date: new Date(Number(fields[FIELD_MAPPING.CREATED_AT]) || Date.now()).toISOString(),
     status: REVERSE_STATUS_MAPPING[await extractFieldValue(fields[FIELD_MAPPING.STATUS])] || 'pending',
     statusText: await extractFieldValue(fields[FIELD_MAPPING.STATUS]) || '待处理',
-    pageId: await extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id,
-    contactEmail: await extractFieldValue(fields[FIELD_MAPPING.CONTACT]),
+    pageId: trackingId,
+    contactEmail: contactEmail,
+    userEmail: contactEmail || '',
+    trackingId: trackingId,
     attachments: await extractAttachments(fields[FIELD_MAPPING.ATTACHMENTS]),
   };
 }
