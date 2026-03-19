@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     description: '连接深度思考者，打破认知边界，构建属于你的思维网络与知识经济生态。',
     images: [
       {
-        url: `${siteUrl}/og-image.png`,
+        url: `${siteUrl}/og-image.svg`,
         width: 1200,
         height: 630,
         alt: '相逢 Xiangfeng - 知识社区',
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: `${siteName} - 不止相遇，更是改变`,
     description: '连接深度思考者，打破认知边界，构建属于你的思维网络与知识经济生态。',
-    images: [`${siteUrl}/og-image.png`],
+    images: [`${siteUrl}/og-image.svg`],
     creator: '@xiangfeng',
   },
   verification: {
