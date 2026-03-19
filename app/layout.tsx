@@ -92,12 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className="scroll-smooth">
-      {/* 
-        修复：移除了错误的 <meta> 标签放置
-        这些已经通过 metadata API 自动注入到 <head> 中
-        不需要手动写在这里
-      */}
+    <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className="font-serif antialiased">
         <SWRProvider>
           {children}

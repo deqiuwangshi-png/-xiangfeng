@@ -4,11 +4,11 @@
  * 导航栏组件 - 响应式导航
  * @module components/marketing/Navbar
  * @description 桌面端显示完整导航，移动端使用简化版
+ * @性能优化 P1: 将 router.push 改为 Link 组件，启用自动预加载
  */
 
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Logo } from '@/components/icons'
 import { MobileNav } from '@/components/mobile/MobileNav'
 
@@ -17,8 +17,6 @@ import { MobileNav } from '@/components/mobile/MobileNav'
  * @returns {JSX.Element} 桌面端导航
  */
 function DesktopNav() {
-  const router = useRouter()
-
   useEffect(() => {
     const handleScroll = () => {
       const navbar = document.getElementById('navbar')
@@ -73,12 +71,13 @@ function DesktopNav() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push('/login')}
+          {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
+          <Link
+            href="/login"
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
           >
             登录
-          </button>
+          </Link>
         </div>
       </div>
     </nav>

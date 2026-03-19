@@ -75,19 +75,26 @@ export async function register(formData: FormData): Promise<AuthResult> {
   try {
     // 生成统一头像URL
     const avatarUrl = getAvtUrl(username);
-    
+
+    // @修复 U-05: 确保 emailRedirectTo 使用正确的完整 URL
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.xiangfeng.site';
+
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { username, avatar_url: avatarUrl },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
+        emailRedirectTo: `${siteUrl}/login`,
       },
     });
 
     if (signUpError) {
       if (signUpError.message.includes('User already registered')) {
         return { success: false, error: REGISTER_ERRORS.EMAIL_ALREADY_REGISTERED };
+      }
+      {/* @修复 U-03: 将 Supabase 英文错误转换为中文 */}
+      if (signUpError.message.includes('Error sending confirmation email')) {
+        return { success: false, error: '验证邮件发送失败，请检查邮箱地址是否正确或稍后重试' };
       }
       return { success: false, error: signUpError.message };
     }

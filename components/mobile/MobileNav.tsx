@@ -4,11 +4,11 @@
  * 移动端导航组件
  * @module components/mobile/MobileNav
  * @description 官网着陆页移动端顶部导航，包含汉堡菜单
+ * @性能优化 P1: 将 router.push 改为 Link 组件，启用自动预加载
  */
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { Logo } from '@/components/icons'
 
@@ -29,7 +29,6 @@ const navItems = [
  */
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
-  const router = useRouter()
 
   /**
    * 处理导航点击
@@ -53,12 +52,13 @@ export function MobileNav() {
 
         {/* 右侧操作 */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push('/login')}
+          {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
+          <Link
+            href="/login"
             className="px-4 py-2 bg-xf-primary text-white rounded-lg text-sm font-medium touch-manipulation active-scale"
           >
             登录
-          </button>
+          </Link>
 
           {/* 汉堡菜单按钮 */}
           <button
