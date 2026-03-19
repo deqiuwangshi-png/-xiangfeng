@@ -2,19 +2,10 @@
 
 /**
  * 标题输入组件
- * 
- * 作用: 提供文章标题输入功能
- * 
  * @param {string} value - 标题值
  * @param {(value: string) => void} onChange - 值变化处理函数
  * @param {React.RefObject<HTMLInputElement>} inputRef - 输入框引用
- * 
  * @returns {JSX.Element} 标题输入组件
- * 
- * 使用说明:
- *   用于编辑器的标题输入区域
- *   支持最多100字限制
- *   显示字符计数提示
  * 依赖:
  *   - react (React组件)
  * 更新时间: 2026-02-19
@@ -24,7 +15,6 @@ import { forwardRef, InputHTMLAttributes } from 'react'
 
 /**
  * 标题输入属性接口
- * 
  * @interface TitleInputProps
  * @property {string} value - 标题值
  * @property {(value: string) => void} onChange - 值变化处理函数
@@ -58,7 +48,7 @@ export const TitleInput = forwardRef<HTMLInputElement, TitleInputProps>(
     }
 
     return (
-      <div className="relative mb-6 sm:mb-10 pb-4 sm:pb-6 border-b-2 border-xf-light">
+      <div className="relative mb-6 sm:mb-10 pb-4 sm:pb-6">
         <input
           ref={ref}
           type="text"
@@ -71,7 +61,8 @@ export const TitleInput = forwardRef<HTMLInputElement, TitleInputProps>(
           maxLength={100}
           {...props}
         />
-        <div className="absolute bottom-[-2px] left-0 w-[60px] h-[2px] bg-linear-to-r from-xf-primary to-xf-accent transition-all duration-300 focus-within:w-[120px]" />
+        {/* 装饰线 - 固定长度 */}
+        <div className="absolute bottom-0 left-0 w-[60px] h-[2px] bg-linear-to-r from-xf-primary to-xf-accent" />
         <div className="absolute right-0 bottom-2 sm:bottom-4 text-xf-medium text-xs sm:text-sm pointer-events-none">
           最多100字
         </div>
