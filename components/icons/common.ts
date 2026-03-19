@@ -19,6 +19,7 @@ export {
   CheckSquare,
   CheckCheck,
   Power,
+  Menu,
 
 
   AlertTriangle,
