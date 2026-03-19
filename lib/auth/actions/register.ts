@@ -73,18 +73,15 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   try {
-    // 生成统一头像URL
-    const avatarUrl = getAvtUrl(username);
-
-    // @修复 U-05: 确保 emailRedirectTo 使用正确的完整 URL
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.xiangfeng.site';
+    // 生成统一头像URL - 使用email作为seed（唯一且稳定，与登录后一致）
+    const avatarUrl = getAvtUrl(email);
 
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { username, avatar_url: avatarUrl },
-        emailRedirectTo: `${siteUrl}/login`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
       },
     });
 

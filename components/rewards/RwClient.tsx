@@ -55,7 +55,7 @@ export function RwClient() {
   return (
     <div className="max-w-6xl mx-auto fade-in-up px-4 sm:px-6 md:px-10 pt-6 sm:pt-8 pb-12">
       {/* 页头 + 积分总览 */}
-      <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
             福利中心

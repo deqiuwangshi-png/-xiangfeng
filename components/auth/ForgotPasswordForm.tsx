@@ -65,7 +65,7 @@ export function ForgotPasswordForm() {
             </div>
           </div>
           <p className="text-center text-xf-medium">
-            重置密码链接已发送到您的邮箱，请查收。
+            重置链接已发送到你的邮箱，请在网页端邮箱查收
           </p>
           <button
             onClick={() => window.location.href = '/login'}

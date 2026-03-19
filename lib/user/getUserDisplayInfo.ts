@@ -64,9 +64,11 @@ export function getUserDisplayInfo(
                    user.email?.split('@')[0] || 
                    '用户'
 
-  const avatarUrl = profile?.avatar_url || 
-                    user.user_metadata?.avatar_url || 
-                    getAvtUrl(user.id)
+  // 头像逻辑：优先使用profile.avatar_url，其次用email生成（与注册时保持一致），最后回退到user_metadata.avatar_url
+  // 注意：优先使用email生成，确保所有用户头像seed统一，避免旧用户使用username作为seed的问题
+  const avatarUrl = profile?.avatar_url ||
+                    getAvtUrl(user.email || user.id) ||
+                    user.user_metadata?.avatar_url
 
   const bio = profile?.bio || 
               user.user_metadata?.bio || 

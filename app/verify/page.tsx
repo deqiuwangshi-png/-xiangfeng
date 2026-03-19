@@ -35,7 +35,7 @@ function VerifyHandler() {
       }
 
       // @安全边界 V-03: 验证类型白名单
-      const validTypes = ['recovery', 'signup', 'email_change'];
+      const validTypes = ['recovery', 'signup', 'email_change', 'magiclink'];
       if (!validTypes.includes(type)) {
         setMessage('无效的验证类型');
         return;
@@ -97,6 +97,24 @@ function VerifyHandler() {
 
             setMessage('邮箱修改成功！即将跳转到登录页面...');
             setTimeout(() => router.push('/login'), 2000);
+            break;
+          }
+
+          case 'magiclink': {
+            // Magic Link 登录
+            const { error: magicError } = await supabase.auth.verifyOtp({
+              token_hash: token,
+              type: 'magiclink',
+            });
+
+            if (magicError) {
+              console.error('[Verify] Magic link error:', magicError);
+              setMessage('登录链接已过期或无效');
+              return;
+            }
+
+            setMessage('登录成功！正在跳转...');
+            router.push('/home');
             break;
           }
 
