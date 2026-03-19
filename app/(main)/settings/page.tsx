@@ -4,6 +4,7 @@ import '@/styles/domains/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions'
+import { getAvtUrl } from '@/lib/utils/getAvtUrl'
 
 /**
  * 设置页面主入口（Server Component）
@@ -37,11 +38,12 @@ export default async function SettingsPage() {
   }
 
   // 组装用户数据传递给客户端
+  // 头像逻辑：优先使用profile.avatar_url，否则用email生成Dicebear头像（与注册时保持一致）
   const userData = user ? {
     id: user.id,
     email: user.email || '',
     username: profile?.username || user.email?.split('@')[0] || '用户',
-    avatar_url: profile?.avatar_url || '',
+    avatar_url: profile?.avatar_url || getAvtUrl(user.email || user.id),
     bio: (profile as { bio?: string })?.bio || '',
     location: (profile as { location?: string })?.location || '',
   } : null

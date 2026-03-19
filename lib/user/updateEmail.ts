@@ -43,7 +43,7 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
     }
 
     // 检查新邮箱是否已被其他用户使用
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: checkError } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', newEmail)
@@ -54,14 +54,11 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
     }
 
     // 调用 Supabase Auth 更新邮箱（会触发确认邮件）
-    // @修复 U-05: 确保 emailRedirectTo 使用正确的完整 URL
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.xiangfeng.site';
-
     const { error: updateError } = await supabase.auth.updateUser({
       email: newEmail,
     }, {
       // 邮件确认后需要重新登录
-      emailRedirectTo: `${siteUrl}/login`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
     })
 
     if (updateError) {

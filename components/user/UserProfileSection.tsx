@@ -67,6 +67,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   }, [])
 
   // 获取用户显示信息（优先使用profile数据，保持与编辑页一致）
+  // 头像seed统一使用email（与注册时保持一致）
   const userEmail = user?.email || '用户'
   const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
@@ -84,7 +85,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
         >
           <AvatarPlaceholder
             name={userName}
-            userId={user?.id}
+            userId={user?.email || user?.id}
             avatarUrl={avatarUrl}
             size="sm"
             className="shadow-sm ring-2 ring-white"

@@ -52,10 +52,12 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   /**
-   * 生成新的统一头像
+   * 生成新的随机头像
+   * 使用随机seed，让用户可以更换不同的头像
    */
   const generateNewAvatar = () => {
-    const newAvatarUrl = getAvtUrl(formData.username)
+    const randomSeed = Math.random().toString(36).substring(2, 10)
+    const newAvatarUrl = getAvtUrl(randomSeed)
     setFormData(prev => ({ ...prev, avatar_url: newAvatarUrl }))
   }
 
