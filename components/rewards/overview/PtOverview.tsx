@@ -85,13 +85,13 @@ export const PtOverview = memo(function PtOverview({
   isValidating
 }: PtOverviewProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-soft px-6 py-3 flex items-center gap-6 border border-xf-bg/30">
+    <div className="bg-white rounded-2xl shadow-soft px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 border border-xf-bg/30">
       <div>
         <span className="text-xs text-xf-primary">我的积分</span>
         {/* 当前积分 - 独立组件 */}
         <PointsNumber value={points} isValidating={isValidating} />
       </div>
-      <div className="h-8 w-px bg-xf-bg" />
+      <div className="h-px sm:h-8 w-full sm:w-px bg-xf-bg" />
       <div className="text-sm space-y-0.5">
         <div className="text-xf-medium">
           累计获得 <StatNumber value={totalEarned} />

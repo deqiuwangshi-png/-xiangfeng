@@ -1,4 +1,5 @@
 import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
+import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
 import '@/styles/domains/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
@@ -52,7 +53,13 @@ export default async function SettingsPage() {
     : { content_language: 'zh-CN' }
 
   return (
-    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-10 pt-10 pb-24 relative scroll-smooth">
+    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative scroll-smooth">
+      {/* 移动端顶部栏 */}
+      <div className="lg:hidden flex items-center gap-3 mb-4">
+        <MobileHamburgerMenu />
+        <h1 className="text-xl font-serif text-xf-accent font-bold">设置</h1>
+      </div>
+
       <div className="max-w-7xl mx-auto fade-in-up">
         <SettingsLayout userData={userData} contentSettings={contentSettings} />
       </div>

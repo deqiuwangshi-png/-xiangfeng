@@ -44,10 +44,10 @@ export function BatchActionsBar({
   return (
     <div
       className={`
-        batch-actions-bar fixed bottom-8 left-1/2 -translate-x-1/2
+        batch-actions-bar fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2
         bg-white border border-xf-primary/10 rounded-2xl
-        px-6 py-4 shadow-deep backdrop-blur-md
-        flex items-center gap-4 z-50
+        px-4 sm:px-6 py-3 sm:py-4 shadow-deep backdrop-blur-md
+        flex items-center gap-2 sm:gap-4 z-40
         ${visible ? 'opacity-100 visible' : 'opacity-0 invisible'}
         transition-all duration-300
       `}

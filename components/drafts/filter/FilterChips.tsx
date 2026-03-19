@@ -53,7 +53,7 @@ export function FilterChips({
   }
 
   return (
-    <div className="flex items-center gap-2 filter-chips">
+    <div className="flex flex-wrap items-center gap-2 filter-chips">
       <div className="text-sm font-medium text-xf-dark mr-2">
         状态:
       </div>
@@ -61,7 +61,7 @@ export function FilterChips({
         <button
           key={option.value}
           className={`
-            filter-chip
+            filter-chip text-xs sm:text-sm py-1.5 px-2.5 sm:py-2 sm:px-3
             ${activeFilter === option.value ? 'active' : ''}
           `}
           onClick={() => handleFilterClick(option.value)}

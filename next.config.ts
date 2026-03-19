@@ -41,6 +41,8 @@ const nextConfig: NextConfig = {
     // 优化包体积
     optimizePackageImports: ['lucide-react'],
   },
+  // 禁用 React 实验性 draggable 功能，避免移动端指针事件错误
+  reactStrictMode: true,
   images: {
     // 图片优化配置
     remotePatterns: [

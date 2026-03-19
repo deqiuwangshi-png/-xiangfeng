@@ -1,11 +1,22 @@
 'use client'
 
+/**
+ * 导航栏组件 - 响应式导航
+ * @module components/marketing/Navbar
+ * @description 桌面端显示完整导航，移动端使用简化版
+ */
+
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Logo } from '@/components/icons'
+import { MobileNav } from '@/components/mobile/MobileNav'
 
-export default function Navbar() {
+/**
+ * 桌面端导航组件
+ * @returns {JSX.Element} 桌面端导航
+ */
+function DesktopNav() {
   const router = useRouter()
 
   useEffect(() => {
@@ -36,25 +47,25 @@ export default function Navbar() {
 
         <div className="flex items-center gap-8">
           <Link
-            href="/"
+            href="#features"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             特色功能
           </Link>
           <Link
-            href="/"
+            href="#how-it-works"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             如何运作
           </Link>
           <Link
-            href="/"
+            href="#creators"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             生态创作者
           </Link>
           <Link
-            href="/"
+            href="#economy"
             className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
           >
             生态经济
@@ -71,5 +82,25 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+  )
+}
+
+/**
+ * 响应式导航栏组件
+ * @returns {JSX.Element} 响应式导航
+ */
+export default function Navbar() {
+  return (
+    <>
+      {/* 桌面端导航 - lg以上显示 */}
+      <div className="hidden lg:block">
+        <DesktopNav />
+      </div>
+
+      {/* 移动端导航 - lg以下显示 */}
+      <div className="lg:hidden">
+        <MobileNav />
+      </div>
+    </>
   )
 }

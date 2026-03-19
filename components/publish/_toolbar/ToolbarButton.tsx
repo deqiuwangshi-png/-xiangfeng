@@ -60,13 +60,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         ref={ref}
         onClick={onClick}
         title={title || tooltip}
-        className={`relative py-2.5 px-2.5 rounded-xl text-xf-primary bg-xf-primary/5 border border-transparent cursor-pointer transition-all flex items-center justify-center hover:bg-xf-primary/12 hover:border-xf-primary/20 hover:-translate-y-px hover:shadow-md ${
+        className={`relative p-1.5 sm:py-2.5 sm:px-2.5 rounded-lg sm:rounded-xl text-xf-primary bg-xf-primary/5 border border-transparent cursor-pointer transition-all flex items-center justify-center hover:bg-xf-primary/12 hover:border-xf-primary/20 hover:-translate-y-px hover:shadow-md ${
           isActive ? 'bg-xf-primary/15 text-xf-accent border-xf-primary/30' : ''
         }`}
         {...props}
       >
-        <Icon className="w-4 h-4" />
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 translate-y-1.25 bg-xf-dark text-white py-1 px-3 rounded-lg text-xs whitespace-nowrap opacity-0 invisible transition-all pointer-events-none z-100 font-medium mb-2 shadow-lg">
+        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <span className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 translate-y-1.25 bg-xf-dark text-white py-1 px-3 rounded-lg text-xs whitespace-nowrap opacity-0 invisible transition-all pointer-events-none z-100 font-medium mb-2 shadow-lg">
           {tooltip}
         </span>
       </button>

@@ -92,10 +92,10 @@ export function EditorToolbar({
 
   return (
     <div
-      className={`bg-white/95 shadow-lg flex items-center gap-2 border border-xf-primary/8 backdrop-blur-md transition-all justify-center ${
+      className={`bg-white/95 shadow-lg flex items-center gap-1 sm:gap-2 border border-xf-primary/8 backdrop-blur-md transition-all justify-center ${
         isCollapsed
           ? 'rounded-full p-2 min-w-0 opacity-80 hover:opacity-100'
-          : 'rounded-xl py-4 px-6 w-full max-w-[800px]'
+          : 'rounded-xl py-2 px-2 sm:py-4 sm:px-6 w-full max-w-[calc(100vw-24px)] sm:max-w-[800px]'
       }`}
     >
       {/* 格式化工具组 */}

@@ -98,16 +98,16 @@ export function ProfileStats({ stats }: { stats: UserStats }) {
   const statsData = getStatsData(stats)
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-10">
       {statsData.map((stat) => (
-        <div key={stat.label} className="profile-stats-item card-bg rounded-2xl p-5">
+        <div key={stat.label} className="profile-stats-item card-bg rounded-xl sm:rounded-2xl p-3 sm:p-5">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-xf-accent mb-1">{stat.value}</div>
-              <div className="text-sm text-xf-primary font-medium">{stat.label}</div>
+              <div className="text-xl sm:text-2xl font-bold text-xf-accent mb-0.5 sm:mb-1">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-xf-primary font-medium">{stat.label}</div>
             </div>
-            <div className={`w-10 h-10 rounded-full bg-linear-to-tr ${stat.iconGradient} flex items-center justify-center ${stat.iconColor}`}>
-              <stat.icon className="w-5 h-5" />
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-linear-to-tr ${stat.iconGradient} flex items-center justify-center ${stat.iconColor}`}>
+              <stat.icon className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
         </div>

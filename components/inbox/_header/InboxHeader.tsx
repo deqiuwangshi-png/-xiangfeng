@@ -47,10 +47,10 @@ export function InboxHeader({
   isValidating = false,
 }: InboxHeaderProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
-          <Bell className="w-6 h-6 text-xf-primary" />
+    <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <h1 className="text-xl sm:text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
+          <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-xf-primary" />
           消息通知
         </h1>
         {/* 后台更新指示器 */}

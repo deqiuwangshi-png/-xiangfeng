@@ -33,7 +33,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
     return (
       <div
         ref={ref}
-        className="bg-white rounded-[20px] border border-xf-light p-10 transition-all relative overflow-hidden slide-up"
+        className="bg-white rounded-[20px] border border-xf-light p-4 sm:p-6 md:p-10 transition-all relative overflow-hidden slide-up"
         style={{ boxShadow: '0 8px 40px rgba(106, 91, 138, 0.08)' }}
       >
         {/* 顶部装饰条 */}
@@ -53,7 +53,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
           {!isMounted ? (
             // SSR 占位，避免水合错误
             <div
-              className="min-h-[400px] py-4 pl-6 text-lg leading-[1.9] text-xf-dark bg-white rounded-lg cursor-text"
+              className="min-h-[300px] sm:min-h-[400px] py-4 pl-4 sm:pl-6 text-base sm:text-lg leading-[1.9] text-xf-dark bg-white rounded-lg cursor-text"
               onClick={onPlaceholderClick}
             >
               <span className="opacity-30 italic">点击这里开始书写你的故事...（支持Markdown格式）</span>
@@ -61,7 +61,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
           ) : (
             <EditorContent
               editor={editor}
-              className="text-lg leading-[1.9] text-xf-dark py-4 pl-6 min-h-[400px] prose prose-lg max-w-none outline-none bg-white rounded-lg"
+              className="text-base sm:text-lg leading-[1.9] text-xf-dark py-4 pl-4 sm:pl-6 min-h-[300px] sm:min-h-[400px] prose prose-base sm:prose-lg max-w-none outline-none bg-white rounded-lg"
             />
           )}
         </div>

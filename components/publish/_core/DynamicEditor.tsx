@@ -86,7 +86,7 @@ export default function DynamicEditor({
       />
 
       {/* 内容区域容器 - 工具栏将相对于此容器定位 */}
-      <div className="max-w-[840px] mx-auto px-4 py-8 md:py-12 pb-32 fade-in">
+      <div className="max-w-full sm:max-w-[840px] mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in">
         <EditorCard
           title={editorState.title}
           onTitleChange={updateTitle}
@@ -99,7 +99,7 @@ export default function DynamicEditor({
         />
 
         {/* 工具栏 - 使用 sticky 定位相对于内容区域底部 */}
-        <div className="sticky bottom-8 flex justify-center z-50 mt-8">
+        <div className="sticky bottom-4 sm:bottom-8 flex justify-center z-40 mt-6 sm:mt-8">
           <EditorToolbar
             editor={editor}
             onFocusTitle={focusTitle}

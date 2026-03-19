@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A5B8A"/>
+      <stop offset="100%" stop-color="#3A3C6E"/>
+    </linearGradient>
+    <filter id="logoGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g filter="url(#logoGlow)">
+    <path
+      d="M32 8C19.163 8 8 19.163 8 32s11.163 24 24 24"
+      stroke="url(#logoGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      fill="none"
+    />
+    <path
+      d="M32 56c12.837 0 24-11.163 24-24S44.837 8 32 8"
+      stroke="url(#logoGradient)"
+      stroke-width="4"
+      stroke-linecap="round"
+      fill="none"
+    />
+  </g>
+
+  <circle cx="32" cy="32" r="6" fill="url(#logoGradient)"/>
+  <circle cx="32" cy="32" r="3" fill="#A5C1D6"/>
+</svg>

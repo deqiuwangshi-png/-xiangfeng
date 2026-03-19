@@ -17,8 +17,6 @@ const faqItems = [
 
 /**
  * FAQ组件 - 服务端组件
- * ✅ 纯展示静态内容
- * ✅ 无客户端交互
  */
 export default function FAQ() {
   return (

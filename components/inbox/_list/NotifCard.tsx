@@ -59,7 +59,7 @@ export const NotifCard = memo(function NotifCard({
 
   return (
     <div
-      className={`flex items-start gap-4 bg-white p-4 rounded-xl border-gray-100 hover:shadow-sm transition ${
+      className={`flex items-start gap-2 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border-gray-100 hover:shadow-sm transition ${
         notification.unread ? 'border-l-4 border-xf-primary' : ''
       } ${isSelected ? 'ring-2 ring-xf-primary bg-blue-50' : ''}`}
       onClick={handleClick}
