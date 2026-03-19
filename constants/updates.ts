@@ -1,31 +1,23 @@
 /**
  * 更新日志常量定义
- * 
+ *
  * 作用: 定义更新日志相关的常量
- * 
- * @exports LATEST_VERSION, MOCK_UPDATES, FILTER_OPTIONS
- * 
+ *
+ * @exports MOCK_UPDATES, UPDATE_TYPE_STYLES, VERSION_TAG_COLORS
+ *
  * 使用说明:
  *   用于更新日志页面的常量配置
- *   包含最新版本、模拟数据、筛选选项等
+ *   包含模拟数据、样式配置等
  *   注意：不要在此文件中调用服务器端函数（如fs模块）
- * 
+ *
  * 更新时间: 2026-02-20
  */
 
 import { UpdateType, VersionType, MonthlyUpdate } from '@/types/updates'
 
 /**
- * 最新版本号（备用值）
- * 
- * @constant LATEST_VERSION
- * @description 当前最新稳定版本号（备用值，实际值从Markdown文件读取）
- */
-export const LATEST_VERSION = 'V2.5.0'
-
-/**
  * 模拟更新数据（备用数据）
- * 
+ *
  * @constant MOCK_UPDATES
  * @description 模拟的更新日志数据，用于开发和测试
  */
@@ -117,33 +109,8 @@ export const MOCK_UPDATES: MonthlyUpdate[] = [
 ]
 
 /**
- * 筛选选项配置
- * 
- * @constant FILTER_OPTIONS
- * @description 筛选按钮的配置
- */
-export const FILTER_OPTIONS = [
-  {
-    type: 'all' as const,
-    label: '全部更新'
-  },
-  {
-    type: UpdateType.NEW,
-    label: '新功能'
-  },
-  {
-    type: UpdateType.IMPROVED,
-    label: '改进优化'
-  },
-  {
-    type: UpdateType.FIXED,
-    label: '问题修复'
-  }
-]
-
-/**
  * 更新类型标签样式配置
- * 
+ *
  * @constant UPDATE_TYPE_STYLES
  * @description 不同更新类型的标签样式
  */
@@ -167,7 +134,7 @@ export const UPDATE_TYPE_STYLES = {
 
 /**
  * 版本标签背景色配置
- * 
+ *
  * @constant VERSION_TAG_COLORS
  * @description 不同版本类型的标签背景色
  */

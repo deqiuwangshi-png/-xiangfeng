@@ -9,10 +9,3 @@ export const filterOptions: Array<{ value: DraftFilter; label: string }> = [
   { value: 'published', label: '已发布' },
   { value: 'archived', label: '待审核' },
 ]
-
-/**
- * 分页配置
- */
-export const paginationConfig = {
-  itemsPerPage: 6,
-}
