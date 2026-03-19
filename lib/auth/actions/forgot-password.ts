@@ -32,8 +32,10 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
 
   try {
     const supabase = await createClient();
+    // @修复 U-05: 确保 redirectTo 使用正确的完整 URL
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.xiangfeng.site';
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/reset-password`,
+      redirectTo: `${siteUrl}/reset-password`,
     });
 
     if (error) {

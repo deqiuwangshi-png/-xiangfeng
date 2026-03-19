@@ -2,11 +2,12 @@
  * 生态经济区组件
  * @module components/marketing/EconomySection
  * @description 响应式生态经济展示，移动端优化
+ * @性能优化 P1: 将 router.push 改为 Link 组件，启用自动预加载
  */
 
 'use client'
 
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { DollarSign, RefreshCw, Clock, Check } from 'lucide-react'
 import { RevealOnScroll } from './RevealOnScroll'
 
@@ -60,8 +61,6 @@ const readerBenefits = [
  * @returns {JSX.Element} 生态经济区
  */
 export default function EconomySection() {
-  const router = useRouter()
-
   return (
     <section id="economy" className="py-12 sm:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6">
@@ -103,12 +102,13 @@ export default function EconomySection() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => router.push('/login')}
-                  className="w-full py-3 bg-xf-light hover:bg-slate-200 text-xf-dark rounded-xl font-medium transition-colors mt-auto touch-manipulation active-scale"
+                {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
+                <Link
+                  href="/login"
+                  className="block w-full py-3 bg-xf-light hover:bg-slate-200 text-xf-dark rounded-xl font-medium transition-colors mt-auto touch-manipulation active-scale text-center"
                 >
                   申请成为创作者
-                </button>
+                </Link>
               </div>
 
               {/* 读者卡片 */}
@@ -129,12 +129,13 @@ export default function EconomySection() {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => router.push('/login')}
-                  className="w-full py-3 bg-white text-xf-primary hover:bg-slate-50 rounded-xl font-bold transition-colors shadow-md mt-auto"
+                {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
+                <Link
+                  href="/login"
+                  className="block w-full py-3 bg-white text-xf-primary hover:bg-slate-50 rounded-xl font-bold transition-colors shadow-md mt-auto text-center"
                 >
                   立即免费加入
-                </button>
+                </Link>
               </div>
             </div>
           </RevealOnScroll>
