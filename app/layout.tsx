@@ -1,13 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SWRProvider } from "@/components/providers/SWRProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 
-
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
 const siteName = '相逢 Xiangfeng'
+
+// 分离 viewport 配置（Next.js 14+ 推荐）
+export const viewport: Viewport = {
+  themeColor: '#3A3C6E',
+  width: 'device-width',
+  initialScale: 1,
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -20,6 +26,26 @@ export const metadata: Metadata = {
   authors: [{ name: 'Xiangfeng Team' }],
   creator: 'Xiangfeng Team',
   publisher: 'Xiangfeng',
+  
+  //添加 favicon 配置
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
+    ],
+    // 可选：苹果设备图标
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  
+  // 移除手动写的 meta 标签，改用 metadata API
+  verification: {
+    google: 'OnmNwulVS1xwiFr3pKL54p_0qTpoHRsi63cLm9cC8i4',
+    other: {
+      'msvalidate.01': '2C8C448F5364105CE31A05CCB3994092',
+    },
+  },
+  
   robots: {
     index: true,
     follow: true,
@@ -54,38 +80,25 @@ export const metadata: Metadata = {
     images: [`${siteUrl}/og-image.svg`],
     creator: '@xiangfeng',
   },
-  verification: {
-    google: 'OnmNwulVS1xwiFr3pKL54p_0qTpoHRsi63cLm9cC8i4',
-    other: {
-      'msvalidate.01': '2C8C448F5364105CE31A05CCB3994092',
-    },
-  },
   alternates: {
     canonical: siteUrl,
   },
   category: 'technology',
 };
 
-/**
- * 根布局组件
- * @param children - 子组件
- * @returns 根布局JSX
- */
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className="scroll-smooth" data-scroll-behavior="smooth">
-    <meta name="google-site-verification" content="OnmNwulVS1xwiFr3pKL54p_0qTpoHRsi63cLm9cC8i4" />
-    <meta name="msvalidate.01" content="2C8C448F5364105CE31A05CCB3994092" />
-      {/*
-        @体验修复 U-02: 使用系统字体栈
-        - 通过 CSS 变量定义字体族
-        - 优先使用系统自带中文字体，无需网络下载
+    <html lang="zh-CN" className="scroll-smooth">
+      {/* 
+        修复：移除了错误的 <meta> 标签放置
+        这些已经通过 metadata API 自动注入到 <head> 中
+        不需要手动写在这里
       */}
-      <body className={`font-serif antialiased`}>
+      <body className="font-serif antialiased">
         <SWRProvider>
           {children}
           <ToastProvider />
