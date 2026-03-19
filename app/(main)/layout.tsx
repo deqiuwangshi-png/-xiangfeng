@@ -1,4 +1,5 @@
 import { Sidebar } from '@/components/ui/Sidebar'
+import { MobileBottomNav } from '@/components/mobile/MobileBottomNav'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
 import '@/styles/domains/app.css'
@@ -38,11 +39,22 @@ export default async function MainLayout({
   } as const
 
   return (
-    <div className="flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden">
-      <Sidebar user={user} profile={profile} />
-      <main className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
-        {children}
-      </main>
-    </div>
+    <>
+      {/* 桌面端：侧边栏布局 */}
+      <div className="hidden lg:flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden">
+        <Sidebar user={user} profile={profile} />
+        <main className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
+          {children}
+        </main>
+      </div>
+
+      {/* 移动端：底部导航布局 */}
+      <div className="lg:hidden flex flex-col h-screen bg-xf-light">
+        <main className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
+          {children}
+        </main>
+        <MobileBottomNav userId={user.id} />
+      </div>
+    </>
   )
 }

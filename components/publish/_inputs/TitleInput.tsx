@@ -58,13 +58,13 @@ export const TitleInput = forwardRef<HTMLInputElement, TitleInputProps>(
     }
 
     return (
-      <div className="relative mb-10 pb-6 border-b-2 border-xf-light">
+      <div className="relative mb-6 sm:mb-10 pb-4 sm:pb-6 border-b-2 border-xf-light">
         <input
           ref={ref}
           type="text"
           value={value}
           onChange={handleChange}
-          className="text-[2.75rem] font-bold leading-tight text-xf-dark border-none outline-none w-full font-serif bg-transparent py-2 tracking-[-0.02em] placeholder:opacity-25 placeholder:font-medium"
+          className="text-2xl sm:text-4xl md:text-[2.75rem] font-bold leading-tight text-xf-dark border-none outline-none w-full font-serif bg-transparent py-2 tracking-[-0.02em] placeholder:opacity-25 placeholder:font-medium"
           placeholder="为你的文章起一个引人入胜的标题"
           autoComplete="off"
           spellCheck={false}
@@ -72,7 +72,7 @@ export const TitleInput = forwardRef<HTMLInputElement, TitleInputProps>(
           {...props}
         />
         <div className="absolute bottom-[-2px] left-0 w-[60px] h-[2px] bg-linear-to-r from-xf-primary to-xf-accent transition-all duration-300 focus-within:w-[120px]" />
-        <div className="absolute right-0 bottom-4 text-xf-medium text-sm pointer-events-none">
+        <div className="absolute right-0 bottom-2 sm:bottom-4 text-xf-medium text-xs sm:text-sm pointer-events-none">
           最多100字
         </div>
       </div>

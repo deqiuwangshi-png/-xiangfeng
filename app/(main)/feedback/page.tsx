@@ -93,28 +93,28 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-8 pt-6 pb-20">
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-8 pt-4 sm:pt-6 pb-20">
       {/* 页面标题 */}
-      <div className="mb-6 flex flex-wrap items-center justify-between">
+      <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-serif text-xf-accent font-bold mb-1">
+          <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold mb-1">
             产品反馈
           </h1>
-          <p className="text-xf-primary text-base">
+          <p className="text-sm sm:text-base text-xf-primary">
             帮助我们一起打磨产品
           </p>
         </div>
         <button
           onClick={() => handleTabChange('faq')}
-          className="text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1 transition-colors"
+          className="text-xs sm:text-sm text-xf-primary hover:text-xf-accent flex items-center gap-1 transition-colors"
         >
-          <HelpCircle className="w-4 h-4" />
+          <HelpCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           反馈前搜索
         </button>
       </div>
 
       {/* 主内容区 */}
-      <div className="bg-linear-to-br from-white to-xf-light border border-xf-bg/80 rounded-2xl p-5 lg:p-6">
+      <div className="bg-linear-to-br from-white to-xf-light border border-xf-bg/80 rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6">
         <FeedbackTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="mt-4">

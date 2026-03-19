@@ -53,11 +53,11 @@ export function RwClient() {
   }), [overview])
 
   return (
-    <div className="max-w-6xl mx-auto fade-in-up px-6 md:px-10 pt-8 pb-12">
+    <div className="max-w-6xl mx-auto fade-in-up px-4 sm:px-6 md:px-10 pt-6 sm:pt-8 pb-12">
       {/* 页头 + 积分总览 */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
+          <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
             福利中心
           </h1>
           <p className="text-xf-primary mt-1 text-sm">签到 · 做任务 · 兑好礼</p>
@@ -71,7 +71,7 @@ export function RwClient() {
       </div>
 
       {/* 签到卡片 & 积分等级 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <SignCard
           isSigned={isSigned}
           signDays={consecutiveDays}
@@ -85,7 +85,7 @@ export function RwClient() {
       </div>
 
       {/* 任务中心 & 兑换商城 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <TaskBoard />
         <ShopGrid userPoints={pointsData.current} />
       </div>

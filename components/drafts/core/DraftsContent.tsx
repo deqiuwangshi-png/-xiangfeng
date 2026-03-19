@@ -78,10 +78,10 @@ export function DraftsContent({
   onPageChange,
 }: DraftsContentProps) {
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 md:py-8 fade-in">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 fade-in">
       {/* 控制栏：筛选 + 搜索 */}
-      <div className="mb-6 slide-in">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+      <div className="mb-4 sm:mb-6 slide-in">
+        <div className="flex flex-col gap-3 sm:gap-4 mb-3 sm:mb-4">
           <FilterChips
             options={filterOptions}
             activeFilter={activeFilter}

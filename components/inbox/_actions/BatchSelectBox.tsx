@@ -27,13 +27,13 @@ export function BatchSelectBox({ isSelected, onSelect }: BatchSelectBoxProps) {
   }
 
   return (
-    <div className="shrink-0 flex items-center">
+    <div className="shrink-0 flex items-center w-10 h-10 sm:w-auto sm:h-auto -ml-2 sm:ml-0 justify-center">
       <input
         type="checkbox"
         checked={isSelected}
         onChange={handleChange}
         onClick={handleClick}
-        className="w-4 h-4 rounded border-gray-300 text-xf-primary focus:ring-xf-primary"
+        className="w-5 h-5 sm:w-4 sm:h-4 rounded border-gray-300 text-xf-primary focus:ring-xf-primary"
       />
     </div>
   )

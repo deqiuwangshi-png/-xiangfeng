@@ -90,7 +90,8 @@ export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProp
   return (
     <SettingsContext.Provider value={contextValue}>
       <div>
-        <header className="mb-10">
+        {/* 桌面端标题 - 移动端在page.tsx中显示 */}
+        <header className="hidden lg:block mb-10">
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             设置
           </h1>
@@ -99,8 +100,9 @@ export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProp
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+          {/* 桌面端左侧导航 - 移动端使用汉堡菜单 */}
+          <div className="hidden lg:block lg:col-span-1">
             <SettingsNav activeTab={activeTab} onTabChange={handleTabChange} />
           </div>
 

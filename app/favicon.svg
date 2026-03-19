@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6A5B8A"/>
+      <stop offset="100%" stop-color="#3A3C6E"/>
+    </linearGradient>
+  </defs>
+
+  {/* 背景圆 */}
+  <circle cx="32" cy="32" r="30" fill="white"/>
+
+  {/* 左弧 */}
+  <path
+    d="M32 10C19.163 10 10 19.163 10 32s9.163 22 22 22"
+    stroke="url(#faviconGradient)"
+    stroke-width="5"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  {/* 右弧 */}
+  <path
+    d="M32 54c12.837 0 22-9.163 22-22S44.837 10 32 10"
+    stroke="url(#faviconGradient)"
+    stroke-width="5"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  {/* 中心圆 */}
+  <circle cx="32" cy="32" r="7" fill="url(#faviconGradient)"/>
+
+  {/* 核心点 */}
+  <circle cx="32" cy="32" r="3.5" fill="#A5C1D6"/>
+</svg>

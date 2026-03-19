@@ -72,8 +72,7 @@ export default function PublishPageClient() {
         } else {
           toast.error('草稿不存在或无权访问')
         }
-      } catch (error) {
-        console.error('加载草稿失败:', error)
+      } catch {
         toast.error('加载草稿失败')
       } finally {
         setIsLoading(false)

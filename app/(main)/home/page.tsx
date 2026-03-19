@@ -56,18 +56,18 @@ export default async function HomePage() {
   const userName = user?.user_metadata?.username || user?.email?.split('@')[0] || '朋友'
 
   return (
-    <div className="max-w-4xl mx-auto px-6 md:px-10 pt-8 pb-20 fade-in-up">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10 pt-6 sm:pt-8 pb-20 fade-in-up">
       {/* 欢迎区域 */}
-      <div className="mb-10">
-        <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
+      <div className="mb-6 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
           欢迎回来，{userName}
         </h1>
       </div>
 
       {/* 文章列表区域 - 使用Suspense优化LCP */}
-      <div className="mb-12">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-serif text-xf-accent font-bold text-layer-1">
+      <div className="mb-8 sm:mb-12">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-serif text-xf-accent font-bold text-layer-1">
             最新文章
           </h2>
           <Link
@@ -75,12 +75,12 @@ export default async function HomePage() {
             className="text-sm text-xf-primary hover:text-xf-accent font-medium flex items-center gap-2 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            刷新
+            <span className="hidden sm:inline">刷新</span>
           </Link>
         </div>
 
         {/* ✅ 使用 Suspense 延迟加载文章列表，优化LCP */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <Suspense fallback={<ArticleCardSkeleton count={4} />}>
             <ArticleList />
           </Suspense>

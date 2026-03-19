@@ -70,12 +70,12 @@ export function ProfileTabs() {
   }
 
   return (
-    <div className="flex gap-4 mb-8 flex-wrap">
+    <div className="flex gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-1">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={`profile-tab ${activeTab === tab.id ? 'active' : ''}`}
+          className={`profile-tab whitespace-nowrap text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 ${activeTab === tab.id ? 'active' : ''}`}
         >
           {tab.label}
         </button>
