@@ -74,9 +74,6 @@ export async function recordLoginHistory(
   try {
     const supabase = await createClient()
 
-    {/* 获取请求头信息 */}
-    const { data: { session } } = await supabase.auth.getSession()
-
     await supabase
       .from('login_history')
       .insert({

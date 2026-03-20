@@ -78,7 +78,7 @@ export function sanitizeHtml(html: string): string {
 
     while ((attrMatch = attrRegex.exec(match)) !== null) {
       const attrName = attrMatch[1].toLowerCase()
-      const attrValue = attrMatch[3]
+      const attrValue = attrMatch[2]
 
       {/* 检查属性是否在白名单中 */}
       if (allowedAttrs.includes(attrName) || globalAttrs.includes(attrName)) {

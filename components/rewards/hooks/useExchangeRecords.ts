@@ -8,7 +8,7 @@
 
 import useSWR from 'swr'
 import { getExchangeRecords } from '@/lib/rewards/actions'
-import type { ExchangeRecord, ExchangeRecordWithItem } from '@/types/rewards'
+import type { ExchangeRecordWithItem } from '@/types/rewards'
 
 /**
  * 查询参数接口
