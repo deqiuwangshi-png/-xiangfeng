@@ -35,16 +35,6 @@
   color: var(--color-xf-dark);
 }
 
-/* 隐藏滚动条 */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
 /* 按钮按压效果 */
 button:active,
 .cursor-pointer:active {

@@ -83,7 +83,7 @@ export default async function ProfilePage() {
     : { articles: 0, followers: 0, likes: 0, nodes: 0 }
 
   return (
-    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative scroll-smooth">
+    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       <div className="max-w-6xl mx-auto fade-in-up">
         {/* 个人资料头部 - 传递真实用户数据 */}
         <ProfileHeader user={userData} />

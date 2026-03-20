@@ -64,7 +64,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           <div className="relative">
             <AvatarPlaceholder
               name={user.username}
-              userId={user.id}
               avatarUrl={user.avatarUrl}
               size="xl"
               className="shadow-deep ring-4 ring-white w-20 h-20 sm:w-24 sm:h-24"

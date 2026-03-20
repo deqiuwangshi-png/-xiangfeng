@@ -1,10 +1,17 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import { ArticleCard } from '@/components/app/ArticleCard'
 import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
 import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/crud'
 import { getCurrentUser } from '@/lib/supabase/user'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: '首页 - 发现深度文章 | 相逢',
+  description: '浏览相逢社区最新发布的深度文章，发现优质内容创作者。探索深度思考、独立观点、知识分享，加入深度阅读体验。',
+  keywords: ['深度文章', '优质内容', '知识分享', '深度阅读', '创作者', '最新文章', '思维碰撞'],
+}
 
 /**
  * 文章列表组件 - 独立获取数据，支持Suspense

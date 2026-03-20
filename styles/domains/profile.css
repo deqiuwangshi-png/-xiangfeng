@@ -133,12 +133,4 @@
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-/* 隐藏滚动条但保留功能 */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}

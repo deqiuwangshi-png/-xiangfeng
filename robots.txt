@@ -1,0 +1,13 @@
+User-Agent: *
+Allow: /
+Disallow: /drafts/
+Disallow: /inbox/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /publish/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://www.xiangfeng.site/sitemap.xml

@@ -66,8 +66,12 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
     setIsDropdownOpen(false)
   }, [])
 
-  // 获取用户显示信息（优先使用profile数据，保持与编辑页一致）
-  // 头像seed统一使用email（与注册时保持一致）
+  /**
+   * 获取用户显示信息
+   * 头像URL优先级：profile.avatar_url > user_metadata.avatar_url
+   * 注意：不再动态生成头像，必须使用数据库中存储的avatar_url
+   * 如果avatar_url为空，AvatarPlaceholder会显示首字母占位符
+   */
   const userEmail = user?.email || '用户'
   const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
@@ -85,7 +89,6 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
         >
           <AvatarPlaceholder
             name={userName}
-            userId={user?.email || user?.id}
             avatarUrl={avatarUrl}
             size="sm"
             className="shadow-sm ring-2 ring-white"

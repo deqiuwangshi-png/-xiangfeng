@@ -26,8 +26,11 @@ import { UserData, UpdateProfileParams } from '@/types/settings'
  */
 
 interface EditProfileFormProps {
+  /** 初始用户数据（必须包含id用于头像生成） */
   initialData?: UserData | null
+  /** 取消回调函数 */
   onCancel: () => void
+  /** 保存成功回调函数 */
   onSave: () => void
 }
 
@@ -52,13 +55,20 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   /**
-   * 生成新的随机头像
-   * 使用随机seed，让用户可以更换不同的头像
+   * 重置头像为默认头像
+   * 使用用户ID作为seed生成头像，确保与用户绑定且全局一致
+   *
+   * 注意：不再使用随机seed，避免头像不一致问题
+   * 所有用户头像必须基于user.id生成，确保同一用户始终显示同一头像
    */
-  const generateNewAvatar = () => {
-    const randomSeed = Math.random().toString(36).substring(2, 10)
-    const newAvatarUrl = getAvtUrl(randomSeed)
-    setFormData(prev => ({ ...prev, avatar_url: newAvatarUrl }))
+  const resetToDefaultAvatar = () => {
+    if (!initialData?.id) {
+      setError('无法重置头像：用户ID缺失')
+      return
+    }
+    // 使用user.id作为seed生成头像，确保与用户绑定且全局一致
+    const defaultAvatarUrl = getAvtUrl(initialData.id)
+    setFormData(prev => ({ ...prev, avatar_url: defaultAvatarUrl }))
   }
 
   /**
@@ -136,15 +146,15 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
               />
               <button
                 type="button"
-                onClick={generateNewAvatar}
+                onClick={resetToDefaultAvatar}
                 className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
-                title="更换随机头像"
+                title="重置为默认头像"
               >
                 <Camera className="w-5 h-5" />
               </button>
             </div>
             <p className="text-sm text-xf-medium mt-4">
-              点击相机更换头像
+              点击相机重置头像
             </p>
           </div>
 

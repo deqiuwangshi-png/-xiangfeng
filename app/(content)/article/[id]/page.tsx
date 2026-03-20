@@ -56,16 +56,37 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
+  const articleUrl = `${siteUrl}/article/${id}`
+
   return {
     title: article.title,
     description: article.summary || '',
     keywords: article.tags?.join(', '),
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: article.title,
       description: article.summary || '',
       type: 'article',
       publishedTime: article.publishedAt,
       authors: [article.author.name],
+      url: articleUrl,
+      images: [
+        {
+          url: `${siteUrl}/og-image.svg`,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.summary || '',
+      images: [`${siteUrl}/og-image.svg`],
     },
   };
 }

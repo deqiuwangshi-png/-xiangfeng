@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { getAvtUrl, isDicebearUrl } from '@/lib/utils/getAvtUrl'
+import { isDicebearUrl } from '@/lib/utils/getAvtUrl'
 import { JSX } from 'react'
 
 /**
@@ -35,9 +35,9 @@ type AvatarSize = keyof typeof SIZE_MAP
 interface AvatarPlaceholderProps {
   /** 用户名（用于首字母显示和 alt 文本） */
   name: string
-  /** 用户ID（用于生成 Dicebear 头像） */
+  /** 用户ID（已废弃，仅用于向后兼容，不再用于生成头像） */
   userId?: string
-  /** 自定义头像URL（优先级高于自动生成） */
+  /** 头像URL（必须传入，确保头像一致性） */
   avatarUrl?: string
   /** 尺寸：sm(40px) / md(64px) / lg(96px) / xl(128px)，默认 md */
   size?: AvatarSize
@@ -52,19 +52,19 @@ interface AvatarPlaceholderProps {
  * @returns {JSX.Element} 头像组件
  *
  * @example
- * <AvatarPlaceholder name="张三" userId="user-123" size="sm" />
+ * <AvatarPlaceholder name="张三" avatarUrl="https://api.dicebear.com/7.x/micah/svg?seed=user-123" size="sm" />
  *
  * @example
-
  * <AvatarPlaceholder name="李四" avatarUrl="https://example.com/avatar.jpg" size="lg" />
  *
  * @example
-
- <AvatarPlaceholder name="王五" size="md" />
+ * <AvatarPlaceholder name="王五" size="md" />
  */
 export function AvatarPlaceholder({
   name,
-  userId,
+  // userId 已废弃，保留参数以兼容旧代码，但不再使用
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  userId: _userId,
   avatarUrl,
   size = 'md',
   className = '',
@@ -72,8 +72,15 @@ export function AvatarPlaceholder({
   const { px, class: sizeClass } = SIZE_MAP[size]
   const initial = name.charAt(0).toUpperCase()
 
-  {/* 确定最终显示的头像URL */}
-  const finalAvatarUrl = avatarUrl || (userId ? getAvtUrl(userId) : null)
+  /**
+   * 头像显示逻辑：
+   * 1. 优先使用传入的 avatarUrl（由后端统一提供，确保一致性）
+   * 2. 如果没有 avatarUrl，显示首字母占位符
+   * 
+   * 注意：不再使用 userId 动态生成头像，避免seed不一致导致头像变化
+   * 所有头像URL必须由后端统一生成并存储在数据库中
+   */
+  const finalAvatarUrl = avatarUrl
 
   {/* 有头像URL时显示图片 */}
   if (finalAvatarUrl) {

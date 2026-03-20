@@ -21,7 +21,6 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
       <div className="comment-avatar relative">
         <AvatarPlaceholder
           name={comment.author.name}
-          userId={comment.author.id}
           avatarUrl={comment.author.avatar}
           size="sm"
         />

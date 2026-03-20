@@ -37,7 +37,7 @@ export default function AboutPage() {
                   <div className="w-36 h-36 rounded-3xl bg-xf-surface/20 border-4 border-white shadow-xl overflow-hidden">
                     <img
                       src="https://api.dicebear.com/7.x/notionists/svg?seed=独立开发者&backgroundColor=d2c3d5&radius=30"
-                      alt="Ling"
+                      alt="相逢创始人头像 - 独立开发者Ling"
                       className="w-full h-full object-cover"
                     />
                   </div>

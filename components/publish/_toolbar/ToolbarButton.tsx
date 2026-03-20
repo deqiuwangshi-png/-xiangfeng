@@ -66,7 +66,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         {...props}
       >
         <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        <span className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 translate-y-1.25 bg-xf-dark text-white py-1 px-3 rounded-lg text-xs whitespace-nowrap opacity-0 invisible transition-all pointer-events-none z-100 font-medium mb-2 shadow-lg">
+        <span className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 translate-y-1.25 bg-xf-dark text-white py-1 px-3 rounded-lg text-xs whitespace-nowrap opacity-0 invisible transition-all pointer-events-none z-50 font-medium mb-2 shadow-lg">
           {tooltip}
         </span>
       </button>

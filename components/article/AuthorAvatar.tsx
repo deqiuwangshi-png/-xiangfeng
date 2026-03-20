@@ -102,7 +102,6 @@ export function AuthorAvatar({
         <div className="author-avatar-image">
           <AvatarPlaceholder
             name={authorName}
-            userId={authorId}
             avatarUrl={authorAvatar}
             size="md"
           />

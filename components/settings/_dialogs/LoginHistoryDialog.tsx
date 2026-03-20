@@ -55,16 +55,10 @@ export function LoginHistoryDialog({ isOpen, onClose }: LoginHistoryDialogProps)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (isOpen) {
-      loadHistory()
-    }
-  }, [isOpen])
-
   /**
    * 加载登录历史
    */
-  async function loadHistory() {
+  const loadHistory = async () => {
     setIsLoading(true)
     setError(null)
 
@@ -78,6 +72,17 @@ export function LoginHistoryDialog({ isOpen, onClose }: LoginHistoryDialogProps)
 
     setIsLoading(false)
   }
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    // 使用 setTimeout 避免在 effect 中同步调用 setState
+    const timer = setTimeout(() => {
+      loadHistory()
+    }, 0)
+
+    return () => clearTimeout(timer)
+  }, [isOpen])
 
   if (!isOpen) return null
 
