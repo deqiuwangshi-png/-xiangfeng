@@ -49,6 +49,11 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
       .eq('email', newEmail)
       .maybeSingle()
 
+    if (checkError) {
+      console.error('检查邮箱占用状态失败:', checkError)
+      return { success: false, error: '暂时无法验证邮箱可用性，请稍后重试' }
+    }
+
     if (existingUser) {
       return { success: false, error: '该邮箱已被其他账号使用' }
     }
