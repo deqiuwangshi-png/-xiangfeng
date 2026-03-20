@@ -4,7 +4,6 @@ import '@/styles/domains/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions'
-import { getAvtUrl } from '@/lib/utils/getAvtUrl'
 
 /**
  * 设置页面主入口（Server Component）
@@ -37,13 +36,16 @@ export default async function SettingsPage() {
     profile = data
   }
 
-  // 组装用户数据传递给客户端
-  // 头像逻辑：优先使用profile.avatar_url，否则用email生成Dicebear头像（与注册时保持一致）
+  /**
+   * 组装用户数据传递给客户端
+   * 头像逻辑：只使用 profile.avatar_url，不再动态生成
+   * 如果 avatar_url 为空，AvatarPlaceholder 组件会显示首字母占位符
+   */
   const userData = user ? {
     id: user.id,
     email: user.email || '',
     username: profile?.username || user.email?.split('@')[0] || '用户',
-    avatar_url: profile?.avatar_url || getAvtUrl(user.email || user.id),
+    avatar_url: profile?.avatar_url || '',
     bio: (profile as { bio?: string })?.bio || '',
     location: (profile as { location?: string })?.location || '',
   } : null
@@ -55,7 +57,7 @@ export default async function SettingsPage() {
     : { content_language: 'zh-CN' }
 
   return (
-    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative scroll-smooth">
+    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       {/* 移动端顶部栏 */}
       <div className="lg:hidden flex items-center gap-3 mb-4">
         <MobileHamburgerMenu />

@@ -58,7 +58,6 @@ export function ArticleCard({
         <div className="flex items-center gap-3 mb-4">
           <AvatarPlaceholder
             name={author.name}
-            userId={author.id}
             avatarUrl={author.avatar}
             size="sm"
             className="ring-2 ring-white"

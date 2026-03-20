@@ -73,14 +73,13 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   try {
-    // 生成统一头像URL - 使用email作为seed（唯一且稳定，与登录后一致）
-    const avatarUrl = getAvtUrl(email);
-
-    const { error: signUpError } = await supabase.auth.signUp({
+    // 先生成用户获取user.id，再用user.id生成头像URL
+    // 确保头像seed与用户ID绑定，实现全局一致性
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { username, avatar_url: avatarUrl },
+        data: { username },
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
       },
     });
@@ -95,6 +94,29 @@ export async function register(formData: FormData): Promise<AuthResult> {
       }
       return { success: false, error: signUpError.message };
     }
+
+    if (!signUpData.user) {
+      return { success: false, error: '注册失败，请稍后重试' };
+    }
+
+    // 使用user.id生成头像URL，确保seed与用户ID绑定
+    const avatarUrl = getAvtUrl(signUpData.user.id);
+
+    // 更新profiles表中的头像URL
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: avatarUrl })
+      .eq('id', signUpData.user.id);
+
+    if (updateError) {
+      console.error('更新头像URL失败:', updateError);
+      // 不影响注册成功，头像可以后续更新
+    }
+
+    // 更新user_metadata中的头像URL
+    await supabase.auth.updateUser({
+      data: { avatar_url: avatarUrl }
+    });
 
     return { success: true, message: '注册成功，请检查邮箱完成验证' };
   } catch (err) {

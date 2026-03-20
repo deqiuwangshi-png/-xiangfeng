@@ -9,7 +9,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { generateSummary } from '@/lib/utils/html';
-import { getAvtUrl } from '@/lib/utils/getAvtUrl';
 import type { DraftData } from '@/types/drafts';
 
 /**
@@ -142,7 +141,9 @@ export async function getPublishedArticles() {
     author: {
       id: item.author_id,
       name: (item.author as { username?: string })?.username || '匿名',
-      avatar: (item.author as { avatar_url?: string })?.avatar_url || getAvtUrl(item.author_id),
+      // 只使用数据库中存储的avatar_url，不再动态生成，确保头像一致性
+      // 如果avatar_url为空，AvatarPlaceholder组件会显示首字母占位符
+      avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
     },
     likesCount: item.like_count || 0,
     commentsCount: item.comment_count || 0,

@@ -28,7 +28,7 @@ interface ShopNavProps {
  */
 export function ShopNav({ activeCategory, onCategoryChange, categories }: ShopNavProps) {
   return (
-    <div className="overflow-x-auto pb-2 mb-6 scrollbar-hide">
+    <div className="overflow-x-auto pb-2 mb-6 no-scrollbar">
       <div className="flex gap-2 min-w-max">
         {(Object.keys(categories) as ShopCategoryType[]).map((key) => (
           <button

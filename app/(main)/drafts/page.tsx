@@ -63,7 +63,7 @@ function DraftsSkeleton() {
  */
 export default function DraftsPage() {
   return (
-    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative scroll-smooth">
+    <div className="flex-1 h-full overflow-y-auto no-scrollbar relative">
       {/* 优先渲染骨架屏，减少LCP感知时间 */}
       <Suspense fallback={<DraftsSkeleton />}>
         <DraftsData />

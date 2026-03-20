@@ -64,7 +64,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           <div className="relative">
             <AvatarPlaceholder
               name={user.username}
-              userId={user.id}
               avatarUrl={user.avatarUrl}
               size="xl"
               className="shadow-deep ring-4 ring-white w-20 h-20 sm:w-24 sm:h-24"
@@ -91,15 +90,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
 
             <div className="flex gap-2 sm:gap-3 mt-3 md:mt-0 justify-center md:justify-start">
-              {/* TODO: 发消息功能待开发中
-              <Link
-                href="/chat"
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-white border border-xf-bg/60 text-xf-primary rounded-xl font-medium flex items-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4" />
-                发消息
-              </Link>
-              */}
               <button
                 onClick={handleFollowClick}
                 className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold flex items-center gap-2 text-sm sm:text-base ${

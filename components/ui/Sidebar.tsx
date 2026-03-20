@@ -38,10 +38,14 @@ const navItems: NavItem[] = [
 ]
 
 /**
- * 预加载路由配置
+ * 预加载路由配置 - 优化后只预加载核心路由
  * @constant PRELOAD_ROUTES
+ * @description 
+ * - 只预加载用户最可能访问的核心页面
+ * - 避免预加载所有路由造成资源浪费
+ * - 其他路由通过鼠标悬停按需预加载
  */
-const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/rewards']
+const PRELOAD_ROUTES = ['/home', '/publish']
 
 /**
  * 用户资料接口
@@ -102,7 +106,12 @@ export function Sidebar({ user, profile }: SidebarProps) {
   const { unreadCount } = useInboxCache(user?.id || '')
 
   /**
-   * 预加载关键路由
+   * 智能预加载关键路由
+   * @description
+   * - 使用 requestIdleCallback 在浏览器空闲时预加载
+   * - 只预加载用户最可能访问的核心页面（首页、发布页）
+   * - 其他路由通过鼠标悬停按需预加载，避免资源浪费
+   * - 延迟 3 秒执行，确保关键资源优先加载
    */
   useEffect(() => {
     const preloadRoutes = () => {
@@ -113,11 +122,16 @@ export function Sidebar({ user, profile }: SidebarProps) {
       })
     }
 
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      window.requestIdleCallback(preloadRoutes, { timeout: 2000 })
-    } else {
-      setTimeout(preloadRoutes, 1000)
-    }
+    {/* 延迟预加载，确保关键资源优先加载 */}
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        window.requestIdleCallback(preloadRoutes, { timeout: 2000 })
+      } else {
+        preloadRoutes()
+      }
+    }, 3000)
+
+    return () => clearTimeout(timer)
   }, [router, pathname])
 
   /**

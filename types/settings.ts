@@ -18,13 +18,13 @@ export interface ContentSettings {
  * 用于设置页面各组件间传递用户数据
  */
 export interface UserData {
-  /** 用户唯一标识 */
+  /** 用户唯一标识（同时作为头像seed，确保头像一致性） */
   id: string
   /** 用户邮箱 */
   email: string
   /** 用户名 */
   username: string
-  /** 头像URL */
+  /** 头像URL（基于user.id生成，确保全局一致） */
   avatar_url: string
   /** 个人简介 */
   bio: string

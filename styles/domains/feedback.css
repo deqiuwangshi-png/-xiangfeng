@@ -177,16 +177,6 @@ select:focus {
   overflow: hidden;
 }
 
-/* 无滚动条 */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
 /* 动画类 */
 .animate-in {
   animation-fill-mode: both;
