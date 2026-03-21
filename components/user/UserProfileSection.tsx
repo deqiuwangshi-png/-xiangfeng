@@ -8,7 +8,7 @@
 
 import { useState, useCallback } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { UserAvatar } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
 
 /**
@@ -69,9 +69,9 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   /**
    * 获取用户显示信息
    * 头像URL优先级：profile.avatar_url > user_metadata.avatar_url
-   * 注意：不再动态生成头像，必须使用数据库中存储的avatar_url
-   * 如果avatar_url为空，AvatarPlaceholder会显示首字母占位符
+   * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
    */
+  const userId = user?.id || ''
   const userEmail = user?.email || '用户'
   const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
@@ -87,8 +87,9 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
           aria-label="用户菜单"
           aria-expanded={isDropdownOpen}
         >
-          <AvatarPlaceholder
+          <UserAvatar
             name={userName}
+            userId={userId}
             avatarUrl={avatarUrl}
             size="sm"
             className="shadow-sm ring-2 ring-white"

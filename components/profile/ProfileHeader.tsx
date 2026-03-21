@@ -18,7 +18,7 @@
 
 import { UserPlus, UserCheck, MapPin, Star } from '@/components/icons'
 import { useState } from 'react'
-import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { UserAvatar } from '@/components/ui'
 import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 
 /**
@@ -62,8 +62,9 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         {/* 头像区域 */}
         <div className="relative">
           <div className="relative">
-            <AvatarPlaceholder
+            <UserAvatar
               name={user.username}
+              userId={user.id}
               avatarUrl={user.avatarUrl}
               size="xl"
               className="shadow-deep ring-4 ring-white w-20 h-20 sm:w-24 sm:h-24"

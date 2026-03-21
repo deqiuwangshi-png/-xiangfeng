@@ -17,7 +17,7 @@ export type { ArticlePageProps } from '@/types';
 
 /**
  * 页面级别缓存配置
- * - revalidate: 180秒（3分钟）增量静态再生
+ * - revalidate: 6000秒（约100分钟）增量静态再生
  * - 已发布文章不经常变动，适合较长缓存
  */
 export const revalidate = 6000;

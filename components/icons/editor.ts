@@ -26,6 +26,7 @@ export {
   Redo,
   ArrowUpToLine,
   Maximize,
+  Minimize,
   ChevronDown,
   Save,
   Send,

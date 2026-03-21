@@ -9,7 +9,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus } from 'lucide-react'
 import type { AuthorAvatarProps } from '@/types'
-import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { UserAvatar } from '@/components/ui'
 import { toggleFollow, getFollowStatus } from '@/lib/user/actions/follow'
 import { useArticleToast } from '@/hooks/useArticleToast'
 
@@ -100,8 +100,9 @@ export function AuthorAvatar({
       {/* 头像 */}
       <div className="author-avatar-wrapper">
         <div className="author-avatar-image">
-          <AvatarPlaceholder
+          <UserAvatar
             name={authorName}
+            userId={authorId}
             avatarUrl={authorAvatar}
             size="md"
           />

@@ -17,6 +17,7 @@ import { useAutoSave } from '../hooks/useAutoSave'
 import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
 import { EditorToolbar } from '../_toolbar/EditorToolbar'
+import { BubbleMenu } from '../_toolbar/BubbleMenu'
 
 /**
  * 动态编辑器组件属性
@@ -83,10 +84,16 @@ export default function DynamicEditor({
         onPublish={publishContent}
         isSaving={isSaving}
         isPublishing={isPublishing}
+        isFullscreen={editorState.isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
       />
 
       {/* 内容区域容器 - 工具栏将相对于此容器定位 */}
-      <div className="max-w-full sm:max-w-[840px] mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in">
+      <div className={`mx-auto py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in ${
+        editorState.isFullscreen
+          ? 'max-w-full px-4 sm:px-8 lg:px-16'
+          : 'max-w-full sm:max-w-[840px] px-3 sm:px-4'
+      }`}>
         <EditorCard
           title={editorState.title}
           onTitleChange={updateTitle}
@@ -96,18 +103,24 @@ export default function DynamicEditor({
           editor={editor}
           isMounted={isMounted}
           onPlaceholderClick={focusTitle}
+          isFocusMode={editorState.isFullscreen}
         />
 
-        {/* 工具栏 - 使用 sticky 定位相对于内容区域底部 */}
-        <div className="sticky bottom-4 sm:bottom-8 flex justify-center z-40 mt-6 sm:mt-8">
-          <EditorToolbar
-            editor={editor}
-            onFocusTitle={focusTitle}
-            onToggleFullscreen={toggleFullscreen}
-            onToggleToolbar={toggleToolbar}
-            isCollapsed={editorState.isToolbarCollapsed}
-          />
-        </div>
+        {/* 浮动气泡菜单 - 选中文本时显示 */}
+        <BubbleMenu editor={editor} />
+
+        {/* 底部工具栏 - 专注模式下隐藏，普通模式下简化显示 */}
+        {!editorState.isFullscreen && (
+          <div className="sticky bottom-4 sm:bottom-8 flex justify-center z-30 mt-6 sm:mt-8">
+            <EditorToolbar
+              editor={editor}
+              onFocusTitle={focusTitle}
+              onToggleFullscreen={toggleFullscreen}
+              onToggleToolbar={toggleToolbar}
+              isCollapsed={true}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Clock, Eye } from '@/components/icons'
-import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { UserAvatar } from '@/components/ui'
 import type { ArticleCardProps } from '@/types'
 
 export type { ArticleCardProps } from '@/types'
@@ -56,8 +56,9 @@ export function ArticleCard({
       <article className="h-full flex flex-col bg-white rounded-2xl p-6 shadow-soft cursor-pointer border border-xf-bg/50">
         {/* 作者信息 */}
         <div className="flex items-center gap-3 mb-4">
-          <AvatarPlaceholder
+          <UserAvatar
             name={author.name}
+            userId={author.id}
             avatarUrl={author.avatar}
             size="sm"
             className="ring-2 ring-white"

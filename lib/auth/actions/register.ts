@@ -9,7 +9,6 @@
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
-import { getAvtUrl } from '@/lib/utils/getAvtUrl';
 import { REGISTER_ERRORS } from '../errorMessages';
 import { isAllowedEmail } from '../utils';
 import type { AuthResult } from './types';
@@ -99,24 +98,7 @@ export async function register(formData: FormData): Promise<AuthResult> {
       return { success: false, error: '注册失败，请稍后重试' };
     }
 
-    // 使用user.id生成头像URL，确保seed与用户ID绑定
-    const avatarUrl = getAvtUrl(signUpData.user.id);
-
-    // 更新profiles表中的头像URL
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ avatar_url: avatarUrl })
-      .eq('id', signUpData.user.id);
-
-    if (updateError) {
-      console.error('更新头像URL失败:', updateError);
-      // 不影响注册成功，头像可以后续更新
-    }
-
-    // 更新user_metadata中的头像URL
-    await supabase.auth.updateUser({
-      data: { avatar_url: avatarUrl }
-    });
+    {/* 不再自动生成默认头像，由组件统一处理无头像情况 */}
 
     return { success: true, message: '注册成功，请检查邮箱完成验证' };
   } catch (err) {

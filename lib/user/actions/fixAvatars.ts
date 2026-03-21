@@ -114,9 +114,15 @@ export async function fixAllUserAvatars(): Promise<{
       // 生成正确的头像URL（使用 user.id 作为 seed）
       const correctAvatarUrl = getAvtUrl(userId)
 
-      // 检查是否需要修复
-      const needsFix = !currentAvatarUrl ||
-        (currentAvatarUrl && !currentAvatarUrl.includes(userId) && !currentAvatarUrl.includes('dicebear.com'))
+      /**
+       * 检查是否需要修复：
+       * 1. 头像为空
+       * 2. 头像是 Dicebear 但 seed 不是 userId（即 URL 不匹配正确 URL）
+       * 3. 非 Dicebear 头像（用户自定义头像）不修复
+       */
+      const isDicebear = currentAvatarUrl?.includes('dicebear.com') ?? false
+      const isCorrectSeed = currentAvatarUrl === correctAvatarUrl
+      const needsFix = !currentAvatarUrl || (isDicebear && !isCorrectSeed)
 
       if (needsFix) {
         const result = await fixUserAvatar(userId, correctAvatarUrl)
@@ -202,9 +208,13 @@ export async function checkAvatarConsistency(): Promise<{
       const currentUrl = profile.avatar_url
       const expectedUrl = getAvtUrl(userId)
 
-      // 检查是否一致：当前URL为空，或者包含用户ID（正确的seed）
-      const isConsistent = !!currentUrl &&
-        (currentUrl.includes(userId) || !currentUrl.includes('dicebear.com'))
+      /**
+       * 检查是否一致：
+       * 1. 非 Dicebear 头像（用户自定义头像）视为一致
+       * 2. Dicebear 头像必须完全匹配 expectedUrl（确保 seed 是 userId）
+       */
+      const isDicebear = currentUrl?.includes('dicebear.com') ?? false
+      const isConsistent = !isDicebear || currentUrl === expectedUrl
 
       if (isConsistent) {
         consistent++
