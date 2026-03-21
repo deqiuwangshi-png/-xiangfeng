@@ -7,7 +7,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react'
-import { MoreVertical, Share2, Bookmark, Flag, Link as LinkIcon, X } from 'lucide-react'
+import { MoreVertical, Share2, Bookmark, Flag, Link as LinkIcon, X, MessageCircle, AtSign } from 'lucide-react'
 import type { MoreActionsProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
 import { useArticleToast } from '@/hooks/useArticleToast'
@@ -156,30 +156,35 @@ export function MoreActions({
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-lg font-medium text-center text-gray-900 mb-6">
+            <h3 className="text-lg font-medium text-center text-gray-800 mb-6">
               分享到
             </h3>
-            <div className="flex justify-center gap-8">
-              <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <span className="text-xl">💬</span>
+            <div className="flex justify-center gap-6">
+              {/* 微信好友 */}
+              <div className="flex flex-col items-center gap-3 opacity-40 cursor-not-allowed">
+                <div className="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shadow-sm">
+                  <MessageCircle className="w-7 h-7 text-gray-400" />
                 </div>
-                <span className="text-sm text-gray-600">微信好友</span>
+                <span className="text-sm font-medium text-gray-500">微信好友</span>
               </div>
-              <div className="flex flex-col items-center gap-2 opacity-40 cursor-not-allowed">
-                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                  <span className="text-xl">📢</span>
+              {/* 微博 */}
+              <div className="flex flex-col items-center gap-3 opacity-40 cursor-not-allowed">
+                <div className="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shadow-sm">
+                  <AtSign className="w-7 h-7 text-gray-400" />
                 </div>
-                <span className="text-sm text-gray-600">微博</span>
+                <span className="text-sm font-medium text-gray-500">微博</span>
               </div>
+              {/* 复制链接 */}
               <button
-                className="flex flex-col items-center gap-2 hover:opacity-80 transition"
+                className="group flex flex-col items-center gap-3"
                 onClick={() => handleShare('copy')}
               >
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <LinkIcon className="w-6 h-6 text-blue-500" />
+                <div className="w-14 h-14 rounded-xl bg-white border border-gray-200 flex items-center justify-center shadow-sm group-hover:shadow-md group-hover:-translate-y-1 group-hover:border-[#84709B]/30 transition-all duration-200">
+                  <LinkIcon className="w-7 h-7 text-[#84709B]" />
                 </div>
-                <span className="text-sm text-gray-600">复制链接</span>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-[#84709B] transition-colors">
+                  {shared ? '已复制' : '复制链接'}
+                </span>
               </button>
             </div>
           </div>
