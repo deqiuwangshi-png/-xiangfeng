@@ -56,16 +56,16 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
 
         {/* 内容编辑器 - TipTap */}
         <div className={`relative py-0 ${isFocusMode ? 'px-0' : ''}`}>
-          {/* 左侧装饰线 - 专注模式下隐藏 */}
+          {/* 左侧装饰线 - 专注模式下隐藏，与文字严格对齐 */}
           {!isFocusMode && (
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-xf-primary via-xf-soft to-xf-accent rounded opacity-30" />
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-linear-to-b from-xf-primary via-xf-soft to-xf-accent rounded opacity-40" />
           )}
 
           {!isMounted ? (
-            // SSR 占位，避免水合错误
+            // SSR 占位，避免水合错误 - 与装饰线严格对齐
             <div
               className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-xf-dark cursor-text ${
-                isFocusMode ? 'pl-0 bg-transparent' : 'pl-4 sm:pl-6 bg-white rounded-lg'
+                isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
               }`}
               onClick={onPlaceholderClick}
             >
@@ -75,7 +75,7 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
             <EditorContent
               editor={editor}
               className={`text-lg leading-relaxed text-xf-dark py-4 min-h-[300px] sm:min-h-[400px] prose prose-lg max-w-none outline-none ${
-                isFocusMode ? 'pl-0 bg-transparent' : 'pl-4 sm:pl-6 bg-white rounded-lg'
+                isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
               }`}
             />
           )}

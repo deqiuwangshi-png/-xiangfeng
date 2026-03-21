@@ -36,7 +36,7 @@ interface TitleInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElemen
  * - 多行标题输入（textarea）
  * - 自动高度调整
  * - 动态字数提示（超过80字时显示）
- * - 聚焦时底部边框
+ * - 无边界交互：通过底色微变和占位符变化提供反馈
  *
  * @props
  * - value: 标题值
@@ -45,6 +45,7 @@ interface TitleInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElemen
 export const TitleInput = forwardRef<HTMLTextAreaElement, TitleInputProps>(
   ({ value, onChange, ...props }, ref) => {
     const [isFocused, setIsFocused] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     /**
@@ -79,21 +80,36 @@ export const TitleInput = forwardRef<HTMLTextAreaElement, TitleInputProps>(
       if (typeof ref === 'function') {
         ref(element)
       } else if (ref) {
-        (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = element
+        (ref as React.RefObject<HTMLTextAreaElement | null>).current = element
       }
     }
 
+    // 计算背景色状态
+    const hasInteraction = isFocused || isHovered
+    const showBackground = hasInteraction && !value
+
     return (
-      <div className="relative mb-8 sm:mb-12">
-        {/* 标题输入区域 */}
-        <div className="relative">
+      <div className="relative mb-6 sm:mb-8 pl-3">
+        {/* 标题输入区域 - 无边界设计 */}
+        <div
+          className={`relative rounded-lg transition-colors duration-200 ${
+            showBackground ? 'bg-[#FAFAFB]' : 'bg-transparent'
+          }`}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <textarea
             ref={setRefs}
             value={value}
             onChange={handleChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight text-xf-dark border-none outline-none w-full font-serif bg-transparent py-3 pr-16 tracking-[-0.02em] placeholder:opacity-25 placeholder:font-normal resize-none overflow-hidden"
+            className={`text-xl sm:text-2xl md:text-3xl font-semibold leading-snug text-xf-dark w-full font-serif py-2 pr-16 tracking-[-0.01em] resize-none overflow-hidden
+              border-0 outline-none ring-0 focus:ring-0 focus:border-0 focus:outline-none
+              placeholder:font-normal
+              ${isFocused ? 'placeholder:opacity-50' : 'placeholder:opacity-25'}
+              ${hasInteraction ? 'placeholder:text-xf-medium' : 'placeholder:text-xf-dark'}
+            `}
             placeholder="文章标题"
             autoComplete="off"
             spellCheck={false}
@@ -104,7 +120,7 @@ export const TitleInput = forwardRef<HTMLTextAreaElement, TitleInputProps>(
 
           {/* 字数提示 - 固定在右下角 */}
           {showHint && (
-            <div className={`absolute right-0 bottom-3 text-xs transition-colors ${
+            <div className={`absolute right-0 bottom-2 text-xs transition-colors ${
               remainingChars <= 10
                 ? 'text-xf-error'
                 : 'text-xf-medium'
@@ -114,14 +130,8 @@ export const TitleInput = forwardRef<HTMLTextAreaElement, TitleInputProps>(
           )}
         </div>
 
-        {/* 底部边框 - 聚焦时显示 */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 h-px transition-all duration-300 ${
-            isFocused
-              ? 'bg-xf-primary/30'
-              : 'bg-transparent'
-          }`}
-        />
+        {/* 装饰性下划线 - 靠近标题文字，与侧边线对齐 */}
+        <div className="mt-2 w-12 h-0.5 bg-linear-to-r from-xf-primary to-xf-accent rounded-full" />
       </div>
     )
   }
