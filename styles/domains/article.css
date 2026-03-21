@@ -217,8 +217,16 @@ body {
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-avatar-image > * {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .author-avatar-image img {
@@ -280,68 +288,80 @@ body {
   position: relative;
 }
 
+.more-actions-container::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: transparent;
+  z-index: 99;
+}
+
 .more-actions-menu {
   position: absolute;
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 8px;
-  background: white;
+  right: 0;
+  margin-bottom: 12px;
+  background: rgba(225, 228, 234, 0.95);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  padding: 8px;
-  min-width: 120px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 6px;
+  min-width: 140px;
   z-index: 100;
-  animation: slideUp 0.2s ease;
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(10px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
 
 .more-action-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: none;
   background: transparent;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  color: #374151;
-  transition: all 0.2s ease;
+  color: #4b5563;
   white-space: nowrap;
 }
 
 .more-action-item:hover {
-  background: rgba(106, 91, 138, 0.1);
+  background: rgba(255, 255, 255, 0.6);
   color: var(--color-xf-primary);
 }
 
 .more-action-item.bookmarked {
-  color: #FF9800;
+  color: #d97706;
 }
 
 .more-action-item.bookmarked:hover {
-  background: rgba(255, 152, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.more-action-item.report {
+  color: #6b7280;
 }
 
 .more-action-item.report:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(255, 255, 255, 0.6);
+  color: #dc2626;
 }
 
 .more-action-item.loading {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -351,6 +371,10 @@ body {
 }
 
 .more-btn.active .douyin-icon {
+  color: white;
+}
+
+.more-btn.active .douyin-count {
   color: white;
 }
 
@@ -540,10 +564,30 @@ body {
 .comments-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.comments-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 .comment-item {
@@ -624,19 +668,27 @@ body {
 
 .comment-input {
   flex: 1;
-  border: 1px solid #d1d5db;
-  border-radius: 24px;
-  padding: 0.75rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  padding-right: 3rem;
   font-size: 0.95rem;
   resize: none;
   min-height: 48px;
-  max-height: 120px;
+  max-height: 160px;
   outline: none;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  line-height: 1.5;
 }
 
 .comment-input:focus {
   border-color: var(--color-xf-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.comment-input:hover:not(:focus) {
+  border-color: #d1d5db;
 }
 
 .comment-char-count {
@@ -648,9 +700,12 @@ body {
 }
 
 .send-comment-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   background: var(--color-xf-primary);
   color: white;
   display: flex;
@@ -659,11 +714,10 @@ body {
   cursor: pointer;
   border: none;
   flex-shrink: 0;
-  box-shadow: none;
 }
 
 .send-comment-btn:disabled {
-  background: #9ca3af;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

@@ -52,9 +52,11 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
     selection,
     activeFilter,
     currentPage,
+    viewMode,
     setActiveFilter,
     setSearchQuery,
     setCurrentPage,
+    setViewMode,
     handleSelectDraft,
     handleSelectAll,
     handleEditDraft,
@@ -157,14 +159,19 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
     }
   }
 
-  // 计算草稿数量（用于清空草稿按钮显示）
+  // 计算当前筛选条件下的总文章数（用于头部显示）
+  const totalArticleCount = filteredDrafts.length
+  // 计算草稿数量（仅用于清空草稿按钮的禁用状态判断）
   const draftCount = filteredDrafts.filter((d) => d.status === 'draft').length
 
   return (
     <>
       <DraftsHeader
+        articleCount={totalArticleCount}
         draftCount={draftCount}
         onClearAllDrafts={handleOpenClearModal}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <DraftsContent
@@ -176,6 +183,7 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
         selectedIds={selectedIds}
         paginatedDrafts={paginatedDrafts}
         selection={selection}
+        viewMode={viewMode}
         onSelectDraft={handleSelectDraft}
         onSelectAll={handleSelectAll}
         onEditDraft={handleEditDraft}

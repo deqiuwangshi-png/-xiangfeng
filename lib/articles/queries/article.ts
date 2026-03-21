@@ -26,10 +26,11 @@ export async function getArticleDetailById(id: string, userId?: string): Promise
     .from('articles')
     .select(`
       *,
-      author:profiles!author_id(username, avatar_url, bio)
+      author:profiles!inner(username, avatar_url, bio, is_active)
     `)
     .eq('id', id)
     .eq('status', 'published')
+    .eq('author.is_active', true)
     .single();
 
   if (error || !data) return null;

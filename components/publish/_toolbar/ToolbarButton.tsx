@@ -31,12 +31,14 @@ import { ButtonHTMLAttributes, forwardRef } from 'react'
  * @property {() => void} onClick - 点击事件处理函数
  * @property {boolean} isActive - 是否激活状态
  * @property {string} title - HTML title属性（用于辅助功能）
+ * @property {'sm' | 'md'} size - 按钮尺寸
  */
 interface ToolbarButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon
   tooltip: string
   onClick: () => void
   isActive?: boolean
+  size?: 'sm' | 'md'
 }
 
 /**
@@ -54,18 +56,26 @@ interface ToolbarButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * - 悬停效果
  */
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
-  ({ icon: Icon, tooltip, onClick, isActive = false, title, ...props }, ref) => {
+  ({ icon: Icon, tooltip, onClick, isActive = false, title, size = 'md', ...props }, ref) => {
+    const sizeClasses = size === 'sm'
+      ? 'p-1.5 rounded-md'
+      : 'p-1.5 sm:py-2.5 sm:px-2.5 rounded-lg sm:rounded-xl'
+
+    const iconSizeClasses = size === 'sm'
+      ? 'w-3.5 h-3.5'
+      : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
+
     return (
       <button
         ref={ref}
         onClick={onClick}
         title={title || tooltip}
-        className={`relative p-1.5 sm:py-2.5 sm:px-2.5 rounded-lg sm:rounded-xl text-xf-primary bg-xf-primary/5 border border-transparent cursor-pointer transition-all flex items-center justify-center hover:bg-xf-primary/12 hover:border-xf-primary/20 hover:-translate-y-px hover:shadow-md ${
+        className={`relative ${sizeClasses} text-xf-primary bg-xf-primary/5 border border-transparent cursor-pointer transition-all flex items-center justify-center hover:bg-xf-primary/12 hover:border-xf-primary/20 hover:-translate-y-px hover:shadow-md ${
           isActive ? 'bg-xf-primary/15 text-xf-accent border-xf-primary/30' : ''
         }`}
         {...props}
       >
-        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <Icon className={iconSizeClasses} />
         <span className="hidden sm:block absolute bottom-full left-1/2 -translate-x-1/2 translate-y-1.25 bg-xf-dark text-white py-1 px-3 rounded-lg text-xs whitespace-nowrap opacity-0 invisible transition-all pointer-events-none z-50 font-medium mb-2 shadow-lg">
           {tooltip}
         </span>

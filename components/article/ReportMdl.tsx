@@ -7,7 +7,7 @@
  */
 
 import { useState } from 'react'
-import { X, AlertTriangle } from 'lucide-react'
+import { X, Flag } from 'lucide-react'
 import type { ReportMdlProps } from '@/types'
 import { useArticleToast } from '@/hooks/useArticleToast'
 
@@ -73,10 +73,10 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* 弹窗内容 */}
-      <div className="relative bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+      <div className="relative bg-white rounded-xl p-6 w-full max-w-md mx-4 shadow-xl">
         {/* 关闭按钮 */}
         <button
-          className="absolute top-4 right-4 text-xf-medium hover:text-xf-dark transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
           onClick={onClose}
         >
           <X className="w-5 h-5" />
@@ -84,35 +84,37 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
 
         {/* 标题 */}
         <div className="text-center mb-6">
-          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-rose-100 flex items-center justify-center">
-            <AlertTriangle className="w-8 h-8 text-rose-500" />
+          <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+            <Flag className="w-6 h-6 text-gray-500" />
           </div>
-          <h3 className="text-xl font-bold text-xf-dark">举报内容</h3>
-          <p className="text-sm text-xf-medium mt-1">
+          <h3 className="text-lg font-semibold text-gray-800">举报内容</h3>
+          <p className="text-sm text-gray-500 mt-1">
             请选择合适的举报类型，我们将尽快处理
           </p>
         </div>
 
         {/* 举报类型选择 */}
-        <div className="space-y-2 mb-4">
-          <label className="block text-sm font-medium text-xf-dark">
-            举报类型 <span className="text-rose-500">*</span>
+        <div className="space-y-3 mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            举报类型 <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-2 gap-2">
             {REPORT_TYPES.map((type) => (
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`p-3 rounded-xl border text-left transition-all ${
+                className={`p-3 rounded-lg border text-left ${
                   selectedType === type.id
-                    ? 'border-rose-500 bg-rose-50'
-                    : 'border-xf-bg hover:border-rose-200'
+                    ? 'border-[#84709B] bg-[#84709B]/5'
+                    : 'border-gray-100 bg-gray-50/50 hover:border-gray-200'
                 }`}
               >
-                <div className="font-medium text-sm text-xf-dark">
+                <div className={`font-medium text-sm ${
+                  selectedType === type.id ? 'text-[#84709B]' : 'text-gray-700'
+                }`}>
                   {type.label}
                 </div>
-                <div className="text-xs text-xf-medium mt-0.5 line-clamp-1">
+                <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                   {type.desc}
                 </div>
               </button>
@@ -121,23 +123,23 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
         </div>
 
         {/* 举报原因 */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-xf-dark mb-2">
-            详细说明 <span className="text-xf-medium">（可选）</span>
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            详细说明 <span className="text-gray-400">（可选）</span>
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="请简要描述举报原因，有助于我们更快处理..."
-            rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-xf-bg focus:border-rose-500 focus:ring-1 focus:ring-rose-500 resize-none text-sm"
+            rows={4}
+            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#84709B] focus:ring-1 focus:ring-[#84709B]/20 resize-y text-sm min-h-[100px]"
           />
         </div>
 
         {/* 提示信息 */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
-          <p className="text-xs text-amber-700">
-            <strong>注意：</strong>恶意举报将被扣除100积分。举报成功可获得100积分奖励。
+        <div className="bg-gray-50 rounded-lg p-3 mb-5">
+          <p className="text-xs text-gray-600">
+            <span className="text-amber-600 font-medium">注意：</span>恶意举报将被扣除100积分。举报成功可获得100积分奖励。
           </p>
         </div>
 
@@ -145,7 +147,11 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !selectedType}
-          className="w-full py-3 bg-rose-500 text-white rounded-xl font-medium hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`w-full py-3 rounded-lg font-medium ${
+            selectedType
+              ? 'bg-[#84709B] text-white hover:bg-[#6b5a7d]'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          }`}
         >
           {isSubmitting ? '提交中...' : '提交举报'}
         </button>

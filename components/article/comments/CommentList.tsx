@@ -27,9 +27,16 @@ export function CommentList({
 }: CommentListProps) {
   if (comments.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
-        <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-        <p>还没有评论，快来发表第一条吧！</p>
+      <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-xf-primary/10 flex items-center justify-center mb-5">
+          <MessageCircle className="w-10 h-10 text-xf-primary/60" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          暂无评论
+        </h3>
+        <p className="text-sm text-gray-500 max-w-[200px] leading-relaxed">
+          成为第一个发表评论的人，分享你的观点和想法
+        </p>
       </div>
     )
   }

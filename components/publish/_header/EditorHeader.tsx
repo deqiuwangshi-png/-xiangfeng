@@ -1,6 +1,6 @@
 'use client'
 
-import { Save, Send, Loader2 } from '@/components/icons'
+import { Save, Send, Loader2, Maximize, Minimize } from '@/components/icons'
 import { cn } from '@/lib/utils'
 
 interface EditorHeaderProps {
@@ -8,6 +8,8 @@ interface EditorHeaderProps {
   onPublish: () => void
   isSaving?: boolean
   isPublishing?: boolean
+  isFullscreen?: boolean
+  onToggleFullscreen?: () => void
   className?: string
 }
 
@@ -16,10 +18,12 @@ export function EditorHeader({
   onPublish,
   isSaving = false,
   isPublishing = false,
+  isFullscreen = false,
+  onToggleFullscreen,
   className
 }: EditorHeaderProps) {
   return (
-    <header className={cn("sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-xf-light/50", className)}>
+    <header className={cn("sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shrink-0", className)}>
       <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <button
@@ -36,6 +40,22 @@ export function EditorHeader({
           </button>
 
           <div className="flex items-center gap-3">
+            {/* 专注模式切换按钮 */}
+            {onToggleFullscreen && (
+              <button
+                onClick={onToggleFullscreen}
+                className="text-sm text-xf-medium hover:text-xf-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-xf-bg flex items-center gap-2"
+                title={isFullscreen ? '退出专注模式' : '进入专注模式'}
+              >
+                {isFullscreen ? (
+                  <Minimize className="w-4 h-4" />
+                ) : (
+                  <Maximize className="w-4 h-4" />
+                )}
+                <span className="hidden sm:inline">{isFullscreen ? '退出专注' : '专注模式'}</span>
+              </button>
+            )}
+
             <button
               onClick={onPublish}
               disabled={isSaving || isPublishing}

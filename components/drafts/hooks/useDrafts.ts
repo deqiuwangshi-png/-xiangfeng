@@ -7,7 +7,7 @@ import useSWR from 'swr'
 import { DraftService, Article } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
 import { fetchDrafts } from '@/lib/articles/actions/query'
-import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
+import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
 
 /** SWR 缓存 Key */
 const DRAFTS_CACHE_KEY = 'drafts/list'
@@ -25,10 +25,12 @@ export interface UseDraftsReturn {
   activeFilter: DraftFilter
   searchQuery: string
   currentPage: number
+  viewMode: ViewMode
   isLoading: boolean
   setActiveFilter: (filter: DraftFilter) => void
   setSearchQuery: (query: string) => void
   setCurrentPage: (page: number) => void
+  setViewMode: (mode: ViewMode) => void
   handleSelectDraft: (id: string) => void
   handleSelectAll: () => void
   handleEditDraft: (id: string) => void
@@ -73,6 +75,7 @@ export function useDrafts(
   const [activeFilter, setActiveFilter] = useState<DraftFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [isLoading, setIsLoading] = useState(false)
 
   // 筛选和搜索后的数据
@@ -180,15 +183,16 @@ export function useDrafts(
   /**
    * 校准分页状态
    * @description 删除数据后，如果当前页超出新的总页数，则自动回退到最后一页
+   * @param remainingDrafts - 删除后的剩余草稿列表（用于立即计算，避免依赖滞后）
    */
-  const calibratePage = useCallback(() => {
-    const newTotalPages = DraftService.getTotalPages(filteredDrafts, itemsPerPage)
+  const calibratePage = useCallback((remainingDrafts: DraftData[]) => {
+    const newTotalPages = DraftService.getTotalPages(remainingDrafts, itemsPerPage)
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(newTotalPages)
     } else if (newTotalPages === 0) {
       setCurrentPage(1)
     }
-  }, [filteredDrafts, currentPage, itemsPerPage])
+  }, [currentPage, itemsPerPage])
 
   /**
    * 执行删除草稿的核心逻辑（安全增强版）
@@ -207,14 +211,14 @@ export function useDrafts(
 
       setIsLoading(true)
       try {
+        // 先计算删除后的数据（乐观更新）
+        const remainingDrafts = DraftService.removeDrafts(drafts, new Set(ids))
+
         if (ids.length === 1) {
           // 单条删除：使用原有方法
           await deleteArticle(ids[0])
 
-          mutateDrafts(
-            (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
-            { revalidate: false }
-          )
+          mutateDrafts(remainingDrafts, { revalidate: false })
           setSelectedIds((prev) => {
             const newSet = new Set(prev)
             ids.forEach((id) => newSet.delete(id))
@@ -229,10 +233,7 @@ export function useDrafts(
 
           // 批量删除接口不返回具体ID列表，需要重新获取数据
           // 使用乐观更新：假设传入的ID都成功删除
-          mutateDrafts(
-            (prev) => DraftService.removeDrafts(prev || [], new Set(ids)),
-            { revalidate: true } // 重新验证以确保数据一致
-          )
+          mutateDrafts(remainingDrafts, { revalidate: true })
           setSelectedIds((prev) => {
             const newSet = new Set(prev)
             ids.forEach((id) => newSet.delete(id))
@@ -252,7 +253,7 @@ export function useDrafts(
         }
 
         {/* 删除后校准分页状态，防止页码越界 */}
-        calibratePage()
+        calibratePage(remainingDrafts)
 
         toast.success('删除成功')
       } catch (error) {
@@ -262,7 +263,7 @@ export function useDrafts(
         setIsLoading(false)
       }
     },
-    [router, mutateDrafts, calibratePage]
+    [router, drafts, mutateDrafts, calibratePage]
   )
 
 
@@ -382,10 +383,12 @@ export function useDrafts(
     activeFilter,
     searchQuery,
     currentPage,
+    viewMode,
     isLoading: isLoading || isSWRLoading,
     setActiveFilter: handleFilterChange,
     setSearchQuery: handleSearch,
     setCurrentPage: handlePageChange,
+    setViewMode,
     handleSelectDraft,
     handleSelectAll,
     handleEditDraft,

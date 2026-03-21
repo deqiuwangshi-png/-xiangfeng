@@ -6,7 +6,7 @@ import { SearchBox } from '../filter/SearchBox'
 import { SelectAllCheckbox } from '../filter/SelectAllCheckbox'
 import { Pagination } from '../navigation/Pagination'
 import { EmptyState } from '../card/EmptyState'
-import type { DraftData, DraftFilter, DraftSelection } from '@/types/drafts'
+import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
 import type { FilterOption } from '../filter/FilterChips'
 
 /**
@@ -29,6 +29,8 @@ interface DraftsContentProps {
   paginatedDrafts: DraftData[]
   /** 选择状态 */
   selection: DraftSelection
+  /** 视图模式 */
+  viewMode: ViewMode
   /** 选择文章回调 */
   onSelectDraft: (id: string) => void
   /** 全选/取消全选回调 */
@@ -69,6 +71,7 @@ export function DraftsContent({
   selectedIds,
   paginatedDrafts,
   selection,
+  viewMode,
   onSelectDraft,
   onSelectAll,
   onEditDraft,
@@ -105,12 +108,13 @@ export function DraftsContent({
       {/* 文章列表或空状态 */}
       {paginatedDrafts.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className={`${viewMode === 'list' ? 'flex flex-col gap-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'}`}>
             {paginatedDrafts.map((draft) => (
               <DraftCard
                 key={draft.id}
                 draft={draft}
                 selected={selectedIds.has(draft.id)}
+                viewMode={viewMode}
                 onSelect={onSelectDraft}
                 onEdit={onEditDraft}
                 onDelete={onDeleteDraft}

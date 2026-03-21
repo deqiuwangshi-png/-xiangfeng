@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from '@/lib/utils/date'
-import { AvatarPlaceholder } from '@/components/ui/AvatarPlaceholder'
+import { UserAvatar } from '@/components/ui'
 import { CommentCardActions } from './CommentCardActions'
 import type { CommentCardProps } from './types'
 
@@ -19,8 +19,9 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
     <div className="comment-item">
       {/* 头像区域 */}
       <div className="comment-avatar relative">
-        <AvatarPlaceholder
+        <UserAvatar
           name={comment.author.name}
+          userId={comment.author.id}
           avatarUrl={comment.author.avatar}
           size="sm"
         />

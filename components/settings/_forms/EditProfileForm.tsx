@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
-import { AvatarPlaceholder, FormActions } from '@/components/ui'
+import { UserAvatar, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
-import { getAvtUrl } from '@/lib/utils/getAvtUrl'
 import { UserData, UpdateProfileParams } from '@/types/settings'
 
 /**
@@ -55,20 +54,11 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   /**
-   * 重置头像为默认头像
-   * 使用用户ID作为seed生成头像，确保与用户绑定且全局一致
-   *
-   * 注意：不再使用随机seed，避免头像不一致问题
-   * 所有用户头像必须基于user.id生成，确保同一用户始终显示同一头像
+   * 清空头像
+   * 清空头像URL，组件将显示首字母占位符
    */
-  const resetToDefaultAvatar = () => {
-    if (!initialData?.id) {
-      setError('无法重置头像：用户ID缺失')
-      return
-    }
-    // 使用user.id作为seed生成头像，确保与用户绑定且全局一致
-    const defaultAvatarUrl = getAvtUrl(initialData.id)
-    setFormData(prev => ({ ...prev, avatar_url: defaultAvatarUrl }))
+  const clearAvatar = () => {
+    setFormData(prev => ({ ...prev, avatar_url: '' }))
   }
 
   /**
@@ -139,22 +129,23 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
           {/* 头像上传区域 - 左侧 */}
           <div className="flex flex-col items-center shrink-0">
             <div className="relative">
-              <AvatarPlaceholder
+              <UserAvatar
                 name={formData.username}
+                userId={initialData?.id}
                 avatarUrl={formData.avatar_url}
                 size="lg"
               />
               <button
                 type="button"
-                onClick={resetToDefaultAvatar}
+                onClick={clearAvatar}
                 className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
-                title="重置为默认头像"
+                title="清空头像，显示首字母"
               >
                 <Camera className="w-5 h-5" />
               </button>
             </div>
             <p className="text-sm text-xf-medium mt-4">
-              点击相机重置头像
+              点击相机清空头像
             </p>
           </div>
 

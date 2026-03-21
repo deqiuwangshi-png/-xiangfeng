@@ -8,7 +8,6 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { generateSummary } from '@/lib/utils/html';
 import type { DraftData } from '@/types/drafts';
 
 /**
@@ -17,8 +16,9 @@ import type { DraftData } from '@/types/drafts';
  * @returns 草稿数据列表
  *
  * @性能优化
- * - 只查询必要字段，不返回完整 content 减少传输
- * - content 字段仅用于生成摘要，不在列表展示
+ * - 不查询 content 字段，减少数据传输
+ * - 摘要优先使用 excerpt 字段，为空时显示占位文本
+ * - 编辑时再按需获取完整内容
  */
 export async function fetchDrafts(): Promise<DraftData[]> {
   const supabase = await createClient();
@@ -28,7 +28,7 @@ export async function fetchDrafts(): Promise<DraftData[]> {
 
   const { data, error } = await supabase
     .from('articles')
-    .select('id, title, excerpt, content, status, created_at, updated_at')
+    .select('id, title, excerpt, status, created_at, updated_at')
     .eq('author_id', user.id)
     .order('updated_at', { ascending: false });
 
@@ -39,8 +39,8 @@ export async function fetchDrafts(): Promise<DraftData[]> {
   return (data || []).map(item => ({
     id: item.id,
     title: item.title,
-    content: item.content,
-    summary: item.excerpt || generateSummary(item.content, 100),
+    content: '',
+    summary: item.excerpt || '暂无摘要',
     status: item.status,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
@@ -54,8 +54,9 @@ export async function fetchDrafts(): Promise<DraftData[]> {
  * @returns 文章列表
  *
  * @性能优化
- * - 只查询必要字段，不返回完整 content 减少传输
- * - content 字段仅用于生成摘要，不在列表展示
+ * - 不查询 content 字段，减少数据传输
+ * - 摘要优先使用 excerpt 字段，为空时显示占位文本
+ * - 编辑时再按需获取完整内容
  */
 export async function getArticles(status?: 'all' | 'draft' | 'published' | 'archived') {
   const supabase = await createClient();
@@ -65,7 +66,7 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
 
   let query = supabase
     .from('articles')
-    .select('id, title, excerpt, content, status, created_at, updated_at, published_at')
+    .select('id, title, excerpt, status, created_at, updated_at, published_at')
     .eq('author_id', user.id)
     .order('updated_at', { ascending: false });
 
@@ -82,8 +83,8 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
   return (data || []).map(item => ({
     id: item.id,
     title: item.title,
-    content: item.content,
-    summary: item.excerpt || generateSummary(item.content, 100),
+    content: '',
+    summary: item.excerpt || '暂无摘要',
     status: item.status,
     created_at: item.created_at,
     updated_at: item.updated_at,
