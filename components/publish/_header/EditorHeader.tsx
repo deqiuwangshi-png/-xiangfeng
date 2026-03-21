@@ -23,7 +23,7 @@ export function EditorHeader({
   className
 }: EditorHeaderProps) {
   return (
-    <header className={cn("sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-xf-light/50", className)}>
+    <header className={cn("sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shrink-0", className)}>
       <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <button

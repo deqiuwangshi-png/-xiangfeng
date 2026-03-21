@@ -20,6 +20,9 @@ export {
   CheckCheck,
   Power,
   Menu,
+  LayoutGrid,
+  List,
+  Edit3,
 
 
   AlertTriangle,

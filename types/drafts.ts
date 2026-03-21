@@ -26,6 +26,11 @@ export type DraftFilter = DraftStatus | 'all'
 export type DraftAction = 'delete' | 'publish' | 'archive' | 'edit'
 
 /**
+ * 视图模式类型
+ */
+export type ViewMode = 'grid' | 'list'
+
+/**
  * 草稿选择状态
  */
 export interface DraftSelection {

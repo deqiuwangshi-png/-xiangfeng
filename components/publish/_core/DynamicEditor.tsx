@@ -16,7 +16,6 @@ import { useTipTapEditor } from '../hooks/useTipTapEditor'
 import { useAutoSave } from '../hooks/useAutoSave'
 import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
-import { EditorToolbar } from '../_toolbar/EditorToolbar'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'
 import { SlashMenu } from '../_toolbar/SlashMenu'
 
@@ -53,16 +52,13 @@ export default function DynamicEditor({
     updateTitle,
     updateContent,
     toggleFullscreen,
-    toggleToolbar,
     setEditorState,
   } = useEditorState(initialTitle, initialContent, draftId)
 
   // 编辑器操作（保存、发布）
   const {
-    titleRef,
     saveDraft,
     publishContent,
-    focusTitle,
   } = useEditorActions(editorState, setEditorState)
 
   // 从状态中解构出loading状态
@@ -79,7 +75,7 @@ export default function DynamicEditor({
   })
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen flex flex-col overflow-hidden">
       <EditorHeader
         onSaveDraft={saveDraft}
         onPublish={publishContent}
@@ -89,8 +85,8 @@ export default function DynamicEditor({
         onToggleFullscreen={toggleFullscreen}
       />
 
-      {/* 内容区域容器 - 工具栏将相对于此容器定位 */}
-      <div className={`mx-auto py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in ${
+      {/* 内容区域容器 - 使用 flex-1 占据剩余空间，overflow-auto 处理滚动 */}
+      <div className={`flex-1 overflow-auto mx-auto w-full py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in ${
         editorState.isFullscreen
           ? 'max-w-full px-4 sm:px-8 lg:px-16'
           : 'max-w-full sm:max-w-[840px] px-3 sm:px-4'
@@ -98,12 +94,10 @@ export default function DynamicEditor({
         <EditorCard
           title={editorState.title}
           onTitleChange={updateTitle}
-          titleRef={titleRef}
           titleLength={editorState.titleLength}
           contentLength={editorState.contentLength}
           editor={editor}
           isMounted={isMounted}
-          onPlaceholderClick={focusTitle}
           isFocusMode={editorState.isFullscreen}
         />
 
@@ -112,19 +106,6 @@ export default function DynamicEditor({
 
         {/* 斜杠命令菜单 - 输入 / 时显示 */}
         <SlashMenu editor={editor} />
-
-        {/* 底部工具栏 - 专注模式下隐藏，普通模式下简化显示 */}
-        {!editorState.isFullscreen && (
-          <div className="sticky bottom-4 sm:bottom-8 flex justify-center z-30 mt-6 sm:mt-8">
-            <EditorToolbar
-              editor={editor}
-              onFocusTitle={focusTitle}
-              onToggleFullscreen={toggleFullscreen}
-              onToggleToolbar={toggleToolbar}
-              isCollapsed={true}
-            />
-          </div>
-        )}
       </div>
     </div>
   )
