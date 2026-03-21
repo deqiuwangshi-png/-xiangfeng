@@ -106,7 +106,7 @@ export function useTipTapEditor({
       },
       editorProps: {
         attributes: {
-          class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh]',
+          class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] leading-relaxed',
         },
       },
     }),

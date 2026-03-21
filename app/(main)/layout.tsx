@@ -6,6 +6,7 @@ import '@/styles/domains/app.css'
 import '@/styles/domains/user.css'
 import '@/styles/domains/feedback.css'
 import '@/styles/domains/inbox.css'
+import '@/styles/domains/publish.css'
 
 /**
  * Main布局 - 应用主布局（共享）

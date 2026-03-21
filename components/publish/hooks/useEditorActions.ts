@@ -20,7 +20,7 @@ export const useEditorActions = (
   editorState: EditorState,
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>
 ) => {
-  const titleRef = useRef<HTMLInputElement>(null)
+  const titleRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
 
   /**

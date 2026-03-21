@@ -15,6 +15,9 @@ export {
   Italic,
   Underline,
   Heading,
+  Heading1,
+  Heading2,
+  Heading3,
   Quote,
   Code,
   Link,
@@ -30,4 +33,5 @@ export {
   ChevronDown,
   Save,
   Send,
+  Image,
 } from 'lucide-react'

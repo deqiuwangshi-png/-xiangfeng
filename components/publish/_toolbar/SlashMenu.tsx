@@ -1,0 +1,301 @@
+'use client'
+
+/**
+ * 斜杠命令菜单组件
+ *
+ * 输入 / 时唤起的命令菜单
+ * 提供格式化命令的快速入口
+ *
+ * @module SlashMenu
+ */
+
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { Editor } from '@tiptap/react'
+import {
+  Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
+  List, ListOrdered, Minus
+} from '@/components/icons'
+
+interface SlashMenuProps {
+  editor: Editor | null
+}
+
+interface CommandItem {
+  id: string
+  label: string
+  icon: React.ElementType
+  shortcut?: string
+  action: () => void
+}
+
+/**
+ * 斜杠命令菜单组件
+ *
+ * @param props - 组件属性
+ * @returns 命令菜单JSX
+ */
+export function SlashMenu({ editor }: SlashMenuProps) {
+  const [isVisible, setIsVisible] = useState(false)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [query, setQuery] = useState('')
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * 获取命令列表
+   */
+  const getCommands = useCallback((): CommandItem[] => {
+    if (!editor) return []
+
+    const allCommands: CommandItem[] = [
+      {
+        id: 'heading1',
+        label: '大标题',
+        icon: Heading1,
+        shortcut: '#',
+        action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      },
+      {
+        id: 'heading2',
+        label: '小标题',
+        icon: Heading2,
+        shortcut: '##',
+        action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      },
+      {
+        id: 'bold',
+        label: '加粗',
+        icon: Bold,
+        shortcut: 'Ctrl+B',
+        action: () => editor.chain().focus().toggleBold().run(),
+      },
+      {
+        id: 'italic',
+        label: '斜体',
+        icon: Italic,
+        shortcut: 'Ctrl+I',
+        action: () => editor.chain().focus().toggleItalic().run(),
+      },
+      {
+        id: 'underline',
+        label: '下划线',
+        icon: Underline,
+        action: () => editor.chain().focus().toggleUnderline().run(),
+      },
+      {
+        id: 'bulletList',
+        label: '无序列表',
+        icon: List,
+        shortcut: '-',
+        action: () => editor.chain().focus().toggleBulletList().run(),
+      },
+      {
+        id: 'orderedList',
+        label: '有序列表',
+        icon: ListOrdered,
+        shortcut: '1.',
+        action: () => editor.chain().focus().toggleOrderedList().run(),
+      },
+      {
+        id: 'blockquote',
+        label: '引用',
+        icon: Quote,
+        shortcut: '>',
+        action: () => editor.chain().focus().toggleBlockquote().run(),
+      },
+      {
+        id: 'code',
+        label: '行内代码',
+        icon: Code,
+        shortcut: '`',
+        action: () => editor.chain().focus().toggleCode().run(),
+      },
+      {
+        id: 'horizontalRule',
+        label: '分割线',
+        icon: Minus,
+        shortcut: '---',
+        action: () => editor.chain().focus().setHorizontalRule().run(),
+      },
+    ]
+
+    // 根据输入过滤命令
+    if (!query) return allCommands
+    return allCommands.filter(cmd =>
+      cmd.label.toLowerCase().includes(query.toLowerCase()) ||
+      cmd.id.toLowerCase().includes(query.toLowerCase())
+    )
+  }, [editor, query])
+
+  const commands = getCommands()
+
+  /**
+   * 显示菜单
+   */
+  const showMenu = useCallback(() => {
+    if (!editor) return
+
+    const { from } = editor.state.selection
+    const coords = editor.view.coordsAtPos(from)
+
+    setPosition({
+      x: coords.left,
+      y: coords.bottom + 8,
+    })
+    setIsVisible(true)
+    setSelectedIndex(0)
+    setQuery('')
+  }, [editor])
+
+  /**
+   * 隐藏菜单
+   */
+  const hideMenu = useCallback(() => {
+    setIsVisible(false)
+    setQuery('')
+  }, [])
+
+  /**
+   * 执行命令
+   */
+  const executeCommand = useCallback((index: number) => {
+    const command = commands[index]
+    if (command) {
+      // 删除 / 字符
+      editor?.chain().focus().deleteRange({
+        from: editor.state.selection.from - query.length - 1,
+        to: editor.state.selection.from,
+      }).run()
+
+      command.action()
+      hideMenu()
+    }
+  }, [commands, editor, hideMenu, query.length])
+
+  // 监听输入
+  useEffect(() => {
+    if (!editor) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isVisible) {
+        // 检测 / 键
+        if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          const { empty, from } = editor.state.selection
+          // 只在空段落或行首允许唤起
+          const $pos = editor.state.doc.resolve(from)
+          const isAtStart = $pos.parentOffset === 0
+
+          if (empty && isAtStart) {
+            event.preventDefault()
+            showMenu()
+          }
+        }
+        return
+      }
+
+      // 菜单显示时的键盘导航
+      switch (event.key) {
+        case 'Escape':
+          event.preventDefault()
+          hideMenu()
+          break
+        case 'ArrowDown':
+          event.preventDefault()
+          setSelectedIndex(prev => (prev + 1) % commands.length)
+          break
+        case 'ArrowUp':
+          event.preventDefault()
+          setSelectedIndex(prev => (prev - 1 + commands.length) % commands.length)
+          break
+        case 'Enter':
+          event.preventDefault()
+          executeCommand(selectedIndex)
+          break
+      }
+    }
+
+    const handleUpdate = () => {
+      if (!isVisible) return
+
+      const { from } = editor.state.selection
+      const textBefore = editor.state.doc.textBetween(
+        Math.max(0, from - 20),
+        from,
+        ' '
+      )
+
+      // 检查是否还在 / 命令模式
+      const match = textBefore.match(/\/(\w*)$/)
+      if (match) {
+        setQuery(match[1])
+      } else {
+        hideMenu()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    editor.on('update', handleUpdate)
+    editor.on('selectionUpdate', handleUpdate)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      editor.off('update', handleUpdate)
+      editor.off('selectionUpdate', handleUpdate)
+    }
+  }, [editor, isVisible, commands.length, selectedIndex, showMenu, hideMenu, executeCommand])
+
+  // 点击外部隐藏
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        hideMenu()
+      }
+    }
+
+    if (isVisible) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isVisible, hideMenu])
+
+  if (!isVisible || commands.length === 0) return null
+
+  return (
+    <div
+      ref={menuRef}
+      className="fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in zoom-in-95 duration-150"
+      style={{
+        left: position.x,
+        top: position.y,
+        boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+      }}
+    >
+      <div className="px-3 py-1.5 text-xs text-xf-medium border-b border-xf-light/30 mb-1">
+        基本格式
+      </div>
+      {commands.map((command, index) => {
+        const Icon = command.icon
+        return (
+          <button
+            key={command.id}
+            onClick={() => executeCommand(index)}
+            className={`w-full px-3 py-2 flex items-center gap-3 text-left transition-colors ${
+              index === selectedIndex
+                ? 'bg-xf-primary/8 text-xf-dark'
+                : 'text-xf-dark hover:bg-xf-bg'
+            }`}
+          >
+            <Icon className="w-4 h-4 text-xf-primary" />
+            <span className="flex-1 text-sm">{command.label}</span>
+            {command.shortcut && (
+              <span className="text-xs text-xf-medium">{command.shortcut}</span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}

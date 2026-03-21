@@ -18,6 +18,7 @@ import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
 import { EditorToolbar } from '../_toolbar/EditorToolbar'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'
+import { SlashMenu } from '../_toolbar/SlashMenu'
 
 /**
  * 动态编辑器组件属性
@@ -74,7 +75,7 @@ export default function DynamicEditor({
   const { editor, isMounted } = useTipTapEditor({
     content: initialContent,
     onChange: updateContent,
-    placeholder: '开始书写你的故事...（支持Markdown格式）',
+    placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
   })
 
   return (
@@ -108,6 +109,9 @@ export default function DynamicEditor({
 
         {/* 浮动气泡菜单 - 选中文本时显示 */}
         <BubbleMenu editor={editor} />
+
+        {/* 斜杠命令菜单 - 输入 / 时显示 */}
+        <SlashMenu editor={editor} />
 
         {/* 底部工具栏 - 专注模式下隐藏，普通模式下简化显示 */}
         {!editorState.isFullscreen && (

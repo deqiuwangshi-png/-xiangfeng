@@ -18,3 +18,29 @@
 .publish-page-container {
   padding-bottom: 6rem !important;
 }
+
+/* TipTap Placeholder 样式 - 确保占位符正确显示 */
+.tiptap .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-xf-medium);
+  pointer-events: none;
+  height: 0;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* 编辑器内容区域样式优化 */
+.tiptap {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-xf-medium);
+  pointer-events: none;
+  height: 0;
+  opacity: 0.5;
+  font-style: italic;
+}

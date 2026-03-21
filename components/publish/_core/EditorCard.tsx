@@ -19,7 +19,7 @@ import { EditorContent } from '@tiptap/react'
 interface EditorCardProps {
   title: string
   onTitleChange: (title: string) => void
-  titleRef: React.Ref<HTMLInputElement>
+  titleRef: React.Ref<HTMLTextAreaElement>
   titleLength: number
   contentLength: number
   editor: Editor | null
@@ -64,17 +64,17 @@ export const EditorCard = forwardRef<HTMLDivElement, EditorCardProps>(
           {!isMounted ? (
             // SSR 占位，避免水合错误
             <div
-              className={`min-h-[300px] sm:min-h-[400px] py-4 text-base sm:text-lg leading-[1.9] text-xf-dark cursor-text ${
+              className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-xf-dark cursor-text ${
                 isFocusMode ? 'pl-0 bg-transparent' : 'pl-4 sm:pl-6 bg-white rounded-lg'
               }`}
               onClick={onPlaceholderClick}
             >
-              <span className="opacity-30 italic">点击这里开始书写你的故事...（支持Markdown格式）</span>
+              <span className="opacity-30 italic">输入 / 唤起命令菜单，或开始书写...</span>
             </div>
           ) : (
             <EditorContent
               editor={editor}
-              className={`text-base sm:text-lg leading-[1.9] text-xf-dark py-4 min-h-[300px] sm:min-h-[400px] prose prose-base sm:prose-lg max-w-none outline-none ${
+              className={`text-lg leading-relaxed text-xf-dark py-4 min-h-[300px] sm:min-h-[400px] prose prose-lg max-w-none outline-none ${
                 isFocusMode ? 'pl-0 bg-transparent' : 'pl-4 sm:pl-6 bg-white rounded-lg'
               }`}
             />
