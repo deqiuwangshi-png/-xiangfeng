@@ -104,7 +104,7 @@ export function AuthorAvatar({
             name={authorName}
             userId={authorId}
             avatarUrl={authorAvatar}
-            size="md"
+            size="sm"
           />
         </div>
 

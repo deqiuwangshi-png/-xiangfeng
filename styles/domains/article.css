@@ -217,8 +217,16 @@ body {
   height: 48px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-avatar-image > * {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .author-avatar-image img {
