@@ -29,7 +29,6 @@ export function CommentPanel({
   articleId,
   initialComments,
   initialTotalCount = initialComments.length,
-  initialHasMore = false,
   currentUser,
 }: CommentPanelProps) {
   const commentsListRef = useRef<HTMLDivElement>(null)

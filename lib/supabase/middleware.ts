@@ -139,7 +139,8 @@ export async function updateSession(request: NextRequest) {
   if (!user && isProtectedRoute) {
     {/* 未登录用户访问受保护路由，重定向到登录页 */}
     const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('redirect', path)
+    const redirectPathWithSearch = `${path}${request.nextUrl.search}`
+    loginUrl.searchParams.set('redirect', redirectPathWithSearch)
     return NextResponse.redirect(loginUrl)
   }
 
