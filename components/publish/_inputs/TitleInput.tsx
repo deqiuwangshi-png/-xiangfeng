@@ -73,7 +73,7 @@ export function TitleInput({ value, onChange, ...props }: TitleInputProps) {
   const remainingChars = 100 - value.length
 
   return (
-    <div className="relative mb-6 sm:mb-8 pl-3">
+    <div className="relative mb-4 sm:mb-6 pl-3">
       {/* 标题输入区域 - 纯无边界设计，瑞士风格 */}
       <div className="relative">
         <textarea
@@ -115,7 +115,7 @@ export function TitleInput({ value, onChange, ...props }: TitleInputProps) {
       </div>
 
       {/* 装饰性下划线 - 极简视觉锚点，非功能性边框 */}
-      <div className="mt-3 w-16 h-px bg-gray-200 rounded-full transition-all duration-300" />
+      <div className="mt-2 w-16 h-px bg-gray-200 rounded-full transition-all duration-300" />
     </div>
   )
 }

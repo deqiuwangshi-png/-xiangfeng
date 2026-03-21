@@ -89,7 +89,7 @@ export default function DynamicEditor({
       <div className={`flex-1 overflow-auto mx-auto w-full py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in ${
         editorState.isFullscreen
           ? 'max-w-full px-4 sm:px-8 lg:px-16'
-          : 'max-w-full sm:max-w-[840px] px-3 sm:px-4'
+          : 'max-w-[840px] px-4 sm:px-6'
       }`}>
         <EditorCard
           title={editorState.title}

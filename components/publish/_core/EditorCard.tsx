@@ -64,13 +64,15 @@ export function EditorCard({
       )}
 
       {/* 标题输入 - 保持原有组件 */}
-      <TitleInput
-        value={title}
-        onChange={onTitleChange}
-      />
+      <div className={isFocusMode ? 'max-w-4xl mx-auto' : ''}>
+        <TitleInput
+          value={title}
+          onChange={onTitleChange}
+        />
+      </div>
 
       {/* 内容编辑器 - TipTap */}
-      <div className={`relative py-0 overflow-hidden ${isFocusMode ? 'px-0' : ''}`}>
+      <div className={`relative py-0 overflow-hidden ${isFocusMode ? 'px-0' : ''} ${isFocusMode ? 'max-w-4xl mx-auto' : ''}`}>
         {/* 左侧装饰线 - 专注模式下隐藏，与文字严格对齐 */}
         {!isFocusMode && (
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 rounded opacity-40" />

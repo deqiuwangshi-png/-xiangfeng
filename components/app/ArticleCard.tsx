@@ -52,48 +52,41 @@ export function ArticleCard({
   const formattedTime = formatTime(publishedAt)
 
   return (
-    <Link href={`/article/${id}`}>
-      <article className="h-full flex flex-col bg-white rounded-2xl p-6 shadow-soft cursor-pointer border border-xf-bg/50">
-        {/* 作者信息 */}
-        <div className="flex items-center gap-3 mb-4">
-          <UserAvatar
-            name={author.name}
-            userId={author.id}
-            avatarUrl={author.avatar}
-            size="sm"
-            className="ring-2 ring-white"
-          />
-          <div className="flex-1">
-            <div className="font-medium text-xf-dark">{author.name}</div>
-            <div className="text-sm text-xf-medium flex items-center gap-2">
-              <span>{formattedTime}</span>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {readTime}分钟阅读
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 标题 */}
-        <h3 className="text-xl font-bold text-xf-dark mb-3 line-clamp-2">
+    <Link href={`/article/${id}`} className="block group">
+      <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 hover:border-xf-primary/30 hover:shadow-sm transition-all duration-200">
+        {/* 标题 - 放在最上方，增加信息优先级 */}
+        <h3 className="text-lg sm:text-xl font-bold text-xf-dark mb-2 line-clamp-2 group-hover:text-xf-primary transition-colors duration-200">
           {title}
         </h3>
 
-        {/* 摘要 */}
-        <p className="text-xf-medium line-clamp-2 mb-4 leading-relaxed flex-1">
+        {/* 摘要 - 增加行数显示更多内容 */}
+        <p className="text-xf-medium text-sm sm:text-base line-clamp-3 mb-3 leading-relaxed">
           {summary}
         </p>
 
-        {/* 底部：查看文章按钮 */}
-        <div className="flex items-center justify-between mt-auto">
-          <span className="px-4 py-1.5 rounded-lg text-xs font-medium bg-xf-primary text-white flex items-center gap-1">
-            查看文章 →
-          </span>
-          <div className="flex items-center gap-1 text-xf-medium text-sm">
-            <Eye className="w-4 h-4" />
-            <span>{viewsCount}</span>
+        {/* 底部信息栏：作者 + 阅读数据 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UserAvatar
+              name={author.name}
+              userId={author.id}
+              avatarUrl={author.avatar}
+              size="xs"
+              className="ring-1 ring-white"
+            />
+            <span className="text-sm text-xf-dark font-medium">{author.name}</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-xf-medium">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {readTime}分钟
+            </span>
+            <span className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              {viewsCount}
+            </span>
+            <span>{formattedTime}</span>
           </div>
         </div>
       </article>

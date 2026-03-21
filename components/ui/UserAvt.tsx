@@ -21,6 +21,7 @@ import { JSX } from 'react'
  * 头像尺寸映射
  */
 const SIZE_MAP = {
+  xs: { px: 24, class: 'w-6 h-6 text-xs' },
   sm: { px: 40, class: 'w-10 h-10 text-sm' },
   md: { px: 64, class: 'w-16 h-16 text-xl' },
   lg: { px: 96, class: 'w-24 h-24 text-3xl' },
