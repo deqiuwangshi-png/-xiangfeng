@@ -47,7 +47,6 @@ docs/*
 .trae/
 .sql/*
 lib/supabase/migrations/*
-.html/*
 
 
 
