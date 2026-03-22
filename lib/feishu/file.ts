@@ -2,6 +2,7 @@
 
 import { FEISHU_CONFIG } from './config';
 import { feishuRequest, feishuRequestWithFormData } from './client';
+import { getBaseId } from './base';
 import type { UploadFileResponse } from './types';
 import type { Attachment } from '@/types/feedback';
 
@@ -36,21 +37,19 @@ export async function uploadFileToFeishu(
     const arrayBuffer = await file.arrayBuffer();
     const blob = new Blob([arrayBuffer], { type: file.type });
 
-    // 判断文件类型，选择正确的 parent_type
-    // 图片类型使用 bitable_image，其他文件使用 bitable_file
-    const imageTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
-    const parentType = imageTypes.includes(file.type) ? 'bitable_image' : 'bitable_file';
+    // 获取 Base ID 作为 parent_node
+    const baseId = await getBaseId();
 
-    // 构建 FormData
-    // parent_node 直接传 BASE_ID（多维表格的 app_token）
+    // 构建 FormData - 使用飞书云文档素材上传接口
+    // 参考飞书文档：https://open.feishu.cn/document/server-docs/docs/drive-v1/media/upload_all
     const formData = new FormData();
-    formData.append('file', blob, encodeURIComponent(file.name));
-    formData.append('file_name', encodeURIComponent(file.name));
-    formData.append('parent_type', parentType);
-    formData.append('parent_node', FEISHU_CONFIG.BASE_ID);
+    formData.append('file', blob, file.name);
+    formData.append('file_name', file.name);
     formData.append('size', String(file.size));
+    formData.append('parent_type', 'bitable');
+    formData.append('parent_node', baseId);
 
-    // 上传文件到飞书
+    // 上传文件到飞书云文档素材接口
     const result = await feishuRequestWithFormData<UploadFileResponse>(
       `${FEISHU_CONFIG.API_BASE}/drive/v1/medias/upload_all`,
       formData

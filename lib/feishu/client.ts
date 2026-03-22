@@ -1,5 +1,6 @@
 'use server';
 
+import { FEISHU_CONFIG } from './config';
 import { getAccessToken } from './auth';
 import type { ApiResponse } from './types';
 
@@ -16,6 +17,7 @@ interface RequestOptions {
   body?: unknown;
   headers?: Record<string, string>;
   skipAuth?: boolean;
+  query?: Record<string, string>;
 }
 
 /**
@@ -35,7 +37,7 @@ export async function feishuRequest<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<ApiResponse<T>> {
-  const { method = 'GET', body, headers = {}, skipAuth = false } = options;
+  const { method = 'GET', body, headers = {}, skipAuth = false, query } = options;
 
   const requestHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -48,7 +50,14 @@ export async function feishuRequest<T>(
     requestHeaders['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(endpoint, {
+  {/* 构建完整URL，添加基础地址和查询参数 */}
+  let url = endpoint.startsWith('http') ? endpoint : `${FEISHU_CONFIG.API_BASE}${endpoint}`;
+  if (query && Object.keys(query).length > 0) {
+    const searchParams = new URLSearchParams(query);
+    url = `${url}?${searchParams.toString()}`;
+  }
+
+  const response = await fetch(url, {
     method,
     headers: requestHeaders,
     body: body ? JSON.stringify(body) : undefined,

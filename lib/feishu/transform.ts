@@ -75,7 +75,9 @@ export async function extractFieldValue(value: unknown): Promise<string> {
 
 /**
  * 从飞书附件字段中提取附件列表
- * 飞书附件字段格式: [{ file_token: 'xxx', name: 'xxx', size: 123, type: 'image/png' }]
+ * 飞书附件字段格式可能是:
+ * - 字符串数组: ['file_token1', 'file_token2']
+ * - 对象数组: [{ file_token: 'xxx', name: 'xxx', size: 123, type: 'image/png' }]
  *
  * @param value 飞书附件字段值
  * @returns 附件列表
@@ -85,17 +87,35 @@ export async function extractAttachments(value: unknown): Promise<Attachment[]> 
     return [];
   }
 
-  return value
-    .filter((item): item is Record<string, unknown> => 
-      typeof item === 'object' && item !== null && item.file_token
-    )
-    .map((item) => ({
-      name: String(item.name || item.file_token || '未命名文件'),
-      url: String(item.file_token),
-      fileToken: String(item.file_token),
-      size: typeof item.size === 'number' ? item.size : undefined,
-      type: typeof item.type === 'string' ? item.type : undefined,
-    }));
+  const attachments: Attachment[] = [];
+
+  for (const item of value) {
+    // 处理字符串格式（file_token）
+    if (typeof item === 'string') {
+      attachments.push({
+        name: item.slice(0, 20) + '...',
+        url: item,
+        fileToken: item,
+      });
+      continue;
+    }
+    // 处理对象格式
+    if (typeof item === 'object' && item !== null) {
+      const obj = item as Record<string, unknown>;
+      const fileToken = obj.file_token || obj.fileToken;
+      if (fileToken) {
+        attachments.push({
+          name: String(obj.name || '未命名文件'),
+          url: String(fileToken),
+          fileToken: String(fileToken),
+          size: typeof obj.size === 'number' ? obj.size : undefined,
+          type: typeof obj.type === 'string' ? obj.type : undefined,
+        });
+      }
+    }
+  }
+
+  return attachments;
 }
 
 /**
@@ -108,18 +128,18 @@ export async function convertFeishuRecordToFeedbackItem(record: FeishuRecord): P
   const fields = record.fields;
 
   const trackingId = await extractFieldValue(fields[FIELD_MAPPING.TRACKING_ID]) || record.record_id;
-  const contactEmail = await extractFieldValue(fields[FIELD_MAPPING.CONTACT]);
+  const userEmail = await extractFieldValue(fields[FIELD_MAPPING.USER_EMAIL]);
+  const userId = await extractFieldValue(fields[FIELD_MAPPING.USER_ID]);
 
   return {
     id: record.record_id,
-    title: await extractFieldValue(fields[FIELD_MAPPING.TITLE]),
     description: await extractFieldValue(fields[FIELD_MAPPING.DESCRIPTION]),
     date: new Date(Number(fields[FIELD_MAPPING.CREATED_AT]) || Date.now()).toISOString(),
     status: REVERSE_STATUS_MAPPING[await extractFieldValue(fields[FIELD_MAPPING.STATUS])] || 'pending',
     statusText: await extractFieldValue(fields[FIELD_MAPPING.STATUS]) || '待处理',
     pageId: trackingId,
-    contactEmail: contactEmail,
-    userEmail: contactEmail || '',
+    userEmail: userEmail || '',
+    userId: userId || '',
     trackingId: trackingId,
     attachments: await extractAttachments(fields[FIELD_MAPPING.ATTACHMENTS]),
   };

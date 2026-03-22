@@ -8,12 +8,12 @@ import type { FeedbackType, FeedbackStatus, Attachment } from '@/types/feedback'
 export interface FeishuFeedbackData {
   /** 反馈类型 */
   type: FeedbackType;
-  /** 标题 */
-  title: string;
   /** 描述 */
   description: string;
-  /** 联系方式 */
-  contactEmail?: string;
+  /** 用户ID */
+  userId?: string;
+  /** 用户邮箱 */
+  userEmail?: string;
   /** 状态 */
   status?: FeedbackStatus;
   /** 附件 file_token 数组 */
@@ -36,16 +36,15 @@ export interface FeishuRecord {
  * 反馈项接口
  */
 export interface FeedbackItem {
+  userId: string;
   userEmail: string;
   trackingId: string;
   id: string;
-  title: string;
   description: string;
   date: string;
   status: FeedbackStatus;
   statusText: string;
   pageId: string;
-  contactEmail: string;
   attachments?: Attachment[];
 }
 

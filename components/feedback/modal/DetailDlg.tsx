@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { X } from '@/components/icons';
-import { Calendar, Tag, FileText, Mail, User } from 'lucide-react';
+import { Calendar, Tag, FileText, User } from 'lucide-react';
 import { useFeedbackReplies } from '../hooks/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';
@@ -109,11 +109,8 @@ export default function FeedbackDetailModal({
         {/* 内容区 */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
           <div className="p-5">
-            {/* 标题和状态 */}
+            {/* 状态 */}
             <div className="flex items-start justify-between gap-4 mb-4">
-              <h3 className="text-xl font-medium text-xf-dark leading-tight">
-                {feedback.title}
-              </h3>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${statusStyles[feedback.status]}`}
               >
@@ -135,12 +132,6 @@ export default function FeedbackDetailModal({
                 <span className="flex items-center gap-1.5">
                   <User className="w-4 h-4" />
                   {feedback.userEmail}
-                </span>
-              )}
-              {feedback.contactEmail && (
-                <span className="flex items-center gap-1.5">
-                  <Mail className="w-4 h-4" />
-                  {feedback.contactEmail}
                 </span>
               )}
             </div>
@@ -191,15 +182,6 @@ export default function FeedbackDetailModal({
           </div>
         </div>
 
-        {/* 底部关闭按钮 */}
-        <div className="p-4 border-t border-xf-bg/40 bg-xf-light/30">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 bg-xf-accent text-white font-medium rounded-xl hover:bg-xf-accent/90 transition-colors"
-          >
-            关闭
-          </button>
-        </div>
       </div>
     </div>
   );

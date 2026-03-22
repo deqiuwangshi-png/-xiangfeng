@@ -1,4 +1,4 @@
-import { MessageSquare, CheckCircle, Clock } from '@/components/icons';
+import { MessageSquare, CheckCircle, Clock, Paperclip } from '@/components/icons';
 import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
 import { FeedbackCardActions } from './FeedbackCardActions';
 
@@ -22,32 +22,37 @@ function FeedbackCardContent({ item }: { item: FeedbackItem }) {
   return (
     <>
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium text-xf-dark text-base">{item.title}</h3>
-        <span className={`status-badge px-3 py-1 rounded-full text-xs font-semibold shrink-0 ml-2 ${statusStyles[item.status]}`}>
+        <span className={`status-badge px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${statusStyles[item.status]}`}>
           {item.statusText}
         </span>
       </div>
-      <p className="text-sm text-xf-primary mb-3 line-clamp-2">{item.description}</p>
+      <p className="text-sm text-xf-primary mb-3 line-clamp-3">{item.description}</p>
       <div className="flex justify-between text-xs text-xf-medium">
         <span>{item.date}</span>
-        {item.replies && (
-          <span className="flex items-center gap-1">
-            <MessageSquare className="w-3 h-3" />
-            {item.replies} 条回复
-          </span>
-        )}
-        {item.fixed && (
-          <span className="flex items-center gap-1">
-            <CheckCircle className="w-3 h-3 text-xf-success" />
-            已修复
-          </span>
-        )}
-        {!item.replies && !item.fixed && (
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            等待处理
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {item.attachments && item.attachments.length > 0 && (
+            <span className="flex items-center gap-1 text-xf-primary">
+              <Paperclip className="w-3 h-3" />
+              {item.attachments.length} 个附件
+            </span>
+          )}
+          {item.replies ? (
+            <span className="flex items-center gap-1">
+              <MessageSquare className="w-3 h-3" />
+              {item.replies} 条回复
+            </span>
+          ) : item.fixed ? (
+            <span className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3 text-xf-success" />
+              已修复
+            </span>
+          ) : (
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              等待处理
+            </span>
+          )}
+        </div>
       </div>
     </>
   );
