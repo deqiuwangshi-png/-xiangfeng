@@ -103,10 +103,12 @@ export async function extractAttachments(value: unknown): Promise<Attachment[]> 
     if (typeof item === 'object' && item !== null) {
       const obj = item as Record<string, unknown>;
       const fileToken = obj.file_token || obj.fileToken;
+      // 使用多维表格返回的 tmp_url 作为下载链接
+      const tmpUrl = obj.tmp_url || obj.url;
       if (fileToken) {
         attachments.push({
           name: String(obj.name || '未命名文件'),
-          url: String(fileToken),
+          url: String(tmpUrl || fileToken),
           fileToken: String(fileToken),
           size: typeof obj.size === 'number' ? obj.size : undefined,
           type: typeof obj.type === 'string' ? obj.type : undefined,

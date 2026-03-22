@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { X } from '@/components/icons';
-import { Calendar, Tag, FileText, User } from 'lucide-react';
+import { Calendar, Tag, User } from 'lucide-react';
 import { useFeedbackReplies } from '../hooks/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';
@@ -148,22 +148,29 @@ export default function FeedbackDetailModal({
             {feedback.attachments && feedback.attachments.length > 0 && (
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-xf-dark mb-3">附件 ({feedback.attachments.length})</h4>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {feedback.attachments.map((attachment, index) => (
                     <a
                       key={`${attachment.name}-${index}`}
                       href={attachment.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-3 bg-white border border-xf-bg/60 rounded-xl hover:border-xf-primary hover:bg-xf-primary/5 transition-colors group"
+                      className="block group"
                     >
-                      <FileText className="w-5 h-5 text-xf-primary shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-xf-dark truncate group-hover:text-xf-accent transition-colors">
-                          {attachment.name}
-                        </div>
-                        <div className="text-xs text-xf-primary">点击下载或查看</div>
+                      <div className="aspect-square bg-xf-light rounded-xl overflow-hidden border border-xf-bg/60 hover:border-xf-primary transition-colors">
+                        <img
+                          src={attachment.url}
+                          alt={attachment.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            {/* 图片加载失败时显示占位符 */}
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
                       </div>
+                      <p className="mt-2 text-xs text-xf-primary truncate group-hover:text-xf-accent transition-colors">
+                        {attachment.name}
+                      </p>
                     </a>
                   ))}
                 </div>

@@ -4,7 +4,7 @@ import { FEISHU_CONFIG, FIELD_MAPPING } from './config';
 import { feishuRequest } from './client';
 import { getBaseId } from './base';
 import { convertFeishuRecordToFeedbackItem, getFeishuTypeOption, getFeishuStatusOption } from './transform';
-import { getAttachmentUrls } from './file';
+
 import type { FeedbackStatus } from '@/types/feedback';
 import type { FeishuFeedbackData, FeedbackItem, CreateRecordResponse, QueryRecordsResponse, TableInfoResponse } from './types';
 
@@ -202,21 +202,9 @@ export async function queryFeishuFeedbacks(options: {
 
     const feedbackItems = await Promise.all(records.map(convertFeishuRecordToFeedbackItem));
 
-    const itemsWithUrls = await Promise.all(
-      feedbackItems.map(async (item) => {
-        if (item.attachments && item.attachments.length > 0) {
-          return {
-            ...item,
-            attachments: await getAttachmentUrls(item.attachments),
-          };
-        }
-        return item;
-      })
-    );
-
     return {
       success: true,
-      data: itemsWithUrls,
+      data: feedbackItems,
     };
   } catch (error) {
     console.error('查询飞书反馈记录失败:', error);
