@@ -5,38 +5,12 @@
  * 
  * @returns {JSX.Element} 我的内容区域组件
  * 
- * 更新时间: 2026-03-05
+ * 更新时间: 2026-03-22
  */
 
-import { BookOpen, Brain, ThumbsUp, MessageSquare as MessageIcon, FileText } from 'lucide-react'
+import { ThumbsUp, MessageSquare as MessageIcon, FileText } from 'lucide-react'
 import { getArticles } from '@/lib/articles/actions/crud'
 import { formatDistanceToNow } from '@/lib/utils/date'
-
-/**
- * 文章图标映射
- * 
- * @param index - 文章索引
- * @returns 对应的图标组件
- */
-function getArticleIcon(index: number): React.ElementType {
-  const icons = [BookOpen, Brain, FileText]
-  return icons[index % icons.length]
-}
-
-/**
- * 文章渐变样式映射
- * 
- * @param index - 文章索引
- * @returns 对应的渐变类名
- */
-function getArticleGradient(index: number): string {
-  const gradients = [
-    'from-xf-accent to-xf-primary',
-    'from-xf-info to-xf-soft',
-    'from-purple-500 to-pink-500'
-  ]
-  return gradients[index % gradients.length]
-}
 
 /**
  * 我的内容区域组件
@@ -48,12 +22,12 @@ function getArticleGradient(index: number): string {
  * @description
  * 提供我的内容区域的完整功能，包括：
  * - 从数据库获取用户的最新文章列表
- * - 文章卡片（系列、发布时间、标题、摘要、标签、互动数据）
+ * - 文章列表（发布时间、标题、摘要、互动数据）
  * - 加载状态和空状态处理
  * 
  * @layout
- * - 使用 grid 布局
- * - 响应式设计（移动端1列，桌面端2列）
+ * - 使用列表布局
+ * - 简洁的横向排列
  * - 所有间距完全复制原型数值
  */
 export async function ProfileContent() {
@@ -92,60 +66,44 @@ export async function ProfileContent() {
 
   return (
     <div id="profile-content-section">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {articles.map((article, index) => {
-          const IconComponent = getArticleIcon(index)
-          const gradientClass = getArticleGradient(index)
-          
-          return (
-            <article
-              key={article.id}
-              className="card-bg rounded-4xl p-6 shadow-soft hover:shadow-elevated transition-all duration-300 cursor-pointer group"
-            >
-              {/* 文章头部 */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-full bg-linear-to-tr ${gradientClass} flex items-center justify-center text-white`}>
-                  <IconComponent className="w-5 h-5" />
-                </div>
-                <div>
-                  <span className="text-sm font-bold text-xf-dark block">我的文章</span>
-                  <span className="text-xs text-xf-medium font-medium">
-                    发布于 {formatDistanceToNow(article.published_at || article.created_at)}
-                  </span>
-                </div>
+      <div className="flex flex-col gap-12">
+        {articles.map((article) => (
+          <article
+            key={article.id}
+            className="group cursor-pointer"
+          >
+            <div className="flex flex-col gap-3">
+              {/* 标签 + 时间 */}
+              <div className="flex items-center gap-2 text-xs text-xf-medium">
+                <span className="text-xf-accent font-semibold"># 文章</span>
+                <span>•</span>
+                <span>发布于 {formatDistanceToNow(article.published_at || article.created_at)}</span>
               </div>
 
               {/* 文章标题 */}
-              <h3 className="text-xl font-serif font-bold text-xf-dark mb-3 group-hover:text-xf-accent transition-colors leading-tight text-layer-1">
+              <h3 className="text-2xl font-bold text-xf-dark group-hover:text-xf-accent transition-colors leading-tight">
                 {article.title}
               </h3>
 
               {/* 文章摘要 */}
-              <p className="text-xf-dark/70 leading-relaxed mb-4 font-normal line-clamp-3">
+              <p className="text-xf-dark/70 leading-relaxed line-clamp-2 max-w-3xl">
                 {article.summary}
               </p>
 
-              {/* 文章底部 */}
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-xf-bg/50">
-                <div className="flex gap-2">
-                  <span className="tag px-3 py-1 bg-xf-light text-xf-info text-xs rounded-full font-medium">
-                    #文章
-                  </span>
-                </div>
-                <div className="flex gap-4 text-xf-medium text-sm font-medium">
-                  <span className="flex items-center gap-1 hover:text-xf-info transition">
-                    <ThumbsUp className="w-4 h-4" />
-                    0
-                  </span>
-                  <span className="flex items-center gap-1 hover:text-xf-info transition">
-                    <MessageIcon className="w-4 h-4" />
-                    0
-                  </span>
-                </div>
+              {/* 互动数据 */}
+              <div className="flex items-center gap-6 pt-2">
+                <span className="flex items-center gap-1.5 text-xf-medium hover:text-xf-dark text-sm transition">
+                  <ThumbsUp className="w-4 h-4" />
+                  0
+                </span>
+                <span className="flex items-center gap-1.5 text-xf-medium hover:text-xf-dark text-sm transition">
+                  <MessageIcon className="w-4 h-4" />
+                  0
+                </span>
               </div>
-            </article>
-          )
-        })}
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   )
