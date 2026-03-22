@@ -24,6 +24,9 @@ export { SignCard } from './signin/SignCard'
  * @module components/rewards/tasks
  */
 export { TaskBoard } from './tasks/TaskBoard'
+export { TaskClient } from './tasks/TaskClient'
+export { TaskList } from './tasks/TaskList'
+export { CategoryNav } from './tasks/CategoryNav'
 
 /**
  * 积分商城相关组件
