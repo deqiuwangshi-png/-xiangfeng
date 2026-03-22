@@ -40,7 +40,6 @@ export interface Attachment {
  */
 export interface FeedbackItem {
   id: string;
-  title: string;
   description: string;
   date: string;
   status: FeedbackStatus;
@@ -50,7 +49,7 @@ export interface FeedbackItem {
   replyList?: Reply[];
   pageId: string;
   attachments?: Attachment[];
-  contactEmail?: string;
+  userId?: string;
   userEmail?: string;
   trackingId?: string;
 }
@@ -83,9 +82,7 @@ export interface FAQItem {
  */
 export interface FeedbackInput {
   type: FeedbackType;
-  title: string;
   description: string;
-  contactEmail?: string;
   attachments?: string[];  // 飞书 file_token 数组
 }
 

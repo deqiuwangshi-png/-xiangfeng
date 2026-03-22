@@ -37,4 +37,5 @@ export {
   FileText,
   Image,
   File,
+  Paperclip,
 } from 'lucide-react'

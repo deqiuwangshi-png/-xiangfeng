@@ -38,13 +38,13 @@ export async function getFeedbacksByTrackingIds(trackingIds: string[]): Promise<
           for (const item of trackingResult.data) {
             /**
              * @安全增强 P1: 归属校验
-             * - 已登录用户只能看到与自己邮箱关联的反馈
-             * - 未登录用户只能看到与自己 trackingId 关联的反馈
+             * - 优先用 trackingId 匹配（适用于所有用户，包括未登录用户）
+             * - 如果 trackingId 匹配失败，已登录用户再用邮箱匹配
              * - 防止通过猜测 trackingId 读取他人反馈
              */
-            const isOwner = userEmail
-              ? item.userEmail === userEmail
-              : validTrackingIds.includes(item.trackingId as string);
+            const isTrackingIdMatch = validTrackingIds.includes(item.trackingId as string);
+            const isEmailMatch = userEmail && item.userEmail === userEmail;
+            const isOwner = isTrackingIdMatch || isEmailMatch;
 
             if (isOwner && !seenIds.has(item.id)) {
               allFeedbacks.push(item);

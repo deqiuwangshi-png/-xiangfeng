@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { createFeishuFeedback } from '@/lib/feishu/api';
+import { getCurrentUser } from '@/lib/feedback/actions/auth';
 import { generateTrackingId } from '../utils';
 import type { FeedbackInput, FeedbackSubmitResult } from '@/types/feedback';
 
@@ -11,9 +12,7 @@ import type { FeedbackInput, FeedbackSubmitResult } from '@/types/feedback';
  */
 const feedbackSchema = z.object({
   type: z.enum(['bug', 'suggestion', 'ui', 'other']),
-  title: z.string().min(1, '反馈标题不能为空').max(200, '反馈标题不能超过200字符'),
   description: z.string().min(1, '详细描述不能为空').max(5000, '详细描述不能超过5000字符'),
-  contactEmail: z.email('邮箱格式不正确').optional().or(z.literal('')),
   attachments: z.array(z.string().min(1, '附件token不能为空')).max(10, '附件数量不能超过10个').optional(),
 });
 
@@ -29,15 +28,18 @@ export async function submitFeedback(feedbackData: FeedbackInput): Promise<Feedb
     // 验证输入数据
     const validatedData = feedbackSchema.parse(feedbackData);
 
+    // 获取当前登录用户信息
+    const { userId, userEmail } = await getCurrentUser();
+
     // 生成追踪ID
     const trackingId = generateTrackingId();
 
     // 提交到飞书多维表格
     const feishuResult = await createFeishuFeedback({
       type: validatedData.type,
-      title: validatedData.title,
       description: validatedData.description,
-      contactEmail: validatedData.contactEmail || undefined,
+      userId: userId || undefined,
+      userEmail: userEmail || undefined,
       status: 'pending',
       attachments: validatedData.attachments,
       trackingId,

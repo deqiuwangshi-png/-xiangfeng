@@ -40,14 +40,14 @@ export async function uploadFeedbackAttachment(formData: FormData) {
       };
     }
 
-    // 验证文件类型 - 仅允许图片和文档格式
-    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.md', '.pdf'];
+    // 验证文件类型 - 仅允许图片格式
+    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
     if (!allowedExtensions.includes(fileExtension)) {
       return {
         success: false,
-        error: '仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)和文档格式(MD, PDF)',
+        error: '仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)',
       };
     }
 
@@ -58,8 +58,6 @@ export async function uploadFeedbackAttachment(formData: FormData) {
       '.jpeg': ['image/jpeg'],
       '.gif': ['image/gif'],
       '.webp': ['image/webp'],
-      '.md': ['text/markdown', 'text/plain', 'application/octet-stream'],
-      '.pdf': ['application/pdf'],
     };
 
     const expectedMimeTypes = allowedMimeTypes[fileExtension];

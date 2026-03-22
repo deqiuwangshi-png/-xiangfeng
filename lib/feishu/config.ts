@@ -12,8 +12,12 @@ export const FEISHU_CONFIG = {
   APP_ID: process.env.FEISHU_APP_ID || '',
   /** 应用密钥 */
   APP_SECRET: process.env.FEISHU_APP_SECRET || '',
-  /** 多维表格 Base ID */
-  BASE_ID: 'X3hVw8dUTilgKQkACsCcOcaEnsg',
+  /**
+   * 多维表格 Base ID
+   * 格式：basXXXXXXXXXXXX（以 bas 开头）
+   * 获取方式：打开飞书多维表格 → 复制链接 → 提取 bas 开头的字符串
+   */
+  BASE_ID: process.env.FEISHU_BASE_ID || '',
   /** 表格 ID */
   TABLE_ID: 'tblpWzxXOfwlZMHr',
   /** API 基础地址 */
@@ -25,22 +29,22 @@ export const FEISHU_CONFIG = {
  * 系统字段名 -> 飞书多维表格字段名
  */
 export const FIELD_MAPPING = {
+  /** 追踪ID */
+  TRACKING_ID: '追踪ID',
   /** 反馈类型 */
   TYPE: '反馈类型',
-  /** 标题 */
-  TITLE: '标题',
   /** 描述 */
   DESCRIPTION: '描述',
-  /** 联系方式 */
-  CONTACT: '联系方式',
+  /** 用户ID */
+  USER_ID: '用户ID',
+  /** 用户邮箱 */
+  USER_EMAIL: '用户邮箱',
   /** 状态 */
   STATUS: '状态',
   /** 提交时间 */
   CREATED_AT: '提交时间',
   /** 附件 */
   ATTACHMENTS: '附件',
-  /** 追踪ID */
-  TRACKING_ID: '追踪ID',
 } as const;
 
 /**

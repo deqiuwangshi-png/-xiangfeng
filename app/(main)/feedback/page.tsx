@@ -42,15 +42,20 @@ export default function FeedbackPage() {
     setIsLoading(true);
     try {
       const trackingIds = getTrackingIds();
+      console.log('[页面] trackingIds:', trackingIds);
       if (trackingIds.length > 0) {
         const result = await getFeedbacksByTrackingIds(trackingIds);
+        console.log('[页面] 查询结果:', result);
         if (result.success && result.data) {
           setFeedbackItems(result.data);
+        } else {
+          setFeedbackItems([]);
         }
       } else {
         setFeedbackItems([]);
       }
-    } catch {
+    } catch (error) {
+      console.error('[页面] 加载反馈失败:', error);
       setFeedbackItems([]);
     } finally {
       setIsLoading(false);
@@ -76,14 +81,21 @@ export default function FeedbackPage() {
 
   /**
    * 反馈提交成功回调
-   * 显示 Toast 提示
+   * 显示 Toast 提示并预加载反馈列表
    * @param id 追踪ID
    */
-  const handleFeedbackSubmit = (id: string) => {
+  const handleFeedbackSubmit = useCallback((id: string) => {
     setTrackingId(id);
     addTrackingId(id);
     setShowToast(true);
-  };
+    /**
+     * 预加载反馈列表
+     * 解决飞书读写延迟问题：提交后立即后台加载，确保切换到"我的反馈"时数据已就绪
+     */
+    setTimeout(() => {
+      loadFeedbacks();
+    }, 1500);
+  }, [loadFeedbacks]);
 
   /**
    * 关闭 Toast 提示
@@ -98,7 +110,7 @@ export default function FeedbackPage() {
       <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold mb-1">
-            产品反馈
+            反馈帮助
           </h1>
           <p className="text-sm sm:text-base text-xf-primary">
             帮助我们一起打磨产品

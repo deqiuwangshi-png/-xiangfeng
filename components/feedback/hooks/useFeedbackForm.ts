@@ -11,14 +11,8 @@ interface UseFeedbackFormOptions {
 interface UseFeedbackFormReturn {
   selectedType: FeedbackType | null;
   setSelectedType: (type: FeedbackType | null) => void;
-  title: string;
-  setTitle: (value: string) => void;
   description: string;
   setDescription: (value: string) => void;
-  contactEmail: string;
-  setContactEmail: (value: string) => void;
-  showAdvanced: boolean;
-  setShowAdvanced: (value: boolean) => void;
   uploadedFiles: UploadedFile[];
   setUploadedFiles: (files: UploadedFile[] | ((prevFiles: UploadedFile[]) => UploadedFile[])) => void;
   isSubmitting: boolean;
@@ -36,10 +30,7 @@ interface UseFeedbackFormReturn {
  */
 export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): UseFeedbackFormReturn {
   const [selectedType, setSelectedType] = useState<FeedbackType | null>(null);
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -53,22 +44,19 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     if (!selectedType) {
       return '请选择反馈类型';
     }
-    if (!title.trim() || !description.trim()) {
-      return '请填写标题和详细描述';
+    if (!description.trim()) {
+      return '请填写详细描述';
     }
     return null;
-  }, [selectedType, title, description]);
+  }, [selectedType, description]);
 
   /**
    * 重置表单
    */
   const resetForm = useCallback(() => {
     setSelectedType(null);
-    setTitle('');
     setDescription('');
-    setContactEmail('');
     setUploadedFiles([]);
-    setShowAdvanced(false);
     setSubmitError('');
   }, []);
 
@@ -172,9 +160,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
         // 提交反馈
         const result = await submitFeedback({
           type: selectedType!,
-          title: title.trim(),
           description: description.trim(),
-          contactEmail: contactEmail.trim() || undefined,
           attachments: successfulTokens.length > 0 ? successfulTokens : undefined,
         });
 
@@ -205,9 +191,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
       uploadPendingFiles,
       // uploadedFiles, // 已移除：uploadPendingFiles 已经依赖了 uploadedFiles
       selectedType,
-      title,
       description,
-      contactEmail,
       onSubmitSuccess,
       resetForm,
     ]
@@ -218,14 +202,8 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     () => ({
       selectedType,
       setSelectedType,
-      title,
-      setTitle,
       description,
       setDescription,
-      contactEmail,
-      setContactEmail,
-      showAdvanced,
-      setShowAdvanced,
       uploadedFiles,
       setUploadedFiles,
       isSubmitting,
@@ -234,10 +212,7 @@ export function useFeedbackForm({ onSubmitSuccess }: UseFeedbackFormOptions): Us
     }),
     [
       selectedType,
-      title,
       description,
-      contactEmail,
-      showAdvanced,
       uploadedFiles,
       isSubmitting,
       submitError,

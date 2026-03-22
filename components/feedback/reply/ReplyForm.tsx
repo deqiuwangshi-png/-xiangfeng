@@ -40,36 +40,36 @@ export default function FeedbackReplyForm({
     <div className="mt-4 pt-4 border-t border-xf-bg/40">
       <h5 className="text-sm font-medium text-xf-dark mb-2">添加回复</h5>
       <div className="space-y-3">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="输入您的回复..."
-          rows={3}
-          className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-xf-primary/20 focus:border-xf-primary resize-none text-sm"
-          disabled={isSubmitting}
-        />
-        {submitError && (
-          <p className="text-sm text-xf-error">{submitError}</p>
-        )}
-        <div className="flex justify-end">
+        <div className="relative">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="输入您的回复..."
+            rows={3}
+            className="w-full px-4 py-3 pr-24 bg-white border border-xf-bg/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-xf-primary/20 focus:border-xf-primary resize-none text-sm"
+            disabled={isSubmitting}
+          />
           <button
             onClick={handleSubmit}
             disabled={!content.trim() || isSubmitting}
-            className="flex items-center gap-2 px-4 py-2 bg-xf-accent text-white text-sm font-medium rounded-lg hover:bg-xf-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute right-2 bottom-2 flex items-center gap-1.5 px-3 py-1.5 bg-xf-accent text-white text-xs font-medium rounded-lg hover:bg-xf-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                提交中...
+                <Loader2 className="w-3 h-3 animate-spin" />
+                提交中
               </>
             ) : (
               <>
-                <Send className="w-4 h-4" />
-                发送回复
+                <Send className="w-3 h-3" />
+                发送
               </>
             )}
           </button>
         </div>
+        {submitError && (
+          <p className="text-sm text-xf-error">{submitError}</p>
+        )}
       </div>
     </div>
   );

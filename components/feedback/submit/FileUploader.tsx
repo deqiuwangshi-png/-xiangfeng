@@ -12,9 +12,9 @@ interface FileUploaderProps {
 }
 
 /**
- * 支持的文件扩展名
+ * 支持的文件扩展名（仅图片）
  */
-const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.md', '.pdf'];
+const ALLOWED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
 
 /**
  * 最大附件数量
@@ -99,7 +99,7 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
     selectedFiles.forEach((file) => {
       // 验证文件类型
       if (!validateFileType(file)) {
-        showErrorToast(`「${file.name}」格式不支持，仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)和文档格式(MD, PDF)`);
+        showErrorToast(`「${file.name}」格式不支持，仅支持图片格式(PNG, JPG, JPEG, GIF, WEBP)`);
         return;
       }
 

@@ -13,7 +13,7 @@ import {
   testFeishuConnection as _testFeishuConnection,
 } from './record';
 
-import { uploadFileToFeishu as _uploadFileToFeishu, getFileDownloadUrl as _getFileDownloadUrl, getAttachmentUrls as _getAttachmentUrls } from './file';
+import { uploadFileToFeishu as _uploadFileToFeishu } from './file';
 
 {/* 导出业务函数 - 包装为 Server Actions */}
 export async function createFeishuFeedback(...args: Parameters<typeof _createFeishuFeedback>) {
@@ -34,12 +34,4 @@ export async function testFeishuConnection(...args: Parameters<typeof _testFeish
 
 export async function uploadFileToFeishu(...args: Parameters<typeof _uploadFileToFeishu>) {
   return _uploadFileToFeishu(...args);
-}
-
-export async function getFileDownloadUrl(...args: Parameters<typeof _getFileDownloadUrl>) {
-  return _getFileDownloadUrl(...args);
-}
-
-export async function getAttachmentUrls(...args: Parameters<typeof _getAttachmentUrls>) {
-  return _getAttachmentUrls(...args);
 }
