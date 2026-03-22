@@ -74,6 +74,31 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
       }
     }
 
+    // 额外处理：确保 img 标签的 src 属性不包含危险协议
+    if (config?.ALLOWED_TAGS?.includes('img')) {
+      sanitized = sanitized.replace(/<img\s+([^>]*)src="([^"]*)"([^>]*)>/gi, (match, before, src, after) => {
+        const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
+        if (dangerousProtocols.test(src)) {
+          return `<img ${before}src="#" alt="" ${after}>`;
+        }
+        return match;
+      });
+      sanitized = sanitized.replace(/<img\s+([^>]*)src='([^']*)'([^>]*)>/gi, (match, before, src, after) => {
+        const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
+        if (dangerousProtocols.test(src)) {
+          return `<img ${before}src="#" alt="" ${after}>`;
+        }
+        return match;
+      });
+      sanitized = sanitized.replace(/<img\s+([^>]*)src=([^\s>]+)\s*([^>]*)>/gi, (match, before, src, after) => {
+        const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
+        if (dangerousProtocols.test(src)) {
+          return `<img ${before}src="#" alt="" ${after}>`;
+        }
+        return match;
+      });
+    }
+
     return sanitized;
   }
 };
@@ -107,6 +132,12 @@ const RICH_TEXT_CONFIG = {
     'h5',
     'h6',
     'img',
+    'table',
+    'thead',
+    'tbody',
+    'tr',
+    'th',
+    'td',
   ],
   ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'title', 'data-align'],
   ALLOW_DATA_ATTR: false,

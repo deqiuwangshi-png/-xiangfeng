@@ -30,6 +30,32 @@
   font-style: italic;
 }
 
+/* 表格中的单元格不显示占位符 - 强制禁用 */
+.tiptap table .is-empty::before,
+.tiptap table td .is-empty::before,
+.tiptap table th .is-empty::before,
+.tiptap td .is-empty::before,
+.tiptap th .is-empty::before,
+.tiptap td.is-empty::before,
+.tiptap th.is-empty::before,
+.tiptap tbody .is-empty::before,
+.tiptap thead .is-empty::before,
+.tiptap tr .is-empty::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* 表格单元格内的段落不显示占位符 - 最高优先级 */
+.tiptap table td p.is-empty::before,
+.tiptap table th p.is-empty::before,
+.tiptap table td p.is-editor-empty::before,
+.tiptap table th p.is-editor-empty::before,
+.tiptap table td p.is-editor-empty:first-child::before,
+.tiptap table th p.is-editor-empty:first-child::before {
+  content: none !important;
+  display: none !important;
+}
+
 /* 编辑器内容区域样式优化 */
 .tiptap {
   outline: none;
@@ -43,6 +69,30 @@
   height: 0;
   opacity: 0.5;
   font-style: italic;
+}
+
+/* 表格中的段落不显示占位符 - 强制禁用 */
+.tiptap table p.is-editor-empty:first-child::before,
+.tiptap table td p.is-editor-empty:first-child::before,
+.tiptap table th p.is-editor-empty:first-child::before,
+.tiptap td p.is-editor-empty:first-child::before,
+.tiptap th p.is-editor-empty:first-child::before,
+.tiptap td p.is-editor-empty::before,
+.tiptap th p.is-editor-empty::before,
+.tiptap tbody p.is-editor-empty:first-child::before,
+.tiptap thead p.is-editor-empty:first-child::before,
+.tiptap tr p.is-editor-empty:first-child::before,
+.tiptap table p.is-editor-empty::before,
+.tiptap tbody p.is-editor-empty::before,
+.tiptap thead p.is-editor-empty::before,
+.tiptap tr p.is-editor-empty::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* 表格内所有占位符全局禁用 */
+.tiptap table *::before {
+  content: none !important;
 }
 
 /* 列表样式 - 与侧边线严格对齐 */
@@ -64,4 +114,49 @@
 
 .tiptap ol {
   list-style-position: outside;
+}
+
+/* ====== 编辑器表格样式 - 清晰线框 ====== */
+.tiptap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  background: white;
+  border: 1px solid #9ca3af;
+}
+
+.tiptap thead {
+  background: #f3f4f6;
+  border-bottom: 1px solid #9ca3af;
+}
+
+.tiptap th {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  font-weight: 600;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+}
+
+.tiptap td {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  min-width: 100px;
+}
+
+.tiptap tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* 表格选中状态 */
+.tiptap .selectedCell {
+  background: #e5e7eb;
+}
+
+/* 表格调整大小手柄 */
+.tiptap .resize-cursor {
+  cursor: col-resize;
 }

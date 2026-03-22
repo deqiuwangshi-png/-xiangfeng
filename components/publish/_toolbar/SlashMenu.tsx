@@ -13,7 +13,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus, Image
+  List, ListOrdered, Minus, Image, Table
 } from '@/components/icons'
 import { selectImageFile, uploadImage } from '@/lib/upload/img'
 import { toast } from 'sonner'
@@ -154,6 +154,16 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
           } finally {
             onUploadEnd?.()
           }
+        },
+      },
+      {
+        id: 'table',
+        label: '表格',
+        icon: Table,
+        shortcut: '/table',
+        action: () => {
+          // 创建 3×3 表格
+          editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()
         },
       },
     ]

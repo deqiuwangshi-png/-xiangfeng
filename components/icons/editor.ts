@@ -39,4 +39,5 @@ export {
   AlignRight,
   Trash2,
   ImageOff,
+  Table,
 } from 'lucide-react'

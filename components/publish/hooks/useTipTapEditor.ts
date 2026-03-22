@@ -15,6 +15,10 @@ import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
+import { Table } from '@tiptap/extension-table'
+import { TableCell } from '@tiptap/extension-table-cell'
+import { TableHeader } from '@tiptap/extension-table-header'
+import { TableRow } from '@tiptap/extension-table-row'
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { uploadImage, getImageFromPaste } from '@/lib/upload/img'
 import { toast } from 'sonner'
@@ -104,6 +108,13 @@ export function useTipTapEditor({
           },
           underline: undefined,
         }),
+        // 表格扩展
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
         // 图片扩展 - 支持对齐属性和自定义 NodeView
         Image.extend({
           addNodeView() {
@@ -148,6 +159,10 @@ export function useTipTapEditor({
         // 占位符扩展
         Placeholder.configure({
           placeholder,
+          // 只在可编辑状态下显示占位符
+          showOnlyWhenEditable: true,
+          // 只在当前选中的节点显示占位符
+          showOnlyCurrent: true,
         }),
       ],
       content,
