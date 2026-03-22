@@ -91,7 +91,6 @@ function getStatsData(stats: UserStats): StatItem[] {
  * 
  * @layout
  * - 使用 grid 布局
- * - 响应式设计（移动端2列，桌面端4列）
  * - 所有间距完全复制原型数值
  */
 export function ProfileStats({ stats }: { stats: UserStats }) {
