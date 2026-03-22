@@ -2,7 +2,7 @@
 
 /**
  * 福利中心页面
- * @module app/(app)/rewards/page
+ * @module app/(main)/rewards/page
  * @description 福利中心主页面
  */
 
