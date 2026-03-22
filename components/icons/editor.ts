@@ -34,4 +34,9 @@ export {
   Save,
   Send,
   Image,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Trash2,
+  ImageOff,
 } from 'lucide-react'

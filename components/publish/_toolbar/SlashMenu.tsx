@@ -13,11 +13,15 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus
+  List, ListOrdered, Minus, Image
 } from '@/components/icons'
+import { selectImageFile, uploadImage } from '@/lib/upload/img'
+import { toast } from 'sonner'
 
 interface SlashMenuProps {
   editor: Editor | null
+  onUploadStart?: () => void
+  onUploadEnd?: () => void
 }
 
 interface CommandItem {
@@ -34,7 +38,7 @@ interface CommandItem {
  * @param props - 组件属性
  * @returns 命令菜单JSX
  */
-export function SlashMenu({ editor }: SlashMenuProps) {
+export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -117,6 +121,40 @@ export function SlashMenu({ editor }: SlashMenuProps) {
         shortcut: '---',
         action: () => editor.chain().focus().setHorizontalRule().run(),
       },
+      {
+        id: 'image',
+        label: '图片',
+        icon: Image,
+        shortcut: '/img',
+        action: async () => {
+          const file = await selectImageFile()
+          if (!file || !editor) return
+
+          onUploadStart?.()
+          try {
+            const url = await uploadImage(file)
+            console.log('SlashMenu uploaded image URL:', url)
+
+            // 使用 insertContent 插入图片节点，支持自定义属性
+            editor.chain().focus().insertContent({
+              type: 'image',
+              attrs: {
+                src: url,
+                alt: file.name,
+                'data-align': 'center',
+              },
+            }).run()
+
+            toast.success('图片上传成功')
+          } catch (error) {
+            const message = error instanceof Error ? error.message : '图片上传失败'
+            toast.error(message)
+            console.error('SlashMenu image upload error:', error)
+          } finally {
+            onUploadEnd?.()
+          }
+        },
+      },
     ]
 
     // 根据输入过滤命令
@@ -125,7 +163,7 @@ export function SlashMenu({ editor }: SlashMenuProps) {
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.id.toLowerCase().includes(query.toLowerCase())
     )
-  }, [editor, query])
+  }, [editor, query, onUploadStart, onUploadEnd])
 
   const commands = getCommands()
 

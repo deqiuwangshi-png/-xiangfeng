@@ -50,7 +50,7 @@ export function SettingItem({ label, description, control, controlPosition = 'ri
             </p>
           )}
         </div>
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           {control}
         </div>
       </div>

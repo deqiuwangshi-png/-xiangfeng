@@ -11,10 +11,14 @@
  * @module useTipTapEditor
  */
 
-import { useEditor, type Editor } from '@tiptap/react'
+import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useEffect, useState, useMemo } from 'react'
+import Image from '@tiptap/extension-image'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { uploadImage, getImageFromPaste } from '@/lib/upload/img'
+import { toast } from 'sonner'
+import { ImgNodeView } from '../_blocks/ImgNodeView'
 
 /**
  * 编辑器选项接口
@@ -56,6 +60,7 @@ export function useTipTapEditor({
   placeholder = '开始书写你的故事...',
 }: UseTipTapEditorOptions) {
   const [isMounted, setIsMounted] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   /**
    * 延迟挂载编辑器
@@ -67,6 +72,38 @@ export function useTipTapEditor({
     }, 50) // 50ms 延迟，让首屏先渲染
 
     return () => clearTimeout(timer)
+  }, [])
+
+  /**
+   * 处理图片上传并插入编辑器
+   *
+   * @param file - 图片文件
+   * @param editorInstance - 编辑器实例
+   */
+  const handleImageUpload = useCallback(async (file: File, editorInstance: Editor) => {
+    setIsUploading(true)
+    try {
+      const url = await uploadImage(file)
+      console.log('Uploaded image URL:', url)
+
+      // 使用 insertContent 插入图片节点，支持自定义属性
+      editorInstance.chain().focus().insertContent({
+        type: 'image',
+        attrs: {
+          src: url,
+          alt: file.name,
+          'data-align': 'center',
+        },
+      }).run()
+
+      toast.success('图片上传成功')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '图片上传失败'
+      toast.error(message)
+      console.error('Image upload error:', error)
+    } finally {
+      setIsUploading(false)
+    }
   }, [])
 
   /**
@@ -93,6 +130,47 @@ export function useTipTapEditor({
           },
           underline: undefined,
         }),
+        // 图片扩展 - 支持对齐属性和自定义 NodeView
+        Image.extend({
+          addNodeView() {
+            return ReactNodeViewRenderer(ImgNodeView)
+          },
+          addAttributes() {
+            return {
+              src: {
+                default: null,
+                parseHTML: element => element.getAttribute('src'),
+                renderHTML: attributes => ({
+                  src: attributes.src,
+                }),
+              },
+              alt: {
+                default: null,
+                parseHTML: element => element.getAttribute('alt'),
+                renderHTML: attributes => ({
+                  alt: attributes.alt,
+                }),
+              },
+              title: {
+                default: null,
+                parseHTML: element => element.getAttribute('title'),
+                renderHTML: attributes => ({
+                  title: attributes.title,
+                }),
+              },
+              'data-align': {
+                default: 'center',
+                parseHTML: element => element.getAttribute('data-align'),
+                renderHTML: attributes => ({
+                  'data-align': attributes['data-align'],
+                }),
+              },
+            }
+          },
+        }).configure({
+          inline: false,
+          allowBase64: false,
+        }),
         // 占位符扩展
         Placeholder.configure({
           placeholder,
@@ -108,9 +186,36 @@ export function useTipTapEditor({
         attributes: {
           class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] leading-relaxed',
         },
+        /**
+         * 处理粘贴事件 - 支持粘贴上传图片
+         */
+        handlePaste(view: unknown, event: ClipboardEvent) {
+          const imageFile = getImageFromPaste(event)
+          if (imageFile) {
+            event.preventDefault()
+            void handleImageUpload(imageFile, (view as { editor: Editor }).editor)
+            return true
+          }
+          return false
+        },
+        /**
+         * 处理拖拽事件 - 支持拖拽上传图片
+         */
+        handleDrop(view: unknown, event: DragEvent) {
+          const files = event.dataTransfer?.files
+          if (files && files.length > 0) {
+            const file = files[0]
+            if (file.type.startsWith('image/')) {
+              event.preventDefault()
+              void handleImageUpload(file, (view as { editor: Editor }).editor)
+              return true
+            }
+          }
+          return false
+        },
       },
     }),
-    [content, onChange, placeholder]
+    [content, onChange, placeholder, handleImageUpload]
   )
 
   // 创建编辑器实例
@@ -126,5 +231,5 @@ export function useTipTapEditor({
     }
   }, [editor, content])
 
-  return { editor, isMounted }
+  return { editor, isMounted, isUploading, handleImageUpload }
 }

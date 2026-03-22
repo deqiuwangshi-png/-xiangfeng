@@ -246,6 +246,50 @@ body {
   color: #3A3C6E;
 }
 
+/**
+ * 编辑器图片样式
+ * 支持对齐和悬浮效果
+ */
+.editor-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* 图片对齐样式 */
+.editor-image[data-align="left"] {
+  float: left;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+  max-width: 50%;
+}
+
+.editor-image[data-align="center"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.editor-image[data-align="right"] {
+  float: right;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  max-width: 50%;
+}
+
+/* 图片容器 - 用于悬浮工具栏定位 */
+.ProseMirror .editor-image {
+  position: relative;
+  display: inline-block;
+}
+
+/* 选中图片时的样式 */
+.ProseMirror .editor-image.ProseMirror-selectednode {
+  outline: 2px solid var(--color-xf-primary);
+  outline-offset: 4px;
+}
+
 /* 
  * 行内代码样式
  * 让用户能够直观识别已格式化的代码文本
