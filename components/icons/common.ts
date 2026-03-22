@@ -38,4 +38,8 @@ export {
   Image,
   File,
   Paperclip,
+
+
+  Users,
+  ThumbsUp,
 } from 'lucide-react'

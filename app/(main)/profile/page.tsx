@@ -18,7 +18,6 @@
  */
 
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { ProfileStats } from '@/components/profile/ProfileStats'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent } from '@/components/profile/ProfileContent'
 import { ProfileDomain } from '@/components/profile/ProfileDomain'
@@ -84,12 +83,9 @@ export default async function ProfilePage() {
 
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
-      <div className="max-w-6xl mx-auto fade-in-up">
-        {/* 个人资料头部 - 传递真实用户数据 */}
-        <ProfileHeader user={userData} />
-
-        {/* 数据统计 - 传递真实统计数据 */}
-        <ProfileStats stats={stats} />
+      <div className="max-w-4xl mx-auto fade-in-up">
+        {/* 个人资料头部 - 整合统计信息 */}
+        <ProfileHeader user={userData} stats={stats} />
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">
