@@ -15,7 +15,7 @@ import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { uploadImage, getImageFromPaste } from '@/lib/upload/img'
 import { toast } from 'sonner'
 import { ImgNodeView } from '../_blocks/ImgNodeView'
@@ -63,6 +63,12 @@ export function useTipTapEditor({
   const [isUploading, setIsUploading] = useState(false)
 
   /**
+   * 使用 ref 存储上传状态，避免闭包问题
+   */
+  const isUploadingRef = useRef(false)
+  isUploadingRef.current = isUploading
+
+  /**
    * 延迟挂载编辑器
    * 使用 setTimeout 延迟初始化，避免阻塞首屏渲染
    */
@@ -72,38 +78,6 @@ export function useTipTapEditor({
     }, 50) // 50ms 延迟，让首屏先渲染
 
     return () => clearTimeout(timer)
-  }, [])
-
-  /**
-   * 处理图片上传并插入编辑器
-   *
-   * @param file - 图片文件
-   * @param editorInstance - 编辑器实例
-   */
-  const handleImageUpload = useCallback(async (file: File, editorInstance: Editor) => {
-    setIsUploading(true)
-    try {
-      const url = await uploadImage(file)
-      console.log('Uploaded image URL:', url)
-
-      // 使用 insertContent 插入图片节点，支持自定义属性
-      editorInstance.chain().focus().insertContent({
-        type: 'image',
-        attrs: {
-          src: url,
-          alt: file.name,
-          'data-align': 'center',
-        },
-      }).run()
-
-      toast.success('图片上传成功')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '图片上传失败'
-      toast.error(message)
-      console.error('Image upload error:', error)
-    } finally {
-      setIsUploading(false)
-    }
   }, [])
 
   /**
@@ -189,11 +163,11 @@ export function useTipTapEditor({
         /**
          * 处理粘贴事件 - 支持粘贴上传图片
          */
-        handlePaste(view: unknown, event: ClipboardEvent) {
+        handlePaste(_view: unknown, event: ClipboardEvent) {
           const imageFile = getImageFromPaste(event)
           if (imageFile) {
             event.preventDefault()
-            void handleImageUpload(imageFile, (view as { editor: Editor }).editor)
+            void handleImageUploadRef.current(imageFile)
             return true
           }
           return false
@@ -201,13 +175,13 @@ export function useTipTapEditor({
         /**
          * 处理拖拽事件 - 支持拖拽上传图片
          */
-        handleDrop(view: unknown, event: DragEvent) {
+        handleDrop(_view: unknown, event: DragEvent) {
           const files = event.dataTransfer?.files
           if (files && files.length > 0) {
             const file = files[0]
             if (file.type.startsWith('image/')) {
               event.preventDefault()
-              void handleImageUpload(file, (view as { editor: Editor }).editor)
+              void handleImageUploadRef.current(file)
               return true
             }
           }
@@ -215,11 +189,65 @@ export function useTipTapEditor({
         },
       },
     }),
-    [content, onChange, placeholder, handleImageUpload]
+    [content, onChange, placeholder]
   )
 
   // 创建编辑器实例
   const editor = useEditor(editorConfig, [isMounted])
+
+  /**
+   * 处理图片上传并插入编辑器
+   * 使用 useRef 存储 editor 实例，避免闭包问题
+   */
+  const editorRef = useRef<Editor | null>(null)
+  editorRef.current = editor
+
+  /**
+   * 创建 handleImageUpload ref，用于在 editorConfig 中引用
+   * 实际函数在下方定义
+   */
+  const handleImageUploadRef = useRef<(file: File) => Promise<void>>(async () => {
+    // 占位函数，将在下面被覆盖
+  })
+
+  /**
+   * 处理图片上传
+   * 通过 ref 获取最新的 editor 实例，避免闭包陷阱
+   */
+  const handleImageUpload = useRef(async (file: File) => {
+    const currentEditor = editorRef.current
+    if (!currentEditor) {
+      toast.error('编辑器未就绪')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const url = await uploadImage(file)
+      console.log('Uploaded image URL:', url)
+
+      // 使用 insertContent 插入图片节点，支持自定义属性
+      currentEditor.chain().focus().insertContent({
+        type: 'image',
+        attrs: {
+          src: url,
+          alt: file.name,
+          'data-align': 'center',
+        },
+      }).run()
+
+      toast.success('图片上传成功')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '图片上传失败'
+      toast.error(message)
+      console.error('Image upload error:', error)
+    } finally {
+      setIsUploading(false)
+    }
+  }).current
+
+  // 将实际的 handleImageUpload 赋值给 ref
+  handleImageUploadRef.current = handleImageUpload
 
   /**
    * 同步外部内容变化

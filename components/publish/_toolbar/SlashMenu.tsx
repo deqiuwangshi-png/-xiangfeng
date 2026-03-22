@@ -43,6 +43,7 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [query, setQuery] = useState('')
+  const [showAbove, setShowAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   /**
@@ -169,6 +170,7 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
 
   /**
    * 显示菜单
+   * 自动检测屏幕边界，避免菜单被遮挡
    */
   const showMenu = useCallback(() => {
     if (!editor) return
@@ -176,9 +178,19 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
     const { from } = editor.state.selection
     const coords = editor.view.coordsAtPos(from)
 
+    // 菜单大概高度（估算）
+    const menuHeight = 320
+    // 屏幕底部边界
+    const viewportHeight = window.innerHeight
+    const spaceBelow = viewportHeight - coords.bottom
+
+    // 如果下方空间不足，菜单向上弹出
+    const shouldShowAbove = spaceBelow < menuHeight && coords.top > menuHeight
+    setShowAbove(shouldShowAbove)
+
     setPosition({
       x: coords.left,
-      y: coords.bottom + 8,
+      y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
     })
     setIsVisible(true)
     setSelectedIndex(0)
@@ -304,10 +316,13 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in zoom-in-95 duration-150"
+      className={`fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in duration-150 ${
+        showAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'
+      }`}
       style={{
         left: position.x,
-        top: position.y,
+        top: showAbove ? 'auto' : position.y,
+        bottom: showAbove ? window.innerHeight - position.y : 'auto',
         boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
       }}
     >

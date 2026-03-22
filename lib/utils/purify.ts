@@ -106,8 +106,9 @@ const RICH_TEXT_CONFIG = {
     'h4',
     'h5',
     'h6',
+    'img',
   ],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'title', 'data-align'],
   ALLOW_DATA_ATTR: false,
   // 强制所有链接在新标签页打开，并添加安全属性
   FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover'],
