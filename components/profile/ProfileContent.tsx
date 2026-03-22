@@ -66,41 +66,47 @@ export async function ProfileContent() {
 
   return (
     <div id="profile-content-section">
-      <div className="flex flex-col gap-12">
-        {articles.map((article) => (
+      <div className="bg-white border border-xf-bg/60 rounded-2xl overflow-hidden">
+        {articles.map((article, index) => (
           <article
             key={article.id}
-            className="group cursor-pointer"
+            className="group cursor-pointer hover:bg-xf-bg/30 transition-colors"
           >
-            <div className="flex flex-col gap-3">
-              {/* 标签 + 时间 */}
-              <div className="flex items-center gap-2 text-xs text-xf-medium">
-                <span className="text-xf-accent font-semibold"># 文章</span>
-                <span>•</span>
-                <span>发布于 {formatDistanceToNow(article.published_at || article.created_at)}</span>
+            {/* 列表项 - 横向布局 */}
+            <div className={`flex items-center gap-4 px-5 py-4 ${index !== articles.length - 1 ? 'border-b border-xf-bg/60' : ''}`}>
+              {/* 左侧：序号 */}
+              <span className="text-sm text-xf-medium/50 w-6 shrink-0">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+
+              {/* 中间：标题和元信息 */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-medium text-xf-dark group-hover:text-xf-accent transition-colors truncate">
+                  {article.title}
+                </h3>
+                <div className="flex items-center gap-3 mt-1 text-xs text-xf-medium">
+                  <span>{formatDistanceToNow(article.published_at || article.created_at)}</span>
+                  <span className="w-1 h-1 rounded-full bg-xf-medium/30" />
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp className="w-3 h-3" />
+                    0
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageIcon className="w-3 h-3" />
+                    0
+                  </span>
+                </div>
               </div>
 
-              {/* 文章标题 */}
-              <h3 className="text-2xl font-bold text-xf-dark group-hover:text-xf-accent transition-colors leading-tight">
-                {article.title}
-              </h3>
-
-              {/* 文章摘要 */}
-              <p className="text-xf-dark/70 leading-relaxed line-clamp-2 max-w-3xl">
-                {article.summary}
-              </p>
-
-              {/* 互动数据 */}
-              <div className="flex items-center gap-6 pt-2">
-                <span className="flex items-center gap-1.5 text-xf-medium hover:text-xf-dark text-sm transition">
-                  <ThumbsUp className="w-4 h-4" />
-                  0
-                </span>
-                <span className="flex items-center gap-1.5 text-xf-medium hover:text-xf-dark text-sm transition">
-                  <MessageIcon className="w-4 h-4" />
-                  0
-                </span>
-              </div>
+              {/* 右侧：箭头 */}
+              <svg
+                className="w-4 h-4 text-xf-medium/40 group-hover:text-xf-accent transition-colors shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
           </article>
         ))}
