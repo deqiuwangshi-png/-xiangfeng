@@ -1,6 +1,6 @@
 /**
  * 我的积分中心页面
- * @module app/(app)/rewards/my/page
+ * @module app/(main)/rewards/my/page
  * @description 显示用户的积分记录和兑换记录
  */
 

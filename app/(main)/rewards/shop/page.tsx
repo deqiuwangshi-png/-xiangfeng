@@ -1,6 +1,6 @@
 /**
  * 积分商城子页面
- * @module app/(app)/rewards/shop/page
+ * @module app/(main)/rewards/shop/page
  * @description 积分商城子页面，展示所有可兑换商品
  */
 
