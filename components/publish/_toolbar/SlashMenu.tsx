@@ -40,7 +40,7 @@ interface CommandItem {
  */
 export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [position, setPosition] = useState({ x: 0, y: 0, containerTop: 0, containerBottom: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [query, setQuery] = useState('')
   const [showAbove, setShowAbove] = useState(false)
@@ -188,24 +188,32 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
     const { from } = editor.state.selection
     const coords = editor.view.coordsAtPos(from)
 
-    // 菜单大概高度（估算）
-    const menuHeight = 320
-    // 屏幕底部边界
-    const viewportHeight = window.innerHeight
-    const spaceBelow = viewportHeight - coords.bottom
+    // 获取编辑器容器的边界
+    const editorContainer = editor.view.dom.closest('.editor-container, .prose, .publish-content') || document.body
+    const containerRect = editorContainer.getBoundingClientRect()
+
+    // 估算菜单高度（基于命令数量）
+    const commandCount = getCommands().length
+    const estimatedMenuHeight = Math.min(400, 40 + commandCount * 40) // 40px 标题 + 40px 每条命令
+
+    // 计算容器内的可用空间
+    const spaceBelow = containerRect.bottom - coords.bottom
+    const spaceAbove = coords.top - containerRect.top
 
     // 如果下方空间不足，菜单向上弹出
-    const shouldShowAbove = spaceBelow < menuHeight && coords.top > menuHeight
+    const shouldShowAbove = spaceBelow < estimatedMenuHeight && spaceAbove > estimatedMenuHeight
     setShowAbove(shouldShowAbove)
 
     setPosition({
       x: coords.left,
       y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
+      containerTop: containerRect.top,
+      containerBottom: containerRect.bottom,
     })
     setIsVisible(true)
     setSelectedIndex(0)
     setQuery('')
-  }, [editor])
+  }, [editor, getCommands])
 
   /**
    * 隐藏菜单
@@ -326,41 +334,72 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   if (!isVisible || commands.length === 0) return null
 
   return (
-    <div
-      ref={menuRef}
-      className={`fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in duration-150 ${
-        showAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'
-      }`}
-      style={{
-        left: position.x,
-        top: showAbove ? 'auto' : position.y,
-        bottom: showAbove ? window.innerHeight - position.y : 'auto',
-        boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
-      }}
-    >
-      <div className="px-3 py-1.5 text-xs text-xf-medium border-b border-xf-light/30 mb-1">
-        基本格式
+    <>
+      {/* 滚动条样式 */}
+      <style jsx>{`
+        /* WebKit 滚动条样式 */
+        .slash-menu::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .slash-menu::-webkit-scrollbar-track {
+          background: #f8fafc;
+          border-radius: 3px;
+        }
+        
+        .slash-menu::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 3px;
+        }
+        
+        .slash-menu::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
+        }
+      `}</style>
+      
+      <div
+        ref={menuRef}
+        className={`fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in duration-150 slash-menu ${
+          showAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'
+        }`}
+        style={{
+          left: position.x,
+          top: showAbove ? 'auto' : position.y,
+          bottom: showAbove ? position.containerBottom - position.y : 'auto',
+          maxHeight: showAbove 
+            ? position.y - position.containerTop - 16 
+            : position.containerBottom - position.y - 16,
+          overflowY: 'auto',
+          boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
+          // 优化滚动条样式
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#e2e8f0 #f8fafc',
+        }}
+      >
+        <div className="px-3 py-1.5 text-xs text-xf-medium border-b border-xf-light/30 mb-1">
+          基本格式
+        </div>
+        {commands.map((command, index) => {
+          const Icon = command.icon
+          return (
+            <button
+              key={command.id}
+              onClick={() => executeCommand(index)}
+              className={`w-full px-3 py-2 flex items-center gap-3 text-left transition-colors ${
+                index === selectedIndex
+                  ? 'bg-xf-primary/8 text-xf-dark'
+                  : 'text-xf-dark hover:bg-xf-bg'
+              }`}
+            >
+              <Icon className="w-4 h-4 text-xf-primary" />
+              <span className="flex-1 text-sm">{command.label}</span>
+              {command.shortcut && (
+                <span className="text-xs text-xf-medium">{command.shortcut}</span>
+              )}
+            </button>
+          )
+        })}
       </div>
-      {commands.map((command, index) => {
-        const Icon = command.icon
-        return (
-          <button
-            key={command.id}
-            onClick={() => executeCommand(index)}
-            className={`w-full px-3 py-2 flex items-center gap-3 text-left transition-colors ${
-              index === selectedIndex
-                ? 'bg-xf-primary/8 text-xf-dark'
-                : 'text-xf-dark hover:bg-xf-bg'
-            }`}
-          >
-            <Icon className="w-4 h-4 text-xf-primary" />
-            <span className="flex-1 text-sm">{command.label}</span>
-            {command.shortcut && (
-              <span className="text-xs text-xf-medium">{command.shortcut}</span>
-            )}
-          </button>
-        )
-      })}
-    </div>
+    </>
   )
 }

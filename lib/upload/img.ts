@@ -70,8 +70,13 @@ function validateImage(file: File): void {
 function generateUniqueFileName(originalName: string): string {
   const timestamp = Date.now()
   const random = Math.random().toString(36).substring(2, 8)
-  const extension = originalName.split('.').pop() || 'png'
-  return `${UPLOAD_CONFIG.folder}/${timestamp}-${random}.${extension}`
+  // 清理原始文件名，移除路径分隔符和其他特殊字符
+  const cleanName = originalName.replace(/[\/\\:\*\?"<>\|]/g, '')
+  // 安全地提取扩展名，确保不包含路径分隔符
+  const extension = cleanName.split('.').pop() || 'png'
+  // 限制扩展名长度，防止恶意扩展名
+  const safeExtension = extension.substring(0, 10).toLowerCase()
+  return `${UPLOAD_CONFIG.folder}/${timestamp}-${random}.${safeExtension}`
 }
 
 /**

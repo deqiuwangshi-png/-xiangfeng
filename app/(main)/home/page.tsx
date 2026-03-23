@@ -86,8 +86,8 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/* ✅ 使用 Suspense 延迟加载文章列表，优化LCP */}
-        <div className="flex flex-col gap-3">
+        {/* 使用 Suspense 延迟加载文章列表，优化LCP */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Suspense fallback={<ArticleCardSkeleton count={4} />}>
             <ArticleList />
           </Suspense>
