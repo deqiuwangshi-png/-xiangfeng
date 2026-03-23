@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 /**
@@ -81,9 +82,9 @@ export function ImgNodeView(props: NodeViewProps) {
       )}
 
       {/* 图片 - 编辑器场景使用原生 img 标签以支持动态 src */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         {...imgProps}
+        alt={alt || ''}
         className={`editor-image max-w-full h-auto rounded-lg shadow-sm transition-opacity duration-300 block ${
           selected ? 'ring-2 ring-xf-primary ring-offset-2' : ''
         } ${isLoading || loadError ? 'hidden' : 'block'}`}

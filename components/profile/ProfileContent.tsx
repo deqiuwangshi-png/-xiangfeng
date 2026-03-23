@@ -2,6 +2,8 @@
  * 我的内容区域组件 - 列表形式
  * @module components/profile/ProfileContent
  * @description 显示用户的文章列表，采用列表布局符合阅读美感
+ *
+ * @性能优化 P1: 添加骨架屏组件，支持 Suspense 流式传输
  */
 
 import { ThumbsUp, MessageSquare, FileText, Clock } from 'lucide-react'
@@ -16,6 +18,35 @@ interface Article {
   created_at: string
   likes_count?: number
   comments_count?: number
+}
+
+/**
+ * 文章列表骨架屏组件
+ * @性能优化 提供与真实列表相同的布局结构，优化LCP感知性能
+ */
+export function ProfileContentSkeleton() {
+  return (
+    <div className="divide-y divide-xf-bg/40">
+      {/* 生成5个骨架项 */}
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="py-5 space-y-3">
+          {/* 标题骨架 */}
+          <div className="h-5 w-3/4 bg-xf-bg rounded animate-pulse" />
+          {/* 摘要骨架 - 两行 */}
+          <div className="space-y-2">
+            <div className="h-4 w-full bg-xf-bg rounded animate-pulse" />
+            <div className="h-4 w-2/3 bg-xf-bg rounded animate-pulse" />
+          </div>
+          {/* 元信息骨架 */}
+          <div className="flex items-center gap-4">
+            <div className="h-3 w-16 bg-xf-bg rounded animate-pulse" />
+            <div className="h-3 w-12 bg-xf-bg rounded animate-pulse" />
+            <div className="h-3 w-12 bg-xf-bg rounded animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 /**

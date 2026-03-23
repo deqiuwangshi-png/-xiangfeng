@@ -304,8 +304,10 @@ export const updateAdvancedSettings = createSettingUpdater('advanced')
 /**
  * 获取用户统计数据（缓存版本）
  * @returns 用户统计数据
- * @性能优化 P1: 使用并行查询 + React cache，减少LCP时间
+ * @性能优化 P1: 使用 profiles 表缓存字段，单次查询获取所有统计
  * @缓存策略 同一请求内多次调用会复用缓存结果
+ * @说明 所有统计字段由数据库触发器自动维护
+ * @依赖 SQL: 20260323_add_profile_stats_cache.sql
  */
 export const getUserStats = cache(async (): Promise<{ success: boolean; data?: UserStats; error?: string }> => {
   try {
@@ -319,69 +321,29 @@ export const getUserStats = cache(async (): Promise<{ success: boolean; data?: U
     }
 
     /**
-     * 并行执行所有统计查询
-     * @性能优化 将4个串行查询改为并行，理论性能提升约4倍
+     * 使用 profiles 表缓存字段获取所有统计
+     * @性能优化 单次查询替代多次并行查询，减少数据库往返
+     * @说明 articles_count, followers_count, total_likes, nodes_count
+     *       均由数据库触发器自动维护
      */
-    const [
-      articlesResult,
-      followersResult,
-      likesResult,
-      nodesResult,
-    ] = await Promise.all([
-      // 获取文章数量
-      supabase
-        .from('articles')
-        .select('*', { count: 'exact', head: true })
-        .eq('author_id', user.id)
-        .eq('status', 'published'),
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('articles_count, followers_count, total_likes, nodes_count')
+      .eq('id', user.id)
+      .single()
 
-      // 获取关注者数量
-      supabase
-        .from('follows')
-        .select('*', { count: 'exact', head: true })
-        .eq('following_id', user.id),
-
-      // 获取获赞总数
-      supabase
-        .from('articles')
-        .select('like_count')
-        .eq('author_id', user.id)
-        .eq('status', 'published'),
-
-      // 获取节点数量（用户加入的社群/节点）
-      supabase
-        .from('user_nodes')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id),
-    ])
-
-    // 处理错误 - 使用JSON.stringify确保错误对象正确输出
-    if (articlesResult.error) {
-      console.error('获取文章数量失败:', JSON.stringify(articlesResult.error))
+    if (profileError) {
+      console.error('获取用户统计失败:', JSON.stringify(profileError))
+      return { success: false, error: '获取统计数据失败' }
     }
-    if (followersResult.error) {
-      console.error('获取关注者数量失败:', JSON.stringify(followersResult.error))
-    }
-    if (likesResult.error) {
-      console.error('获取获赞数失败:', JSON.stringify(likesResult.error))
-    }
-    if (nodesResult.error) {
-      console.error('获取节点数量失败:', JSON.stringify(nodesResult.error))
-    }
-
-    // 计算获赞总数
-    const totalLikes = likesResult.data?.reduce(
-      (sum, article) => sum + (article.like_count || 0),
-      0
-    ) || 0
 
     return {
       success: true,
       data: {
-        articles: articlesResult.count || 0,
-        followers: followersResult.count || 0,
-        likes: totalLikes,
-        nodes: nodesResult.count || 0,
+        articles: profile?.articles_count || 0,
+        followers: profile?.followers_count || 0,
+        likes: profile?.total_likes || 0,
+        nodes: profile?.nodes_count || 0,
       },
     }
   } catch (err) {
