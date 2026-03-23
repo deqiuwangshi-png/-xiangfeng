@@ -1,83 +1,51 @@
 /**
- * 标签页切换组件
+ * 标签页切换组件 - 极简风格
  * @module components/profile/ProfileTabs
- * @description 提供标签页切换功能，使用Context管理状态
+ * @description 提供极简风格的标签页切换
  */
 
 'use client'
 
 import { useProfileTabs, TabType } from './ProfileTabsContext'
 
-/**
- * 标签页接口
- *
- * @interface Tab
- * @property {TabType} id - 标签页唯一标识
- * @property {string} label - 标签页显示文本
- */
 interface Tab {
   id: TabType
   label: string
 }
 
-/**
- * 标签页配置
- *
- * @constant tabs
- * @description 定义个人主页标签页
- */
 const tabs: Tab[] = [
   { id: 'content', label: '我的内容' },
   { id: 'domain', label: '领域贡献' },
 ]
 
 /**
- * 标签页切换组件
- *
- * @function ProfileTabs
- * @returns {JSX.Element} 标签页切换组件
- *
+ * 标签页切换组件 - 极简风格
  * @description
- * 提供标签页切换功能，包括：
- * - 我的内容标签
- * - 领域贡献标签
- * - 使用Context管理状态
- * - 声明式UI，无DOM操作
- *
- * @state
- * - activeTab: 从Context获取当前激活的标签页ID
- *
- * @layout
- * - 使用 flex 布局
- * - 所有间距完全复制原型数值
+ * 改进点：
+ * - 采用极简设计，不抢夺内容视觉焦点
+ * - 使用文字颜色和下划线区分状态
+ * - 减少间距，让内容区更快露出
  */
 export function ProfileTabs() {
   const { activeTab, setActiveTab } = useProfileTabs()
 
-  /**
-   * 处理标签页切换
-   *
-   * @function handleTabClick
-   * @param {TabType} tabId - 标签页ID
-   * @returns {void}
-   *
-   * @description
-   * 通过Context更新当前激活的标签页状态
-   * 触发React重新渲染，条件显示对应内容区域
-   */
-  const handleTabClick = (tabId: TabType) => {
-    setActiveTab(tabId)
-  }
-
   return (
-    <div className="flex gap-2 sm:gap-4 mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-1">
+    <div className="flex gap-6 sm:gap-8 mb-4 border-b border-xf-bg/60">
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => handleTabClick(tab.id)}
-          className={`profile-tab whitespace-nowrap text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 ${activeTab === tab.id ? 'active' : ''}`}
+          onClick={() => setActiveTab(tab.id)}
+          className={`relative pb-3 text-sm font-medium transition-colors ${
+            activeTab === tab.id
+              ? 'text-xf-accent'
+              : 'text-xf-medium hover:text-xf-dark'
+          }`}
         >
           {tab.label}
+          {/* 激活状态指示器 - 细线下划线 */}
+          {activeTab === tab.id && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-xf-accent rounded-full" />
+          )}
         </button>
       ))}
     </div>

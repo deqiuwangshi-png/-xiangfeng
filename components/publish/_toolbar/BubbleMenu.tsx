@@ -46,6 +46,30 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
         return
       }
 
+      // 检查是否选中了图片节点，如果是则不显示 BubbleMenu
+      // 使用 isActive 更可靠地检测图片选中状态
+      if (editor.isActive('image')) {
+        setIsVisible(false)
+        return
+      }
+
+      // 额外检查：获取当前选区的节点类型
+      const { from, to } = editor.state.selection
+      const node = editor.state.doc.nodeAt(from)
+      if (node?.type.name === 'image') {
+        setIsVisible(false)
+        return
+      }
+
+      // 检查选区是否跨多个节点且包含图片
+      if (from !== to) {
+        const endNode = editor.state.doc.nodeAt(to - 1)
+        if (endNode?.type.name === 'image') {
+          setIsVisible(false)
+          return
+        }
+      }
+
       // 获取选区的 DOM 范围
       const view = editor.view
       const { ranges } = editor.state.selection

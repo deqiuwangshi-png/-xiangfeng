@@ -12,4 +12,7 @@ export {
   Star,
   Calendar,
   Link,
+  FileText,
+  Users,
+  ThumbsUp,
 } from 'lucide-react'

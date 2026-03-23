@@ -9,8 +9,6 @@
  *   在 app/(main)/publish/page.tsx 中导入此文件
  *   包含发布页面的所有样式
  *
- * 数据来源: docs/08原型文件设计图/发布.html
- *
  * 更新时间: 2026-03-22
  */
 
@@ -19,8 +17,13 @@
   padding-bottom: 6rem !important;
 }
 
-/* TipTap Placeholder 样式 - 确保占位符正确显示 */
-.tiptap .is-empty::before {
+/* ============================================
+ * TipTap Placeholder 样式 - 确保占位符正确显示
+ * ============================================ */
+
+/* 基础占位符样式 - 仅作用于编辑器根级别的空元素 */
+.tiptap > .is-empty::before,
+.tiptap > p.is-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   color: var(--color-xf-medium);
@@ -28,6 +31,39 @@
   height: 0;
   opacity: 0.5;
   font-style: italic;
+}
+
+/* ============================================
+ * 表格内占位符禁用 - 防止placeholder与表格重叠
+ * ============================================ */
+
+/* 表格容器内所有占位符强制禁用 */
+.tiptap table .is-empty::before,
+.tiptap table td .is-empty::before,
+.tiptap table th .is-empty::before,
+.tiptap td .is-empty::before,
+.tiptap th .is-empty::before,
+.tiptap td.is-empty::before,
+.tiptap th.is-empty::before,
+.tiptap tbody .is-empty::before,
+.tiptap thead .is-empty::before,
+.tiptap tr .is-empty::before,
+.tiptap table tbody .is-empty::before,
+.tiptap table thead .is-empty::before,
+.tiptap table tr .is-empty::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* 表格单元格内的段落不显示占位符 - 最高优先级 */
+.tiptap table td p.is-empty::before,
+.tiptap table th p.is-empty::before,
+.tiptap table td p.is-editor-empty::before,
+.tiptap table th p.is-editor-empty::before,
+.tiptap table td p.is-editor-empty:first-child::before,
+.tiptap table th p.is-editor-empty:first-child::before {
+  content: none !important;
+  display: none !important;
 }
 
 /* 编辑器内容区域样式优化 */
@@ -43,6 +79,49 @@
   height: 0;
   opacity: 0.5;
   font-style: italic;
+}
+
+/* 表格中的段落不显示占位符 - 强制禁用 */
+.tiptap table p.is-editor-empty:first-child::before,
+.tiptap table td p.is-editor-empty:first-child::before,
+.tiptap table th p.is-editor-empty:first-child::before,
+.tiptap td p.is-editor-empty:first-child::before,
+.tiptap th p.is-editor-empty:first-child::before,
+.tiptap td p.is-editor-empty::before,
+.tiptap th p.is-editor-empty::before,
+.tiptap tbody p.is-editor-empty:first-child::before,
+.tiptap thead p.is-editor-empty:first-child::before,
+.tiptap tr p.is-editor-empty:first-child::before,
+.tiptap table p.is-editor-empty::before,
+.tiptap tbody p.is-editor-empty::before,
+.tiptap thead p.is-editor-empty::before,
+.tiptap tr p.is-editor-empty::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* ============================================
+ * 表格内所有占位符全局禁用 - 终极防护
+ * ============================================ */
+
+/* 表格内所有伪元素内容强制清空 */
+.tiptap table *::before,
+.tiptap table *::after {
+  content: none !important;
+}
+
+/* 表格单元格基础样式 - 防止布局重叠 */
+.tiptap table td,
+.tiptap table th {
+  position: relative;
+  vertical-align: top;
+}
+
+/* 表格内段落基础样式 */
+.tiptap table td p,
+.tiptap table th p {
+  position: relative;
+  margin: 0;
 }
 
 /* 列表样式 - 与侧边线严格对齐 */
@@ -64,4 +143,115 @@
 
 .tiptap ol {
   list-style-position: outside;
+}
+
+/* ============================================
+ * 编辑器表格样式 - 最简配置
+ * ============================================ */
+
+/* 基础表格样式 - 3x3基础大小 */
+.tiptap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  table-layout: fixed; /* 固定列宽 */
+}
+
+/* 表头样式 */
+.tiptap thead {
+  background: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.tiptap th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  min-width: 80px;
+}
+
+/* 单元格样式 */
+.tiptap td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  min-width: 80px;
+  vertical-align: top;
+}
+
+/* 表格行悬停效果 */
+.tiptap tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* 选中单元格样式 */
+.tiptap .selectedCell {
+  background: #e5e7eb;
+}
+
+/* 简单表格专用样式 */
+.tiptap table.simple-table {
+  border: 1px solid #d1d5db;
+}
+
+.tiptap table.simple-table th,
+.tiptap table.simple-table td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+}
+
+/* 禁用调整大小光标 */
+.tiptap .resize-cursor {
+  cursor: default;
+}
+
+/* ============================================
+ * 拖拽排序样式
+ * ============================================ */
+
+/* 拖拽时的节点样式 */
+.tiptap .ProseMirror-dragging {
+  opacity: 0.5;
+}
+
+/* 拖拽手柄容器 */
+.tiptap [data-drag-handle] {
+  cursor: grab;
+}
+
+.tiptap [data-drag-handle]:active {
+  cursor: grabbing;
+}
+
+/* 拖拽时的视觉反馈 */
+.tiptap.dragging .ProseMirror-content {
+  user-select: none;
+}
+
+/* 节点悬停时的拖拽手柄显示 */
+.tiptap .node-view-wrapper:hover [data-drag-handle] {
+  opacity: 1;
+}
+
+/* 拖拽放置目标指示 */
+.tiptap .drop-target {
+  position: relative;
+}
+
+.tiptap .drop-target::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 4px;
+  background: var(--color-xf-primary);
+  border-radius: 2px;
+  pointer-events: none;
 }

@@ -13,11 +13,15 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus
+  List, ListOrdered, Minus, Image, Table
 } from '@/components/icons'
+import { selectImageFile, uploadImage } from '@/lib/upload/img'
+import { toast } from 'sonner'
 
 interface SlashMenuProps {
   editor: Editor | null
+  onUploadStart?: () => void
+  onUploadEnd?: () => void
 }
 
 interface CommandItem {
@@ -34,11 +38,12 @@ interface CommandItem {
  * @param props - 组件属性
  * @returns 命令菜单JSX
  */
-export function SlashMenu({ editor }: SlashMenuProps) {
+export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [query, setQuery] = useState('')
+  const [showAbove, setShowAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   /**
@@ -117,6 +122,50 @@ export function SlashMenu({ editor }: SlashMenuProps) {
         shortcut: '---',
         action: () => editor.chain().focus().setHorizontalRule().run(),
       },
+      {
+        id: 'image',
+        label: '图片',
+        icon: Image,
+        shortcut: '/img',
+        action: async () => {
+          const file = await selectImageFile()
+          if (!file || !editor) return
+
+          onUploadStart?.()
+          try {
+            const url = await uploadImage(file)
+            console.log('SlashMenu uploaded image URL:', url)
+
+            // 使用 insertContent 插入图片节点，支持自定义属性
+            editor.chain().focus().insertContent({
+              type: 'image',
+              attrs: {
+                src: url,
+                alt: file.name,
+                'data-align': 'center',
+              },
+            }).run()
+
+            toast.success('图片上传成功')
+          } catch (error) {
+            const message = error instanceof Error ? error.message : '图片上传失败'
+            toast.error(message)
+            console.error('SlashMenu image upload error:', error)
+          } finally {
+            onUploadEnd?.()
+          }
+        },
+      },
+      {
+        id: 'table',
+        label: '表格',
+        icon: Table,
+        shortcut: '/table',
+        action: () => {
+          // 创建 3×3 表格
+          editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()
+        },
+      },
     ]
 
     // 根据输入过滤命令
@@ -125,12 +174,13 @@ export function SlashMenu({ editor }: SlashMenuProps) {
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.id.toLowerCase().includes(query.toLowerCase())
     )
-  }, [editor, query])
+  }, [editor, query, onUploadStart, onUploadEnd])
 
   const commands = getCommands()
 
   /**
    * 显示菜单
+   * 自动检测屏幕边界，避免菜单被遮挡
    */
   const showMenu = useCallback(() => {
     if (!editor) return
@@ -138,9 +188,19 @@ export function SlashMenu({ editor }: SlashMenuProps) {
     const { from } = editor.state.selection
     const coords = editor.view.coordsAtPos(from)
 
+    // 菜单大概高度（估算）
+    const menuHeight = 320
+    // 屏幕底部边界
+    const viewportHeight = window.innerHeight
+    const spaceBelow = viewportHeight - coords.bottom
+
+    // 如果下方空间不足，菜单向上弹出
+    const shouldShowAbove = spaceBelow < menuHeight && coords.top > menuHeight
+    setShowAbove(shouldShowAbove)
+
     setPosition({
       x: coords.left,
-      y: coords.bottom + 8,
+      y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
     })
     setIsVisible(true)
     setSelectedIndex(0)
@@ -184,8 +244,10 @@ export function SlashMenu({ editor }: SlashMenuProps) {
           // 只在空段落或行首允许唤起
           const $pos = editor.state.doc.resolve(from)
           const isAtStart = $pos.parentOffset === 0
+          // 表格内不唤起菜单
+          const isInTable = editor.isActive('table')
 
-          if (empty && isAtStart) {
+          if (empty && isAtStart && !isInTable) {
             event.preventDefault()
             showMenu()
           }
@@ -266,10 +328,13 @@ export function SlashMenu({ editor }: SlashMenuProps) {
   return (
     <div
       ref={menuRef}
-      className="fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in zoom-in-95 duration-150"
+      className={`fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in duration-150 ${
+        showAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'
+      }`}
       style={{
         left: position.x,
-        top: position.y,
+        top: showAbove ? 'auto' : position.y,
+        bottom: showAbove ? window.innerHeight - position.y : 'auto',
         boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
       }}
     >

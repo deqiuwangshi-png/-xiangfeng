@@ -72,7 +72,7 @@ export function EditorCard({
       </div>
 
       {/* 内容编辑器 - TipTap */}
-      <div className={`relative py-0 overflow-hidden ${isFocusMode ? 'px-0' : ''} ${isFocusMode ? 'max-w-4xl mx-auto' : ''}`}>
+      <div className={`relative py-0 ${isFocusMode ? 'px-0' : ''} ${isFocusMode ? 'max-w-4xl mx-auto' : ''}`}>
         {/* 左侧装饰线 - 专注模式下隐藏，与文字严格对齐 */}
         {!isFocusMode && (
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 rounded opacity-40" />
@@ -81,7 +81,7 @@ export function EditorCard({
         {!isMounted ? (
           // SSR 占位，避免水合错误 - 与装饰线严格对齐
           <div
-            className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-gray-900 cursor-text overflow-hidden ${
+            className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-gray-900 cursor-text ${
               isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
             }`}
           >
@@ -90,7 +90,7 @@ export function EditorCard({
         ) : (
           <EditorContent
             editor={editor}
-            className={`text-lg leading-relaxed text-gray-900 py-4 min-h-[300px] sm:min-h-[400px] prose prose-lg max-w-none outline-none overflow-hidden ${
+            className={`text-lg leading-relaxed text-gray-900 py-4 min-h-[300px] sm:min-h-[400px] prose prose-lg max-w-none outline-none ${
               isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
             }`}
           />

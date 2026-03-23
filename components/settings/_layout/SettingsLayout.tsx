@@ -100,13 +100,13 @@ export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProp
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* 桌面端左侧导航 - 移动端使用汉堡菜单 */}
-          <div className="hidden lg:block lg:col-span-1">
+          <div className="hidden lg:block lg:col-span-3">
             <SettingsNav activeTab={activeTab} onTabChange={handleTabChange} />
           </div>
 
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-9 max-w-3xl">
             {activeTab === 'account' && <AccountSection userData={userData} />}
             {activeTab === 'privacy' && <PrivacySection />}
             {activeTab === 'notifications' && <NotificationsSection />}
