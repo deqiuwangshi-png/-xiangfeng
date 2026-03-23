@@ -108,13 +108,24 @@ export function useTipTapEditor({
           },
           underline: undefined,
         }),
-        // 表格扩展
+        // 表格扩展 - 最简配置，禁用复杂功能
         Table.configure({
-          resizable: true,
+          resizable: false, // 禁用列宽调整
+          HTMLAttributes: {
+            class: 'simple-table',
+          },
         }),
         TableRow,
-        TableHeader,
-        TableCell,
+        TableHeader.configure({
+          HTMLAttributes: {
+            class: 'simple-table-header',
+          },
+        }),
+        TableCell.configure({
+          HTMLAttributes: {
+            class: 'simple-table-cell',
+          },
+        }),
         // 图片扩展 - 支持对齐属性和自定义 NodeView
         Image.extend({
           addNodeView() {

@@ -244,8 +244,10 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
           // 只在空段落或行首允许唤起
           const $pos = editor.state.doc.resolve(from)
           const isAtStart = $pos.parentOffset === 0
+          // 表格内不唤起菜单
+          const isInTable = editor.isActive('table')
 
-          if (empty && isAtStart) {
+          if (empty && isAtStart && !isInTable) {
             event.preventDefault()
             showMenu()
           }

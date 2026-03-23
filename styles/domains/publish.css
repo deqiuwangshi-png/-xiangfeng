@@ -9,8 +9,6 @@
  *   在 app/(main)/publish/page.tsx 中导入此文件
  *   包含发布页面的所有样式
  *
- * 数据来源: docs/08原型文件设计图/发布.html
- *
  * 更新时间: 2026-03-22
  */
 
@@ -19,8 +17,13 @@
   padding-bottom: 6rem !important;
 }
 
-/* TipTap Placeholder 样式 - 确保占位符正确显示 */
-.tiptap .is-empty::before {
+/* ============================================
+ * TipTap Placeholder 样式 - 确保占位符正确显示
+ * ============================================ */
+
+/* 基础占位符样式 - 仅作用于编辑器根级别的空元素 */
+.tiptap > .is-empty::before,
+.tiptap > p.is-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   color: var(--color-xf-medium);
@@ -30,7 +33,11 @@
   font-style: italic;
 }
 
-/* 表格中的单元格不显示占位符 - 强制禁用 */
+/* ============================================
+ * 表格内占位符禁用 - 防止placeholder与表格重叠
+ * ============================================ */
+
+/* 表格容器内所有占位符强制禁用 */
 .tiptap table .is-empty::before,
 .tiptap table td .is-empty::before,
 .tiptap table th .is-empty::before,
@@ -40,7 +47,10 @@
 .tiptap th.is-empty::before,
 .tiptap tbody .is-empty::before,
 .tiptap thead .is-empty::before,
-.tiptap tr .is-empty::before {
+.tiptap tr .is-empty::before,
+.tiptap table tbody .is-empty::before,
+.tiptap table thead .is-empty::before,
+.tiptap table tr .is-empty::before {
   content: none !important;
   display: none !important;
 }
@@ -90,9 +100,28 @@
   display: none !important;
 }
 
-/* 表格内所有占位符全局禁用 */
-.tiptap table *::before {
+/* ============================================
+ * 表格内所有占位符全局禁用 - 终极防护
+ * ============================================ */
+
+/* 表格内所有伪元素内容强制清空 */
+.tiptap table *::before,
+.tiptap table *::after {
   content: none !important;
+}
+
+/* 表格单元格基础样式 - 防止布局重叠 */
+.tiptap table td,
+.tiptap table th {
+  position: relative;
+  vertical-align: top;
+}
+
+/* 表格内段落基础样式 */
+.tiptap table td p,
+.tiptap table th p {
+  position: relative;
+  margin: 0;
 }
 
 /* 列表样式 - 与侧边线严格对齐 */
@@ -116,47 +145,68 @@
   list-style-position: outside;
 }
 
-/* ====== 编辑器表格样式 - 清晰线框 ====== */
+/* ============================================
+ * 编辑器表格样式 - 最简配置
+ * ============================================ */
+
+/* 基础表格样式 - 3x3基础大小 */
 .tiptap table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   font-size: 0.95rem;
   background: white;
-  border: 1px solid #9ca3af;
+  border: 1px solid #d1d5db;
+  table-layout: fixed; /* 固定列宽 */
 }
 
+/* 表头样式 */
 .tiptap thead {
   background: #f3f4f6;
-  border-bottom: 1px solid #9ca3af;
+  border-bottom: 1px solid #d1d5db;
 }
 
 .tiptap th {
-  padding: 0.625rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: #1f2937;
+  color: #374151;
   border: 1px solid #d1d5db;
   background: #f3f4f6;
+  min-width: 80px;
 }
 
+/* 单元格样式 */
 .tiptap td {
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   color: #374151;
-  min-width: 100px;
+  min-width: 80px;
+  vertical-align: top;
 }
 
-.tiptap tbody tr:nth-child(even) {
-  background: #fafafa;
+/* 表格行悬停效果 */
+.tiptap tbody tr:hover {
+  background: #f9fafb;
 }
 
-/* 表格选中状态 */
+/* 选中单元格样式 */
 .tiptap .selectedCell {
   background: #e5e7eb;
 }
 
-/* 表格调整大小手柄 */
+/* 简单表格专用样式 */
+.tiptap table.simple-table {
+  border: 1px solid #d1d5db;
+}
+
+.tiptap table.simple-table th,
+.tiptap table.simple-table td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem;
+}
+
+/* 禁用调整大小光标 */
 .tiptap .resize-cursor {
-  cursor: col-resize;
+  cursor: default;
 }
