@@ -14,6 +14,8 @@ export const COMMON_ERRORS = {
   UNKNOWN_ERROR: '操作失败，请稍后重试',
   /** 请求过于频繁 */
   TOO_MANY_REQUESTS: '请求过于频繁，请稍后再试',
+  /** 服务器错误 */
+  SERVER_ERROR: '服务器响应异常，请检查网络连接或稍后重试',
 } as const;
 
 /**
@@ -130,6 +132,11 @@ export function mapSupabaseError(
   // 通用错误
   if (errorMessage.includes('Too many requests')) {
     return COMMON_ERRORS.TOO_MANY_REQUESTS;
+  }
+
+  // 服务器响应错误 - 通常是网络或配置问题
+  if (errorMessage.includes('unexpected') || errorMessage.includes('Unexpected')) {
+    return COMMON_ERRORS.SERVER_ERROR;
   }
 
   return COMMON_ERRORS.UNKNOWN_ERROR;
