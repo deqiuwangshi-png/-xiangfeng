@@ -32,11 +32,6 @@ interface TitleInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElemen
  *
  * @description
  * 提供文章标题输入功能，采用瑞士设计风格：
- * - 多行标题输入（textarea）
- * - 自动高度调整，自然撑开无固定高度
- * - 动态字数提示（超过80字时显示）
- * - 零边框设计：无outline、无border、无ring
- * - 无焦点反馈：仅通过光标指示焦点状态
  *
  * @props
  * - value: 标题值

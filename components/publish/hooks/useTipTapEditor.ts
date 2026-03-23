@@ -19,10 +19,15 @@ import { Table } from '@tiptap/extension-table'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableRow } from '@tiptap/extension-table-row'
+import Paragraph from '@tiptap/extension-paragraph'
+import type { EditorView } from '@tiptap/pm/view'
+import type { Slice } from '@tiptap/pm/model'
+import { TextSelection } from '@tiptap/pm/state'
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { uploadImage, getImageFromPaste } from '@/lib/upload/img'
 import { toast } from 'sonner'
 import { ImgNodeView } from '../_blocks/ImgNodeView'
+import { ParaNodeView } from '../_blocks/ParaNodeView'
 
 /**
  * 编辑器选项接口
@@ -96,8 +101,10 @@ export function useTipTapEditor({
     () => ({
       extensions: [
         // StarterKit 内置功能：bold, italic, code, list, undo/redo, link, underline 等
+        // 段落使用自定义 NodeView 支持拖拽
         StarterKit.configure({
           // 显式启用工具栏所需功能（undefined 表示使用默认配置）
+          paragraph: false, // 禁用默认段落，使用自定义 NodeView
           heading: undefined,
           blockquote: undefined,
           horizontalRule: undefined,
@@ -107,6 +114,12 @@ export function useTipTapEditor({
             linkOnPaste: true,
           },
           underline: undefined,
+        }),
+        // 自定义段落扩展 - 支持拖拽排序
+        Paragraph.extend({
+          addNodeView() {
+            return ReactNodeViewRenderer(ParaNodeView)
+          },
         }),
         // 表格扩展 - 最简配置，禁用复杂功能
         Table.configure({
@@ -199,9 +212,11 @@ export function useTipTapEditor({
           return false
         },
         /**
-         * 处理拖拽事件 - 支持拖拽上传图片
+         * 处理拖拽事件 - 支持拖拽上传图片和节点排序
+         * 简化逻辑：每一行是一个独立区块，只交换上下位置
          */
-        handleDrop(_view: unknown, event: DragEvent) {
+        handleDrop(view: EditorView, event: DragEvent, _slice: Slice, moved: boolean) {
+          // 处理文件拖拽上传
           const files = event.dataTransfer?.files
           if (files && files.length > 0) {
             const file = files[0]
@@ -211,6 +226,70 @@ export function useTipTapEditor({
               return true
             }
           }
+
+          // 处理节点拖拽排序（行级交换）
+          const dragPos = event.dataTransfer?.getData('application/x-prosemirror-node')
+          if (dragPos && !moved) {
+            const from = Number(dragPos)
+            const { state } = view
+
+            // 验证位置有效性
+            if (from < 0 || from >= state.doc.content.size) {
+              return false
+            }
+
+            // 获取拖拽的段落节点
+            const $from = state.doc.resolve(from)
+            const fromStart = $from.before($from.depth)
+            const fromEnd = $from.after($from.depth)
+            const draggedNode = state.doc.nodeAt(fromStart)
+
+            if (!draggedNode || draggedNode.type.name !== 'paragraph') {
+              return false
+            }
+
+            // 获取放置位置（找到最近的段落边界）
+            const coordinates = view.posAtCoords({
+              left: event.clientX,
+              top: event.clientY,
+            })
+
+            if (!coordinates) {
+              return false
+            }
+
+            const $to = state.doc.resolve(coordinates.pos)
+            let toStart = $to.before($to.depth)
+
+            // 确保放置位置与起始位置不同
+            if (toStart === fromStart) {
+              return false
+            }
+
+            // 调整放置位置（如果向后移动，需要考虑删除后的位置变化）
+            if (toStart > fromStart) {
+              toStart -= draggedNode.nodeSize
+            }
+
+            // 确保位置有效
+            toStart = Math.max(0, Math.min(toStart, state.doc.content.size - draggedNode.nodeSize))
+
+            event.preventDefault()
+
+            // 创建事务：交换两个段落的位置
+            const tr = state.tr
+
+            // 删除原段落
+            tr.delete(fromStart, fromEnd)
+            // 在新位置插入段落
+            tr.insert(toStart, draggedNode)
+            // 设置选区到新位置
+            tr.setSelection(TextSelection.create(tr.doc, toStart + 1))
+
+            view.dispatch(tr)
+            return true
+          }
+
           return false
         },
       },

@@ -115,7 +115,7 @@ export const useEditorActions = (
         })
         await updateArticleStatus(editorState.draftId, 'published')
         articleId = editorState.draftId
-        toast.success('草稿发布成功')
+        toast.success('文章发布成功')
       } else {
         // 无草稿ID，创建新文章
         const article = await createArticle({

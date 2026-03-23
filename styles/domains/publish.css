@@ -210,3 +210,48 @@
 .tiptap .resize-cursor {
   cursor: default;
 }
+
+/* ============================================
+ * 拖拽排序样式
+ * ============================================ */
+
+/* 拖拽时的节点样式 */
+.tiptap .ProseMirror-dragging {
+  opacity: 0.5;
+}
+
+/* 拖拽手柄容器 */
+.tiptap [data-drag-handle] {
+  cursor: grab;
+}
+
+.tiptap [data-drag-handle]:active {
+  cursor: grabbing;
+}
+
+/* 拖拽时的视觉反馈 */
+.tiptap.dragging .ProseMirror-content {
+  user-select: none;
+}
+
+/* 节点悬停时的拖拽手柄显示 */
+.tiptap .node-view-wrapper:hover [data-drag-handle] {
+  opacity: 1;
+}
+
+/* 拖拽放置目标指示 */
+.tiptap .drop-target {
+  position: relative;
+}
+
+.tiptap .drop-target::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 4px;
+  background: var(--color-xf-primary);
+  border-radius: 2px;
+  pointer-events: none;
+}
