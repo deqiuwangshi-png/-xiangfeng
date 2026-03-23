@@ -13,7 +13,7 @@
  * - 图片加载错误处理
  */
 
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { NodeViewWrapper, NodeViewProps } from '@tiptap/react'
 import { Trash2, ImageOff } from '@/components/icons'
 
@@ -28,6 +28,21 @@ export function ImgNodeView(props: NodeViewProps) {
   const { src, alt, title } = node.attrs
   const [loadError, setLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  // 缓存事件处理函数
+  const handleLoad = useCallback(() => setIsLoading(false), [])
+  const handleError = useCallback(() => {
+    setIsLoading(false)
+    setLoadError(true)
+    console.error('Image failed to load:', src)
+  }, [src])
+
+  // 缓存图片属性
+  const imgProps = useMemo(() => ({
+    src,
+    alt: alt || '',
+    title: title || '',
+  }), [src, alt, title])
 
   return (
     <NodeViewWrapper className="relative group my-4 clear-both">
@@ -68,18 +83,12 @@ export function ImgNodeView(props: NodeViewProps) {
       {/* 图片 - 编辑器场景使用原生 img 标签以支持动态 src */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={src}
-        alt={alt || ''}
-        title={title || ''}
+        {...imgProps}
         className={`editor-image max-w-full h-auto rounded-lg shadow-sm transition-opacity duration-300 block ${
           selected ? 'ring-2 ring-xf-primary ring-offset-2' : ''
         } ${isLoading || loadError ? 'hidden' : 'block'}`}
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
-          setIsLoading(false)
-          setLoadError(true)
-          console.error('Image failed to load:', src)
-        }}
+        onLoad={handleLoad}
+        onError={handleError}
       />
     </NodeViewWrapper>
   )
