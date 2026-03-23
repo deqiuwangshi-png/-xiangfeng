@@ -2,11 +2,11 @@ import { Sidebar } from '@/components/ui/Sidebar'
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { redirect } from 'next/navigation'
-import '@/styles/domains/app.css'
-import '@/styles/domains/user.css'
-import '@/styles/domains/feedback.css'
-import '@/styles/domains/inbox.css'
-import '@/styles/domains/publish.css'
+import '@/styles/app.css'
+import '@/styles/user.css'
+import '@/styles/feedback.css'
+import '@/styles/inbox.css'
+import '@/styles/publish.css'
 
 /**
  * Main布局 - 应用主布局（共享）
@@ -14,11 +14,6 @@ import '@/styles/domains/publish.css'
  * @description 合并原(app)和(user)的共享布局
  * 包括首页、发布、草稿、个人资料、设置等所有需要侧边栏的页面
  * 使用getCurrentUserWithProfile()获取包含profiles表数据的用户信息
- *
- * 性能优化：
- * - 只调用一次getCurrentUserWithProfile()，避免重复查询
- * - 从profile构建user对象，减少数据库往返
- * - 所有子路由共享此布局，路由切换时不会重新查询用户数据
  */
 export default async function MainLayout({
   children,
