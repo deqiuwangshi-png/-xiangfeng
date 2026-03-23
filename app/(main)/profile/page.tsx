@@ -13,6 +13,7 @@
  *   - 使用 ProfileTabsProvider 管理标签页状态
  *   - 复用 Sidebar 组件保持一致性
  *   - 从 profiles 表获取数据，与设置页面保持一致
+ *   - 使用并行数据获取优化LCP性能
  *
  * 更新时间: 2026-03-16
  */
@@ -64,19 +65,19 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  // 从 profiles 表获取用户资料（与设置页面保持一致）
+  // 并行获取用户资料和统计数据，优化LCP
   const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const [profileResult, statsResult] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    getUserStats()
+  ])
+
+  const profile = profileResult.data
 
   // 构造用户显示信息（与 Sidebar 一致），优先使用 profile 数据
   const userData = getUserDisplayInfo(user, profile)
 
   // 获取用户统计数据
-  const statsResult = await getUserStats()
   const stats = statsResult.success && statsResult.data
     ? statsResult.data
     : { articles: 0, followers: 0, likes: 0, nodes: 0 }

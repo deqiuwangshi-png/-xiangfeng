@@ -7,35 +7,21 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvatar } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
+import type { SimpleUser, SimpleUserProfile } from '@/types'
 
 /**
- * 简化用户对象接口
- * @interface SimpleUser
- */
-interface SimpleUser {
-  id: string
-  email: string
-  user_metadata?: {
-    username?: string
-    avatar_url?: string
-  }
-}
-
-/**
- * UserProfileSection Props 接口
+ * 用户资料区域组件属性接口
  * @interface UserProfileSectionProps
  */
 interface UserProfileSectionProps {
   /** 当前用户（支持SupabaseUser或简化用户对象） */
   user?: SupabaseUser | SimpleUser | null
   /** 用户资料（从profiles表获取，优先级高于user.user_metadata） */
-  profile?: {
-    username?: string
-    avatar_url?: string
-  } | null
+  profile?: SimpleUserProfile | null
   /** 额外的CSS类名 */
   className?: string
 }
@@ -45,12 +31,13 @@ interface UserProfileSectionProps {
  * @function UserProfileSection
  * @param {UserProfileSectionProps} props - 组件属性
  * @returns {JSX.Element} 用户资料区域
- * 
+ *
  * @example
  * <UserProfileSection user={currentUser} />
  */
 export function UserProfileSection({ user, profile, className = '' }: UserProfileSectionProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const router = useRouter()
 
   /**
    * 切换下拉菜单
@@ -67,6 +54,14 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   }, [])
 
   /**
+   * 预加载个人主页路由
+   * @description 在用户头像区域悬停时预加载个人主页，优化LCP性能
+   */
+  const handleMouseEnter = useCallback(() => {
+    router.prefetch('/profile')
+  }, [router])
+
+  /**
    * 获取用户显示信息
    * 头像URL优先级：profile.avatar_url > user_metadata.avatar_url
    * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
@@ -79,7 +74,10 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   return (
     <div className={`relative ${className}`}>
       {/* 用户信息区域 */}
-      <div className="flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3">
+      <div
+        className="flex justify-center xl:justify-start items-center xl:items-start gap-4 xl:gap-3"
+        onMouseEnter={handleMouseEnter}
+      >
         <button
           id="user-avatar-button"
           onClick={toggleDropdown}

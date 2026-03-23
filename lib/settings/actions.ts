@@ -15,6 +15,7 @@ import {
   UpdateSettingResult,
   SettingCategory,
 } from '@/types/settings'
+import type { UserStats } from '@/types'
 
 /**
  * 设置更新数据验证模式
@@ -296,15 +297,8 @@ export const updateContentSettings = createSettingUpdater('content')
  */
 export const updateAdvancedSettings = createSettingUpdater('advanced')
 
-/**
- * 用户统计数据接口
- */
-export interface UserStats {
-  articles: number
-  followers: number
-  likes: number
-  nodes: number
-}
+// UserStats 类型从 @/types 导入，保持类型统一
+// 如需修改，请更新 types/user.ts 文件
 
 /**
  * 获取用户统计数据

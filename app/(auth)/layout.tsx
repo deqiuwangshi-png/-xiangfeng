@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import '@/styles/domains/auth.css';
+import '@/styles/auth.css';
 
 export const metadata: Metadata = {
   title: '登录注册 | 相逢',

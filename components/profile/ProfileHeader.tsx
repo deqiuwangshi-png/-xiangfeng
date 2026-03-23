@@ -10,8 +10,7 @@
 import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp } from '@/components/icons'
 import { useState } from 'react'
 import { UserAvatar } from '@/components/ui'
-import type { UserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
-import type { UserStats } from '@/lib/settings/actions'
+import type { UserDisplayInfo, UserStats } from '@/types'
 
 interface ProfileHeaderProps {
   user: UserDisplayInfo

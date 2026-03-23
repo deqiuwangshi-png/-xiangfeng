@@ -1,4 +1,4 @@
-import '@/styles/domains/article.css';
+import '@/styles/article.css';
 
 export default function ContentLayout({
   children,

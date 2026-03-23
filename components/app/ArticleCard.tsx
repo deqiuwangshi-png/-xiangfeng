@@ -36,8 +36,6 @@ function formatTime(dateString: string | null | undefined): string {
 
 /**
  * 文章卡片组件 - 服务端组件
- * ✅ 服务端渲染，SEO友好
- * ✅ 减少客户端JavaScript
  */
 export function ArticleCard({
   id,

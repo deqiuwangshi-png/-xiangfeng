@@ -195,6 +195,20 @@ export type {
 } from './loginHistory';
 
 // ============================================
+// 用户模块
+// ============================================
+export type {
+  SimpleUser,
+  UserProfile,
+  SimpleUserProfile,
+  UserProfileSectionProps,
+  UserDropdownMenuProps,
+  DropdownItem,
+  UserDisplayInfo,
+  UserStats,
+} from './user';
+
+// ============================================
 // Supabase 数据库类型
 // ============================================
 export type { Json, Database } from './supabase';

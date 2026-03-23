@@ -2,7 +2,7 @@
 import { Twitter, Github, Mail, Sparkles, Code2 } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import '@/styles/domains/about.css'
+import '@/styles/about.css'
 
 export const metadata: Metadata = {
   title: '关于 · 相逢 | 独立开发者独白',
