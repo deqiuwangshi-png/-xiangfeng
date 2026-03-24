@@ -7,14 +7,13 @@
  */
 
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getClientIp } from '@/lib/security/rateLimitServer';
 
 /**
  * OAuth 提供商类型
+ * 仅支持Supabase原生支持的Provider
  */
-export type OAuthProvider = 'github' | 'google' | 'wechat' | 'qq';
+export type OAuthProvider = 'github' | 'google';
 
 /**
  * 支持的 OAuth 提供商配置
@@ -22,8 +21,6 @@ export type OAuthProvider = 'github' | 'google' | 'wechat' | 'qq';
 const PROVIDER_CONFIG: Record<OAuthProvider, { name: string; enabled: boolean }> = {
   github: { name: 'GitHub', enabled: true },
   google: { name: 'Google', enabled: false },
-  wechat: { name: '微信', enabled: false },
-  qq: { name: 'QQ', enabled: false },
 };
 
 /**
@@ -68,7 +65,7 @@ export async function oauthLogin(
     const origin = headersList.get('origin') || 'http://localhost:3000';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: provider === 'github' ? 'github' : provider,
+      provider,
       options: {
         redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
       },

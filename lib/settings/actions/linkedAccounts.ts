@@ -17,6 +17,7 @@ import type {
 
 /**
  * 支持的OAuth提供商配置
+ * 仅支持Supabase原生支持的Provider
  */
 const PROVIDER_CONFIG: Record<
   OAuthProvider,
@@ -24,8 +25,6 @@ const PROVIDER_CONFIG: Record<
 > = {
   github: { name: 'GitHub', enabled: true, supabaseProvider: 'github' },
   google: { name: 'Google', enabled: false, supabaseProvider: 'google' },
-  wechat: { name: '微信', enabled: false, supabaseProvider: 'wechat' },
-  qq: { name: 'QQ', enabled: false, supabaseProvider: 'qq' },
 }
 
 /**
