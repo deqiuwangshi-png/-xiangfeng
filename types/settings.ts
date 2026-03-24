@@ -156,6 +156,65 @@ export interface LinkedAccountItem {
 }
 
 /**
+ * OAuth提供商类型
+ */
+export type OAuthProvider = 'github' | 'google' | 'wechat' | 'qq'
+
+/**
+ * 第三方账号信息（来自数据库）
+ */
+export interface UserIdentity {
+  /** 记录ID */
+  id: string
+  /** 用户ID */
+  user_id: string
+  /** 提供商 */
+  provider: OAuthProvider
+  /** 第三方平台用户ID */
+  provider_user_id: string
+  /** 关联邮箱 */
+  email?: string
+  /** 显示名称 */
+  display_name?: string
+  /** 头像URL */
+  avatar_url?: string
+  /** 是否为主要登录方式 */
+  is_primary: boolean
+  /** 状态 */
+  status: 'active' | 'revoked' | 'expired'
+  /** 最后使用时间 */
+  last_used_at?: string
+  /** 创建时间 */
+  created_at: string
+}
+
+/**
+ * 获取关联账号列表结果
+ */
+export interface GetLinkedAccountsResult {
+  /** 是否成功 */
+  success: boolean
+  /** 账号列表 */
+  accounts?: LinkedAccountItem[]
+  /** 错误信息 */
+  error?: string
+}
+
+/**
+ * 绑定/解绑账号结果
+ */
+export interface LinkAccountResult {
+  /** 是否成功 */
+  success: boolean
+  /** 授权URL（绑定流程需要跳转） */
+  url?: string
+  /** 成功消息 */
+  message?: string
+  /** 错误信息 */
+  error?: string
+}
+
+/**
  * 支持的语言选项
  */
 export interface LanguageOption {

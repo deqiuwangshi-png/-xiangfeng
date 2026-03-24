@@ -35,6 +35,7 @@ export function AccountList({
   onEditProfile,
   onSecurity,
   onChangeEmail,
+  onLinkedAccounts,
 }: AccountListProps) {
   return (
     <SettingsSection id="settings-account-section" title="账户设置">
@@ -81,7 +82,6 @@ export function AccountList({
           }
         />
 
-        {/* TODO: 关联账号功能待开发中
         <SettingItem
           label="关联账号"
           description="管理你的社交媒体关联"
@@ -92,20 +92,6 @@ export function AccountList({
               className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
             >
               管理关联账号
-            </button>
-          }
-        />
-        */}
-        <SettingItem
-          label="关联账号"
-          description="功能开发中，敬请期待"
-          controlType="button"
-          control={
-            <button
-              disabled
-              className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-400 rounded-xl font-medium cursor-not-allowed"
-            >
-              即将上线
             </button>
           }
         />
