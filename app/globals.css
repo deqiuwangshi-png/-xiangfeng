@@ -333,12 +333,21 @@ body {
 
 /*
  * 标题样式 H1-H6
+ * 统一 margin-top 为 0，避免标题切换时出现位置偏移
  */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
 .prose h1 {
   font-size: 2em;
   font-weight: 700;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
   color: #25263D;
   line-height: 1.3;
 }
@@ -346,8 +355,6 @@ body {
 .prose h2 {
   font-size: 1.75em;
   font-weight: 600;
-  margin-top: 1.4em;
-  margin-bottom: 0.5em;
   color: #25263D;
   line-height: 1.35;
 }
@@ -355,8 +362,6 @@ body {
 .prose h3 {
   font-size: 1.5em;
   font-weight: 600;
-  margin-top: 1.3em;
-  margin-bottom: 0.5em;
   color: #3A3C6E;
   line-height: 1.4;
 }
@@ -364,8 +369,6 @@ body {
 .prose h4 {
   font-size: 1.25em;
   font-weight: 600;
-  margin-top: 1.2em;
-  margin-bottom: 0.5em;
   color: #3A3C6E;
   line-height: 1.4;
 }
@@ -373,8 +376,6 @@ body {
 .prose h5 {
   font-size: 1.1em;
   font-weight: 600;
-  margin-top: 1.1em;
-  margin-bottom: 0.5em;
   color: #4a4b5c;
   line-height: 1.45;
 }
@@ -382,10 +383,20 @@ body {
 .prose h6 {
   font-size: 1em;
   font-weight: 600;
-  margin-top: 1em;
-  margin-bottom: 0.5em;
   color: #6A5B8A;
   line-height: 1.5;
+}
+/* 文件末尾添加 */
+.prose > :first-child:is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0;
+}
+/* 空编辑器占位符样式 - 不受标题样式影响 */
+.prose .is-editor-empty {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  font-weight: normal !important;
+  color: #999 !important;
+  line-height: 1.5 !important;
 }
 
 /*

@@ -13,9 +13,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Quote, Code,
-  List, ListOrdered, Eraser
+  List, ListOrdered, Eraser, Heading1, Heading2,
+  Heading3
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
+import { Heading4, Heading5 } from 'lucide-react'
 
 interface BubbleMenuProps {
   editor: Editor | null
@@ -144,6 +146,21 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
   }
 
   /**
+   * 切换标题级别
+   *
+   * @param level - 标题级别 1-5
+   */
+  const handleToggleHeading = (level: 1 | 2 | 3 | 4 | 5) => {
+    if (!editor) return
+    // 如果当前已经是该级别标题，则转换为普通段落
+    if (editor.isActive('heading', { level })) {
+      editor.chain().focus().setParagraph().run()
+    } else {
+      editor.chain().focus().toggleHeading({ level }).run()
+    }
+  }
+
+  /**
    * 插入列表
    *
    * @param type - 列表类型
@@ -218,6 +235,51 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
         onClick={() => handleFormatText('underline')}
         title="下划线"
         isActive={editor.isActive('underline')}
+        size="sm"
+      />
+
+      {/* 分隔线 */}
+      <div className="w-px h-5 bg-xf-light/80 mx-1" />
+
+      {/* 标题级别 */}
+      <ToolbarButton
+        icon={Heading1}
+        tooltip="标题1"
+        onClick={() => handleToggleHeading(1)}
+        title="H1"
+        isActive={editor.isActive('heading', { level: 1 })}
+        size="sm"
+      />
+      <ToolbarButton
+        icon={Heading2}
+        tooltip="标题2"
+        onClick={() => handleToggleHeading(2)}
+        title="H2"
+        isActive={editor.isActive('heading', { level: 2 })}
+        size="sm"
+      />
+         <ToolbarButton
+        icon={Heading3}
+        tooltip="标题3"
+        onClick={() => handleToggleHeading(3)}
+        title="H3"
+        isActive={editor.isActive('heading', { level: 3 })}
+        size="sm"
+      />
+      <ToolbarButton
+        icon={Heading4}
+        tooltip="标题4"
+        onClick={() => handleToggleHeading(4)}
+        title="H4"
+        isActive={editor.isActive('heading', { level: 4 })}
+        size="sm"
+      />
+      <ToolbarButton
+        icon={Heading5}
+        tooltip="标题5"
+        onClick={() => handleToggleHeading(5)}
+        title="H5"
+        isActive={editor.isActive('heading', { level: 5 })}
         size="sm"
       />
 

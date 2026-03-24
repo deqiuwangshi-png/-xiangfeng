@@ -252,7 +252,7 @@ export function DraftCard({
       className={`
         draft-card group bg-white border border-gray-200 rounded-2xl p-5
         transition-all duration-300 ease-out cursor-pointer relative
-        hover:border-gray-300 hover:shadow-lg hover:-translate-y-0.5
+        hover:border-gray-300 hover:-translate-y-0.5
         ${selected ? 'border-gray-400 bg-gray-50' : ''}
       `}
       onClick={handleCardClick}

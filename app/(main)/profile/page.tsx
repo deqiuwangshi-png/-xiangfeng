@@ -33,20 +33,7 @@ import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getUserStats } from '@/lib/settings/actions'
-import type { UserStats } from '@/types'
-
-/**
- * 用户资料显示信息接口
- */
-interface UserDisplayInfo {
-  id: string
-  username: string
-  email: string
-  avatarUrl?: string
-  bio?: string
-  location?: string
-  joinDate: string
-}
+import type { UserStats, UserDisplayInfo } from '@/types'
 
 /**
  * 个人资料头部数据获取组件
@@ -68,12 +55,13 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
     id: userId,
     username: profile?.username || '用户',
     email: profile?.email || '',
-    avatarUrl: profile?.avatar_url,
-    bio: profile?.bio,
-    location: profile?.location,
+    avatarUrl: profile?.avatar_url ?? null,
+    bio: profile?.bio ?? null,
+    location: profile?.location ?? null,
     joinDate: profile?.created_at
       ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
       : '未知时间',
+    domain: profile?.domain ?? null,
   }
 
   const stats: UserStats = statsResult.success && statsResult.data

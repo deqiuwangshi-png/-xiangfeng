@@ -3,7 +3,7 @@
 /**
  * 标题级别选择组件
  * 
- * 提供H1-H6六级标题下拉选择
+ * 提供H1-H5五级标题下拉选择
  * 与TipTap编辑器集成
  */
 
@@ -21,7 +21,6 @@ const headingLevels = [
   { level: 3, label: 'H3', text: '三级标题' },
   { level: 4, label: 'H4', text: '四级标题' },
   { level: 5, label: 'H5', text: '五级标题' },
-  { level: 6, label: 'H6', text: '六级标题' },
 ] as const
 
 export function HeadingSelect({ editor }: HeadingSelectProps) {
@@ -31,7 +30,7 @@ export function HeadingSelect({ editor }: HeadingSelectProps) {
   // 检测当前激活的标题级别
   const getActiveLevel = () => {
     if (!editor) return null
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 5; i++) {
       if (editor.isActive('heading', { level: i })) {
         return i
       }
@@ -54,7 +53,12 @@ export function HeadingSelect({ editor }: HeadingSelectProps) {
 
   const handleSelect = (level: number) => {
     if (!editor) return
-    editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()
+    // 如果当前已经是该级别标题，则转换为普通段落
+    if (editor.isActive('heading', { level })) {
+      editor.chain().focus().setParagraph().run()
+    } else {
+      editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()
+    }
     setIsOpen(false)
   }
 

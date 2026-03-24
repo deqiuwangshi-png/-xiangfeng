@@ -7,7 +7,7 @@
  * @更新时间: 2026-03-22
  */
 
-import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp } from '@/components/icons'
+import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
 import { useState } from 'react'
 import { UserAvatar } from '@/components/ui'
 import type { UserDisplayInfo, UserStats } from '@/types'
@@ -98,6 +98,21 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
         <p className="mt-3 text-sm text-xf-dark/80 leading-relaxed line-clamp-2">
           {user.bio}
         </p>
+      )}
+
+      {/* 个人领域标签 - 展示用户的兴趣领域 */}
+      {user.domain && user.domain.length > 0 && (
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          <Filter className="w-3.5 h-3.5 text-xf-primary shrink-0" />
+          {user.domain.map((item, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-xf-light text-xf-primary border border-xf-bg/60"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
       )}
 
       {/* 统计信息 - 横向排列，融入头部 */}
