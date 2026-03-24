@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ArrowLeft, Link2, Github, MessageCircle, CheckCircle2, Circle } from '@/components/icons'
+import { ArrowLeft, Link2, Github, CheckCircle2, Circle } from '@/components/icons'
 import { IconBox, PrimaryButton } from '@/components/ui'
 import {
   getLinkedAccounts,
@@ -45,9 +45,8 @@ function getProviderIcon(provider: string): React.ReactNode {
   switch (provider) {
     case 'github':
       return <Github className="w-6 h-6" />
-    case 'wechat':
-    case 'qq':
-      return <MessageCircle className="w-6 h-6" />
+    case 'google':
+      return <Link2 className="w-6 h-6" />
     default:
       return <Link2 className="w-6 h-6" />
   }

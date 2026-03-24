@@ -157,8 +157,9 @@ export interface LinkedAccountItem {
 
 /**
  * OAuth提供商类型
+ * 仅支持Supabase原生支持的Provider
  */
-export type OAuthProvider = 'github' | 'google' | 'wechat' | 'qq'
+export type OAuthProvider = 'github' | 'google'
 
 /**
  * 第三方账号信息（来自数据库）
