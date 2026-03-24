@@ -12,7 +12,7 @@
  * - 选中状态显示
  */
 
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { NodeViewWrapper, NodeViewContent, NodeViewProps } from '@tiptap/react'
 import { DragHandle } from '../_core/DragHandle'
 
@@ -30,7 +30,7 @@ export function ParaNodeView(props: NodeViewProps) {
    * 处理拖拽开始
    * @param e - 拖拽事件
    */
-  const handleDragStart = (e: React.DragEvent) => {
+  const handleDragStart = useCallback((e: React.DragEvent) => {
     const pos = getPos()
     if (pos === undefined || pos < 0) {
       return
@@ -44,30 +44,34 @@ export function ParaNodeView(props: NodeViewProps) {
     e.dataTransfer.setData('application/x-prosemirror-node', String(paragraphStart))
     e.dataTransfer.effectAllowed = 'move'
 
-    // 使用 setTimeout 延迟添加样式，避免 flushSync 冲突
-    setTimeout(() => {
+    // 直接添加样式，避免 setTimeout 延迟
+    if (editor.view && editor.view.dom) {
       editor.view.dom.classList.add('dragging')
-    }, 0)
-  }
+    }
+  }, [editor, getPos])
 
   /**
    * 处理拖拽结束
    */
-  const handleDragEnd = () => {
-    // 使用 setTimeout 延迟移除样式，避免 flushSync 冲突
-    setTimeout(() => {
+  const handleDragEnd = useCallback(() => {
+    // 直接移除样式，避免 setTimeout 延迟
+    if (editor.view && editor.view.dom) {
       editor.view.dom.classList.remove('dragging')
-    }, 0)
-  }
+    }
+  }, [editor])
 
-  // 显示手柄条件：选中或悬停
-  const showHandle = selected || isHovered
+  // 缓存显示手柄的条件
+  const showHandle = useMemo(() => selected || isHovered, [selected, isHovered])
+
+  // 缓存鼠标事件处理函数
+  const handleMouseEnter = useCallback(() => setIsHovered(true), [])
+  const handleMouseLeave = useCallback(() => setIsHovered(false), [])
 
   return (
     <NodeViewWrapper
       className="relative group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* 拖拽手柄 */}
       <DragHandle

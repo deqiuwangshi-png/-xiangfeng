@@ -1,7 +1,7 @@
 import { Handshake, TrendingUp, Users, Mail, Sparkles, Zap } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import '@/styles/domains/about.css'
+import '@/styles/about.css'
 
 export const metadata: Metadata = {
   title: '品牌合作 · 相逢 | 独立开发者独白',

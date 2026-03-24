@@ -36,8 +36,6 @@ function formatTime(dateString: string | null | undefined): string {
 
 /**
  * 文章卡片组件 - 服务端组件
- * ✅ 服务端渲染，SEO友好
- * ✅ 减少客户端JavaScript
  */
 export function ArticleCard({
   id,
@@ -52,20 +50,20 @@ export function ArticleCard({
   const formattedTime = formatTime(publishedAt)
 
   return (
-    <Link href={`/article/${id}`} className="block group">
-      <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 hover:border-xf-primary/30 hover:shadow-sm transition-all duration-200">
+    <Link href={`/article/${id}`} className="block group h-full">
+      <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 hover:border-xf-primary/30 hover:shadow-sm transition-all duration-200 h-full flex flex-col">
         {/* 标题 - 放在最上方，增加信息优先级 */}
         <h3 className="text-lg sm:text-xl font-bold text-xf-dark mb-2 line-clamp-2 group-hover:text-xf-primary transition-colors duration-200">
           {title}
         </h3>
 
         {/* 摘要 - 增加行数显示更多内容 */}
-        <p className="text-xf-medium text-sm sm:text-base line-clamp-3 mb-3 leading-relaxed">
+        <p className="text-xf-medium text-sm sm:text-base line-clamp-3 mb-3 leading-relaxed flex-1">
           {summary}
         </p>
 
         {/* 底部信息栏：作者 + 阅读数据 */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center gap-2">
             <UserAvatar
               name={author.name}

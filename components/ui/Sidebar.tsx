@@ -38,14 +38,15 @@ const navItems: NavItem[] = [
 ]
 
 /**
- * 预加载路由配置 - 优化后只预加载核心路由
+ * 预加载路由配置 - 优化后预加载核心常用路由
  * @constant PRELOAD_ROUTES
- * @description 
- * - 只预加载用户最可能访问的核心页面
- * - 避免预加载所有路由造成资源浪费
+ * @description
+ * - 预加载用户最可能访问的核心页面
+ * - 包含个人主页，优化LCP性能
+ * - 平衡资源消耗和预加载效果
  * - 其他路由通过鼠标悬停按需预加载
  */
-const PRELOAD_ROUTES = ['/home', '/publish']
+const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
 
 /**
  * 用户资料接口
@@ -109,9 +110,9 @@ export function Sidebar({ user, profile }: SidebarProps) {
    * 智能预加载关键路由
    * @description
    * - 使用 requestIdleCallback 在浏览器空闲时预加载
-   * - 只预加载用户最可能访问的核心页面（首页、发布页）
+   * - 预加载用户最可能访问的核心页面
    * - 其他路由通过鼠标悬停按需预加载，避免资源浪费
-   * - 延迟 3 秒执行，确保关键资源优先加载
+   * - 减少延迟时间，确保用户快速切换时能享受到预加载的好处
    */
   useEffect(() => {
     const preloadRoutes = () => {
@@ -122,14 +123,14 @@ export function Sidebar({ user, profile }: SidebarProps) {
       })
     }
 
-    {/* 延迟预加载，确保关键资源优先加载 */}
+    {/* 减少延迟时间，确保关键资源优先加载的同时，用户能快速享受到预加载的好处 */}
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        window.requestIdleCallback(preloadRoutes, { timeout: 2000 })
+        window.requestIdleCallback(preloadRoutes, { timeout: 1000 })
       } else {
         preloadRoutes()
       }
-    }, 3000)
+    }, 1000)
 
     return () => clearTimeout(timer)
   }, [router, pathname])

@@ -11,38 +11,14 @@ import { useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useLogout } from '@/lib/auth'
+import type { SimpleUser, DropdownItem } from '@/types'
 
 /**
- * 下拉菜单项接口
- * @interface DropdownItem
- */
-interface DropdownItem {
-  label: string
-  icon: React.ElementType
-  href?: string
-  isDanger?: boolean
-  onClick?: () => void
-}
-
-/**
- * 简化用户对象接口
- * @interface SimpleUser
- */
-interface SimpleUser {
-  id: string
-  email: string
-  user_metadata?: {
-    username?: string
-    avatar_url?: string
-  }
-}
-
-/**
- * UserDropdownMenu Props 接口
+ * 用户下拉菜单组件属性接口
  * @interface UserDropdownMenuProps
  */
 interface UserDropdownMenuProps {
-  /** 当前用户（支持SupabaseUser或简化用户对象，当前未使用但保留用于未来扩展） */
+  /** 当前用户（支持SupabaseUser或简化用户对象） */
   user?: SupabaseUser | SimpleUser | null
   /** 是否打开 */
   isOpen: boolean
@@ -57,12 +33,12 @@ interface UserDropdownMenuProps {
  * @function UserDropdownMenu
  * @param {UserDropdownMenuProps} props - 组件属性
  * @returns {JSX.Element | null} 下拉菜单组件
- * 
+ *
  * @example
- * <UserDropdownMenu 
- *   user={currentUser} 
- *   isOpen={isDropdownOpen} 
- *   onClose={() => setIsDropdownOpen(false)} 
+ * <UserDropdownMenu
+ *   user={currentUser}
+ *   isOpen={isDropdownOpen}
+ *   onClose={() => setIsDropdownOpen(false)}
  * />
  */
 export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdownMenuProps) {

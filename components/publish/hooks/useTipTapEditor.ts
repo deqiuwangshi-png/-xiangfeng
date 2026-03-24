@@ -23,7 +23,7 @@ import Paragraph from '@tiptap/extension-paragraph'
 import type { EditorView } from '@tiptap/pm/view'
 import type { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useMemo, useRef, useCallback } from 'react'
 import { uploadImage, getImageFromPaste } from '@/lib/upload/img'
 import { toast } from 'sonner'
 import { ImgNodeView } from '../_blocks/ImgNodeView'
@@ -78,15 +78,15 @@ export function useTipTapEditor({
   isUploadingRef.current = isUploading
 
   /**
-   * 延迟挂载编辑器
-   * 使用 setTimeout 延迟初始化，避免阻塞首屏渲染
+   * 客户端环境初始化编辑器
+   * 使用 useLayoutEffect 确保与 React 渲染同步
+   * 避免使用 setTimeout，减少初始化延迟
    */
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  useLayoutEffect(() => {
+    // 确保在客户端环境初始化
+    if (typeof window !== 'undefined') {
       setIsMounted(true)
-    }, 50) // 50ms 延迟，让首屏先渲染
-
-    return () => clearTimeout(timer)
+    }
   }, [])
 
   /**
@@ -286,6 +286,7 @@ export function useTipTapEditor({
             // 设置选区到新位置
             tr.setSelection(TextSelection.create(tr.doc, toStart + 1))
 
+            // 直接 dispatch 事务，避免 setTimeout 延迟
             view.dispatch(tr)
             return true
           }
@@ -305,21 +306,17 @@ export function useTipTapEditor({
    * 使用 useRef 存储 editor 实例，避免闭包问题
    */
   const editorRef = useRef<Editor | null>(null)
-  editorRef.current = editor
-
-  /**
-   * 创建 handleImageUpload ref，用于在 editorConfig 中引用
-   * 实际函数在下方定义
-   */
-  const handleImageUploadRef = useRef<(file: File) => Promise<void>>(async () => {
-    // 占位函数，将在下面被覆盖
-  })
+  
+  // 确保 editorRef 始终更新到最新的 editor 实例
+  useEffect(() => {
+    editorRef.current = editor
+  }, [editor])
 
   /**
    * 处理图片上传
    * 通过 ref 获取最新的 editor 实例，避免闭包陷阱
    */
-  const handleImageUpload = useRef(async (file: File) => {
+  const handleImageUpload = useCallback(async (file: File) => {
     const currentEditor = editorRef.current
     if (!currentEditor) {
       toast.error('编辑器未就绪')
@@ -349,18 +346,36 @@ export function useTipTapEditor({
     } finally {
       setIsUploading(false)
     }
-  }).current
+  }, [])
 
-  // 将实际的 handleImageUpload 赋值给 ref
-  handleImageUploadRef.current = handleImageUpload
+  /**
+   * 创建 handleImageUpload ref，用于在 editorConfig 中引用
+   */
+  const handleImageUploadRef = useRef<(file: File) => Promise<void>>(handleImageUpload)
+  
+  // 确保 handleImageUploadRef 始终更新到最新的 handleImageUpload 函数
+  useEffect(() => {
+    handleImageUploadRef.current = handleImageUpload
+  }, [handleImageUpload])
 
   /**
    * 同步外部内容变化
    * 当外部 content 变化时更新编辑器内容
+   * 优化：避免在用户编辑过程中强制同步
    */
   useEffect(() => {
-    if (editor && editor.getHTML() !== content) {
-      editor.commands.setContent(content)
+    if (editor) {
+      // 检查编辑器是否就绪且内容确实不同
+      try {
+        const currentContent = editor.getHTML()
+        // 只有当内容确实不同时才更新，避免不必要的操作
+        if (currentContent !== content && content) {
+          // 直接设置内容，避免不必要的操作
+          editor.commands.setContent(content)
+        }
+      } catch (error) {
+        console.error('Error syncing content:', error)
+      }
     }
   }, [editor, content])
 

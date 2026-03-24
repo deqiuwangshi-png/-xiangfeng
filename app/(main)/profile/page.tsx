@@ -13,47 +13,84 @@
  *   - 使用 ProfileTabsProvider 管理标签页状态
  *   - 复用 Sidebar 组件保持一致性
  *   - 从 profiles 表获取数据，与设置页面保持一致
+ *   - 使用并行数据获取优化LCP性能
  *
- * 更新时间: 2026-03-16
+ * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
+ * @性能优化 P2: ProfileContent 使用流式传输，不阻塞首屏渲染
+ *
+ * 更新时间: 2026-03-23
  */
 
+import { Suspense } from 'react'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
-import { ProfileContent } from '@/components/profile/ProfileContent'
+import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
 import { ProfileDomain } from '@/components/profile/ProfileDomain'
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
+import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getUserDisplayInfo } from '@/lib/user/getUserDisplayInfo'
 import { getUserStats } from '@/lib/settings/actions'
+import type { UserStats } from '@/types'
+
+/**
+ * 用户资料显示信息接口
+ */
+interface UserDisplayInfo {
+  id: string
+  username: string
+  email: string
+  avatarUrl?: string
+  bio?: string
+  location?: string
+  joinDate: string
+}
+
+/**
+ * 个人资料头部数据获取组件
+ * @性能优化 独立获取关键路径数据，优先渲染
+ */
+async function ProfileHeaderData({ userId }: { userId: string }) {
+  const supabase = await createClient()
+
+  // 并行获取用户资料和统计数据
+  const [profileResult, statsResult] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', userId).single(),
+    getUserStats()
+  ])
+
+  const profile = profileResult.data
+
+  // 构造用户显示信息
+  const userData: UserDisplayInfo = {
+    id: userId,
+    username: profile?.username || '用户',
+    email: profile?.email || '',
+    avatarUrl: profile?.avatar_url,
+    bio: profile?.bio,
+    location: profile?.location,
+    joinDate: profile?.created_at
+      ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
+      : '未知时间',
+  }
+
+  const stats: UserStats = statsResult.success && statsResult.data
+    ? statsResult.data
+    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
+
+  return <ProfileHeader user={userData} stats={stats} />
+}
 
 /**
  * 个人主页页面组件
  *
- * @function ProfilePage
- * @returns {JSX.Element} 个人主页页面
- *
- * @description
- * 提供个人主页的完整功能，包括：
- * - 个人资料头部（头像、用户名、简介、标签）
- * - 数据统计（文章、关注者、获赞、社群）
- * - 标签页切换（我的内容、领域贡献）
- * - 我的内容区域（最新文章列表）
- * - 领域贡献区域（领域卡片列表）
- *
- * @architecture
- * - ProfileTabsProvider: 客户端Context，管理标签页状态
- * - ProfileTabs: 客户端组件，切换标签页
- * - ProfileTabContent: 客户端包装器，条件渲染
- * - ProfileContent/ProfileDomain: 服务端组件，数据获取
- *
- * @layout
- * - 使用 flex 布局
- * - 主内容区域自适应
- * - 支持垂直滚动
- * - 隐藏滚动条
+ * @性能优化 关键改进:
+ * 1. 使用 Suspense 分离 ProfileHeader 和 ProfileContent
+ * 2. ProfileHeader 优先渲染（关键路径）
+ * 3. ProfileContent 流式传输（非关键）
+ * 4. 避免级联数据获取阻塞
  */
 export default async function ProfilePage() {
   // 获取当前登录用户 - 使用缓存函数（与布局共享）
@@ -64,37 +101,24 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
-  // 从 profiles 表获取用户资料（与设置页面保持一致）
-  const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  // 构造用户显示信息（与 Sidebar 一致），优先使用 profile 数据
-  const userData = getUserDisplayInfo(user, profile)
-
-  // 获取用户统计数据
-  const statsResult = await getUserStats()
-  const stats = statsResult.success && statsResult.data
-    ? statsResult.data
-    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
-
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       <div className="max-w-4xl mx-auto fade-in-up">
-        {/* 个人资料头部 - 整合统计信息 */}
-        <ProfileHeader user={userData} stats={stats} />
+        {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
+        <Suspense fallback={<ProfileHeaderSkeleton />}>
+          <ProfileHeaderData userId={user.id} />
+        </Suspense>
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">
           {/* 标签页切换 */}
           <ProfileTabs />
 
-          {/* 我的内容区域 - 条件渲染 */}
+          {/* 我的内容区域 - 使用 Suspense 流式传输 */}
           <ProfileTabContent tab="content">
-            <ProfileContent />
+            <Suspense fallback={<ProfileContentSkeleton />}>
+              <ProfileContent />
+            </Suspense>
           </ProfileTabContent>
 
           {/* 领域贡献区域 - 条件渲染 */}

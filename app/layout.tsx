@@ -8,7 +8,6 @@ import "./globals.css";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
 const siteName = '相逢 Xiangfeng'
 
-// 分离 viewport 配置（Next.js 14+ 推荐）
 export const viewport: Viewport = {
   themeColor: '#3A3C6E',
   width: 'device-width',

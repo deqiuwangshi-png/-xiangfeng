@@ -85,14 +85,14 @@ export interface UserProfile {
  * }
  */
 export const getCurrentUserWithProfile = cache(async (): Promise<UserProfile | null> => {
-  const supabase = await createClient()
+  // 复用getCurrentUser()函数，避免重复查询
+  const user = await getCurrentUser()
   
-  // 获取当前用户
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
-  if (error || !user) {
+  if (!user) {
     return null
   }
+  
+  const supabase = await createClient()
   
   // 从profiles表获取用户资料
   const { data: profile } = await supabase

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Clock, FileText, AlertTriangle, Mail, MapPin } from 'lucide-react'
 import type { Metadata } from 'next'
-import '@/styles/domains/terms.css'
+import '@/styles/terms.css'
 import Navbar from '@/components/marketing/Navbar'
 
 export const metadata: Metadata = {
