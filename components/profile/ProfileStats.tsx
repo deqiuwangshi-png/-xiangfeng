@@ -7,7 +7,7 @@
  */
 
 import { FileText, Users, ThumbsUp, Share2 } from 'lucide-react'
-import type { UserStats } from '@/lib/settings/actions'
+import type { UserStats } from '@/types'
 
 /**
  * 统计项接口
