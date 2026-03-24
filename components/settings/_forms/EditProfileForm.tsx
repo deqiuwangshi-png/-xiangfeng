@@ -1,27 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
 import { UserAvatar, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
+import { uploadAvatar, deleteOldAvatar, AvatarUploadError } from '@/lib/upload/avatar'
+import { toast } from 'sonner'
 import { UserData, UpdateProfileParams } from '@/types/settings'
 
 /**
  * 编辑个人资料表单组件
- *
- * 作用: 允许用户编辑个人资料信息
- *
  * @param {function} onCancel - 取消回调函数
  * @param {function} onSave - 保存成功回调函数
  * @param initialData - 初始用户数据
  * @returns {JSX.Element} 编辑个人资料表单组件
- *
- * 使用说明:
- *   - 头像上传（通过 URL 或 Dicebear API）
- *   - 用户名编辑
- *   - 简介编辑
- *   - 位置信息编辑
- * 更新时间: 2026-03-02
+ * 更新时间: 2026-03-24
  */
 
 interface EditProfileFormProps {
@@ -35,6 +28,7 @@ interface EditProfileFormProps {
 
 export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
   const [formData, setFormData] = useState({
     username: initialData?.username || '',
@@ -46,6 +40,18 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   })
 
   /**
+   * 临时头像状态管理
+   * - tempAvatarUrl: 新上传但未保存的头像URL
+   * - originalAvatarUrl: 原始头像URL（用于取消时恢复）
+   * - pendingDeleteUrl: 等待删除的旧头像URL（保存成功后删除）
+   */
+  const [tempAvatarUrl, setTempAvatarUrl] = useState<string | null>(null)
+  const originalAvatarUrl = useRef(initialData?.avatar_url || '')
+  const pendingDeleteUrl = useRef<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  /**
    * 处理表单字段变化
    */
   const handleChange = (field: string, value: string) => {
@@ -54,15 +60,100 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   /**
+   * 处理头像点击 - 触发文件选择
+   */
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  /**
+   * 处理文件选择 - 上传临时头像
+   * 注意：此时只上传到Storage，不写入数据库
+   */
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!initialData?.id) {
+      toast.error('用户未登录')
+      return
+    }
+
+    setIsUploading(true)
+    const toastId = toast.loading('正在上传头像...')
+
+    try {
+      // 如果已有临时头像，先删除（避免堆积）
+      if (tempAvatarUrl) {
+        await deleteOldAvatar(tempAvatarUrl)
+      }
+
+      // 上传新头像到Storage（临时）
+      const newAvatarUrl = await uploadAvatar(file, initialData.id)
+
+      // 保存为临时头像，不更新formData.avatar_url
+      setTempAvatarUrl(newAvatarUrl)
+
+      toast.success('头像已上传，点击保存后生效', { id: toastId })
+    } catch (err) {
+      if (err instanceof AvatarUploadError) {
+        toast.error(err.message, { id: toastId })
+      } else {
+        toast.error('头像上传失败，请稍后重试', { id: toastId })
+      }
+    } finally {
+      setIsUploading(false)
+      // 清空input，允许重复选择同一文件
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  /**
    * 清空头像
-   * 清空头像URL，组件将显示首字母占位符
+   * 标记为待清空，实际删除在保存时执行
    */
   const clearAvatar = () => {
+    // 如果有临时头像，直接删除
+    if (tempAvatarUrl) {
+      deleteOldAvatar(tempAvatarUrl).catch(console.error)
+      setTempAvatarUrl(null)
+    }
+
+    // 标记原始头像待删除（保存时执行）
+    if (originalAvatarUrl.current) {
+      pendingDeleteUrl.current = originalAvatarUrl.current
+    }
+
+    // 清空显示
     setFormData(prev => ({ ...prev, avatar_url: '' }))
+    toast.success('头像已清空，点击保存后生效')
+  }
+
+  /**
+   * 处理取消 - 清理临时头像
+   */
+  const handleCancel = () => {
+    // 如果有临时头像未保存，删除它
+    if (tempAvatarUrl) {
+      deleteOldAvatar(tempAvatarUrl).catch(console.error)
+    }
+
+    // 恢复原始头像显示
+    setFormData(prev => ({
+      ...prev,
+      avatar_url: originalAvatarUrl.current
+    }))
+    setTempAvatarUrl(null)
+
+    // 调用父组件的取消回调
+    onCancel()
   }
 
   /**
    * 处理表单提交
+   * 保存时才将临时头像写入数据库
    */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -70,18 +161,31 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
     setError('')
 
     try {
+      // 确定最终头像URL：优先使用临时头像
+      const finalAvatarUrl = tempAvatarUrl || formData.avatar_url
+
       // 调用 Server Action 保存数据
       const params: UpdateProfileParams = {
         username: formData.username,
         bio: formData.bio,
         location: formData.location,
-        avatar_url: formData.avatar_url,
+        avatar_url: finalAvatarUrl,
         domain: formData.domain,
       }
 
       const result = await updateProfile(params)
 
       if (result.success) {
+        // 保存成功后，删除旧头像
+        if (pendingDeleteUrl.current) {
+          await deleteOldAvatar(pendingDeleteUrl.current)
+          pendingDeleteUrl.current = null
+        }
+
+        // 更新原始头像引用
+        originalAvatarUrl.current = finalAvatarUrl
+        setTempAvatarUrl(null)
+
         onSave() // 通知父组件保存成功
       } else {
         setError(result.error || '保存失败，请稍后重试')
@@ -98,7 +202,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
       {/* 返回按钮和标题区域 */}
       <div className="flex items-center justify-between mb-10">
         <button
-          onClick={onCancel}
+          onClick={handleCancel}
           className="inline-flex items-center gap-2 text-xf-primary hover:text-xf-accent transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -128,25 +232,65 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* 头像上传区域 - 左侧 */}
           <div className="flex flex-col items-center shrink-0">
+            {/* 隐藏的文件输入 */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+            />
             <div className="relative">
-              <UserAvatar
-                name={formData.username}
-                userId={initialData?.id}
-                avatarUrl={formData.avatar_url}
-                size="lg"
-              />
+              {/* 头像点击区域 */}
               <button
                 type="button"
-                onClick={clearAvatar}
-                className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-xf-primary hover:bg-xf-light transition-colors border border-xf-bg/60"
-                title="清空头像，显示首字母"
+                onClick={handleAvatarClick}
+                disabled={isUploading}
+                className="relative group disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Camera className="w-5 h-5" />
+                <UserAvatar
+                  name={formData.username}
+                  userId={initialData?.id}
+                  avatarUrl={tempAvatarUrl || formData.avatar_url}
+                  size="lg"
+                />
+                {/* 上传中遮罩 */}
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                {/* 悬停提示 */}
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="w-8 h-8 text-white" />
+                </div>
               </button>
+              {/* 清空头像按钮 - 有临时头像或已保存头像时显示 */}
+              {(tempAvatarUrl || formData.avatar_url) && (
+                <button
+                  type="button"
+                  onClick={clearAvatar}
+                  disabled={isUploading}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors border border-xf-bg/60 disabled:opacity-50"
+                  title="清空头像"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                </button>
+              )}
             </div>
             <p className="text-sm text-xf-medium mt-4">
-              点击相机清空头像
+              {isUploading ? '上传中...' : tempAvatarUrl ? '头像待保存' : '点击头像上传'}
             </p>
+            <p className="text-xs text-xf-medium/70 mt-1">
+              支持 JPG、PNG、WebP，最大 2MB
+            </p>
+            {tempAvatarUrl && (
+              <p className="text-xs text-amber-600 mt-1">
+                * 点击保存更改后生效
+              </p>
+            )}
           </div>
 
           {/* 用户名、邮箱和城市 - 右侧 */}

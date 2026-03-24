@@ -55,7 +55,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
     }
 
     // 从数据库查询已关联的账号
-    const { data: identities, error: queryError } = await supabase
+    const { data: dbIdentities, error: queryError } = await supabase
       .from('user_identities')
       .select('provider, email, display_name, status')
       .eq('user_id', user.id)
@@ -66,20 +66,43 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
       return { success: false, error: '获取关联账号失败' }
     }
 
+    // 同时从 Supabase Auth 获取 identities（作为备用）
+    const { data: authIdentitiesData, error: authIdentitiesError } =
+      await supabase.auth.getUserIdentities()
+
+    if (authIdentitiesError) {
+      console.error('获取 Auth identities 失败:', authIdentitiesError)
+    }
+
     // 构建账号列表（包含所有支持的提供商）
     const accounts: LinkedAccountItem[] = (
       Object.keys(PROVIDER_CONFIG) as OAuthProvider[]
     ).map((provider) => {
       const config = PROVIDER_CONFIG[provider]
-      const linkedIdentity = identities?.find(
+
+      // 优先从数据库查询
+      const dbIdentity = dbIdentities?.find(
         (item) => item.provider === provider
       )
+
+      // 如果数据库中没有，从 Supabase Auth 获取
+      const authIdentity = authIdentitiesData?.identities?.find(
+        (item) => item.provider === provider
+      )
+
+      // 合并状态：数据库或 Auth 中有任一存在即视为已绑定
+      const isConnected =
+        (!!dbIdentity && dbIdentity.status === 'active') || !!authIdentity
+
+      // 优先使用数据库中的邮箱，否则使用 Auth 中的
+      const email =
+        dbIdentity?.email || authIdentity?.identity_data?.email
 
       return {
         id: provider,
         name: config.name,
-        connected: !!linkedIdentity && linkedIdentity.status === 'active',
-        email: linkedIdentity?.email,
+        connected: isConnected,
+        email: email,
       }
     })
 
@@ -223,8 +246,22 @@ export async function unlinkAccount(
       return { success: false, error: '未登录或登录已过期' }
     }
 
-    // 查询要解绑的身份
-    const { data: identity, error: queryError } = await supabase
+    // 从 Supabase Auth 获取 identities（作为权威来源）
+    const { data: authIdentitiesData, error: authIdentitiesError } =
+      await supabase.auth.getUserIdentities()
+
+    if (authIdentitiesError) {
+      console.error('获取 Auth identities 失败:', authIdentitiesError)
+      return { success: false, error: '获取身份信息失败' }
+    }
+
+    // 查找要解绑的 Auth identity
+    const authIdentity = authIdentitiesData?.identities?.find(
+      (item) => item.provider === provider
+    )
+
+    // 同时查询数据库中的记录
+    const { data: dbIdentity, error: queryError } = await supabase
       .from('user_identities')
       .select('id, provider_user_id')
       .eq('user_id', user.id)
@@ -237,32 +274,28 @@ export async function unlinkAccount(
       return { success: false, error: '查询绑定信息失败' }
     }
 
-    if (!identity) {
+    // 如果 Auth 和数据库中都没有，说明未绑定
+    if (!authIdentity && !dbIdentity) {
       return { success: false, error: '该账号未绑定' }
     }
 
     // 检查是否是唯一的登录方式
-    const { data: identities, error: countError } = await supabase
-      .from('user_identities')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-
-    if (countError) {
-      console.error('查询身份列表失败:', countError)
-      return { success: false, error: '检查登录方式失败' }
-    }
-
-    // 获取用户的登录方式（密码或第三方）
-    const { data: userData } = await supabase.auth.getUser()
-    const hasPassword = userData?.user?.app_metadata?.provider === 'email'
+    const authIdentitiesCount = authIdentitiesData?.identities?.length || 0
+    const hasPassword = user?.app_metadata?.provider === 'email'
 
     // 如果没有密码且只有一个第三方登录方式，禁止解绑
-    if (!hasPassword && identities.length <= 1) {
+    if (!hasPassword && authIdentitiesCount <= 1) {
       return {
         success: false,
         error: '无法解绑：您需要至少保留一种登录方式',
       }
+    }
+
+    // 使用 Supabase Auth 中的 identity ID
+    const identityId = authIdentity?.id || dbIdentity?.provider_user_id
+
+    if (!identityId) {
+      return { success: false, error: '无法获取身份信息' }
     }
 
     // 方式1：使用Supabase unlinkIdentity（推荐）
@@ -272,24 +305,26 @@ export async function unlinkAccount(
       provider: provider as 'github' | 'google',
       identity: {
         provider: provider as 'github' | 'google',
-        id: identity.provider_user_id,
+        id: identityId,
       },
     })
 
     if (unlinkError) {
       console.error('Supabase解绑失败:', unlinkError)
-      // 降级到方式2：直接更新数据库状态
+    }
+
+    // 无论 Auth 解绑是否成功，都更新数据库状态
+    if (dbIdentity?.id) {
       const { error: updateError } = await supabase
         .from('user_identities')
         .update({
           status: 'revoked',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', identity.id)
+        .eq('id', dbIdentity.id)
 
       if (updateError) {
         console.error('数据库解绑失败:', updateError)
-        return { success: false, error: '解绑失败，请稍后重试' }
       }
     }
 

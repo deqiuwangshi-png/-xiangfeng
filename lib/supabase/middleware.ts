@@ -10,10 +10,11 @@ const PROTECTED_ROUTES = [
   '/publish',
   '/drafts',
   '/inbox',
-  '/profile',   
+  '/profile',
   '/settings',
   '/feedback',
   '/updates',
+  '/rewards',
 ]
 
 /**
