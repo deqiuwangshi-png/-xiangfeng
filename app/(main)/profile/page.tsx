@@ -61,6 +61,7 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
     joinDate: profile?.created_at
       ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
       : '未知时间',
+    domain: profile?.domain ?? null,
   }
 
   const stats: UserStats = statsResult.success && statsResult.data

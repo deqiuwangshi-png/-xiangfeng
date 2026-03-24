@@ -133,6 +133,8 @@ export interface UserDisplayInfo {
   joinDate: string
   /** 用户邮箱 */
   email?: string
+  /** 个人领域数组 */
+  domain?: string[] | null
 }
 
 /**
