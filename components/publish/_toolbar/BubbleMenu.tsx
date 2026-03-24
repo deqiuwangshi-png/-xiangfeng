@@ -152,7 +152,12 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
    */
   const handleToggleHeading = (level: 1 | 2 | 3 | 4 | 5) => {
     if (!editor) return
-    editor.chain().focus().toggleHeading({ level }).run()
+    // 如果当前已经是该级别标题，则转换为普通段落
+    if (editor.isActive('heading', { level })) {
+      editor.chain().focus().setParagraph().run()
+    } else {
+      editor.chain().focus().toggleHeading({ level }).run()
+    }
   }
 
   /**
