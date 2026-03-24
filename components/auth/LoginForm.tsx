@@ -15,6 +15,7 @@ import { checkRateLimit } from '@/lib/security/rateLimit';
 import { login } from '@/lib/auth';
 import { sanitizeRedirect } from '@/lib/auth/redir';
 import { PasswordInput } from '@/components/auth/PasswordInput';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 /**
  * 获取客户端标识符
@@ -138,23 +139,23 @@ export function LoginForm() {
         </div>
       )}
 
+      <OAuthButtons disabled={isLoading || isRateLimited} dividerText="或使用邮箱登录" />
+
       <form action={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">账号</label>
           <input
             type="email"
             name="email"
             className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
-            placeholder="your@email.com"
+            placeholder="账号"
             required
             disabled={isLoading || isRateLimited}
           />
         </div>
 
         <PasswordInput
-          label="密码"
           name="password"
-          placeholder="•••••••"
+          placeholder="密码"
           required
           disabled={isLoading || isRateLimited}
           minLength={8}

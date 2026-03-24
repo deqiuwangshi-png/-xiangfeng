@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRegisterForm } from '@/hooks/useRegisterForm';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PwdStrength } from '@/components/auth/PwdStrength';
+import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 /**
  * 注册表单组件
@@ -90,18 +91,17 @@ export function RegisterForm() {
 
   return (
     <>
+      <OAuthButtons disabled={isLoading} dividerText="或使用邮箱注册" />
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 邮箱字段 */}
         <div>
-          <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
-            邮箱
-          </label>
           <input
             type="email"
             value={formData.email}
             onChange={(e) => updateField('email', e.target.value)}
             className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
-            placeholder="your@email.com"
+            placeholder="邮箱"
             required
             disabled={isLoading}
           />
@@ -112,9 +112,7 @@ export function RegisterForm() {
 
         {/* 用户名字段 */}
         <div>
-          <label className="block text-xf-primary text-sm font-medium mb-2 ml-2">
-            用户名
-          </label>
+       
           <input
             type="text"
             value={formData.username}
@@ -132,20 +130,9 @@ export function RegisterForm() {
         {/* 密码字段 */}
         <div>
           <PasswordInput
-            label={
-              <>
-                密码
-                {passwordValidation && (
-                  <span className={`ml-2 text-sm ${getPasswordStrengthColor()}`}>
-                    ({passwordValidation.strength === 'strong' ? '强' :
-                      passwordValidation.strength === 'medium' ? '中' : '弱'})
-                  </span>
-                )}
-              </>
-            }
             value={formData.password}
             onChange={(e) => updateField('password', e.target.value)}
-            placeholder="••••••••"
+            placeholder="密码"
             required
             disabled={isLoading}
             minLength={8}
@@ -162,10 +149,9 @@ export function RegisterForm() {
         {/* 确认密码字段 */}
         <div>
           <PasswordInput
-            label="确认密码"
             value={formData.confirmPassword}
             onChange={(e) => updateField('confirmPassword', e.target.value)}
-            placeholder="••••••••"
+            placeholder="确认密码"
             required
             disabled={isLoading}
             minLength={8}
