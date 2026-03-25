@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
 import { UserAvatar, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
 import { uploadAvatar, deleteOldAvatar, AvatarUploadError } from '@/lib/upload/avatar'
+import { containsXss } from '@/lib/security/inputValidator'
 import { toast } from 'sonner'
 import { UserData, UpdateProfileParams } from '@/types/settings'
 
@@ -53,11 +54,20 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
 
   /**
    * 处理表单字段变化
+   * @安全增强 C-01: 客户端实时 XSS 检测
+   * - 检测危险代码模式
+   * - 立即阻止可疑输入
+   * - 提供即时反馈
    */
-  const handleChange = (field: string, value: string) => {
+  const handleChange = useCallback((field: string, value: string) => {
+    // 实时 XSS 检测
+    if (containsXss(value)) {
+      toast.error('输入包含不支持的字符或代码，请检查')
+      return
+    }
     setFormData(prev => ({ ...prev, [field]: value }))
     setError('') // 清除错误
-  }
+  }, [])
 
   /**
    * 处理头像点击 - 触发文件选择

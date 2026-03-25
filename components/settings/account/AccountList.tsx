@@ -8,6 +8,7 @@
 
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
+import { SettingsBtn } from '../_ui/SettingsBtn'
 
 /**
  * 账户设置列表属性
@@ -44,56 +45,28 @@ export function AccountList({
           label="个人资料"
           description="更新你的个人信息和头像"
           controlType="button"
-          control={
-            <button
-              onClick={onEditProfile}
-              className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-            >
-              编辑个人资料
-            </button>
-          }
+          control={<SettingsBtn onClick={onEditProfile}>编辑个人资料</SettingsBtn>}
         />
 
         <SettingItem
           label="账号安全"
           description="管理密码和双重验证"
           controlType="button"
-          control={
-            <button
-              onClick={onSecurity}
-              className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-            >
-              管理安全设置
-            </button>
-          }
+          control={<SettingsBtn onClick={onSecurity}>管理安全设置</SettingsBtn>}
         />
 
         <SettingItem
           label="邮箱地址"
           description={email || '未设置'}
           controlType="button"
-          control={
-            <button
-              onClick={onChangeEmail}
-              className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-            >
-              更换邮箱
-            </button>
-          }
+          control={<SettingsBtn onClick={onChangeEmail}>更换邮箱</SettingsBtn>}
         />
 
         <SettingItem
           label="关联账号"
           description="管理你的社交媒体关联"
           controlType="button"
-          control={
-            <button
-              onClick={onLinkedAccounts}
-              className="w-full px-4 py-3 bg-white border border-xf-bg/60 hover:bg-xf-light text-xf-primary rounded-xl font-medium transition-all"
-            >
-              管理关联账号
-            </button>
-          }
+          control={<SettingsBtn onClick={onLinkedAccounts}>管理关联账号</SettingsBtn>}
         />
       </div>
     </SettingsSection>

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { UpdateProfileParams, UpdateProfileResult } from '@/types/settings'
+import { validateProfileInput } from '@/lib/security/inputValidator'
 
 /**
  * 将字符串转换为 PostgreSQL 数组格式
@@ -50,21 +51,38 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
       return { success: false, error: '未登录或登录已过期' }
     }
 
+    /**
+     * @安全增强 S-01: 输入验证与净化
+     * - 使用 Zod Schema 验证所有输入字段
+     * - 自动转义 HTML 特殊字符
+     * - 过滤 XSS 攻击向量
+     * - 拒绝包含危险代码的输入
+     */
+    const validation = validateProfileInput(params)
+    if (!validation.success) {
+      return {
+        success: false,
+        error: `输入验证失败: ${validation.errors?.join(', ')}`,
+      }
+    }
+
+    // 使用验证后的安全数据
+    const safeParams = validation.data!
     const userId = user.id
     const now = new Date().toISOString()
 
     // 将 domain 字符串转换为 PostgreSQL 数组格式
-    const domainArray = stringToPostgresArray(params.domain)
+    const domainArray = stringToPostgresArray(safeParams.domain)
 
-    // 1. 更新 profiles 表
+    // 1. 更新 profiles 表（使用验证后的安全数据）
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
         id: userId,
-        username: params.username,
-        bio: params.bio,
-        location: params.location,
-        avatar_url: params.avatar_url,
+        username: safeParams.username,
+        bio: safeParams.bio,
+        location: safeParams.location,
+        avatar_url: safeParams.avatar_url,
         domain: domainArray,
         updated_at: now,
       }, {
@@ -76,14 +94,14 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
       return { success: false, error: '保存资料失败，请稍后重试' }
     }
 
-    // 2. 更新 user_metadata（用于 Sidebar 等组件）
+    // 2. 更新 user_metadata（用于 Sidebar 等组件，使用安全数据）
     const { error: metadataError } = await supabase.auth.updateUser({
       data: {
-        username: params.username,
-        bio: params.bio,
-        location: params.location,
-        avatar_url: params.avatar_url,
-        domain: params.domain,
+        username: safeParams.username,
+        bio: safeParams.bio,
+        location: safeParams.location,
+        avatar_url: safeParams.avatar_url,
+        domain: safeParams.domain,
       }
     })
 
@@ -100,11 +118,11 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     return {
       success: true,
       data: {
-        username: params.username || '',
-        bio: params.bio || '',
-        location: params.location || '',
-        avatar_url: params.avatar_url || '',
-        domain: params.domain || '',
+        username: safeParams.username || '',
+        bio: safeParams.bio || '',
+        location: safeParams.location || '',
+        avatar_url: safeParams.avatar_url || '',
+        domain: safeParams.domain || '',
       }
     }
 
