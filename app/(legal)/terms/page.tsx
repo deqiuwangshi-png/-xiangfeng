@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Clock, FileText, AlertTriangle, Mail, MapPin } from 'lucide-react'
+import { Clock, FileText, AlertTriangle, Mail } from 'lucide-react'
 import type { Metadata } from 'next'
 import '@/styles/terms.css'
 import Navbar from '@/components/marketing/Navbar'
@@ -67,7 +67,7 @@ export default function TermsPage() {
               </div>
               <h1 className="text-4xl md:text-5xl font-serif font-bold text-xf-accent mb-6">相逢服务条款</h1>
               <p className="text-lg text-xf-medium leading-relaxed">
-                欢迎使用相逢平台！请仔细阅读本服务条款，这些条款规定了您使用相逢服务（包括网站、移动应用及相关服务）的权利和义务。使用我们的服务即表示您同意这些条款。
+                欢迎使用相逢平台！请仔细阅读本服务条款，这些条款规定了您使用相逢服务（包括网站、移动应用及相关服务）的权利和义务。使用本服务即表示您同意这些条款。
               </p>
             </div>
 
@@ -80,7 +80,7 @@ export default function TermsPage() {
                 <div>
                   <h4 className="text-xl font-bold text-xf-dark mb-2">重要法律通知</h4>
                   <p className="text-xf-medium">
-                    本服务条款是您与相逢之间具有法律约束力的协议。使用我们的服务前，请仔细阅读并理解所有条款。特别是免责声明、责任限制和争议解决部分。如果您不同意这些条款，请勿使用我们的服务。
+                    本服务条款是您与相逢之间具有法律约束力的协议。使用本服务前，请仔细阅读并理解所有条款。特别是免责声明、责任限制和争议解决部分。如果您不同意这些条款，请勿使用本服务。
                   </p>
                 </div>
               </div>
@@ -92,22 +92,22 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  相逢（以下简称&quot;我们&quot;、&quot;平台&quot;或&quot;服务&quot;）由上海相逢科技有限公司运营。本服务条款（以下简称“条款”）规定了您访问和使用相逢网站、移动应用程序及所有相关服务（统称&quot;服务&quot;）的条款和条件。
+                  相逢（以下简称&quot;平台&quot;或&quot;服务&quot;）由独立开发者运营。本服务条款（以下简称“条款”）规定了您访问和使用相逢网站、移动应用程序及所有相关服务（统称&quot;服务&quot;）的条款和条件。
                 </p>
 
                 <div className="important-clause">
                   <p className="font-bold text-xf-accent mb-2">重要：接受条款</p>
                   <p className="text-xf-medium">
-                    通过访问或使用我们的服务，您确认您已阅读、理解并同意受本条款的约束。如果您代表公司或其他法律实体接受这些条款，您声明您有权使该实体受这些条款约束。如果您不同意这些条款，请不要使用我们的服务。
+                    通过访问或使用本服务，您确认您已阅读、理解并同意受本条款的约束。如果您不同意这些条款，请不要使用本服务。
                   </p>
                 </div>
 
                 <p>
-                  我们保留随时修改这些条款的权利。如果我们进行更改，我们将在本页面上发布更新后的条款，并更新&quot;最后更新&quot;日期。您继续使用服务即表示您接受更新后的条款。我们建议您定期查看本页面以了解任何更改。
+                  开发者保留随时修改这些条款的权利。如有更改，将在此页面发布更新后的条款，并更新&quot;最后更新&quot;日期。您继续使用服务即表示您接受更新后的条款。建议您定期查看本页面以了解任何更改。
                 </p>
 
                 <p>
-                  如果您未满18岁，您需要获得父母或监护人的同意才能使用我们的服务。在某些司法管辖区，使用我们服务的法定年龄可能更高，您有责任确保您符合当地法律要求。
+                  如果您未满18岁，您需要获得父母或监护人的同意才能使用本服务。在某些司法管辖区，使用本服务的法定年龄可能更高，您有责任确保您符合当地法律要求。
                 </p>
               </div>
             </section>
@@ -128,13 +128,13 @@ export default function TermsPage() {
                   <li>维护并及时更新您的账户信息，以保持其准确性；</li>
                   <li>对您账户下发生的所有活动负责；</li>
                   <li>对您的密码保密，并对使用您密码访问服务的行为负责；</li>
-                  <li>立即通知我们任何未经授权使用您账户或任何其他安全漏洞的行为。</li>
+                  <li>立即通知开发者任何未经授权使用您账户或任何其他安全漏洞的行为。</li>
                 </ul>
 
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">2.2 账户安全</h3>
 
                 <p>
-                  您有责任维护您账户的安全。我们建议您：
+                  您有责任维护您账户的安全。建议您：
                 </p>
 
                 <ul>
@@ -147,7 +147,7 @@ export default function TermsPage() {
                 <div className="terms-note">
                   <p className="font-medium text-xf-dark mb-1">账户责任</p>
                   <p className="text-xf-medium text-sm">
-                    您对您账户下发生的所有活动负责，无论该活动是否由您本人进行。如果您发现任何未经授权的访问，请立即通知我们。
+                    您对您账户下发生的所有活动负责，无论该活动是否由您本人进行。如果您发现任何未经授权的访问，请立即通知开发者。
                   </p>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export default function TermsPage() {
                 <div className="terms-note">
                   <p className="font-medium text-xf-dark mb-1">服务变更</p>
                   <p className="text-xf-medium text-sm">
-                    我们保留随时修改、暂停或终止任何服务的权利，恕不另行通知。我们不对服务的可用性、及时性、准确性或完整性做出任何保证。
+                    开发者保留随时修改、暂停或终止任何服务的权利，恕不另行通知。不对服务的可用性、及时性、准确性或完整性做出任何保证。
                   </p>
                 </div>
               </div>
@@ -185,7 +185,7 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  使用我们的服务时，您同意遵守以下行为准则：
+                  使用本服务时，您同意遵守以下行为准则：
                 </p>
 
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">4.1 禁止行为</h3>
@@ -202,14 +202,14 @@ export default function TermsPage() {
                   <li>干扰或破坏服务或连接到服务的任何服务器或网络；</li>
                   <li>发布或传输任何病毒、木马、蠕虫或其他恶意代码；</li>
                   <li>收集或存储其他用户的个人数据；</li>
-                  <li>使用服务进行任何商业目的，未经我们事先书面同意；</li>
+                  <li>使用服务进行任何商业目的，未经开发者事先书面同意；</li>
                   <li>违反任何适用的当地、州、国家或国际法律或法规。</li>
                 </ul>
 
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">4.2 违规处理</h3>
 
                 <p>
-                  如果我们确定您违反了本条款或适用法律，我们保留暂停或终止您账户的权利，恕不另行通知。
+                  如果确定您违反了本条款或适用法律，开发者保留暂停或终止您账户的权利，恕不另行通知。
                 </p>
               </div>
             </section>
@@ -235,13 +235,13 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">5.2 内容许可</h3>
 
                 <p>
-                  通过发布用户内容，您授予我们全球性、非独占、免版税、可转让的许可，以使用、复制、修改、显示、分发和创建用户内容的衍生作品，以提供、改进和推广我们的服务。
+                  通过发布用户内容，您授予开发者全球性、非独占、免版税、可转让的许可，以使用、复制、修改、显示、分发和创建用户内容的衍生作品，以提供、改进和推广本服务。
                 </p>
 
                 <div className="terms-note">
                   <p className="font-medium text-xf-dark mb-1">内容删除</p>
                   <p className="text-xf-medium text-sm">
-                    我们保留随时删除或屏蔽任何违反本条款或适用法律的任何用户内容的权利，恕不另行通知。
+                    开发者保留随时删除或屏蔽任何违反本条款或适用法律的任何用户内容的权利，恕不另行通知。
                   </p>
                 </div>
               </div>
@@ -259,13 +259,13 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">6.1 平台内容</h3>
 
                 <p>
-                  除非获得我们事先书面同意，否则您不得复制、修改、分发、展示、执行、发布、许可、创建衍生作品、转让或出售服务或其任何部分。
+                  除非获得开发者事先书面同意，否则您不得复制、修改、分发、展示、执行、发布、许可、创建衍生作品、转让或出售服务或其任何部分。
                 </p>
 
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">6.2 商标</h3>
 
                 <p>
-                  &quot;相逢&quot;、&quot;Xiangfeng&quot;以及我们的产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经我们事先书面同意，您不得使用我们的商标。
+                  &quot;相逢&quot;、&quot;Xiangfeng&quot;以及产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经开发者事先书面同意，您不得使用这些商标。
                 </p>
               </div>
             </section>
@@ -276,17 +276,17 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  您对个人信息的收集和使用受我们的隐私政策管辖。使用我们的服务即表示您同意按照我们的隐私政策收集和使用您的信息。
+                  您对个人信息的收集和使用受隐私政策管辖。使用本服务即表示您同意按照隐私政策收集和使用您的信息。
                 </p>
 
                 <p>
-                  请查看我们的<Link href="/privacy" className="text-xf-info hover:text-xf-accent transition-colors">隐私政策</Link>以了解我们如何收集、使用和保护您的个人信息。
+                  请查看<Link href="/privacy" className="text-xf-info hover:text-xf-accent transition-colors">隐私政策</Link>以了解如何收集、使用和保护您的个人信息。
                 </p>
 
                 <div className="terms-note">
                   <p className="font-medium text-xf-dark mb-1">数据保护</p>
                   <p className="text-xf-medium text-sm">
-                    我们采取合理的技术和组织措施来保护您的个人信息免受未经授权的访问、使用或披露。
+                    开发者采取合理的技术和组织措施来保护您的个人信息免受未经授权的访问、使用或披露。
                   </p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function TermsPage() {
 
               <div className="terms-content space-y-6">
                 <p>
-                  在适用法律允许的最大范围内，相逢及其董事、员工、合作伙伴、代理人、供应商或关联公司不对任何间接、偶然、特殊、后果性或惩罚性损害承担责任，包括但不限于利润损失、数据丢失、商誉损失或其他无形损失，无论是否被告知此类损害的可能性。
+                  在适用法律允许的最大范围内，相逢及其合作伙伴、代理人、供应商不对任何间接、偶然、特殊、后果性或惩罚性损害承担责任，包括但不限于利润损失、数据丢失、商誉损失或其他无形损失，无论是否被告知此类损害的可能性。
                 </p>
 
                 <div className="important-clause">
@@ -345,26 +345,26 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">10.1 用户终止</h3>
 
                 <p>
-                  您可以随时通过账户设置或联系我们来终止您的账户。终止后，您将失去对账户和所有相关内容的访问权限。
+                  您可以随时通过账户设置或联系开发者来终止您的账户。终止后，您将失去对账户和所有相关内容的访问权限。
                 </p>
 
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">10.2 平台终止</h3>
 
                 <p>
-                  我们保留随时暂停或终止您对服务的访问的权利，无论是否通知，原因包括但不限于：
+                  开发者保留随时暂停或终止您对服务的访问的权利，无论是否通知，原因包括但不限于：
                 </p>
 
                 <ul>
                   <li>您违反了本条款；</li>
-                  <li>我们无法验证您提供的任何信息；</li>
-                  <li>我们怀疑您从事欺诈或非法活动；</li>
+                  <li>无法验证您提供的任何信息；</li>
+                  <li>怀疑您从事欺诈或非法活动；</li>
                   <li>服务需要长期中断或重大变更。</li>
                 </ul>
 
                 <div className="terms-note">
                   <p className="font-medium text-xf-dark mb-1">终止后数据</p>
                   <p className="text-xf-medium text-sm">
-                    终止后，我们可能会保留您的某些信息，以履行我们的法律义务、解决争议或执行我们的协议。
+                    终止后，开发者可能会保留您的某些信息，以履行法律义务、解决争议或执行协议。
                   </p>
                 </div>
               </div>
@@ -404,80 +404,39 @@ export default function TermsPage() {
 
                 <ul>
                   <li><strong>可分割性：</strong>如果本条款的任何条款被认定为不可执行或无效，该条款应在最大程度上可执行，其余条款将继续完全有效。</li>
-                  <li><strong>弃权：</strong>我们未能执行本条款的任何权利或条款不构成对该权利或条款的弃权。</li>
-                  <li><strong>转让：</strong>未经我们事先书面同意，您不得转让本条款。我们可以在未经您同意的情况下转让本条款。</li>
+                  <li><strong>弃权：</strong>开发者未能执行本条款的任何权利或条款不构成对该权利或条款的弃权。</li>
+                  <li><strong>转让：</strong>未经开发者事先书面同意，您不得转让本条款。开发者可以在未经您同意的情况下转让本条款。</li>
                   <li><strong>完整协议：</strong>本条款构成您与相逢之间关于服务的完整协议。</li>
                 </ul>
               </div>
             </section>
 
-            {/* 联系我们 */}
+            {/* 联系开发者 */}
             <section id="contact" className="terms-section mb-16">
-              <h2 className="text-3xl font-serif font-bold text-xf-accent mb-8">13. 联系我们</h2>
+              <h2 className="text-3xl font-serif font-bold text-xf-accent mb-8">13. 联系开发者</h2>
 
               <div className="terms-content space-y-6">
                 <p>
-                  如果您对这些服务条款有任何疑问、意见或建议，请通过以下方式与我们联系：
+                  如果您对这些服务条款有任何疑问、意见或建议，请通过以下方式与开发者联系：
                 </p>
 
                 <div className="bg-white rounded-2xl p-8 shadow-soft">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <h4 className="text-xl font-bold text-xf-dark mb-6">联系信息</h4>
-
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-xf-light flex items-center justify-center shrink-0">
-                            <Mail className="w-6 h-6 text-xf-info" />
-                          </div>
-                          <div>
-                            <h5 className="font-bold text-xf-dark mb-1">条款相关咨询</h5>
-                            <p className="text-xf-medium">legal@xiangfeng.com</p>
-                            <p className="text-sm text-xf-medium mt-1">专门处理法律条款相关咨询</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-xf-light flex items-center justify-center shrink-0">
-                            <MapPin className="w-6 h-6 text-xf-primary" />
-                          </div>
-                          <div>
-                            <h5 className="font-bold text-xf-dark mb-1">邮寄地址</h5>
-                            <p className="text-xf-medium">上海市静安区安福路288号</p>
-                            <p className="text-sm text-xf-medium mt-1">创新中心3楼，邮编：200040</p>
-                          </div>
-                        </div>
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-xf-light flex items-center justify-center shrink-0">
+                        <Mail className="w-6 h-6 text-xf-info" />
                       </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-xl font-bold text-xf-dark mb-6">其他联系渠道</h4>
-
-                      <div className="space-y-4">
-                        <div>
-                          <h5 className="font-bold text-xf-dark mb-2">一般支持</h5>
-                          <p className="text-xf-medium">support@xiangfeng.com</p>
-                          <p className="text-sm text-xf-medium mt-1">处理账户、技术和服务问题</p>
-                        </div>
-
-                        <div>
-                          <h5 className="font-bold text-xf-dark mb-2">联系电话</h5>
-                          <p className="text-xf-medium">+86 21 1234 5678</p>
-                          <p className="text-sm text-xf-medium mt-1">工作日 9:00-18:00</p>
-                        </div>
-
-                        <div>
-                          <h5 className="font-bold text-xf-dark mb-2">工作时间</h5>
-                          <p className="text-xf-medium">周一至周五 9:00-18:00</p>
-                          <p className="text-sm text-xf-medium mt-1">周末及节假日休息</p>
-                        </div>
+                      <div>
+                        <h5 className="font-bold text-xf-dark mb-1">电子邮件</h5>
+                        <p className="text-xf-medium">support@xiangfeng.com</p>
+                        <p className="text-sm text-xf-medium mt-1">处理账户、技术和服务问题</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <p>
-                  我们将在收到您的询问后尽快回复您。对于复杂的法律问题，我们可能需要更多时间来研究和回复。
+                  开发者将在收到您的询问后尽快回复。由于为独立开发运营，回复时间可能有所延迟，敬请谅解。
                 </p>
               </div>
             </section>

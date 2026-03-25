@@ -10,6 +10,12 @@ import { useState, forwardRef } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 /**
+ * 自动完成类型
+ * @type AutocompleteType
+ */
+type AutocompleteType = 'current-password' | 'new-password' | 'off';
+
+/**
  * PasswordInput Props 接口
  * @interface PasswordInputProps
  */
@@ -20,6 +26,8 @@ interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
   error?: string;
   /** 额外说明内容（如密码强度提示） */
   helper?: React.ReactNode;
+  /** 自动完成类型，用于密码管理器支持 */
+  autoComplete?: AutocompleteType;
 }
 
 /**
@@ -38,7 +46,7 @@ interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
  * />
  */
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ label, error, helper, className = '', disabled, ...props }, ref) => {
+  ({ label, error, helper, className = '', disabled, autoComplete = 'current-password', ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     /**
@@ -59,6 +67,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           <input
             ref={ref}
             type={showPassword ? 'text' : 'password'}
+            autoComplete={autoComplete}
             disabled={disabled}
             className={`
               w-full px-6 py-4 pr-12 rounded-2xl bg-xf-light border 

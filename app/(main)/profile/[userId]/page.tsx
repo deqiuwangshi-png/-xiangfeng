@@ -76,7 +76,7 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
 
   // 并行获取用户资料和统计数据
   const [profileResult, stats] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', userId).single(),
+    supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
     getUserPublicStats(userId),
   ])
 
@@ -99,6 +99,8 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
       ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
       : '未知时间',
     domain: profile?.domain ?? null,
+    role: profile?.role || 'user',
+    level: profile?.level?.[0]?.level || 1,
   }
 
   return <ProfileHeader user={userData} stats={stats} />

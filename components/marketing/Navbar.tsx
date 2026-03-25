@@ -9,7 +9,6 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/icons'
 import { MobileNav } from '@/components/mobile/MobileNav'
 
@@ -19,10 +18,10 @@ import { MobileNav } from '@/components/mobile/MobileNav'
  * @description 定义营销页面的导航项
  */
 const navItems = [
-  { id: 'features', label: '特色功能', href: '#features' },
-  { id: 'how-it-works', label: '如何运作', href: '#how-it-works' },
-  { id: 'creators', label: '生态创作者', href: '#creators' },
-  { id: 'economy', label: '生态经济', href: '#economy' },
+  { id: 'features', label: '特色功能', href: '/#features' },
+  { id: 'how-it-works', label: '如何运作', href: '/#how-it-works' },
+  { id: 'creators', label: '生态创作者', href: '/#creators' },
+  { id: 'economy', label: '生态经济', href: '/#economy' },
 ]
 
 /**
@@ -30,8 +29,6 @@ const navItems = [
  * @returns {JSX.Element} 桌面端导航
  */
 function DesktopNav() {
-  const pathname = usePathname()
-  const isHomePage = pathname === '/'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +60,7 @@ function DesktopNav() {
           {navItems.map((item) => (
             <Link
               key={item.id}
-              href={isHomePage ? item.href : `/${item.href}`}
+              href={item.href}
               className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
             >
               {item.label}
@@ -72,7 +69,6 @@ function DesktopNav() {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
           <Link
             href="/login"
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"

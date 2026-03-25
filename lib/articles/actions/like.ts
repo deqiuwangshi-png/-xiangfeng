@@ -81,21 +81,11 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
     }
 
     // 触发器自动维护 like_count
-    // 查询最新的点赞总数返回给前端
-    const { data: article, error: countError } = await supabase
-      .from('articles')
-      .select('like_count')
-      .eq('id', articleId)
-      .single();
-
-    if (countError) {
-      console.error('获取点赞数失败:', countError);
-    }
-
+    // 注意：前端使用乐观更新，不依赖此返回值更新数字
     return {
       success: true,
       liked,
-      likes: article?.like_count ?? 0,
+      likes: 0, // 前端不使用此值
     };
   } catch (error) {
     console.error('点赞操作失败:', error);

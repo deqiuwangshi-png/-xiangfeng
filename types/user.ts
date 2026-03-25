@@ -135,6 +135,10 @@ export interface UserDisplayInfo {
   email?: string
   /** 个人领域数组 */
   domain?: string[] | null
+  /** 用户角色 */
+  role?: 'user' | 'admin' | 'super_admin'
+  /** 用户等级 1-12 */
+  level?: number
 }
 
 /**

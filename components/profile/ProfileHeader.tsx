@@ -13,6 +13,8 @@
 import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
 import { useState } from 'react'
 import { UserAvatar } from '@/components/ui'
+import { VerifyBadge } from '@/components/user/VerifyBadge'
+import { UserBadges } from '@/components/user/UserBadges'
 import { escapeHtml } from '@/lib/utils/purify'
 import type { UserDisplayInfo, UserStats } from '@/types'
 
@@ -43,25 +45,35 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
       {/* 横向窄条：头像+用户名+操作按钮 */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          {/* 头像区域 */}
+          {/* 头像区域 - 带认证边框 */}
           <div className="relative shrink-0">
-            <div className="relative">
+            <VerifyBadge role={user.role || 'user'}>
               <UserAvatar
                 name={user.username}
                 userId={user.id}
                 avatarUrl={user.avatarUrl}
                 size="lg"
-                className="shadow-md ring-2 ring-white w-12 h-12 sm:w-14 sm:h-14"
+                className="shadow-md w-12 h-12 sm:w-14 sm:h-14"
               />
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-            </div>
+            </VerifyBadge>
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
           </div>
 
-          {/* 用户名和位置信息 */}
+          {/* 用户名、等级徽章和位置信息 */}
           <div className="min-w-0">
-            <h1 className="text-base sm:text-lg font-serif text-xf-accent font-bold truncate">
-              {safeUsername}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-serif text-xf-accent font-bold truncate">
+                {safeUsername}
+              </h1>
+              {/* 等级徽章 - 水平排列 */}
+              {user.level && user.level > 0 && (
+                <UserBadges
+                  role={user.role || 'user'}
+                  level={user.level}
+                  size="sm"
+                />
+              )}
+            </div>
             <div className="flex items-center gap-2 sm:gap-3 text-xs text-xf-medium">
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />

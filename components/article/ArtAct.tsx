@@ -59,9 +59,9 @@ export default function ArtAct({
   /**
    * 处理点赞（乐观更新）
    * 1. 先保存当前状态用于回滚
-   * 2. 立即更新UI
+   * 2. 立即更新UI（乐观更新）
    * 3. 发送请求
-   * 4. 成功时保持乐观更新结果，不覆盖（避免触发器延迟问题）
+   * 4. 成功时只同步状态，保持乐观更新的数字（避免触发器延迟问题）
    * 5. 失败时回滚
    */
   const handleLike = async () => {
@@ -73,6 +73,7 @@ export default function ArtAct({
     const newLiked = !previousLiked;
     const newLikeCount = newLiked ? previousLikeCount + 1 : Math.max(0, previousLikeCount - 1);
 
+    {/* 乐观更新：立即更新UI */}
     setLiked(newLiked);
     setLikeCount(newLikeCount);
     setIsLikeLoading(true);
@@ -80,12 +81,19 @@ export default function ArtAct({
     try {
       const result = await toggleArticleLike(articleId);
 
-      if (!result.success) {
+      if (result.success) {
+        {/* 只同步状态，确保红心状态正确 */}
+        setLiked(result.liked);
+        {/* 关键：保持乐观更新的数字，不用服务器返回的（避免触发器延迟导致数字回退） */}
+        {/* 服务器数字会在页面刷新后同步 */}
+      } else {
+        {/* 失败时回滚 */}
         setLiked(previousLiked);
         setLikeCount(previousLikeCount);
         showError(result.error || '操作失败', '请稍后重试');
       }
     } catch {
+      {/* 异常时回滚 */}
       setLiked(previousLiked);
       setLikeCount(previousLikeCount);
       showNetworkError();
