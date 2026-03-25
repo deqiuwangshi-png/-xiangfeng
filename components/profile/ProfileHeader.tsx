@@ -5,11 +5,15 @@
  * @module components/profile/ProfileHeader
  * @description 显示用户的头像、用户名、简介和统计信息
  * @更新时间: 2026-03-22
+ * @security
+ * - 所有用户生成内容（用户名、简介、位置）都经过 escapeHtml 转义
+ * - 防止 XSS 攻击，确保恶意脚本不会被执行
  */
 
 import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
 import { useState } from 'react'
 import { UserAvatar } from '@/components/ui'
+import { escapeHtml } from '@/lib/utils/purify'
 import type { UserDisplayInfo, UserStats } from '@/types'
 
 interface ProfileHeaderProps {
@@ -20,11 +24,7 @@ interface ProfileHeaderProps {
 /**
  * 个人资料头部组件 - 紧凑横向布局
  * @description
- * 改进点：
- * - 横向紧凑布局，减少纵向空间占用
- * - 统计信息整合到头部右侧
- * - 减少阴影和圆角，与侧边栏风格统一
- * - 优化F型阅读路径，快速进入内容区
+
  */
 export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
   const [isFollowing, setIsFollowing] = useState(false)
@@ -32,6 +32,11 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
   const handleFollowClick = () => {
     setIsFollowing(!isFollowing)
   }
+
+  // 对用户生成内容进行 HTML 转义，防止 XSS 攻击
+  const safeUsername = escapeHtml(user.username)
+  const safeLocation = escapeHtml(user.location)
+  const safeBio = escapeHtml(user.bio)
 
   return (
     <div className="bg-white border border-xf-bg/60 rounded-xl p-4 sm:p-5 mb-4">
@@ -55,12 +60,12 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
           {/* 用户名和位置信息 */}
           <div className="min-w-0">
             <h1 className="text-base sm:text-lg font-serif text-xf-accent font-bold truncate">
-              {user.username}
+              {safeUsername}
             </h1>
             <div className="flex items-center gap-2 sm:gap-3 text-xs text-xf-medium">
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                <span className="truncate">{user.location || '未设置位置'}</span>
+                <span className="truncate">{safeLocation || '未设置位置'}</span>
               </span>
               <span className="hidden sm:flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
@@ -94,9 +99,9 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
       </div>
 
       {/* 个人简介 - 紧凑显示 */}
-      {user.bio && (
+      {safeBio && (
         <p className="mt-3 text-sm text-xf-dark/80 leading-relaxed line-clamp-2">
-          {user.bio}
+          {safeBio}
         </p>
       )}
 
