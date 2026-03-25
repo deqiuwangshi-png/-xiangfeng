@@ -3,10 +3,11 @@
 /**
  * 作者头像组件
  * @module components/article/AuthorAvatar
- * @description 显示作者头像，带关注功能按钮
+ * @description 显示作者头像，带关注功能按钮，点击头像可跳转到作者个人主页
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import type { AuthorAvatarProps } from '@/types'
 import { UserAvatar } from '@/components/ui'
@@ -21,7 +22,7 @@ import { useArticleToast } from '@/hooks/useArticleToast'
  *
  * @description
  * 作者头像+关注按钮
- * - 显示作者头像
+ * - 显示作者头像，点击可跳转到作者个人主页
  * - 底部白色加号按钮表示可关注
  * - 点击后切换关注状态
  */
@@ -62,8 +63,14 @@ export function AuthorAvatar({
 
   /**
    * 处理关注/取消关注
+   *
+   * @param {React.MouseEvent} e - 点击事件
    */
-  const handleFollow = async () => {
+  const handleFollow = async (e: React.MouseEvent) => {
+    {/* 阻止事件冒泡，防止触发头像链接跳转 */}
+    e.preventDefault()
+    e.stopPropagation()
+
     {/* 未登录提示 */}
     if (!currentUser) {
       showAuthRequired('关注作者')
@@ -97,8 +104,12 @@ export function AuthorAvatar({
 
   return (
     <div className="author-avatar-container">
-      {/* 头像 */}
-      <div className="author-avatar-wrapper">
+      {/* 头像 - 点击跳转到作者个人主页 */}
+      <Link
+        href={`/profile/${authorId}`}
+        className="author-avatar-wrapper cursor-pointer"
+        title={`查看 ${authorName} 的个人主页`}
+      >
         <div className="author-avatar-image">
           <UserAvatar
             name={authorName}
@@ -135,7 +146,7 @@ export function AuthorAvatar({
             <Plus className="w-3 h-3 text-gray-600" strokeWidth={3} />
           )}
         </button>
-      </div>
+      </Link>
     </div>
   )
 }
