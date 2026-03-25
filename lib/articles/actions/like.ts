@@ -80,12 +80,22 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
       })
     }
 
-    // 触发器自动维护 like_count，无需等待
-    // 返回乐观更新值，前端直接使用
+    // 触发器自动维护 like_count
+    // 查询最新的点赞总数返回给前端
+    const { data: article, error: countError } = await supabase
+      .from('articles')
+      .select('like_count')
+      .eq('id', articleId)
+      .single();
+
+    if (countError) {
+      console.error('获取点赞数失败:', countError);
+    }
+
     return {
       success: true,
       liked,
-      likes: liked ? 1 : 0, // 前端会根据当前状态计算最终值
+      likes: article?.like_count ?? 0,
     };
   } catch (error) {
     console.error('点赞操作失败:', error);
@@ -149,12 +159,22 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
       // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
     }
 
-    // 触发器自动维护 like_count，无需等待和查询
-    // 返回乐观更新值，让前端处理最终计数
+    // 触发器自动维护 likes 计数
+    // 查询最新的点赞总数返回给前端
+    const { data: comment, error: countError } = await supabase
+      .from('comments')
+      .select('likes')
+      .eq('id', commentId)
+      .single();
+
+    if (countError) {
+      console.error('获取评论点赞数失败:', countError);
+    }
+
     return {
       success: true,
       liked,
-      likes: liked ? 1 : 0, // 前端会根据当前状态计算
+      likes: comment?.likes ?? 0,
     };
   } catch (error) {
     console.error('评论点赞操作失败:', error);
@@ -162,4 +182,4 @@ export async function toggleCommentLike(commentId: string): Promise<ToggleCommen
   }
 }
 
-// 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql
+// 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/sql文件/15通知触发器.sql
