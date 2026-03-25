@@ -16,12 +16,12 @@ import { Menu, X, User, Lock, Bell, Palette, Filter, Settings2 } from '@/compone
  * @constant menuItems
  */
 const menuItems = [
-  { id: 'account', label: '账户设置', icon: User, href: '/settings' },
-  { id: 'privacy', label: '隐私与安全', icon: Lock, href: '/settings#privacy' },
-  { id: 'notifications', label: '通知', icon: Bell, href: '/settings#notifications' },
-  { id: 'appearance', label: '外观与主题', icon: Palette, href: '/settings#appearance' },
-  { id: 'content', label: '内容偏好', icon: Filter, href: '/settings#content' },
-  { id: 'advanced', label: '高级设置', icon: Settings2, href: '/settings#advanced' },
+  { id: 'account', label: '账户设置', icon: User, href: '/settings?tab=account' },
+  { id: 'privacy', label: '隐私与安全', icon: Lock, href: '/settings?tab=privacy' },
+  { id: 'notifications', label: '通知', icon: Bell, href: '/settings?tab=notifications' },
+  { id: 'appearance', label: '外观与主题', icon: Palette, href: '/settings?tab=appearance' },
+  { id: 'content', label: '内容偏好', icon: Filter, href: '/settings?tab=content' },
+  { id: 'advanced', label: '高级设置', icon: Settings2, href: '/settings?tab=advanced' },
 ]
 
 /**

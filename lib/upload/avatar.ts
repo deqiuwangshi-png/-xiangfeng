@@ -25,15 +25,62 @@ const UPLOAD_CONFIG = {
 }
 
 /**
+ * 图片文件 Magic Bytes 签名
+ * 用于验证文件实际内容，防止 MIME 类型伪造
+ *
+ * @安全增强 S-02: 文件内容验证
+ * - JPEG: FF D8 FF
+ * - PNG: 89 50 4E 47
+ * - WebP: 52 49 46 46 (RIFF header)
+ */
+const IMAGE_MAGIC_BYTES: Record<string, number[]> = {
+  'image/jpeg': [0xff, 0xd8, 0xff],
+  'image/png': [0x89, 0x50, 0x4e, 0x47],
+  'image/webp': [0x52, 0x49, 0x46, 0x46],
+}
+
+/**
  * 上传错误类型
  */
 export class AvatarUploadError extends Error {
   constructor(
     message: string,
-    public code: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'UPLOAD_FAILED' | 'URL_ERROR'
+    public code: 'INVALID_TYPE' | 'SIZE_EXCEEDED' | 'UPLOAD_FAILED' | 'URL_ERROR' | 'INVALID_CONTENT'
   ) {
     super(message)
     this.name = 'AvatarUploadError'
+  }
+}
+
+/**
+ * 验证文件 Magic Bytes（文件签名）
+ * 防止 MIME 类型伪造攻击
+ *
+ * @param file - 待验证的文件
+ * @param expectedType - 期望的 MIME 类型
+ * @returns 是否验证通过
+ *
+ * @安全增强 S-02: 深度文件内容验证
+ * - 读取文件头字节
+ * - 与标准 Magic Bytes 比对
+ * - 防止伪装成图片的恶意文件
+ */
+async function validateMagicBytes(file: File, expectedType: string): Promise<boolean> {
+  const magicBytes = IMAGE_MAGIC_BYTES[expectedType]
+  if (!magicBytes) return false
+
+  try {
+    const buffer = await file.slice(0, magicBytes.length).arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+
+    for (let i = 0; i < magicBytes.length; i++) {
+      if (bytes[i] !== magicBytes[i]) {
+        return false
+      }
+    }
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -43,7 +90,7 @@ export class AvatarUploadError extends Error {
  * @param file - 待验证的文件
  * @throws {AvatarUploadError} 验证失败时抛出错误
  */
-function validateAvatar(file: File): void {
+async function validateAvatar(file: File): Promise<void> {
   const allowedTypes: readonly string[] = UPLOAD_CONFIG.allowedTypes
   if (!allowedTypes.includes(file.type)) {
     throw new AvatarUploadError(
@@ -58,22 +105,49 @@ function validateAvatar(file: File): void {
       'SIZE_EXCEEDED'
     )
   }
+
+  /**
+   * @安全增强 S-02: 验证文件实际内容
+   * - 检查文件头 Magic Bytes
+   * - 防止 MIME 类型伪造
+   * - 阻止伪装成图片的可执行文件
+   */
+  const isValidContent = await validateMagicBytes(file, file.type)
+  if (!isValidContent) {
+    throw new AvatarUploadError(
+      '文件内容异常，请上传有效的图片文件',
+      'INVALID_CONTENT'
+    )
+  }
 }
 
 /**
  * 生成唯一文件名
  *
  * @param userId - 用户ID
- * @param originalName - 原始文件名
+ * @param mimeType - MIME 类型
  * @returns 唯一文件名
+ *
+ * @安全增强 S-03: 安全的扩展名生成
+ * - 不使用用户提供的文件名
+ * - 根据 MIME 类型确定扩展名
+ * - 防止双扩展名攻击（如 shell.php.jpg）
  */
-function generateAvatarFileName(userId: string, originalName: string): string {
+function generateAvatarFileName(userId: string, mimeType: string): string {
   const timestamp = Date.now()
   const random = Math.random().toString(36).substring(2, 8)
-  // 安全地提取扩展名
-  const extension = originalName.split('.').pop()?.toLowerCase() || 'png'
+
+  // 根据 MIME 类型确定安全扩展名
+  const extensionMap: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+  }
+
+  const safeExtension = extensionMap[mimeType] || 'bin'
+
   // 使用用户ID作为文件夹，方便管理
-  return `${userId}/${timestamp}-${random}.${extension}`
+  return `${userId}/${timestamp}-${random}.${safeExtension}`
 }
 
 /**
@@ -91,10 +165,10 @@ function generateAvatarFileName(userId: string, originalName: string): string {
  * ```
  */
 export async function uploadAvatar(file: File, userId: string): Promise<string> {
-  validateAvatar(file)
+  await validateAvatar(file)
 
   const supabase = createClient()
-  const fileName = generateAvatarFileName(userId, file.name)
+  const fileName = generateAvatarFileName(userId, file.type)
 
   // 上传文件
   const { error: uploadError } = await supabase.storage

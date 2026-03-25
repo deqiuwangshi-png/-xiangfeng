@@ -223,17 +223,20 @@ export const UpdateProfileSchema = z.object({
     .transform(val => (val ? sanitizeText(val) : '')),
 
   avatar_url: z
-    .string()
-    .url('头像 URL 格式不正确')
+    .union([
+      z.string().pipe(z.url({ message: '头像 URL 格式不正确' })),
+      z.literal(''),
+      z.null(),
+    ])
     .optional()
-    .nullable()
     .refine(
-      val => !val || val.startsWith('https://'),
+      val => val === '' || val === null || val === undefined || val.startsWith('https://'),
       '头像 URL 必须使用 HTTPS 协议'
     )
-    .refine(val => !val || !containsXss(val), {
+    .refine(val => val === '' || val === null || val === undefined || !containsXss(val), {
       message: '头像 URL 包含危险内容',
-    }),
+    })
+    .transform(val => val === '' ? null : val),
 })
 
 /**

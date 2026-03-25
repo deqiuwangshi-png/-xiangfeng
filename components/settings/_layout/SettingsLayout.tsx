@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, createContext, useContext, useEffect } from 'react'
+import { createContext, useContext, Suspense, useState, useCallback } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { SettingsNav } from './SettingsNav'
 import { AccountSection } from '../account/AccountSection'
 import { PrivacySection } from '../sections/PrivacySection'
@@ -39,86 +40,37 @@ interface SettingsLayoutProps {
   contentSettings?: ContentSettings
 }
 
-/**
- * 设置页面布局组件（Client Component）
- * 
- * 作用: 管理设置页面的布局和标签页切换
- * 
- * @returns {JSX.Element} 设置页面布局
- * 
- * 使用说明:
- *   管理设置页面的整体布局
- *   处理标签页切换
- *   管理设置状态
- * 
- * 架构说明:
- *   - 使用'use client'指令
- *   - 不直接访问数据库
- *   - 使用Server Actions进行数据修改
- *   - 使用客户端hooks（useState, useEffect）
- *   - 接收来自Server Component的数据
- * 
- * @state
- * - activeTab: 当前激活的标签页ID
- * 
- * 更新时间: 2026-03-02
- */
-
-/**
- * 有效的标签页ID列表
- * @constant VALID_TABS
- */
+{/* 有效的标签页ID列表 */}
 const VALID_TABS = ['account', 'privacy', 'notifications', 'appearance', 'content', 'advanced']
 
-/**
- * 从URL hash获取标签页ID
- * @function getTabFromHash
- * @returns {string} 标签页ID
- */
-const getTabFromHash = (): string => {
-  if (typeof window === 'undefined') return 'account'
-  const hash = window.location.hash.replace('#', '')
-  return VALID_TABS.includes(hash) ? hash : 'account'
+{/* 从查询参数获取标签页ID */}
+const getTabFromSearchParams = (searchParams: URLSearchParams | null): string => {
+  const tab = searchParams?.get('tab')
+  return tab && VALID_TABS.includes(tab) ? tab : 'account'
 }
 
-export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProps) {
-  // 使用函数式初始值，避免在渲染阶段同步调用setState
-  const [activeTab, setActiveTab] = useState(() => getTabFromHash())
+{/* 内部内容组件 - 配合 Suspense 使用 */}
+function SettingsLayoutContent({ userData, contentSettings }: SettingsLayoutProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  /**
-   * 处理标签页切换
-   *
-   * @function handleTabChange
-   * @param {string} tabId - 标签页ID
-   * @returns {void}
-   *
-   * @description
-   * 更新当前激活的标签页状态，并同步更新URL hash
-   */
-  const handleTabChange = (tabId: string) => {
+  {/* 从 URL 初始化标签页状态 */}
+  const [activeTab, setActiveTab] = useState(() => getTabFromSearchParams(searchParams))
+
+  {/* 处理标签页切换 - 先更新状态再同步 URL，避免子组件重新挂载 */}
+  const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId)
-    // 同步更新URL hash，支持通过锚点链接直接访问特定标签页
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#${tabId}`)
-    }
+    const params = new URLSearchParams(searchParams?.toString())
+    params.set('tab', tabId)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [pathname, router, searchParams])
+
+  {/* 监听浏览器前进/后退按钮，同步 URL 变化到状态 */}
+  const currentTabFromUrl = getTabFromSearchParams(searchParams)
+  if (currentTabFromUrl !== activeTab) {
+    setActiveTab(currentTabFromUrl)
   }
-
-  /**
-   * 监听URL hash变化，实现锚点链接支持
-   * 当用户通过 /settings#privacy 等方式访问时，自动切换到对应标签页
-   */
-  useEffect(() => {
-    /**
-     * 处理hashchange事件
-     */
-    const handleHashChange = () => {
-      const newTab = getTabFromHash()
-      setActiveTab(newTab)
-    }
-
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
-  }, [])
 
   {/* 上下文数据 - 服务端获取的数据通过 Context 共享给子组件 */}
   const contextValue: SettingsContextType = {
@@ -156,5 +108,38 @@ export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProp
         </div>
       </div>
     </SettingsContext.Provider>
+  )
+}
+
+/**
+ * 设置页面布局组件（Client Component）
+ * 
+ * 作用: 管理设置页面的布局和标签页切换
+ * 
+ * @returns {JSX.Element} 设置页面布局
+ * 
+ * 使用说明:
+ *   管理设置页面的整体布局
+ *   处理标签页切换
+ *   管理设置状态
+ * 
+ * 架构说明:
+ *   - 使用'use client'指令
+ *   - 不直接访问数据库
+ *   - 使用Server Actions进行数据修改
+ *   - 使用客户端hooks（useState, useEffect）
+ *   - 接收来自Server Component的数据
+ *   - 使用查询参数 ?tab=xxx 切换标签页
+ * 
+ * @state
+ * - activeTab: 当前激活的标签页ID
+ * 
+ * 更新时间: 2026-03-25
+ */
+export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProps) {
+  return (
+    <Suspense fallback={null}>
+      <SettingsLayoutContent userData={userData} contentSettings={contentSettings} />
+    </Suspense>
   )
 }
