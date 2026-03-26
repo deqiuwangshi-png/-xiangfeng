@@ -40,7 +40,7 @@ const creators = [
 const stats = [
   { value: '500+', label: '认证创作者', color: 'accent' },
   { value: '¥28w+', label: '月度创作收益', color: 'primary' },
-  { value: '1w+', label: '协作项目', color: 'info' },
+  { value: '1w+', label: '累计订阅', color: 'info' },
   { value: '94%', label: '创作者满意度', color: 'success' },
 ]
 

@@ -7,7 +7,6 @@
 
 'use client'
 
-import Link from 'next/link'
 import { RevealOnScroll } from './RevealOnScroll'
 
 /**
@@ -23,13 +22,6 @@ export default function CTASection() {
             <h2 className="text-xl sm:text-3xl font-serif font-bold text-xf-dark mb-4 sm:mb-6">准备好加入生态了吗？</h2>
             <p className="text-sm sm:text-lg text-xf-medium mb-6 sm:mb-10 max-w-2xl mx-auto">加入相逢，成为知识生态系统的一部分，共同创造价值，共享成长</p>
 
-            {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
-            <Link
-              href="/login"
-              className="inline-block px-8 sm:px-10 py-3 sm:py-4 bg-xf-primary hover:bg-xf-accent text-white rounded-xl sm:rounded-2xl font-semibold text-lg sm:text-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 touch-manipulation"
-            >
-              立即开始
-            </Link>
           </div>
         </div>
       </RevealOnScroll>

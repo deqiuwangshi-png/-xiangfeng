@@ -11,12 +11,6 @@
  * @param {string} cancelText - 取消按钮文本，默认为"取消"
  * @param {boolean} showBorder - 是否显示顶部边框，默认为true
  * @returns {JSX.Element} 表单操作按钮组件
- *
- * 使用说明:
- *   - 用于表单底部的操作按钮组
- *   - 统一样式和行为
- *   - 支持自定义按钮文本
- *
  * 更新时间: 2026-03-02
  */
 

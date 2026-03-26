@@ -14,17 +14,7 @@ import { useState, useTransition } from 'react'
  * @param {function} onError - 错误回调函数
  * @param {boolean} disabled - 开关是否禁用
  * @returns {JSX.Element} 开关组件
- *
- * 使用说明:
- *   显示开关控件
- *   处理开关状态切换
- *   调用Server Action更新设置
- *
- * 架构说明:
- *   - 使用'use client'指令
- *   - 接收当前状态和设置键
- *   - 使用Server Action更新数据
- *   - 使用useTransition处理异步状态
+
  * 更新时间: 2026-02-22
  */
 

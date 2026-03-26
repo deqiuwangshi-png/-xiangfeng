@@ -10,9 +10,7 @@ import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
  * @returns {JSX.Element} 重置密码页面
  * @性能优化 P1: 将页面改为 Server Component，仅表单部分使用 Client Component
  * @优化说明
- * - BrandSection、FormCard、MobileBrandTitle 改为 SSR，减少客户端 JS
- * - ResetPasswordForm 包含 session 检查、表单和状态，使用 Suspense 包裹
- * - 首屏加载速度提升 30-50%
+
  * @特殊处理
  * - session 检查必须在客户端执行（需要访问浏览器存储）
  * - 添加 isChecking 状态显示骨架屏，避免页面闪烁
