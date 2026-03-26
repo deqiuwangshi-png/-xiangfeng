@@ -1,7 +1,10 @@
 /**
- * 认证模块统一入口
+ * 认证模块统一入口（客户端安全）
  * @module lib/auth
  * @description 统一导出所有认证相关的功能、类型和Hooks
+ *
+ * @注意 此模块导出的内容可在客户端和服务端安全使用
+ * 服务端专用的权限控制函数请从 './permissions' 直接导入
  */
 
 // ==================== Server Actions ====================
@@ -12,7 +15,7 @@ export { forgotPassword } from './actions/forgot-password';
 export { resetPassword } from './actions/reset-password';
 export { changePassword } from './actions/change-password';
 
-// ==================== 类型定义 ====================
+// ==================== 类型定义（客户端安全）====================
 export type { AuthResult } from './actions/types';
 export type { LogoutResult } from './logout';
 export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/useLogout';
@@ -30,3 +33,10 @@ export {
   AUTH_ERRORS,
   mapSupabaseError,
 } from './errorMessages';
+
+// ==================== 权限类型（客户端安全）====================
+export type {
+  UserRole,
+  WriteOperation,
+  PermissionCheckResult,
+} from '@/types/permissions';

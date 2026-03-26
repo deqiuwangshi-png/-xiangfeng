@@ -15,21 +15,25 @@ export const metadata: Metadata = {
 
 /**
  * 文章列表组件 - 独立获取数据，支持Suspense
+ * @param {Object} props - 组件属性
+ * @param {boolean} props.isAuthenticated - 是否已认证
  * @returns 文章列表JSX
  */
-async function ArticleList() {
+async function ArticleList({ isAuthenticated }: { isAuthenticated: boolean }) {
   const articles = await getPublishedArticles()
 
   if (!articles || articles.length === 0) {
     return (
       <div className="text-center py-12 text-xf-medium bg-white rounded-2xl">
         <p>还没有文章，快来发布第一篇吧！</p>
-        <Link
-          href="/publish"
-          className="inline-block mt-4 px-6 py-2 bg-xf-primary text-white rounded-xl hover:bg-xf-accent transition-colors"
-        >
-          去发布
-        </Link>
+        {isAuthenticated && (
+          <Link
+            href="/publish"
+            className="inline-block mt-4 px-6 py-2 bg-xf-primary text-white rounded-xl hover:bg-xf-accent transition-colors"
+          >
+            去发布
+          </Link>
+        )}
       </div>
     )
   }
@@ -56,19 +60,32 @@ async function ArticleList() {
  * 首页 - 显示已发布的文章列表
  * @description 文章列表使用Suspense延迟加载
  * 使用缓存的getCurrentUser()避免重复获取用户数据
+ * 支持匿名用户访问，只浏览文章
  */
 export default async function HomePage() {
   // 获取当前用户（LCP关键路径）- 使用缓存函数
   const user = await getCurrentUser()
+  const isAuthenticated = !!user
   const userName = user?.user_metadata?.username || user?.email?.split('@')[0] || '朋友'
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10 pt-6 sm:pt-8 pb-20 fade-in-up">
       {/* 欢迎区域 */}
       <div className="mb-6 sm:mb-10">
-        <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
-          欢迎回来，{userName}
-        </h1>
+        {isAuthenticated ? (
+          <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
+            欢迎回来，{userName}
+          </h1>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
+              发现深度文章
+            </h1>
+            <p className="text-xf-medium text-sm sm:text-base">
+              登录后可以点赞、评论和发布自己的文章
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 文章列表区域 - 使用Suspense优化LCP */}
@@ -89,7 +106,7 @@ export default async function HomePage() {
         {/* 使用 Suspense 延迟加载文章列表，优化LCP */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Suspense fallback={<ArticleCardSkeleton count={4} />}>
-            <ArticleList />
+            <ArticleList isAuthenticated={isAuthenticated} />
           </Suspense>
         </div>
       </div>

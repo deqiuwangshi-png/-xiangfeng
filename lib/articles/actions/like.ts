@@ -11,9 +11,14 @@
  * - 利用 PostgreSQL 触发器自动维护计数
  * - 通知发送改为异步非阻塞
  * - 减少数据库往返次数
+ *
+ * @权限控制
+ * - 匿名用户禁止点赞
+ * - 认证用户可以点赞/取消点赞
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { checkLikeArticleTask } from '@/lib/rewards/actions/tasks';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
@@ -28,24 +33,29 @@ export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
  * 3. 触发器自动维护 like_count
  * 4. 通知发送改为异步非阻塞
  *
+ * @权限检查
+ * - 要求用户已认证
+ * - 匿名用户会收到"请先登录"错误
+ *
  * @param articleId - 文章ID
  * @returns 点赞结果
  */
 export async function toggleArticleLike(articleId: string): Promise<ToggleLikeResult> {
   console.log('[点赞 Server] toggleArticleLike 被调用:', articleId);
 
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    console.log('[点赞 Server] 权限检查失败:', message);
+    return { success: false, liked: false, likes: 0, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    // 1. 获取当前登录用户
-    console.log('[点赞 Server] 获取当前用户...');
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.log('[点赞 Server] 用户未登录:', authError?.message);
-      return { success: false, liked: false, likes: 0, error: '请先登录' };
-    }
-
     console.log('[点赞 Server] 当前用户:', user.id);
     let liked = false;
 
@@ -153,24 +163,29 @@ export async function toggleArticleLike(articleId: string): Promise<ToggleLikeRe
  * 2. 冲突时删除（取消点赞）
  * 3. 触发器自动维护 likes 计数
  *
+ * @权限检查
+ * - 要求用户已认证
+ * - 匿名用户会收到"请先登录"错误
+ *
  * @param commentId - 评论ID
  * @returns 点赞结果
  */
 export async function toggleCommentLike(commentId: string): Promise<ToggleCommentLikeResult> {
   console.log('[点赞 Server] toggleCommentLike 被调用:', commentId);
 
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    console.log('[点赞 Server] 权限检查失败:', message);
+    return { success: false, liked: false, likes: 0, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    // 1. 获取当前登录用户
-    console.log('[点赞 Server] 获取当前用户...');
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.log('[点赞 Server] 用户未登录:', authError?.message);
-      return { success: false, liked: false, likes: 0, error: '请先登录' };
-    }
-
     console.log('[点赞 Server] 当前用户:', user.id);
     let liked = false;
 

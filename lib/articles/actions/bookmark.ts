@@ -10,9 +10,14 @@
  * - 使用插入-冲突模式减少数据库查询次数
  * - 移除 ensureUserProfile 检查（应在注册时完成）
  * - 触发器自动维护 favorite_count
+ *
+ * @权限控制
+ * - 匿名用户禁止收藏
+ * - 认证用户可以收藏/取消收藏
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { checkCollectArticleTask } from '@/lib/rewards/actions/tasks';
 
 /**
@@ -34,20 +39,26 @@ export interface ToggleBookmarkResult {
  * 3. 触发器自动维护 favorite_count
  * 4. 减少数据库往返次数
  *
+ * @权限检查
+ * - 要求用户已认证
+ * - 匿名用户会收到"请先登录"错误
+ *
  * @param articleId - 文章ID
  * @returns 收藏结果
  */
 export async function toggleArticleBookmark(articleId: string): Promise<ToggleBookmarkResult> {
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    return { success: false, favorited: false, favorites: 0, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    // 1. 获取当前登录用户
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, favorited: false, favorites: 0, error: '请先登录' };
-    }
-
     let favorited = false;
 
     // 2. 尝试插入收藏 - 利用唯一约束防重
