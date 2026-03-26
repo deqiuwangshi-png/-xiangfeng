@@ -87,7 +87,7 @@ export const PtOverview = memo(function PtOverview({
   return (
     <div className="bg-white rounded-2xl shadow-soft px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 border border-xf-bg/30">
       <div>
-        <span className="text-xs text-xf-primary">我的积分</span>
+        <span className="text-xs text-xf-primary">我的灵感币</span>
         {/* 当前积分 - 独立组件 */}
         <PointsNumber value={points} isValidating={isValidating} />
       </div>

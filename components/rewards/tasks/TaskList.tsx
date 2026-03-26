@@ -177,7 +177,7 @@ export function TaskList({ category }: TaskListProps) {
   const handleClaimReward = async (taskId: string) => {
     const result = await claimReward(taskId)
     if (result.success) {
-      toast.success(`领取成功，获得积分: ${result.points}`)
+      toast.success(`领取成功，获得灵感币: ${result.points}`)
     }
   }
 

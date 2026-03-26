@@ -51,7 +51,7 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
       }
 
       {/* confirm 使用原生确认对话框 */}
-      if (!confirm(`确认兑换 ${itemName}？\n将消耗 ${points} 积分`)) {
+      if (!confirm(`确认兑换 ${itemName}？\n将消耗 ${points} 灵感币`)) {
         return
       }
 
@@ -59,7 +59,7 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
       try {
         const result = await exchange(itemId, 1)
         if (result.success) {
-          toast.success(`兑换成功！\n${itemName}\n消耗 ${result.pointsSpent} 积分\n剩余 ${result.remainingPoints} 积分`)
+          toast.success(`兑换成功！\n${itemName}\n消耗 ${result.pointsSpent} 灵感币\n剩余 ${result.remainingPoints} 灵感币`)
           await refreshPoints()
         } else {
           toast.error(result.error || '兑换失败')
@@ -128,7 +128,7 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
               {item.name}
             </div>
             <div className="text-xf-accent font-bold text-base mt-1">
-              {item.points_price} 积分
+              {item.points_price} 灵感币
             </div>
             {/* 库存提示 */}
             {item.stock >= 0 && item.stock < 10 && (
@@ -153,7 +153,7 @@ export function ShopFull({ category, userPoints }: ShopFullProps) {
                   兑换中...
                 </>
               ) : (
-                canAfford ? '兑换' : '积分不足'
+                canAfford ? '兑换' : '灵感币不足'
               )}
             </button>
           </div>

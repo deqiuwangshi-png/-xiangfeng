@@ -163,7 +163,7 @@ export const SignCard = memo(function SignCard({
               连续签到 <span className="font-bold text-xf-accent text-lg">{signDays}天</span>
             </div>
             <div className="text-2xl font-serif font-semibold text-xf-dark">
-              今日签到得 <span className="text-xf-accent">{todayReward}积分</span>
+              今日签到得 <span className="text-xf-accent">{todayReward}灵感币</span>
               {bonusDay && (
                 <span className="text-sm text-xf-success ml-2">(大将日+{bonusPoints}!)</span>
               )}
@@ -210,8 +210,8 @@ export const SignCard = memo(function SignCard({
         </div>
 
         <p className="text-xs text-xf-primary mt-3">
-          明日签到可得{tomorrowReward}积分
-          {signDays % 7 === 6 && bonusList[6] && '，连续7天额外奖励大将积分!'}
+          明日签到可得{tomorrowReward}灵感币
+          {signDays % 7 === 6 && bonusList[6] && '，连续7天额外奖励大将灵感币!'}
         </p>
       </div>
     </div>

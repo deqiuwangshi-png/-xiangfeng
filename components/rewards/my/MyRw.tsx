@@ -198,7 +198,7 @@ export function MyRw() {
                   </div>
                   <div className="text-xs text-xf-primary">{item.date}</div>
                   <span className="text-xs text-xf-accent font-semibold">
-                    {item.points}积分
+                    {item.points}灵感币
                   </span>
                 </div>
                 <span

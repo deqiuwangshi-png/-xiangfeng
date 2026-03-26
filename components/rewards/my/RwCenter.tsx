@@ -22,7 +22,7 @@ type TabType = 'points' | 'rewards'
  * @constant tabs
  */
 const tabs: { key: TabType; label: string }[] = [
-  { key: 'points', label: '积分记录' },
+  { key: 'points', label: '灵感币记录' },
   { key: 'rewards', label: '兑换记录' },
 ]
 
@@ -42,7 +42,7 @@ export function RwCenter() {
             <Archive className="w-7 h-7 text-xf-primary" />
             历史记录
           </h1>
-          <p className="text-xf-primary mt-1 text-sm">查看您的积分变动与兑换历史</p>
+          <p className="text-xf-primary mt-1 text-sm">查看您的灵感币变动与兑换历史</p>
         </div>
         <a
           href="/rewards"

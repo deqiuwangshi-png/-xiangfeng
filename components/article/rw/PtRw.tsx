@@ -81,7 +81,7 @@ export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
       {/* 积分余额显示 */}
       <div className="flex items-center justify-center gap-2 text-sm text-xf-medium">
         <Wallet className="w-4 h-4" />
-        <span>我的积分：</span>
+        <span>我的灵感币：</span>
         <span className="font-bold text-xf-accent">{userPoints}</span>
       </div>
 

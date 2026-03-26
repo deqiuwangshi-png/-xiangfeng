@@ -54,7 +54,7 @@ export function TaskClient() {
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
             灵感任务
           </h1>
-          <p className="text-xf-primary mt-1 text-sm">不是为了打卡，而是为了遇见更好的自己</p>
+          <p className="text-xf-primary mt-1 text-sm">不是为了打卡，而是为了赚取灵感币</p>
         </div>
         <Link 
           href="/rewards"
@@ -71,7 +71,7 @@ export function TaskClient() {
             <Sparkles className="w-6 h-6 text-xf-primary" />
           </div>
           <div>
-            <div className="text-sm text-xf-primary">灵感积分</div>
+            <div className="text-sm text-xf-primary">我的灵感币</div>
             <div className="text-2xl font-bold text-xf-accent">{displayPoints}</div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export function TaskClient() {
       <TaskList category={activeCategory} />
 
       {/* 底部留白 */}
-      <div className="mt-8 text-center text-sm text-xf-primary">每一个任务都是一次心灵的散步</div>
+      <div className="mt-8 text-center text-sm text-xf-primary">每一个任务都是对成果的奖励</div>
     </div>
   )
 }

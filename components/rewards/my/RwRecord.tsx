@@ -282,7 +282,7 @@ export function RwRecord() {
                   <div className="flex items-center gap-3 mt-1">
                     <div className="flex items-center gap-1 text-xs text-xf-accent font-semibold">
                       <Gift className="w-3 h-3" />
-                      {record.points} 积分
+                      {record.points} 灵感币
                     </div>
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Calendar className="w-3 h-3" />

@@ -24,6 +24,7 @@ const categoryConfig: Record<ShopCategoryType, string> = {
   merch: '周边',
   physical: '实体',
   lottery: '抽奖',
+  skin: '皮肤',
 }
 
 /**
@@ -45,9 +46,9 @@ export function ShopClient() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-serif text-xf-accent font-bold text-layer-1">
-            积分商城
+            灵感币商城
           </h1>
-          <p className="text-xf-primary mt-1 text-sm">浏览所有可兑换商品，消耗积分兑换好礼</p>
+          <p className="text-xf-primary mt-1 text-sm">浏览所有可兑换商品，消耗灵感币兑换好礼</p>
         </div>
         <div className="flex items-center gap-3">
           {/* 当前积分显示 - 有缓存时立即显示 */}
