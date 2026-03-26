@@ -6,6 +6,13 @@ import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions'
 
 /**
+ * 强制动态渲染
+ * @description 由于使用了 cookies() 获取用户会话，无法进行静态生成
+ * @see https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
+ */
+export const dynamic = 'force-dynamic'
+
+/**
  * 设置页面主入口（Server Component）
  *
  * 作用: 获取用户设置数据并渲染设置页面
