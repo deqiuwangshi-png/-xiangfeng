@@ -5,10 +5,53 @@
  *
  * @module lib/articles/actions/query
  * @description 处理文章相关的查询操作
+ *
+ * @安全说明
+ * - 所有函数进行输入验证
+ * - 错误处理统一，不泄露数据库细节
+ * - 认证和授权检查完整
  */
 
 import { createClient } from '@/lib/supabase/server';
 import type { DraftData } from '@/types/drafts';
+
+/** 文章状态白名单 */
+const VALID_STATUSES = ['all', 'draft', 'published', 'archived'] as const;
+
+/** 有效的文章状态类型 */
+type ArticleStatus = typeof VALID_STATUSES[number];
+
+/**
+ * 验证UUID格式
+ * @param id - 待验证的ID
+ * @returns 是否为有效的UUID
+ */
+function isValidUUID(id: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
+
+/**
+ * 验证文章状态
+ * @param status - 待验证的状态
+ * @returns 是否为有效的状态
+ */
+function isValidStatus(status: string): status is ArticleStatus {
+  return VALID_STATUSES.includes(status as ArticleStatus);
+}
+
+/**
+ * 安全错误处理
+ * 记录详细错误，但返回通用错误信息给客户端
+ */
+function handleQueryError(context: string, error: unknown): never {
+  // 记录详细错误到服务端日志（脱敏）
+  const errorCode = error instanceof Error ? error.name : 'UNKNOWN';
+  console.error(`[${context}] 查询失败`, { errorCode });
+
+  // 返回通用错误，不暴露数据库细节
+  throw new Error('获取数据失败，请稍后重试');
+}
 
 /**
  * 获取草稿列表（SWR 缓存用）
@@ -19,6 +62,9 @@ import type { DraftData } from '@/types/drafts';
  * - 不查询 content 字段，减少数据传输
  * - 摘要优先使用 excerpt 字段，为空时显示占位文本
  * - 编辑时再按需获取完整内容
+ *
+ * @安全优化
+ * - 错误处理不暴露数据库细节
  */
 export async function fetchDrafts(): Promise<DraftData[]> {
   const supabase = await createClient();
@@ -26,25 +72,29 @@ export async function fetchDrafts(): Promise<DraftData[]> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('用户未登录');
 
-  const { data, error } = await supabase
-    .from('articles')
-    .select('id, title, excerpt, status, created_at, updated_at')
-    .eq('author_id', user.id)
-    .order('updated_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('id, title, excerpt, status, created_at, updated_at')
+      .eq('author_id', user.id)
+      .order('updated_at', { ascending: false });
 
-  if (error) {
-    throw new Error(`获取失败: ${error.message}`);
+    if (error) {
+      throw error;
+    }
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      content: '',
+      summary: item.excerpt || '暂无摘要',
+      status: item.status,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+    }));
+  } catch (err) {
+    return handleQueryError('fetchDrafts', err);
   }
-
-  return (data || []).map(item => ({
-    id: item.id,
-    title: item.title,
-    content: '',
-    summary: item.excerpt || '暂无摘要',
-    status: item.status,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
-  }));
 }
 
 /**
@@ -57,39 +107,50 @@ export async function fetchDrafts(): Promise<DraftData[]> {
  * - 不查询 content 字段，减少数据传输
  * - 摘要优先使用 excerpt 字段，为空时显示占位文本
  * - 编辑时再按需获取完整内容
+ *
+ * @安全优化
+ * - 验证 status 参数白名单
+ * - 错误处理不暴露数据库细节
  */
-export async function getArticles(status?: 'all' | 'draft' | 'published' | 'archived') {
+export async function getArticles(status?: string) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('用户未登录');
 
-  let query = supabase
-    .from('articles')
-    .select('id, title, excerpt, status, created_at, updated_at, published_at')
-    .eq('author_id', user.id)
-    .order('updated_at', { ascending: false });
+  // 安全：验证 status 参数
+  const safeStatus = status && isValidStatus(status) ? status : 'all';
 
-  if (status && status !== 'all') {
-    query = query.eq('status', status);
+  try {
+    let query = supabase
+      .from('articles')
+      .select('id, title, excerpt, status, created_at, updated_at, published_at')
+      .eq('author_id', user.id)
+      .order('updated_at', { ascending: false });
+
+    if (safeStatus !== 'all') {
+      query = query.eq('status', safeStatus);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      content: '',
+      summary: item.excerpt || '暂无摘要',
+      status: item.status,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      published_at: item.published_at,
+    }));
+  } catch (err) {
+    return handleQueryError('getArticles', err);
   }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(`获取失败: ${error.message}`);
-  }
-
-  return (data || []).map(item => ({
-    id: item.id,
-    title: item.title,
-    content: '',
-    summary: item.excerpt || '暂无摘要',
-    status: item.status,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
-    published_at: item.published_at,
-  }));
 }
 
 /**
@@ -103,53 +164,58 @@ export async function getArticles(status?: 'all' | 'draft' | 'published' | 'arch
  *
  * @业务规则
  * - 过滤停用用户(is_active=false)的文章
+ *
+ * @安全优化
+ * - 错误处理不暴露数据库细节
  */
 export async function getPublishedArticles() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('articles')
-    .select(`
-      id,
-      title,
-      excerpt,
-      status,
-      created_at,
-      updated_at,
-      published_at,
-      author_id,
-      like_count,
-      comment_count,
-      view_count,
-      author:profiles!inner(username, avatar_url, is_active)
-    `)
-    .eq('status', 'published')
-    .eq('author.is_active', true)
-    .order('published_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select(`
+        id,
+        title,
+        excerpt,
+        status,
+        created_at,
+        updated_at,
+        published_at,
+        author_id,
+        like_count,
+        comment_count,
+        view_count,
+        author:profiles!inner(username, avatar_url, is_active)
+      `)
+      .eq('status', 'published')
+      .eq('author.is_active', true)
+      .order('published_at', { ascending: false });
 
-  if (error) {
-    throw new Error(`获取失败: ${error.message}`);
+    if (error) {
+      throw error;
+    }
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      summary: item.excerpt || '',
+      status: item.status,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      publishedAt: item.published_at,
+      author: {
+        id: item.author_id,
+        name: (item.author as { username?: string })?.username || '匿名',
+        avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
+      },
+      likesCount: item.like_count || 0,
+      commentsCount: item.comment_count || 0,
+      viewsCount: item.view_count || 0,
+    }));
+  } catch (err) {
+    return handleQueryError('getPublishedArticles', err);
   }
-
-  return (data || []).map(item => ({
-    id: item.id,
-    title: item.title,
-    summary: item.excerpt || '',
-    status: item.status,
-    createdAt: item.created_at,
-    updatedAt: item.updated_at,
-    publishedAt: item.published_at,
-    author: {
-      id: item.author_id,
-      name: (item.author as { username?: string })?.username || '匿名',
-      // 只使用数据库中存储的avatar_url，不再动态生成，确保头像一致性
-      // 如果avatar_url为空，AvatarPlaceholder组件会显示首字母占位符
-      avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
-    },
-    likesCount: item.like_count || 0,
-    commentsCount: item.comment_count || 0,
-    viewsCount: item.view_count || 0,
-  }));
 }
 
 /**
@@ -161,42 +227,57 @@ export async function getPublishedArticles() {
  *
  * @业务规则
  * - 停用用户(is_active=false)的文章不可见
+ *
+ * @安全优化
+ * - 验证 UUID 格式
+ * - 错误处理不暴露数据库细节
  */
 export async function getPublicArticleById(id: string) {
+  // 安全：验证 UUID 格式
+  if (!isValidUUID(id)) {
+    console.error('[getPublicArticleById] 无效的文章ID格式');
+    return null;
+  }
+
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('articles')
-    .select(`
-      *,
-      author:profiles!inner(username, avatar_url, bio, is_active)
-    `)
-    .eq('id', id)
-    .eq('status', 'published')
-    .eq('author.is_active', true)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select(`
+        *,
+        author:profiles!inner(username, avatar_url, bio, is_active)
+      `)
+      .eq('id', id)
+      .eq('status', 'published')
+      .eq('author.is_active', true)
+      .single();
 
-  if (error || !data) return null;
+    if (error || !data) return null;
 
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    summary: data.excerpt,
-    status: data.status,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at,
-    publishedAt: data.published_at,
-    author: {
-      id: data.author_id,
-      name: data.author?.username || '匿名',
-      avatar: data.author?.avatar_url,
-      bio: data.author?.bio,
-    },
-    likesCount: data.like_count || 0,
-    commentsCount: data.comment_count || 0,
-    viewsCount: data.view_count || 0,
-  };
+    return {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      summary: data.excerpt,
+      status: data.status,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      publishedAt: data.published_at,
+      author: {
+        id: data.author_id,
+        name: data.author?.username || '匿名',
+        avatar: data.author?.avatar_url,
+        bio: data.author?.bio,
+      },
+      likesCount: data.like_count || 0,
+      commentsCount: data.comment_count || 0,
+      viewsCount: data.view_count || 0,
+    };
+  } catch {
+    console.error('[getPublicArticleById] 查询失败');
+    return null;
+  }
 }
 
 /**
@@ -205,30 +286,45 @@ export async function getPublicArticleById(id: string) {
  * @description 获取当前用户的文章详情，用于编辑草稿
  * @param id - 文章ID
  * @returns 文章详情，如果不是当前用户文章返回null
+ *
+ * @安全优化
+ * - 验证 UUID 格式
+ * - 错误处理不暴露数据库细节
  */
 export async function getArticleById(id: string) {
+  // 安全：验证 UUID 格式
+  if (!isValidUUID(id)) {
+    console.error('[getArticleById] 无效的文章ID格式');
+    return null;
+  }
+
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('用户未登录');
 
-  const { data, error } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('id', id)
-    .eq('author_id', user.id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('id', id)
+      .eq('author_id', user.id)
+      .single();
 
-  if (error || !data) return null;
+    if (error || !data) return null;
 
-  return {
-    id: data.id,
-    title: data.title,
-    content: data.content,
-    status: data.status,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at,
-  };
+    return {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      status: data.status,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+  } catch {
+    console.error('[getArticleById] 查询失败');
+    return null;
+  }
 }
 
 /**
@@ -245,31 +341,45 @@ export async function getArticleById(id: string) {
  * @业务规则
  * - 只显示已发布(published)状态的文章
  * - 不检查当前登录用户，任何人都可以查看公开文章
+ *
+ * @安全优化
+ * - 验证 UUID 格式
+ * - 错误处理不暴露数据库细节
  */
 export async function getUserPublicArticles(userId: string) {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('articles')
-    .select('id, title, excerpt, status, created_at, updated_at, published_at, like_count, comment_count')
-    .eq('author_id', userId)
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
-
-  if (error) {
-    throw new Error(`获取失败: ${error.message}`);
+  // 安全：验证 UUID 格式
+  if (!isValidUUID(userId)) {
+    console.error('[getUserPublicArticles] 无效的用户ID格式');
+    return [];
   }
 
-  return (data || []).map(item => ({
-    id: item.id,
-    title: item.title,
-    content: '',
-    summary: item.excerpt || '暂无摘要',
-    status: item.status,
-    created_at: item.created_at,
-    updated_at: item.updated_at,
-    published_at: item.published_at,
-    likes_count: item.like_count || 0,
-    comments_count: item.comment_count || 0,
-  }));
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('id, title, excerpt, status, created_at, updated_at, published_at, like_count, comment_count')
+      .eq('author_id', userId)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      content: '',
+      summary: item.excerpt || '暂无摘要',
+      status: item.status,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      published_at: item.published_at,
+      likes_count: item.like_count || 0,
+      comments_count: item.comment_count || 0,
+    }));
+  } catch (err) {
+    return handleQueryError('getUserPublicArticles', err);
+  }
 }

@@ -9,13 +9,34 @@
  * @安全特性
  * - 使用会话存储防止重复计数
  * - 使用数据库函数原子性增加
+ * - 输入参数验证
+ * - 错误信息脱敏
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 /**
- * 增加文章浏览量
+ * 验证UUID格式
+ * @param id - 待验证的ID
+ * @returns 是否为有效的UUID
+ */
+function isValidUUID(id: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
+
+/**
+ * 安全错误日志记录
+ * 记录详细错误但不暴露给客户端
+ */
+function logSecurityError(context: string, error: unknown): void {
+  const errorCode = error instanceof Error ? error.name : 'UNKNOWN';
+  console.error(`[${context}] 操作失败`, { errorCode });
+}
+
+/**
+ * 增加文章浏览量（安全增强版）
  *
  * @param articleId - 文章ID
  * @returns 操作结果
@@ -24,11 +45,23 @@ import { cookies } from 'next/headers';
  * - 使用 cookie 标记已浏览的文章，防止同一会话重复计数
  * - 同一用户在同一会话内多次访问只计一次
  * - 使用数据库函数保证原子性操作
+ * - 验证文章ID格式
+ * - 错误信息脱敏
+ *
+ * @安全优化 S-01: 验证 articleId 为有效 UUID
+ * @安全优化 S-02: 错误信息脱敏，不返回数据库原始错误
+ * @安全优化 S-03: 仅对已发布文章增加浏览量
  */
 export async function incrementArticleView(articleId: string): Promise<{
   success: boolean;
   error?: string;
 }> {
+  // 安全：验证 UUID 格式
+  if (!isValidUUID(articleId)) {
+    console.error('[incrementArticleView] 无效的文章ID格式');
+    return { success: false, error: '无效的文章ID' };
+  }
+
   try {
     const supabase = await createClient();
     const cookieStore = await cookies();
@@ -42,13 +75,27 @@ export async function incrementArticleView(articleId: string): Promise<{
       return { success: true };
     }
 
+    // 安全：先检查文章是否存在且已发布
+    const { data: article, error: checkError } = await supabase
+      .from('articles')
+      .select('id, status')
+      .eq('id', articleId)
+      .eq('status', 'published')
+      .single();
+
+    if (checkError || !article) {
+      // 文章不存在或未发布，不增加浏览量但不报错（防止枚举攻击）
+      return { success: true };
+    }
+
     {/* 使用数据库函数原子性增加浏览量 */}
     const { error } = await supabase.rpc('increment_article_view', {
       p_article_id: articleId,
     });
 
     if (error) {
-      return { success: false, error: error.message };
+      logSecurityError('incrementArticleView', error);
+      return { success: false, error: '操作失败，请稍后重试' };
     }
 
     {/* 设置 cookie 标记已浏览，24小时内不再计数 */}
@@ -59,8 +106,9 @@ export async function incrementArticleView(articleId: string): Promise<{
     });
 
     return { success: true };
-  } catch (err) {
-    return { success: false, error: '操作失败' };
+  } catch {
+    logSecurityError('incrementArticleView', new Error('Unexpected error'));
+    return { success: false, error: '操作失败，请稍后重试' };
   }
 }
 
@@ -69,8 +117,17 @@ export async function incrementArticleView(articleId: string): Promise<{
  *
  * @param articleId - 文章ID
  * @returns 当前浏览量
+ *
+ * @安全优化 S-01: 验证 articleId 为有效 UUID
+ * @安全优化 S-02: 错误处理不暴露数据库细节
  */
 export async function getArticleViewCount(articleId: string): Promise<number> {
+  // 安全：验证 UUID 格式
+  if (!isValidUUID(articleId)) {
+    console.error('[getArticleViewCount] 无效的文章ID格式');
+    return 0;
+  }
+
   try {
     const supabase = await createClient();
 
@@ -85,7 +142,8 @@ export async function getArticleViewCount(articleId: string): Promise<number> {
     }
 
     return data.view_count || 0;
-  } catch (err) {
+  } catch {
+    logSecurityError('getArticleViewCount', new Error('Unexpected error'));
     return 0;
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import useSWR from 'swr'
@@ -11,6 +11,9 @@ import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/d
 
 /** SWR 缓存 Key */
 const DRAFTS_CACHE_KEY = 'drafts/list'
+
+/** localStorage Key for view mode */
+const VIEW_MODE_STORAGE_KEY = 'drafts/viewMode'
 
 /**
  * useDrafts Hook 返回值接口
@@ -75,8 +78,36 @@ export function useDrafts(
   const [activeFilter, setActiveFilter] = useState<DraftFilter>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewModeState] = useState<ViewMode>('grid')
   const [isLoading, setIsLoading] = useState(false)
+
+  /**
+   * 从 localStorage 读取视图模式
+   */
+  useEffect(() => {
+    try {
+      const savedViewMode = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+      if (savedViewMode === 'grid' || savedViewMode === 'list') {
+        setViewModeState(savedViewMode)
+      }
+    } catch {
+      // localStorage 不可用时的静默处理
+    }
+  }, [])
+
+  /**
+   * 设置视图模式并持久化到 localStorage
+   *
+   * @param {ViewMode} mode - 视图模式
+   */
+  const setViewMode = useCallback((mode: ViewMode) => {
+    setViewModeState(mode)
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode)
+    } catch {
+      // localStorage 不可用时的静默处理
+    }
+  }, [])
 
   // 筛选和搜索后的数据
   const filteredDrafts = useMemo(() => {
