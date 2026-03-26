@@ -15,16 +15,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-
-/**
- * 验证UUID格式
- * @param id - 待验证的ID
- * @returns 是否为有效的UUID
- */
-function isValidUUID(id: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
-}
+import { isValidUUID } from '../helpers/utils';
 
 /**
  * 安全错误日志记录

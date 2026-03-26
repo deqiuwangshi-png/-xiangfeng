@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { isValidUUID, handleQueryError } from '../helpers/utils';
 import type { DraftData } from '@/types/drafts';
 
 /** 文章状态白名单 */
@@ -22,35 +23,12 @@ const VALID_STATUSES = ['all', 'draft', 'published', 'archived'] as const;
 type ArticleStatus = typeof VALID_STATUSES[number];
 
 /**
- * 验证UUID格式
- * @param id - 待验证的ID
- * @returns 是否为有效的UUID
- */
-function isValidUUID(id: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
-}
-
-/**
  * 验证文章状态
  * @param status - 待验证的状态
  * @returns 是否为有效的状态
  */
 function isValidStatus(status: string): status is ArticleStatus {
   return VALID_STATUSES.includes(status as ArticleStatus);
-}
-
-/**
- * 安全错误处理
- * 记录详细错误，但返回通用错误信息给客户端
- */
-function handleQueryError(context: string, error: unknown): never {
-  // 记录详细错误到服务端日志（脱敏）
-  const errorCode = error instanceof Error ? error.name : 'UNKNOWN';
-  console.error(`[${context}] 查询失败`, { errorCode });
-
-  // 返回通用错误，不暴露数据库细节
-  throw new Error('获取数据失败，请稍后重试');
 }
 
 /**

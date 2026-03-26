@@ -66,7 +66,7 @@ export const ArticleTagsSchema = z
  * - 每个标签长度限制：1-20字符
  */
 export const UpdateArticleSchema = z.object({
-  id: z.string().uuid('无效的文章ID'),
+  id: z.uuid({ message: '无效的文章ID' }),
   title: z
     .string()
     .min(1, '标题不能为空')
@@ -92,24 +92,24 @@ export const UpdateArticleSchema = z.object({
  * - 净化 HTML 标签
  */
 export const CommentSchema = z.object({
-  articleId: z.string().uuid('无效的文章ID'),
+  articleId: z.uuid({ message: '无效的文章ID' }),
   content: z
     .string()
     .min(1, '评论内容不能为空')
     .max(500, '评论内容不能超过500个字符')
     .transform((val) => val.trim()),
-  parentId: z.string().uuid('无效的评论ID').optional(),
+  parentId: z.uuid({ message: '无效的评论ID' }).optional(),
 });
 
 /**
  * 文章ID验证 Schema
  */
-export const ArticleIdSchema = z.string().uuid('无效的文章ID');
+export const ArticleIdSchema = z.uuid({ message: '无效的文章ID' });
 
 /**
  * 评论ID验证 Schema
  */
-export const CommentIdSchema = z.string().uuid('无效的评论ID');
+export const CommentIdSchema = z.uuid({ message: '无效的评论ID' });
 
 /**
  * 分页参数验证 Schema
@@ -128,7 +128,7 @@ export const PaginationSchema = z.object({
  */
 export const BatchDeleteSchema = z.object({
   ids: z
-    .array(z.string().uuid('无效的文章ID格式'))
+    .array(z.uuid({ message: '无效的文章ID格式' }))
     .min(1, '至少选择一篇文章')
     .max(50, '单次最多删除50篇文章'),
 });

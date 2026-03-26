@@ -17,12 +17,11 @@ export { changePassword } from './actions/change-password';
 
 // ==================== 类型定义（客户端安全）====================
 export type { AuthResult } from './actions/types';
-export type { LogoutResult } from './logout';
+export type { LogoutResult } from '@/types';
 export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/useLogout';
 
 // ==================== Hooks & 客户端工具 ====================
 export { useLogout } from '@/hooks/useLogout';
-export { logoutAndRedirect } from './logout';
 
 // ==================== 错误消息（保持兼容）====================
 export {

@@ -132,11 +132,13 @@ export function LoginForm() {
         dismiss(toastId);
         showError(result.error || '登录失败');
         setIsLoading(false);
-        
-        {/* 登录失败时聚焦到密码框，方便用户重新输入 */}
-        setTimeout(() => {
-          passwordInputRef.current?.focus();
-        }, 100);
+
+        {/*
+          @安全修复 S-04: 消除用户名枚举暗示
+          - 登录失败时不自动聚焦到特定输入框
+          - 避免攻击者通过聚焦行为判断是邮箱错误还是密码错误
+          - 保持模糊的错误提示（"账号或密码错误"）
+        */}
         return;
       }
 
