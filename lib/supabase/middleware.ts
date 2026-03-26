@@ -6,7 +6,6 @@ import { sanitizeRedirect } from '@/lib/auth/redir'
  * 受保护的路由列表 - 需要登录才能访问
  */
 const PROTECTED_ROUTES = [
-  '/home',
   '/publish',
   '/drafts',
   '/inbox',

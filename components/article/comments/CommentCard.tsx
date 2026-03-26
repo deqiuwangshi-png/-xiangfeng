@@ -1,7 +1,9 @@
+import Link from 'next/link'
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { UserAvatar } from '@/components/ui'
 import { escapeHtml } from '@/lib/utils/purify'
 import { CommentCardActions } from './CommentCardActions'
+import { VerifyBadge } from '@/components/user/VerifyBadge'
 import type { CommentCardProps } from './types'
 
 /**
@@ -24,16 +26,26 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
   const safeAuthorName = escapeHtml(comment.author.name)
   const safeContent = escapeHtml(comment.content)
 
+  // 获取作者角色，默认为 user
+  const authorRole = comment.author.role || 'user'
+
   return (
     <div className="comment-item">
-      {/* 头像区域 */}
+      {/* 头像区域 - 点击跳转到用户个人主页 */}
       <div className="comment-avatar relative">
-        <UserAvatar
-          name={comment.author.name}
-          userId={comment.author.id}
-          avatarUrl={comment.author.avatar}
-          size="sm"
-        />
+        <VerifyBadge role={authorRole}>
+          <Link
+            href={`/profile/${comment.author.id}`}
+            className="block hover:opacity-80 transition-opacity"
+          >
+            <UserAvatar
+              name={comment.author.name}
+              userId={comment.author.id}
+              avatarUrl={comment.author.avatar}
+              size="sm"
+            />
+          </Link>
+        </VerifyBadge>
       </div>
 
       {/* 内容区域：包含作者信息、评论文字和操作按钮 */}

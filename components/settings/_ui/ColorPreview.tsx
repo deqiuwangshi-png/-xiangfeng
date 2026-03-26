@@ -10,15 +10,6 @@
  * @param {function} onClick - 颜色点击回调函数
  * @returns {JSX.Element} 颜色预览组件
  * 
- * 使用说明:
- *   显示颜色预览
- *   处理颜色选择
- *   调用Server Action更新主题颜色
- * 
- * 架构说明:
- *   - 使用'use client'指令
- *   - 接收颜色值和激活状态
- *   - 使用Server Action更新数据
  * 更新时间: 2026-02-20
  */
 

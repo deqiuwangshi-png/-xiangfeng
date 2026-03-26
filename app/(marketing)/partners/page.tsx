@@ -43,7 +43,7 @@ export default function PartnersPage() {
                 <div className="border-t border-slate-100 pt-6 mt-6">
                   <h3 className="font-bold text-xf-dark mb-4 text-center">立即联系</h3>
                   <div className="flex flex-col gap-3">
-                    <a href="mailto:partners@xiangfeng.space" className="w-full py-3 bg-xf-info/10 text-xf-info rounded-xl font-medium border border-xf-info/20 hover:bg-xf-info hover:text-white transition-colors flex items-center justify-center gap-2">
+                    <a href="mailto:1641633140@qq.com" className="w-full py-3 bg-xf-info/10 text-xf-info rounded-xl font-medium border border-xf-info/20 hover:bg-xf-info hover:text-white transition-colors flex items-center justify-center gap-2">
                       <Mail className="w-4 h-4" />
                       邮件联系
                     </a>

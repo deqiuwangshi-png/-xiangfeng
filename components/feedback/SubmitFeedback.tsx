@@ -50,6 +50,7 @@ export default function SubmitFeedback({ onSubmit }: SubmitFeedbackProps) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
+            maxLength={5000}
             className="w-full px-3 py-2.5 bg-white border border-xf-bg/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-xf-primary/20 focus:border-xf-primary transition-all resize-none text-sm"
             placeholder="请详细描述… 包括使用场景、重现步骤等"
             required

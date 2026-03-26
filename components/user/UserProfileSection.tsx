@@ -65,11 +65,17 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
    * 获取用户显示信息
    * 头像URL优先级：profile.avatar_url > user_metadata.avatar_url
    * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
+   * 匿名用户显示访客信息
    */
-  const userId = user?.id || ''
-  const userEmail = user?.email || '用户'
-  const userName = profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户'
-  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
+  const isAuthenticated = !!user
+  const userId = user?.id || 'guest'
+  const userEmail = user?.email || ''
+  const userName = isAuthenticated
+    ? (profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户')
+    : '访客'
+  const avatarUrl = isAuthenticated
+    ? (profile?.avatar_url || user?.user_metadata?.avatar_url)
+    : undefined
 
   return (
     <div className={`relative ${className}`}>
@@ -92,16 +98,20 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
             size="sm"
             className="shadow-sm ring-2 ring-white"
           />
-          {/* 在线状态指示器 */}
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-xf-success border-2 border-white rounded-full" />
+          {/* 在线状态指示器 - 仅登录用户显示 */}
+          {isAuthenticated && (
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-xf-success border-2 border-white rounded-full" />
+          )}
         </button>
-        
+
         {/* 用户名和版本信息（仅桌面端显示） */}
         <div className="hidden xl:block pt-1">
           <div className="font-medium text-xf-dark text-sm mb-0.5 truncate max-w-[120px]">
             {userName}
           </div>
-          <div className="text-xs text-xf-primary">免费版</div>
+          <div className="text-xs text-xf-primary">
+            {isAuthenticated ? '免费版' : '点击登录'}
+          </div>
         </div>
       </div>
 

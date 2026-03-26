@@ -23,9 +23,8 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // ========== 核心修复：优先检查 URL 错误参数 ==========
   useEffect(() => {
-    // 1. 首先检查 Supabase 返回的错误参数（失败流程）
+
     const error = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
     const errorDesc = searchParams.get('error_description');

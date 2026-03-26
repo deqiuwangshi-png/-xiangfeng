@@ -8,8 +8,16 @@
 
 import Link from 'next/link'
 import { ThumbsUp, MessageSquare, FileText, Clock } from 'lucide-react'
-import { getArticles } from '@/lib/articles/actions/crud'
+import { getUserPublicArticles } from '@/lib/articles/actions/query'
 import { formatDistanceToNow } from '@/lib/utils/date'
+
+/**
+ * ProfileContent 组件 Props
+ */
+interface ProfileContentProps {
+  /** 用户ID，用于获取该用户的文章 */
+  userId: string
+}
 
 interface Article {
   id: string
@@ -104,13 +112,16 @@ function ArticleListItem({ article }: { article: Article }) {
  * - 去除卡片化设计，减少视觉噪音
  * - 标题-摘要-元信息层次清晰
  * - 悬停时标题变色，反馈微妙
+ *
+ * @param {ProfileContentProps} props - 组件属性
+ * @returns {Promise<JSX.Element>} 文章内容列表
  */
-export async function ProfileContent() {
+export async function ProfileContent({ userId }: ProfileContentProps) {
   let articles: Article[] = []
   let error: string | null = null
 
   try {
-    articles = await getArticles('published')
+    articles = await getUserPublicArticles(userId)
   } catch (err) {
     error = err instanceof Error ? err.message : '获取文章失败'
   }
@@ -128,7 +139,7 @@ export async function ProfileContent() {
       <div className="py-12 text-center">
         <FileText className="w-10 h-10 text-xf-light mx-auto mb-3" />
         <p className="text-xf-medium text-sm">还没有发布文章</p>
-        <p className="text-xs text-xf-medium/60 mt-1">开始创作你的第一篇文章吧</p>
+        <p className="text-xs text-xf-medium/60 mt-1">该用户暂无公开文章</p>
       </div>
     )
   }

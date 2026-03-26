@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { getArticleCommentsPaginated } from '../queries/comment';
 import { checkCommentArticleTask } from '@/lib/rewards/actions/tasks';
 import { CommentSchema, CommentIdSchema } from '../schema';
@@ -81,22 +82,28 @@ export async function getArticleComments(
  * - 使用 Zod 验证输入数据
  * - 净化内容防止 XSS
  * - 速率限制防止滥用
+ *
+ * @权限检查
+ * - 要求用户已认证
+ * - 匿名用户禁止评论
  */
 export async function submitArticleComment(
   articleId: string,
   content: string,
   parentId?: string
 ): Promise<SubmitCommentResult> {
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    return { success: false, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    {/* 获取当前登录用户 */}
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: '请先登录' };
-    }
-
     {/* 速率限制检查：每用户每分钟最多 10 条评论 */}
     const rateLimit = checkServerRateLimit(`comment:${user.id}`, {
       maxAttempts: 10,
@@ -214,18 +221,24 @@ export async function submitArticleComment(
  * @安全说明
  * - 验证评论ID格式
  * - 验证用户是否为评论作者
+ *
+ * @权限检查
+ * - 要求用户已认证
+ * - 只能删除自己的评论
  */
 export async function deleteArticleComment(commentId: string): Promise<DeleteCommentResult> {
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    return { success: false, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    {/* 获取当前登录用户 */}
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: '请先登录' };
-    }
-
     {/* 验证评论ID格式 */}
     const idValidation = CommentIdSchema.safeParse(commentId);
     if (!idValidation.success) {

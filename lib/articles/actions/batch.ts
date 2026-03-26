@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { BatchDeleteSchema } from '../schema';
 import { revalidatePathsAsync } from './utils';
 
@@ -44,9 +45,7 @@ interface BatchDeleteResult {
  */
 export async function batchDeleteArticles(ids: string[]): Promise<BatchDeleteResult> {
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('用户未登录');
+  const user = await requireAuth();
 
   // 验证ID列表格式
   const validationResult = BatchDeleteSchema.safeParse({ ids });

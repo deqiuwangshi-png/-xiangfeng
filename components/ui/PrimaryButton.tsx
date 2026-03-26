@@ -12,11 +12,6 @@ import { ReactNode, ButtonHTMLAttributes } from 'react'
  * @param {boolean} loading - 是否处于加载状态
  * @param {ButtonHTMLAttributes} props - 按钮原生属性
  * @returns {JSX.Element} 主按钮组件
- *
- * 使用说明:
- *   - 用于表单提交、保存等重要操作
- *   - 支持加载状态显示
- *   - 统一的悬停和点击效果
  * 更新时间: 2026-03-02
  */
 

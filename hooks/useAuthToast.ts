@@ -148,6 +148,18 @@ export function useAuthToast() {
     });
   };
 
+  /**
+   * 显示需要登录的提示
+   * @param action - 操作名称（如"点赞"、"评论"）
+   */
+  const showLoginRequired = (action?: string) => {
+    const message = action ? `请先登录后再${action}` : '请先登录';
+    toast.info(message, {
+      duration: 3000,
+      icon: React.createElement(ShieldAlert, { className: 'w-4 h-4' }),
+    });
+  };
+
   return {
     showError,
     showSuccess,
@@ -155,5 +167,6 @@ export function useAuthToast() {
     dismiss,
     successFromLoading,
     errorFromLoading,
+    showLoginRequired,
   };
 }

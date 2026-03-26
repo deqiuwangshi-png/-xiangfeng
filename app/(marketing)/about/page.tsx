@@ -157,7 +157,7 @@ export default function AboutPage() {
                 <Link href="/login" className="px-8 py-3 bg-white text-xf-dark rounded-xl font-semibold hover:bg-slate-100 transition-colors shadow-lg">
                   加入相逢
                 </Link>
-                <a href="mailto:ling@xiangfeng.space" className="px-8 py-3 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
+                <a href="1641633140@qq.com" className="px-8 py-3 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
                   给开发者写信
                 </a>
               </div>

@@ -10,9 +10,14 @@
  * - 使用插入-冲突模式减少数据库查询次数
  * - 触发器自动维护 followers_count/following_count
  * - 通知由数据库触发器自动发送
+ *
+ * @权限控制
+ * - 匿名用户禁止关注
+ * - 认证用户可以关注/取消关注
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { checkFollowUserTask } from '@/lib/rewards/actions/tasks';
 
 /**
@@ -44,21 +49,28 @@ export interface FollowStatusResult {
  * 3. 触发器自动维护计数和发送通知
  * 4. 减少数据库往返次数
  *
+ * @权限检查
+ * - 要求用户已认证
+ * - 匿名用户会收到"请先登录"错误
+ * - 不能关注自己
+ *
  * @param targetUserId - 目标用户ID
  * @returns 操作结果
  */
 export async function toggleFollow(targetUserId: string): Promise<ToggleFollowResult> {
+  {/* 权限检查：要求认证 */}
+  let user;
+  try {
+    user = await requireAuth();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '请先登录后再进行此操作';
+    return { success: false, following: false, error: message };
+  }
+
   const supabase = await createClient();
 
   try {
-    // 1. 获取当前登录用户
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, following: false, error: '请先登录' };
-    }
-
-    // 2. 不能关注自己
+    // 不能关注自己
     if (user.id === targetUserId) {
       return { success: false, following: false, error: '不能关注自己' };
     }

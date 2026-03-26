@@ -41,8 +41,9 @@ interface UserDropdownMenuProps {
  *   onClose={() => setIsDropdownOpen(false)}
  * />
  */
-export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdownMenuProps) {
+export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: UserDropdownMenuProps) {
   const { isLoggingOut, handleLogout } = useLogout()
+  const isAuthenticated = !!user
 
   /**
    * 处理退出登录并关闭菜单
@@ -53,20 +54,32 @@ export function UserDropdownMenu({ isOpen, onClose, className = '' }: UserDropdo
   }, [handleLogout, onClose])
 
   /**
-   * 菜单项配置
+   * 菜单项配置 - 根据登录状态显示不同菜单
    */
-  const menuItems: DropdownItem[] = useMemo(() => [
-    { label: '个人主页', icon: User, href: '/profile' },
-    { label: '更新公告', icon: Newspaper, href: '/updates' },
-    { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-    { label: '用户设置', icon: Settings, href: '/settings' },
-    { 
-      label: isLoggingOut ? '退出中...' : '退出登录', 
-      icon: LogOut, 
-      isDanger: true, 
-      onClick: handleLogoutWithClose 
-    },
-  ], [isLoggingOut, handleLogoutWithClose])
+  const menuItems: DropdownItem[] = useMemo(() => {
+    if (!isAuthenticated) {
+      {/* 匿名用户菜单 */}
+      return [
+        { label: '更新公告', icon: Newspaper, href: '/updates' },
+        { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
+        { label: '登录', icon: LogOut, href: '/login' },
+        { label: '注册', icon: User, href: '/register' },
+      ]
+    }
+    {/* 已登录用户菜单 */}
+    return [
+      { label: '个人主页', icon: User, href: '/profile' },
+      { label: '更新公告', icon: Newspaper, href: '/updates' },
+      { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
+      { label: '用户设置', icon: Settings, href: '/settings' },
+      {
+        label: isLoggingOut ? '退出中...' : '退出登录',
+        icon: LogOut,
+        isDanger: true,
+        onClick: handleLogoutWithClose
+      },
+    ]
+  }, [isAuthenticated, isLoggingOut, handleLogoutWithClose])
 
   /**
    * 监听点击外部事件

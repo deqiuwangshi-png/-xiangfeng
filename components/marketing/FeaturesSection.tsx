@@ -6,7 +6,7 @@
  * @description 响应式特色功能展示，移动端单列布局
  */
 
-import { Network, Swords, Sprout } from 'lucide-react'
+import { BookOpen, MessageCircle, Sprout } from 'lucide-react'
 import { RevealOnScroll } from './RevealOnScroll'
 
 /**
@@ -15,17 +15,17 @@ import { RevealOnScroll } from './RevealOnScroll'
  */
 const features = [
   {
-    icon: Network,
-    title: '认知星云',
-    description: '可视化你的思维网络，连接不同领域的知识点，构建属于你的认知星系。',
-    tag: '思维可视化',
+    icon: BookOpen,
+    title: '长文栖息地',
+    description: '优雅的沉浸式阅读体验，支持万字长文创作与排版，让深度内容回归本真。',
+    tag: '深度阅读',
     color: 'info',
   },
   {
-    icon: Swords,
-    title: '跨界挑战',
-    description: '打破学科边界，通过精心设计的挑战任务，激发你的创新思维与问题解决能力。',
-    tag: '跨学科',
+    icon: MessageCircle,
+    title: '兴趣社群与互动',
+    description: '围绕作者与话题形成高质量讨论圈，评论、笔记、私信，深度社交不浮躁。',
+    tag: '深度社交',
     color: 'primary',
   },
   {

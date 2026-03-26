@@ -71,7 +71,7 @@ export function LogoutButton({
   onError,
   className = '',
   size = 'md',
-  redirectTo = '/',
+  redirectTo = '/login',
 }: LogoutButtonProps) {
   const { isLoggingOut, handleLogout } = useLogout({
     redirectTo,

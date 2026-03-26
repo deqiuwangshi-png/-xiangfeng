@@ -4,10 +4,39 @@
  * 第三方登录按钮组组件
  * @module components/auth/OAuthButtons
  * @description 展示 GitHub、Google、微信、QQ 第三方登录图标按钮，支持 GitHub OAuth 登录
+ *
+ * @安全修复 S-07: OAuth 回调劫持防护
+ * - 使用环境变量硬编码域名，替代动态的 window.location.origin
+ * - 防止 X-Forwarded-Host 伪造和子域名接管攻击
+ * - 确保 Auth Code 始终发送到受信任的域名
  */
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+
+/**
+ * 获取站点 URL
+ * @安全说明
+ * - 优先使用环境变量 NEXT_PUBLIC_SITE_URL（硬编码）
+ * - 回退到 window.location.origin（仅开发环境）
+ * - 生产环境必须配置环境变量，禁止依赖动态 origin
+ */
+const getSiteUrl = (): string => {
+  // 优先使用环境变量（硬编码，不可被篡改）
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  // 开发环境回退（仅本地开发）
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  // 生产环境必须有环境变量
+  throw new Error(
+    '[安全错误] 未配置 NEXT_PUBLIC_SITE_URL 环境变量，OAuth 登录存在安全风险'
+  );
+};
 
 /**
  * OAuth 提供商类型（UI 展示用）
@@ -77,10 +106,17 @@ export function OAuthButtons({
 
     try {
       const supabase = createClient();
+
+      /**
+       * @安全修复 S-07: 使用硬编码域名构建回调 URL
+       * - 替代 window.location.origin 防止回调劫持
+       * - 确保回调始终指向受信任的域名
+       */
+      const siteUrl = getSiteUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: config.supabaseProvider as SupabaseProvider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+          redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
         },
       });
 

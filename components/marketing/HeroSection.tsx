@@ -4,15 +4,9 @@
  * Hero区域组件 - 首屏关键内容
  * @module components/marketing/HeroSection
  * @description 响应式Hero区域，移动端优化显示
- *
- * LCP优化策略：
- * - 首屏关键内容（标题、副标题、CTA按钮）不使用RevealOnScroll
- *   确保这些元素在HTML解析后立即可见，不依赖JS执行
- * - 仅对装饰性内容和下方UI预览使用reveal动画
- * - 使用hero-content类确保内容立即渲染
  */
-
-import { ArrowRight, BrainCircuit, Sparkles, Users, GitMerge } from 'lucide-react'
+import Link from 'next/link';
+import { ArrowRight, TrendingUp, Users, Bookmark, Sparkles, Brain } from 'lucide-react'
 import { RevealOnScroll } from './RevealOnScroll'
 
 /**
@@ -48,28 +42,21 @@ export default function HeroSection() {
             {/* 主标题 - LCP关键元素 */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-4 sm:mb-6 leading-tight text-xf-dark lcp-text">
               <span className="text-xf-accent">不止相遇</span>
-              <span className="block mt-1 sm:mt-2">更是<span className="text-xf-info relative inline-block">改变<svg className="absolute w-full h-2 sm:h-3 -bottom-0.5 sm:-bottom-1 left-0 text-xf-info/20" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none"/></svg></span></span>
+              <span className="block mt-1 sm:mt-2">更是<span className="text-xf-info relative inline-block">改变<svg className="absolute w-full h-2 sm:h-3 -bottom-0.5 sm:-bottom-1 left-0 text-xf-info/20" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" /></svg></span></span>
             </h1>
 
             {/* 副标题 - LCP关键元素 */}
             <p className="text-sm sm:text-lg text-xf-medium mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0 lcp-text">
-              在嘈杂的信息流中寻找深度连接。打破认知边界，构建属于你的思维网络，与志同道合者共创价值。
+              拒绝碎片化的噪音。这是一个专为长文爱好者打造的聚合平台，为深阅读而生，为长文创作者喝彩。
             </p>
 
             {/* CTA按钮 - LCP关键元素 */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-4 sm:px-0">
-              <button
-                onClick={() => window.location.href = '/login'}
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-xf-dark hover:bg-xf-accent text-white rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 touch-manipulation"
-              >
-                开启深度之旅 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
-              </button>
-              <button
-                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-white/80 hover:bg-white border border-xf-bg text-xf-dark rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all shadow-sm hover:shadow-md backdrop-blur-sm touch-manipulation"
-              >
-                探索特色
-              </button>
+              <Link href="/login">
+                <button className="px-6 sm:px-8 py-3 sm:py-4 bg-xf-dark hover:bg-xf-accent text-white rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 touch-manipulation">
+                  开启深度之旅 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -80,57 +67,108 @@ export default function HeroSection() {
           <RevealOnScroll delay={100}>
             <div className="relative max-w-5xl mx-auto mt-8 sm:mt-12 px-2 sm:px-0">
               <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-white/50 bg-white/40 backdrop-blur-sm p-1.5 sm:p-2">
-                <div className="bg-xf-light rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/60 shadow-inner">
+                <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/60 shadow-inner">
                   <div className="p-3 sm:p-6">
-                    <div className="flex items-center justify-between mb-4 sm:mb-8 opacity-80">
-                      <div className="flex items-center gap-2 sm:gap-4">
+                    {/* 头部区域 */}
+                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <div className="w-8 sm:w-10 h-8 sm:h-10 bg-xf-primary rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
-                          <GitMerge className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
+                          <TrendingUp className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
                         </div>
-                        <div className="space-y-1 sm:space-y-1.5">
-                          <div className="h-2 sm:h-2.5 w-16 sm:w-24 bg-slate-300 rounded-full"></div>
-                          <div className="h-1.5 sm:h-2 w-10 sm:w-16 bg-slate-200 rounded-full"></div>
+                        <div>
+                          <h3 className="text-sm sm:text-base font-bold text-xf-dark">今日精选 · 深度长文</h3>
+                          <p className="text-[10px] sm:text-xs text-xf-medium">读者共同推荐</p>
                         </div>
                       </div>
                       <div className="flex gap-1.5 sm:gap-2">
-                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-white border border-slate-200"></div>
-                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-slate-200 border border-slate-200"></div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 sm:gap-5">
-                      <div className="h-24 sm:h-40 bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between group cursor-default">
-                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-md sm:rounded-lg bg-xf-soft/20 text-xf-info flex items-center justify-center mb-1 sm:mb-2">
-                          <BrainCircuit className="w-3 sm:w-4 h-3 sm:h-4" />
+                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+                          <Users className="w-3 sm:w-4 h-3 sm:h-4 text-slate-400" />
                         </div>
-                        <div className="space-y-1 sm:space-y-2">
-                          <div className="h-2 sm:h-3 w-3/4 bg-slate-200 rounded-full group-hover:bg-xf-soft/50 transition-colors"></div>
-                          <div className="h-1.5 sm:h-2 w-full bg-slate-100 rounded-full"></div>
-                          <div className="hidden sm:block h-2 w-2/3 bg-slate-100 rounded-full"></div>
-                        </div>
-                      </div>
-                      <div className="h-24 sm:h-40 bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-md border border-xf-primary/10 flex flex-col justify-between">
-                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-md sm:rounded-lg bg-xf-primary/20 text-xf-primary flex items-center justify-center mb-1 sm:mb-2">
-                          <Sparkles className="w-3 sm:w-4 h-3 sm:h-4" />
-                        </div>
-                        <div className="space-y-1 sm:space-y-2">
-                          <div className="h-2 sm:h-3 w-4/5 bg-xf-primary/20 rounded-full"></div>
-                          <div className="h-1.5 sm:h-2 w-full bg-xf-primary/10 rounded-full"></div>
-                          <div className="hidden sm:block h-2 w-5/6 bg-xf-primary/10 rounded-full"></div>
-                        </div>
-                      </div>
-                      <div className="h-24 sm:h-40 bg-white rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between group cursor-default">
-                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-md sm:rounded-lg bg-xf-accent/10 text-xf-accent flex items-center justify-center mb-1 sm:mb-2">
-                          <Users className="w-3 sm:w-4 h-3 sm:h-4" />
-                        </div>
-                        <div className="space-y-1 sm:space-y-2">
-                          <div className="h-2 sm:h-3 w-2/3 bg-slate-200 rounded-full group-hover:bg-xf-accent/20 transition-colors"></div>
-                          <div className="h-1.5 sm:h-2 w-full bg-slate-100 rounded-full"></div>
+                        <div className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center">
+                          <Bookmark className="w-3 sm:w-4 h-3 sm:h-4 text-slate-400" />
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-3 sm:mt-6 h-12 sm:h-24 w-full bg-white/60 rounded-lg sm:rounded-xl border border-slate-100"></div>
+                    {/* 文章卡片网格 */}
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                      {/* 文章卡片1 */}
+                      <div className="h-28 sm:h-44 bg-white rounded-lg sm:rounded-xl p-2.5 sm:p-4 shadow-sm border border-slate-100 flex flex-col justify-between group cursor-default hover:border-xf-primary/30 transition-colors">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+                            <Brain className="w-3 sm:w-4 h-3 sm:h-4 text-xf-info" />
+                            <span className="text-[10px] sm:text-xs text-xf-medium">哲学思考</span>
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-xf-dark mb-1.5 sm:mb-2 line-clamp-2 leading-tight">技术的本质与人的边界</h4>
+                          <p className="text-[9px] sm:text-xs text-xf-medium line-clamp-2 leading-relaxed">万字长文探讨数字时代下人的主体性重构……</p>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[9px] sm:text-xs text-xf-medium">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            林溪
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            142
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 文章卡片2 */}
+                      <div className="h-28 sm:h-44 bg-white rounded-lg sm:rounded-xl p-2.5 sm:p-4 shadow-sm border border-slate-100 flex flex-col justify-between group cursor-default hover:border-xf-primary/30 transition-colors">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+                            <Bookmark className="w-3 sm:w-4 h-3 sm:h-4 text-xf-accent" />
+                            <span className="text-[10px] sm:text-xs text-xf-medium">城市纪实</span>
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-xf-dark mb-1.5 sm:mb-2 line-clamp-2 leading-tight">消失的胡同：口述历史与空间记忆</h4>
+                          <p className="text-[9px] sm:text-xs text-xf-medium line-clamp-2 leading-relaxed">走访三十位老街坊，书写一座城市的背面……</p>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[9px] sm:text-xs text-xf-medium">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            北岛
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            89
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 文章卡片3 */}
+                      <div className="h-28 sm:h-44 bg-white rounded-lg sm:rounded-xl p-2.5 sm:p-4 shadow-sm border border-slate-100 flex flex-col justify-between group cursor-default hover:border-xf-primary/30 transition-colors">
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+                            <Sparkles className="w-3 sm:w-4 h-3 sm:h-4 text-xf-primary" />
+                            <span className="text-[10px] sm:text-xs text-xf-medium">科技人文</span>
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-xf-dark mb-1.5 sm:mb-2 line-clamp-2 leading-tight">AI时代，为何更需要慢阅读？</h4>
+                          <p className="text-[9px] sm:text-xs text-xf-medium line-clamp-2 leading-relaxed">重新定义注意力，在长文中寻回思考的深度……</p>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[9px] sm:text-xs text-xf-medium">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            知更
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            210
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 底部标签 */}
+                    <div className="mt-3 sm:mt-5 flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <span className="text-[10px] sm:text-xs text-xf-medium">🔥 热门标签：</span>
+                        <span className="text-[10px] sm:text-xs text-xf-primary">#长文推荐</span>
+                        <span className="text-[10px] sm:text-xs text-xf-primary">#人文社科</span>
+                        <span className="text-[10px] sm:text-xs text-xf-primary">#创作者访谈</span>
+                      </div>
+                      <ArrowRight className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-slate-400" />
+                    </div>
                   </div>
                 </div>
               </div>

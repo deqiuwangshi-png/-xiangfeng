@@ -13,7 +13,7 @@ export function createAdminClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing Supabase URL or Service Role Key')
+    throw new Error('缺少 Supabase URL 或服务角色密钥')
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {

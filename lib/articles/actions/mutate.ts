@@ -18,6 +18,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/permissions';
 import { ensureUserProfile } from '../helpers/profile';
 import { checkPublishArticleTask } from '@/lib/rewards/actions/tasks';
 import { CreateArticleSchema, ArticleIdSchema } from '../schema';
@@ -51,12 +52,7 @@ export async function createArticle(data: {
   status?: 'draft' | 'published';
 }) {
   const supabase = await createClient();
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    throw new Error('用户未登录');
-  }
+  const user = await requireAuth();
 
   // 速率限制检查：每用户每小时最多创建 20 篇文章
   const rateLimit = checkServerRateLimit(user.id, {
@@ -170,9 +166,7 @@ export async function createArticle(data: {
  */
 export async function deleteArticle(id: string) {
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('用户未登录');
+  const user = await requireAuth();
 
   // 验证文章ID格式
   const idValidation = ArticleIdSchema.safeParse(id);
@@ -216,9 +210,7 @@ export async function updateArticleStatus(
   status: 'published' | 'archived' | 'draft'
 ) {
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('用户未登录');
+  const user = await requireAuth();
 
   // 验证文章ID格式
   const idValidation = ArticleIdSchema.safeParse(id);
@@ -273,9 +265,7 @@ export async function updateArticle(
   }
 ) {
   const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('用户未登录');
+  const user = await requireAuth();
 
   // 验证文章ID格式
   const idValidation = ArticleIdSchema.safeParse(id);
