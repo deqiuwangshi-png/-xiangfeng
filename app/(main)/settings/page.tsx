@@ -4,6 +4,7 @@ import '@/styles/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions'
+import type { ContentSettingsResult } from '@/types/settings'
 
 /**
  * 强制动态渲染
@@ -28,43 +29,78 @@ export const dynamic = 'force-dynamic'
  */
 
 /**
- * 获取用户资料（并行执行）
- * @param userId - 用户ID
- * @returns 用户资料数据
+ * 用户资料查询结果类型（部分字段）
  */
-async function getUserProfile(userId: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  return data
+interface UserProfileData {
+  username: string
+  avatar_url: string | null
+  bio: string | null
+  location: string | null
+}
+
+/**
+ * 获取用户资料
+ * @param userId - 用户ID
+ * @returns 用户资料数据，失败时返回 null
+ */
+async function getUserProfile(userId: string): Promise<UserProfileData | null> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username, avatar_url, bio, location')
+      .eq('id', userId)
+      .single()
+
+    if (error) {
+      console.error('获取用户资料失败:', error.message)
+      return null
+    }
+
+    return data as UserProfileData
+  } catch (err) {
+    console.error('获取用户资料时发生异常:', err)
+    return null
+  }
 }
 
 export default async function SettingsPage() {
-  // 并行获取用户数据和内容设置，减少总等待时间
-  const [user, contentSettingsResult] = await Promise.all([
-    getCurrentUser(),
-    getContentSettings()
-  ])
+  // 初始化默认值，防止异常导致页面崩溃
+  let user = null
+  let contentSettingsResult: ContentSettingsResult = { success: false, error: '初始化状态' }
+  let profile: UserProfileData | null = null
 
-  // 如果用户已登录，并行获取用户资料
-  const profile = user ? await getUserProfile(user.id) : null
+  try {
+    // 并行获取用户数据和内容设置，减少总等待时间
+    ;[user, contentSettingsResult] = await Promise.all([
+      getCurrentUser(),
+      getContentSettings()
+    ])
+
+    // 如果用户已登录，获取用户资料
+    if (user) {
+      profile = await getUserProfile(user.id)
+    }
+  } catch (err) {
+    console.error('获取设置页面数据失败:', err)
+    // 使用默认值继续渲染，避免页面崩溃
+  }
 
   /**
    * 组装用户数据传递给客户端
    * 头像逻辑：只使用 profile.avatar_url，不再动态生成
    * 如果 avatar_url 为空，AvatarPlaceholder 组件会显示首字母占位符
    */
-  const userData = user ? {
-    id: user.id,
-    email: user.email || '',
-    username: profile?.username || user.email?.split('@')[0] || '用户',
-    avatar_url: profile?.avatar_url || '',
-    bio: (profile as { bio?: string })?.bio || '',
-    location: (profile as { location?: string })?.location || '',
-  } : null
+  const userData = user
+    ? {
+        id: user.id,
+        email: user.email || '',
+        username: profile?.username || user.email?.split('@')[0] || '用户',
+        avatar_url: profile?.avatar_url || '',
+        bio: profile?.bio || '',
+        location: profile?.location || '',
+      }
+    : null
 
   // 处理内容设置数据
   const contentSettings = contentSettingsResult.success
