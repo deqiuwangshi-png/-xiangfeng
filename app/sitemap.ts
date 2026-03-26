@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * 站点地图生成
  *
- * @returns {MetadataRoute.Sitemap} 站点地图
+ * @returns {Promise<MetadataRoute.Sitemap>} 站点地图
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  *
  * @安全说明
@@ -11,8 +12,9 @@ import { MetadataRoute } from 'next'
  * - 不在 sitemap 中包含需要登录的私有路径
  * - 仅包含公开的、需要 SEO 的页面
  * - 认证页面通过 noindex 标签控制索引，而非 sitemap
+ * @性能优化 动态获取文章列表，确保搜索引擎能索引所有公开文章
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 验证环境变量，确保使用生产域名
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
 
@@ -32,7 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     console.warn('[Sitemap] 检测到非标准域名:', siteUrl)
   }
 
-  return [
+  // 基础页面
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
       lastModified: new Date(),
@@ -49,7 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
     },
     {
       url: `${siteUrl}/partners`,
@@ -69,10 +72,57 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
-    // 注意：以下页面不包含在 sitemap 中
-    // - /login, /register, /forgot-password, /reset-password: 认证入口，使用 noindex
-    // - /rewards: 需要登录访问，私有路径
-    // - /feedback: 需要登录访问，私有路径
-    // - /drafts, /inbox, /settings, /profile, /publish: 私有路径
   ]
+
+  // 动态获取已发布文章
+  let articlePages: MetadataRoute.Sitemap = []
+  try {
+    const supabase = await createClient()
+    const { data: articles, error } = await supabase
+      .from('articles')
+      .select('id, updated_at, title')
+      .eq('status', 'published')
+      .order('updated_at', { ascending: false })
+      .limit(1000) // 限制数量避免请求过大
+
+    if (error) {
+      console.error('[Sitemap] 获取文章列表失败:', error)
+    } else if (articles) {
+      articlePages = articles.map((article) => ({
+        url: `${siteUrl}/article/${article.id}`,
+        lastModified: new Date(article.updated_at),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      }))
+    }
+  } catch (error) {
+    console.error('[Sitemap] 获取文章列表异常:', error)
+  }
+
+  // 动态获取活跃用户资料
+  let profilePages: MetadataRoute.Sitemap = []
+  try {
+    const supabase = await createClient()
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('id, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(500)
+
+    if (error) {
+      console.error('[Sitemap] 获取用户列表失败:', error)
+    } else if (profiles) {
+      profilePages = profiles.map((profile) => ({
+        url: `${siteUrl}/profile/${profile.id}`,
+        lastModified: new Date(profile.updated_at),
+        changeFrequency: 'weekly',
+        priority: 0.6,
+      }))
+    }
+  } catch (error) {
+    console.error('[Sitemap] 获取用户列表异常:', error)
+  }
+
+  // 合并所有页面
+  return [...staticPages, ...articlePages, ...profilePages]
 }

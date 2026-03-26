@@ -10,6 +10,7 @@ import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
 import { ViewTracker } from '@/components/article/ViewTracker';
+import { ArticleStructuredData, BreadcrumbStructuredData } from '@/components/seo';
 import { getCurrentUser } from '@/lib/supabase/user';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
@@ -47,6 +48,9 @@ const getCachedComments = cache(async (articleId: string, page: number, limit: n
 /**
  * 生成页面元数据（SEO）
  * 使用缓存避免重复查询
+ * @param {ArticlePageProps} params - 页面参数
+ * @returns {Promise<Metadata>} 页面元数据
+ * @description 针对文章详情页进行全面SEO优化，包括结构化数据和社交分享
  */
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { id } = await params;
@@ -56,42 +60,111 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
   if (!article) {
     return {
-      title: '文章未找到',
+      title: '文章未找到 | 相逢',
+      description: '抱歉，您访问的文章不存在或已被删除。',
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
-  const articleUrl = `${siteUrl}/article/${id}`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site';
+  const siteName = '相逢 Xiangfeng';
+  const articleUrl = `${siteUrl}/article/${id}`;
+  
+  // 构建SEO优化的描述（限制在160字符以内）
+  const seoDescription = article.summary 
+    ? article.summary.slice(0, 160) + (article.summary.length > 160 ? '...' : '')
+    : `${article.title} - 深度思考者的原创文章，在相逢发现更多优质内容。`;
+  
+  // 构建关键词
+  const keywords = [
+    ...(article.tags || []),
+    '深度文章',
+    '原创内容',
+    '知识分享',
+    '深度思考',
+    '相逢',
+    article.author.name,
+  ].filter(Boolean).join(', ');
 
   return {
-    title: article.title,
-    description: article.summary || '',
-    keywords: article.tags?.join(', '),
+    title: `${article.title} | ${siteName}`,
+    description: seoDescription,
+    keywords: keywords,
+    authors: [{ name: article.author.name, url: `${siteUrl}/profile/${article.author_id}` }],
+    creator: article.author.name,
+    publisher: siteName,
+    
+    /**
+     * 规范链接
+     */
     alternates: {
       canonical: articleUrl,
+      languages: {
+        'zh-CN': articleUrl,
+      },
     },
+    
+    /**
+     * Open Graph - 文章类型
+     */
     openGraph: {
       title: article.title,
-      description: article.summary || '',
+      description: seoDescription,
       type: 'article',
-      publishedTime: article.publishedAt,
-      authors: [article.author.name],
       url: articleUrl,
+      siteName: siteName,
+      locale: 'zh_CN',
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updated_at || article.publishedAt,
+      authors: [`${siteUrl}/profile/${article.author_id}`],
+      section: article.tags?.[0] || '深度文章',
+      tags: article.tags || [],
       images: [
         {
           url: `${siteUrl}/og-image.svg`,
           width: 1200,
           height: 630,
           alt: article.title,
+          type: 'image/svg+xml',
         },
       ],
     },
+    
+    /**
+     * Twitter Card
+     */
     twitter: {
       card: 'summary_large_image',
+      site: '@xiangfeng',
+      creator: '@xiangfeng',
       title: article.title,
-      description: article.summary || '',
+      description: seoDescription,
       images: [`${siteUrl}/og-image.svg`],
     },
+    
+    /**
+     * 机器人控制
+     */
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
+    
+    /**
+     * 其他元数据
+     */
+    category: article.tags?.[0] || '深度文章',
+    classification: article.tags?.join(',') || '深度文章,知识分享',
   };
 }
 
@@ -113,13 +186,44 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site';
+  const articleUrl = `${siteUrl}/article/${articleId}`;
+  const authorUrl = `${siteUrl}/profile/${article.author_id}`;
+  
+  // 计算文章字数
+  const wordCount = article.content 
+    ? article.content.replace(/<[^>]*>/g, '').length 
+    : 0;
+
   return (
     <>
+      {/* 结构化数据 - Schema.org Article */}
+      <ArticleStructuredData
+        title={article.title}
+        description={article.summary || ''}
+        url={articleUrl}
+        authorName={article.author.name}
+        authorUrl={authorUrl}
+        publishedAt={article.publishedAt}
+        modifiedAt={article.updated_at}
+        tags={article.tags}
+        wordCount={wordCount}
+      />
+      
+      {/* 面包屑导航结构化数据 */}
+      <BreadcrumbStructuredData
+        items={[
+          { name: '首页', url: siteUrl },
+          { name: '文章', url: `${siteUrl}/home` },
+          { name: article.title, url: articleUrl },
+        ]}
+      />
+      
       {/* 浏览量追踪 - 自动统计访问 */}
       <ViewTracker articleId={articleId} />
       <ReadingProgress />
       
-      <nav className="nav-minimal">
+      <nav className="nav-minimal" aria-label="文章导航">
         <div className="flex items-center justify-between w-full max-w-7xl mx-auto">
           {/* 展示性 LOGO，无点击功能 */}
           <div className="flex items-center space-x-2">
