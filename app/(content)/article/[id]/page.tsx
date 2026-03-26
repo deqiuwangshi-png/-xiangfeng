@@ -9,6 +9,7 @@ import ArtAct from '@/components/article/ArtAct';
 import { CommentPanel } from '@/components/article/comments';
 import ReadingProgress from '@/components/article/ReadingProgress';
 import CommentSkeleton from '@/components/article/_skeletons/CommentSkeleton';
+import { ViewTracker } from '@/components/article/ViewTracker';
 import { getCurrentUser } from '@/lib/supabase/user';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
@@ -111,6 +112,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <>
+      {/* 浏览量追踪 - 自动统计访问 */}
+      <ViewTracker articleId={articleId} />
       <ReadingProgress />
       
       <nav className="nav-minimal">

@@ -70,6 +70,7 @@ export async function getArticleDetailById(id: string, userId?: string): Promise
     readTime: Math.ceil(data.content.length / 500),
     likesCount: data.like_count || 0,
     commentsCount: data.comment_count || 0,
+    viewsCount: data.view_count || 0,
     isLiked,
     isBookmarked,
   };

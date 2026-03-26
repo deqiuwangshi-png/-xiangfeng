@@ -1,5 +1,28 @@
+'use client';
+
+/**
+ * ArticleHeader - 文章头部组件
+ * @module components/article/ArticleHeader
+ * @description 显示文章标题、作者、发布时间和浏览量
+ *
+ * @安全特性
+ * - 所有用户生成的内容（作者名）都经过 escapeHtml 转义
+ * - 防止 XSS 攻击，确保恶意脚本不会被执行
+ */
+
+import { useMemo } from 'react';
 import { escapeHtml } from '@/lib/utils/purify';
-import type { ArticleHeaderProps } from '@/types';
+import { Eye } from '@/components/icons';
+import { useArticleViewCount } from '@/hooks/useArticleView';
+import type { ArticleWithAuthor } from '@/types';
+
+/**
+ * ArticleHeader 组件 Props
+ */
+interface ArticleHeaderProps {
+  /** 文章数据 */
+  article: ArticleWithAuthor;
+}
 
 /**
  * 格式化发布时间
@@ -33,14 +56,20 @@ function formatPublishTime(dateStr: string): string {
 }
 
 /**
- * ArticleHeader - 文章头部组件
- * @security
- * - 所有用户生成的内容（作者名）都经过 escapeHtml 转义
- * - 防止 XSS 攻击，确保恶意脚本不会被执行
+ * 文章头部组件
+ *
+ * @param {ArticleHeaderProps} props - 组件属性
+ * @returns {JSX.Element} 文章头部
  */
 export default function ArticleHeader({ article }: ArticleHeaderProps) {
   // 对作者名称进行 HTML 转义，防止 XSS
-  const safeAuthorName = escapeHtml(article.author.name);
+  const safeAuthorName = useMemo(() => escapeHtml(article.author.name), [article.author.name]);
+
+  // 使用 hook 获取实时浏览量
+  const { viewCount } = useArticleViewCount({
+    articleId: article.id,
+    initialCount: article.viewsCount || 0,
+  });
 
   return (
     <div>
@@ -49,7 +78,12 @@ export default function ArticleHeader({ article }: ArticleHeaderProps) {
       <div className="article-meta">
         <span className="mr-3">{safeAuthorName}</span>
         <span className="mr-3">{formatPublishTime(article.publishedAt || article.created_at)}</span>
-        <span>约{article.readTime}分钟阅读</span>
+        <span className="mr-3">约{article.readTime}分钟阅读</span>
+        {/* 浏览量 - 支持实时更新 */}
+        <span className="flex items-center gap-1" data-testid="view-count">
+          <Eye className="w-3 h-3" />
+          {viewCount}
+        </span>
       </div>
     </div>
   );
