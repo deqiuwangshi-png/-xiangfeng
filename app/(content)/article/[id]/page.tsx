@@ -26,19 +26,22 @@ export const revalidate = 6000;
 /**
  * 缓存文章查询
  * 同一请求内多次调用返回缓存结果
+ *
+ * @安全优化 S1: userId 由服务端内部获取，不依赖客户端传入
  */
-const getCachedArticle = cache(async (id: string, userId?: string) => {
-  return getArticleDetailById(id, userId);
+const getCachedArticle = cache(async (id: string) => {
+  return getArticleDetailById(id);
 });
 
 /**
  * 缓存评论查询
  * 同一请求内多次调用返回缓存结果
  *
- * @性能优化 P1: 传入 currentUserId 用于判断当前用户点赞状态
+ * @安全优化 S1: currentUserId 由服务端内部获取，不依赖客户端传入
+ * @性能优化 P1: 自动判断当前用户点赞状态
  */
-const getCachedComments = cache(async (articleId: string, page: number, limit: number, currentUserId?: string | null) => {
-  return getArticleCommentsPaginated(articleId, page, limit, currentUserId);
+const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
+  return getArticleCommentsPaginated(articleId, page, limit);
 });
 
 /**
@@ -102,8 +105,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const user = await getCurrentUser();
 
   const [article, { comments, totalCount, hasMore }] = await Promise.all([
-    getCachedArticle(articleId, user?.id),
-    getCachedComments(articleId, 1, 10, user?.id),
+    getCachedArticle(articleId),
+    getCachedComments(articleId, 1, 10),
   ]);
 
   if (!article) {

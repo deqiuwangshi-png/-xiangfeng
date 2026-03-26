@@ -101,7 +101,6 @@ export function UserAvt({
     return (
       <div
         className={`rounded-full bg-xf-primary flex items-center justify-center text-white font-bold ${sizeClass} ${className}`}
-        title={name}
       >
         {initial}
       </div>

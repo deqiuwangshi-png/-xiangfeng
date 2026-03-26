@@ -230,3 +230,46 @@ export async function getArticleById(id: string) {
     updatedAt: data.updated_at,
   };
 }
+
+/**
+ * 获取指定用户的公开文章列表（个人主页用）
+ *
+ * @param userId - 用户ID
+ * @returns 该用户的已发布文章列表
+ *
+ * @性能优化
+ * - 只查询必要字段，不返回完整 content
+ * - 只返回已发布状态的文章
+ * - 按发布时间倒序排列
+ *
+ * @业务规则
+ * - 只显示已发布(published)状态的文章
+ * - 不检查当前登录用户，任何人都可以查看公开文章
+ */
+export async function getUserPublicArticles(userId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('articles')
+    .select('id, title, excerpt, status, created_at, updated_at, published_at, like_count, comment_count')
+    .eq('author_id', userId)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`获取失败: ${error.message}`);
+  }
+
+  return (data || []).map(item => ({
+    id: item.id,
+    title: item.title,
+    content: '',
+    summary: item.excerpt || '暂无摘要',
+    status: item.status,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    published_at: item.published_at,
+    likes_count: item.like_count || 0,
+    comments_count: item.comment_count || 0,
+  }));
+}

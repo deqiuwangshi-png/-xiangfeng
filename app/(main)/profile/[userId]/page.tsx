@@ -134,7 +134,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
           {/* 我的内容区域 - 使用 Suspense 流式传输 */}
           <ProfileTabContent tab="content">
             <Suspense fallback={<ProfileContentSkeleton />}>
-              <ProfileContent />
+              <ProfileContent userId={userId} />
             </Suspense>
           </ProfileTabContent>
 

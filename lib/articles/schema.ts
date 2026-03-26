@@ -41,6 +41,7 @@ export const CreateArticleSchema = z.object({
  * @security
  * - 最多10个标签
  * - 每个标签最长20字符
+ * - 只允许字母、数字、中文和连字符（防止XSS和SQL注入）
  */
 export const ArticleTagsSchema = z
   .array(
@@ -48,6 +49,11 @@ export const ArticleTagsSchema = z
       .string()
       .min(1, '标签不能为空')
       .max(20, '标签不能超过20个字符')
+      // 安全：只允许字母、数字、中文、连字符和下划线
+      .regex(
+        /^[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/,
+        '标签只能包含字母、数字、中文、连字符(-)和下划线(_)'
+      )
       .transform((val) => val.trim().toLowerCase())
   )
   .max(10, '最多只能添加10个标签');

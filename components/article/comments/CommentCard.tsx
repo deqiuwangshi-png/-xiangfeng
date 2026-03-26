@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { UserAvatar } from '@/components/ui'
 import { escapeHtml } from '@/lib/utils/purify'
@@ -30,15 +31,20 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
 
   return (
     <div className="comment-item">
-      {/* 头像区域 */}
+      {/* 头像区域 - 点击跳转到用户个人主页 */}
       <div className="comment-avatar relative">
         <VerifyBadge role={authorRole}>
-          <UserAvatar
-            name={comment.author.name}
-            userId={comment.author.id}
-            avatarUrl={comment.author.avatar}
-            size="sm"
-          />
+          <Link
+            href={`/profile/${comment.author.id}`}
+            className="block hover:opacity-80 transition-opacity"
+          >
+            <UserAvatar
+              name={comment.author.name}
+              userId={comment.author.id}
+              avatarUrl={comment.author.avatar}
+              size="sm"
+            />
+          </Link>
         </VerifyBadge>
       </div>
 
