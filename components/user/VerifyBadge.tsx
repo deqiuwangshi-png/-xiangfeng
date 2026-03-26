@@ -15,15 +15,6 @@ const ROLE_BORDER_STYLES: Record<UserRole, string> = {
   super_admin: 'ring-2 ring-xf-primary ring-offset-2',
 }
 
-/**
- * 认证提示文本
- */
-const ROLE_TOOLTIPS: Record<UserRole, string> = {
-  user: '',
-  admin: '认证管理员',
-  super_admin: '超级管理员',
-}
-
 interface VerifyBadgeProps {
   /** 用户角色 */
   role: UserRole
@@ -45,7 +36,6 @@ interface VerifyBadgeProps {
  */
 export function VerifyBadge({ role, children, className = '' }: VerifyBadgeProps) {
   const borderStyle = ROLE_BORDER_STYLES[role]
-  const tooltip = ROLE_TOOLTIPS[role]
 
   // 普通用户直接返回子元素，不添加边框
   if (role === 'user') {
@@ -55,7 +45,6 @@ export function VerifyBadge({ role, children, className = '' }: VerifyBadgeProps
   return (
     <div
       className={`relative rounded-full ${borderStyle} ${className}`}
-      title={tooltip}
     >
       {children}
       {/* 管理员V标 - 右下角小徽章 */}

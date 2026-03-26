@@ -53,6 +53,8 @@ export interface ArticleAuthor {
   avatar?: string;
   /** 作者简介 */
   bio?: string;
+  /** 用户角色 */
+  role?: 'user' | 'admin' | 'super_admin';
 }
 
 /**
@@ -172,6 +174,7 @@ export interface CommentWithAuthor {
     id: string;
     name: string;
     avatar?: string;
+    role?: 'user' | 'admin' | 'super_admin';
   };
 }
 

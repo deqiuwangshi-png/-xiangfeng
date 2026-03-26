@@ -33,7 +33,7 @@ export async function getArticleComments(
     .from('comments')
     .select(`
       *,
-      author:profiles!user_id(username, avatar_url),
+      author:profiles!user_id(username, avatar_url, role),
       comment_likes!left(user_id)
     `)
     .eq('article_id', articleId)
@@ -52,6 +52,7 @@ export async function getArticleComments(
         id: comment.user_id,
         name: comment.author?.username || '匿名',
         avatar: comment.author?.avatar_url || undefined,
+        role: comment.author?.role || 'user',
       },
       liked,
     };
@@ -91,7 +92,7 @@ export async function getArticleCommentsPaginated(
     .from('comments')
     .select(
       `*,
-      author:profiles!user_id(username, avatar_url),
+      author:profiles!user_id(username, avatar_url, role),
       comment_likes!left(user_id)`,
       { count: 'estimated' }
     )
@@ -114,6 +115,7 @@ export async function getArticleCommentsPaginated(
         id: comment.user_id,
         name: comment.author?.username || '匿名',
         avatar: comment.author?.avatar_url || undefined,
+        role: comment.author?.role || 'user',
       },
       liked,
     };
