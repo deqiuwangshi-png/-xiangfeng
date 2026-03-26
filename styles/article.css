@@ -1,8 +1,13 @@
 /* 文章详情页样式 - 严格基于 文章1.html 原型 */
 
 /* ====== Body 基础样式 ====== */
+/**
+ * 字体配置：使用系统衬线字体栈
+ * 优先使用系统自带字体，避免下载外部字体文件
+ * 提升LCP性能，确保内容立即渲染
+ */
 body {
-  font-family: 'Noto Serif SC', serif;
+  font-family: var(--font-serif, "PingFang SC"), STSong, SimSun, "Songti SC", "Apple LiSung", Georgia, serif;
   color: var(--color-xf-dark);
   background-color: #f9fafb;
   line-height: 1.8;

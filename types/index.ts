@@ -211,4 +211,4 @@ export type {
 // ============================================
 // Supabase 数据库类型
 // ============================================
-export type { Json, Database } from './supabase';
+export type { Json, Database, UserRole } from './supabase';

@@ -7,7 +7,7 @@
  * @性能优化 P1: 从 page.tsx 分离，使页面主体支持 SSR
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthToast } from '@/hooks/useAuthToast';
@@ -51,6 +51,16 @@ export function LoginForm() {
   const redirectTo = sanitizeRedirect(searchParams.get('redirect'), '/home');
 
   /**
+   * 邮箱输入框引用 - 用于错误时聚焦
+   */
+  const emailInputRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * 密码输入框引用 - 用于错误时聚焦
+   */
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  /**
    * 限流倒计时 - 按分钟粒度更新
    * @性能优化 P-05: 从每秒更新改为每分钟更新，减少重渲染
    */
@@ -89,8 +99,17 @@ export function LoginForm() {
   /**
    * 处理表单提交
    * @param {FormData} formData - 表单数据
+   * @安全说明
+   * - 使用 isLoading 状态防止重复提交
+   * - 客户端限流检查防止暴力破解
+   * - 服务端限流在 Server Action 中执行
    */
   async function handleSubmit(formData: FormData) {
+    {/* 防重复提交检查 */}
+    if (isLoading) {
+      return;
+    }
+
     setIsLoading(true);
 
     {/* 客户端限流检查 - 仅在提交时检查 */}
@@ -113,6 +132,11 @@ export function LoginForm() {
         dismiss(toastId);
         showError(result.error || '登录失败');
         setIsLoading(false);
+        
+        {/* 登录失败时聚焦到密码框，方便用户重新输入 */}
+        setTimeout(() => {
+          passwordInputRef.current?.focus();
+        }, 100);
         return;
       }
 
@@ -144,8 +168,11 @@ export function LoginForm() {
       <form action={handleSubmit} className="space-y-6">
         <div>
           <input
+            ref={emailInputRef}
             type="email"
             name="email"
+            autoComplete="email"
+            aria-label="邮箱地址"
             className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
             placeholder="账号"
             required
@@ -154,8 +181,11 @@ export function LoginForm() {
         </div>
 
         <PasswordInput
+          ref={passwordInputRef}
           name="password"
           placeholder="密码"
+          autoComplete="current-password"
+          aria-label="密码"
           required
           disabled={isLoading || isRateLimited}
           minLength={8}
@@ -188,9 +218,21 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isLoading || isRateLimited}
-          className="w-full bg-xf-primary hover:bg-xf-accent disabled:bg-xf-primary/50 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:cursor-not-allowed"
+          aria-busy={isLoading}
+          aria-label={isLoading ? '登录中，请稍候' : '登录'}
+          className="w-full bg-xf-primary hover:bg-xf-accent disabled:bg-xf-primary/50 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isLoading ? <span className="loading-dots">登录中</span> : '登 录'}
+          {isLoading ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>登录中...</span>
+            </>
+          ) : (
+            '登 录'
+          )}
         </button>
       </form>
 

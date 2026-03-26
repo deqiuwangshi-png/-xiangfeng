@@ -312,3 +312,41 @@ export function generateExcerpt(html: string, maxLength: number = 150): string {
 
   return truncated + '...';
 }
+
+/**
+ * 转义 HTML 特殊字符
+ *
+ * 用于将用户输入的纯文本安全地显示在 HTML 中，防止 XSS 攻击
+ * 与 sanitizePlainText 不同，此函数保留 HTML 标签的文本形式（如将 < 转换为 &lt;）
+ *
+ * @security
+ * - 必须用于所有用户生成的、在 JSX 中作为文本节点渲染的内容
+ * - 不适用于已经使用 dangerouslySetInnerHTML 的场景（那些应该使用 sanitizeRichText）
+ *
+ * @param text - 原始文本
+ * @returns 转义后的安全文本
+ *
+ * @example
+ * ```typescript
+ * const safe = escapeHtml('<script>alert(1)</script>');
+ * // 返回: '&lt;script&gt;alert(1)&lt;/script&gt;'
+ * ```
+ */
+export function escapeHtml(text: string | null | undefined): string {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+
+  const htmlEscapes: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;',
+  };
+
+  return text.replace(/[&<>"'`=/]/g, (char) => htmlEscapes[char] || char);
+}

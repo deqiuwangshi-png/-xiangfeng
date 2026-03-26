@@ -49,6 +49,21 @@ export function ArticleCard({
   // 在服务端预格式化时间
   const formattedTime = formatTime(publishedAt)
 
+  // 校验文章ID，防止生成无效链接
+  if (!id) {
+    console.warn('[ArticleCard] 文章ID为空，无法生成链接')
+    return (
+      <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 h-full flex flex-col opacity-60">
+        <h3 className="text-lg sm:text-xl font-bold text-xf-dark mb-2 line-clamp-2">
+          {title || '未命名文章'}
+        </h3>
+        <p className="text-xf-medium text-sm sm:text-base line-clamp-3 mb-3 leading-relaxed flex-1">
+          {summary || '暂无摘要'}
+        </p>
+      </article>
+    )
+  }
+
   return (
     <Link href={`/article/${id}`} className="block group h-full">
       <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 hover:border-xf-primary/30 hover:shadow-sm transition-all duration-200 h-full flex flex-col">

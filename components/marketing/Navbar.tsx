@@ -13,10 +13,23 @@ import { Logo } from '@/components/icons'
 import { MobileNav } from '@/components/mobile/MobileNav'
 
 /**
+ * 导航项配置
+ * @constant navItems
+ * @description 定义营销页面的导航项
+ */
+const navItems = [
+  { id: 'features', label: '特色功能', href: '/#features' },
+  { id: 'how-it-works', label: '如何运作', href: '/#how-it-works' },
+  { id: 'creators', label: '生态创作者', href: '/#creators' },
+  { id: 'economy', label: '生态经济', href: '/#economy' },
+]
+
+/**
  * 桌面端导航组件
  * @returns {JSX.Element} 桌面端导航
  */
 function DesktopNav() {
+
   useEffect(() => {
     const handleScroll = () => {
       const navbar = document.getElementById('navbar')
@@ -44,34 +57,18 @@ function DesktopNav() {
         </Link>
 
         <div className="flex items-center gap-8">
-          <Link
-            href="#features"
-            className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
-          >
-            特色功能
-          </Link>
-          <Link
-            href="#how-it-works"
-            className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
-          >
-            如何运作
-          </Link>
-          <Link
-            href="#creators"
-            className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
-          >
-            生态创作者
-          </Link>
-          <Link
-            href="#economy"
-            className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
-          >
-            生态经济
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className="text-sm font-medium text-xf-medium hover:text-xf-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-xf-primary after:transition-all hover:after:w-full"
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
 
         <div className="flex items-center gap-4">
-          {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
           <Link
             href="/login"
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"

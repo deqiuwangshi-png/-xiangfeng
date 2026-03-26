@@ -12,24 +12,6 @@ import { initiateEmailChange, UpdateEmailResult } from '@/lib/user/updateEmail'
  * @param {function} onSave - 保存成功回调函数
  * @param currentEmail - 当前邮箱地址
  * @returns {JSX.Element} 更换邮箱表单组件
- *
- * 使用说明:
- *   - 显示当前邮箱
- *   - 输入新邮箱
- *   - Supabase 自动发送验证邮件
- *   - 用户点击邮件链接确认后生效
- * 
- * 流程:
- *   1. 输入新邮箱地址
- *   2. 点击"发送验证邮件"
- *   3. Supabase 发送确认邮件到新邮箱
- *   4. 用户登录新邮箱，点击确认链接
- *   5. 邮箱更换生效，需要重新登录
- *
- * 架构说明:
- *   - 使用'use client'指令
- *   - 使用 Server Action 调用 Supabase Auth
- *   - Supabase 使用默认邮件模板发送验证邮件
  * 更新时间: 2026-03-02
  */
 

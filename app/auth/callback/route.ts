@@ -30,18 +30,21 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // 如果是账号绑定流程，同步身份信息到数据库
-      if (isLinkedFlow) {
-        const syncResult = await syncIdentitiesToDatabase();
-        if (!syncResult.success) {
-          console.error('同步身份信息失败:', syncResult.error);
-          // 同步失败也继续跳转，但带上错误标记
+      // OAuth登录/绑定时，同步身份信息到数据库
+      // 确保user_identities表中有记录，设置页面才能正确显示
+      const syncResult = await syncIdentitiesToDatabase();
+      if (!syncResult.success) {
+        console.error('同步身份信息失败:', syncResult.error);
+        // 同步失败也继续跳转，但如果是绑定流程则带上错误标记
+        if (isLinkedFlow) {
           const redirectUrl = new URL(next, origin);
           redirectUrl.searchParams.set('link_error', 'sync_failed');
           return NextResponse.redirect(redirectUrl.toString());
         }
+      }
 
-        // 同步成功，带上成功标记
+      // 如果是账号绑定流程，带上成功标记
+      if (isLinkedFlow) {
         const redirectUrl = new URL(next, origin);
         redirectUrl.searchParams.set('linked', 'success');
         return NextResponse.redirect(redirectUrl.toString());

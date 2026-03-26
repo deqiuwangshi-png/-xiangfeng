@@ -6,6 +6,7 @@
  * @性能优化 P1: 添加骨架屏组件，支持 Suspense 流式传输
  */
 
+import Link from 'next/link'
 import { ThumbsUp, MessageSquare, FileText, Clock } from 'lucide-react'
 import { getArticles } from '@/lib/articles/actions/crud'
 import { formatDistanceToNow } from '@/lib/utils/date'
@@ -57,38 +58,41 @@ export function ProfileContentSkeleton() {
  * - 摘要简洁，2行截断
  * - 元信息紧凑排列
  * - 悬停反馈微妙
+ * - 点击跳转到文章详情页
  */
 function ArticleListItem({ article }: { article: Article }) {
   const publishedAt = article.published_at || article.created_at
 
   return (
-    <article className="group py-5 border-b border-xf-bg/40 last:border-b-0 cursor-pointer">
-      {/* 标题 - 最突出 */}
-      <h3 className="text-base sm:text-lg font-medium text-xf-dark group-hover:text-xf-accent transition-colors leading-snug mb-2">
-        {article.title}
-      </h3>
+    <Link href={`/article/${article.id}`}>
+      <article className="group py-5 border-b border-xf-bg/40 last:border-b-0 cursor-pointer">
+        {/* 标题 - 最突出 */}
+        <h3 className="text-base sm:text-lg font-medium text-xf-dark group-hover:text-xf-accent transition-colors leading-snug mb-2">
+          {article.title}
+        </h3>
 
-      {/* 摘要 - 简洁，2行 */}
-      <p className="text-sm text-xf-medium/80 leading-relaxed line-clamp-2 mb-3">
-        {article.summary}
-      </p>
+        {/* 摘要 - 简洁，2行 */}
+        <p className="text-sm text-xf-medium/80 leading-relaxed line-clamp-2 mb-3">
+          {article.summary}
+        </p>
 
-      {/* 元信息行 - 紧凑 */}
-      <div className="flex items-center gap-4 text-xs text-xf-medium">
-        <span className="flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5" />
-          {formatDistanceToNow(publishedAt)}
-        </span>
-        <span className="flex items-center gap-1">
-          <ThumbsUp className="w-3.5 h-3.5" />
-          {article.likes_count || 0}
-        </span>
-        <span className="flex items-center gap-1">
-          <MessageSquare className="w-3.5 h-3.5" />
-          {article.comments_count || 0}
-        </span>
-      </div>
-    </article>
+        {/* 元信息行 - 紧凑 */}
+        <div className="flex items-center gap-4 text-xs text-xf-medium">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" />
+            {formatDistanceToNow(publishedAt)}
+          </span>
+          <span className="flex items-center gap-1">
+            <ThumbsUp className="w-3.5 h-3.5" />
+            {article.likes_count || 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <MessageSquare className="w-3.5 h-3.5" />
+            {article.comments_count || 0}
+          </span>
+        </div>
+      </article>
+    </Link>
   )
 }
 

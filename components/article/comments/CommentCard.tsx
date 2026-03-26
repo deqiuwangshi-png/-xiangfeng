@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from '@/lib/utils/date'
 import { UserAvatar } from '@/components/ui'
+import { escapeHtml } from '@/lib/utils/purify'
 import { CommentCardActions } from './CommentCardActions'
 import type { CommentCardProps } from './types'
 
@@ -13,8 +14,16 @@ import type { CommentCardProps } from './types'
  * @param onDelete - 删除回调
  * @param currentUser - 当前用户
  * @returns 评论卡片JSX
+ *
+ * @security
+ * - 所有用户生成内容（作者名、评论内容）都经过 escapeHtml 转义
+ * - 防止 XSS 攻击，确保恶意脚本不会被执行
  */
 export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentCardProps) {
+  // 对用户生成内容进行 HTML 转义，防止 XSS 攻击
+  const safeAuthorName = escapeHtml(comment.author.name)
+  const safeContent = escapeHtml(comment.content)
+
   return (
     <div className="comment-item">
       {/* 头像区域 */}
@@ -31,12 +40,12 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
       <div className="comment-content">
         {/* 作者和时间 */}
         <div className="comment-header">
-          <span className="comment-author">{comment.author.name}</span>
+          <span className="comment-author">{safeAuthorName}</span>
           <span className="comment-time">{formatDistanceToNow(comment.created_at)}</span>
         </div>
 
         {/* 评论文字 */}
-        <p className="comment-text">{comment.content}</p>
+        <p className="comment-text">{safeContent}</p>
 
         {/* 操作按钮：点赞、回复、删除 */}
         <CommentCardActions

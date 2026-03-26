@@ -1,3 +1,4 @@
+import { escapeHtml } from '@/lib/utils/purify';
 import type { ArticleHeaderProps } from '@/types';
 
 /**
@@ -31,13 +32,22 @@ function formatPublishTime(dateStr: string): string {
   return `${year}.${month}.${day} ${period}${hours}：${minutes}分`;
 }
 
+/**
+ * ArticleHeader - 文章头部组件
+ * @security
+ * - 所有用户生成的内容（作者名）都经过 escapeHtml 转义
+ * - 防止 XSS 攻击，确保恶意脚本不会被执行
+ */
 export default function ArticleHeader({ article }: ArticleHeaderProps) {
+  // 对作者名称进行 HTML 转义，防止 XSS
+  const safeAuthorName = escapeHtml(article.author.name);
+
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{article.title}</h1>
 
       <div className="article-meta">
-        <span className="mr-3">{article.author.name} · {article.author.bio || ''}</span>
+        <span className="mr-3">{safeAuthorName}</span>
         <span className="mr-3">{formatPublishTime(article.publishedAt || article.created_at)}</span>
         <span>约{article.readTime}分钟阅读</span>
       </div>

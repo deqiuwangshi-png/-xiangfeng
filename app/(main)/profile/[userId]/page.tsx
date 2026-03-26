@@ -1,27 +1,26 @@
 /**
- * 个人主页页面
+ * 用户个人主页（动态路由）
  *
- * 作用: 显示用户的个人资料、统计数据、内容和领域贡献
+ * 作用: 显示指定用户的公开个人资料、统计数据、内容和领域贡献
  *
- * 基于原型文件: d:\My_xiangmu\xf_02\docs\08原型文件设计图\个人.html
+ * 路由: /profile/[userId]
  *
- * @returns {JSX.Element} 个人主页页面
+ * @param {Object} params - 路由参数
+ * @param {string} params.userId - 用户ID
+ *
+ * @returns {JSX.Element} 用户个人主页页面
  *
  * 使用说明:
  *   - 使用 Server Component 获取用户数据
- *   - 使用 Client Components 处理交互逻辑
- *   - 使用 ProfileTabsProvider 管理标签页状态
- *   - 复用 Sidebar 组件保持一致性
- *   - 从 profiles 表获取数据，与设置页面保持一致
- *   - 使用并行数据获取优化LCP性能
+ *   - 支持查看任意用户的公开资料
+ *   - 与 /profile 页面（当前用户）保持一致的UI
  *
  * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
  * @性能优化 P2: ProfileContent 使用流式传输，不阻塞首屏渲染
- *
- * 更新时间: 2026-03-23
  */
 
 import { Suspense } from 'react'
+import { notFound } from 'next/navigation'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
@@ -29,32 +28,70 @@ import { ProfileDomain } from '@/components/profile/ProfileDomain'
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
-import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { getUserStats } from '@/lib/settings/actions'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
 /**
- * 个人资料头部数据获取组件
+ * 页面参数类型
+ */
+interface UserProfilePageProps {
+  params: Promise<{
+    userId: string
+  }>
+}
+
+/**
+ * 获取用户公开统计数据
+ *
+ * @param {string} userId - 用户ID
+ * @returns {Promise<UserStats>} 用户统计数据
+ */
+async function getUserPublicStats(userId: string): Promise<UserStats> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('articles_count, followers_count, likes_received, nodes_count')
+    .eq('id', userId)
+    .single()
+
+  if (error || !data) {
+    return { articles: 0, followers: 0, likes: 0, nodes: 0 }
+  }
+
+  return {
+    articles: data.articles_count || 0,
+    followers: data.followers_count || 0,
+    likes: data.likes_received || 0,
+    nodes: data.nodes_count || 0,
+  }
+}
+
+/**
+ * 用户资料头部数据获取组件
  * @性能优化 独立获取关键路径数据，优先渲染
  */
 async function ProfileHeaderData({ userId }: { userId: string }) {
   const supabase = await createClient()
 
   // 并行获取用户资料和统计数据
-  const [profileResult, statsResult] = await Promise.all([
+  const [profileResult, stats] = await Promise.all([
     supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
-    getUserStats()
+    getUserPublicStats(userId),
   ])
 
   const profile = profileResult.data
+
+  // 用户不存在则返回 404
+  if (!profile) {
+    notFound()
+  }
 
   // 构造用户显示信息
   const userData: UserDisplayInfo = {
     id: userId,
     username: profile?.username || '用户',
-    email: profile?.email || '',
+    email: '', // 不显示邮箱
     avatarUrl: profile?.avatar_url ?? null,
     bio: profile?.bio ?? null,
     location: profile?.location ?? null,
@@ -66,15 +103,11 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
     level: profile?.level?.[0]?.level || 1,
   }
 
-  const stats: UserStats = statsResult.success && statsResult.data
-    ? statsResult.data
-    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
-
   return <ProfileHeader user={userData} stats={stats} />
 }
 
 /**
- * 个人主页页面组件
+ * 用户个人主页页面组件
  *
  * @性能优化 关键改进:
  * 1. 使用 Suspense 分离 ProfileHeader 和 ProfileContent
@@ -82,21 +115,15 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * 3. ProfileContent 流式传输（非关键）
  * 4. 避免级联数据获取阻塞
  */
-export default async function ProfilePage() {
-  // 获取当前登录用户 - 使用缓存函数（与布局共享）
-  const user = await getCurrentUser()
-
-  // 未登录则重定向到登录页
-  if (!user) {
-    redirect('/login')
-  }
+export default async function UserProfilePage({ params }: UserProfilePageProps) {
+  const { userId } = await params
 
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       <div className="max-w-4xl mx-auto fade-in-up">
         {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
         <Suspense fallback={<ProfileHeaderSkeleton />}>
-          <ProfileHeaderData userId={user.id} />
+          <ProfileHeaderData userId={userId} />
         </Suspense>
 
         {/* 标签页状态管理Provider */}

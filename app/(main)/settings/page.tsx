@@ -17,24 +17,33 @@ import { getContentSettings } from '@/lib/settings/actions'
  *   获取用户设置数据
  *   将数据传递给客户端组件
  *   使用缓存的getCurrentUser()与布局共享用户数据
- * 更新时间: 2026-03-02
+ * 更新时间: 2026-03-25
  */
 
-export default async function SettingsPage() {
-  // 获取当前用户数据 - 使用缓存函数
-  const user = await getCurrentUser()
+/**
+ * 获取用户资料（并行执行）
+ * @param userId - 用户ID
+ * @returns 用户资料数据
+ */
+async function getUserProfile(userId: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+  return data
+}
 
-  // 从 profiles 表获取用户资料
-  let profile = null
-  if (user) {
-    const supabase = await createClient()
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-    profile = data
-  }
+export default async function SettingsPage() {
+  // 并行获取用户数据和内容设置，减少总等待时间
+  const [user, contentSettingsResult] = await Promise.all([
+    getCurrentUser(),
+    getContentSettings()
+  ])
+
+  // 如果用户已登录，并行获取用户资料
+  const profile = user ? await getUserProfile(user.id) : null
 
   /**
    * 组装用户数据传递给客户端
@@ -50,8 +59,7 @@ export default async function SettingsPage() {
     location: (profile as { location?: string })?.location || '',
   } : null
 
-  // 获取内容设置数据 - 避免客户端重复请求
-  const contentSettingsResult = await getContentSettings()
+  // 处理内容设置数据
   const contentSettings = contentSettingsResult.success
     ? { content_language: contentSettingsResult.content_language || 'zh-CN' }
     : { content_language: 'zh-CN' }

@@ -230,7 +230,7 @@ export default function PrivacyPage() {
               <h3 className="text-xl font-bold text-xf-dark mb-4">4.1 共享</h3>
               
               <p>
-                我们不会与相逢以外的任何公司、组织和个人共享您的个人信息，但以下情况除外：
+                我们不会与相逢以外的任何第三方共享您的个人信息，但以下情况除外：
               </p>
               
               <ul>
@@ -243,12 +243,12 @@ export default function PrivacyPage() {
               <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">4.2 转让</h3>
               
               <p>
-                我们不会将您的个人信息转让给任何公司、组织或个人，但以下情况除外：
+                我们不会将您的个人信息转让给任何第三方，但以下情况除外：
               </p>
               
               <ul>
                 <li>获得您的明确同意后；</li>
-                <li>在涉及合并、收购或破产清算时，如涉及个人信息转让，我们会要求新的持有您个人信息的公司、组织继续受此隐私政策的约束，否则我们将要求该公司、组织重新向您征求授权同意。</li>
+                <li>在涉及服务转让时，如涉及个人信息转让，我们会要求新的服务提供者继续受此隐私政策的约束，否则我们将要求其重新向您征求授权同意。</li>
               </ul>
               
               <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">4.3 公开披露</h3>
@@ -417,29 +417,27 @@ export default function PrivacyPage() {
             </div>
           </section>
 
-          {/* 联系我们 */}
+          {/* 联系开发者 */}
           <section id="contact" className="policy-section mb-16">
-            <h2 className="text-3xl font-serif font-bold text-xf-accent mb-8">10. 如何联系我们</h2>
-            
+            <h2 className="text-3xl font-serif font-bold text-xf-accent mb-8">10. 如何联系开发者</h2>
+
             <div className="policy-content space-y-6">
               <p>
-                如果您对本隐私政策有任何疑问、意见或建议，或者需要行使您的权利，请通过以下方式联系我们：
+                如果您对本隐私政策有任何疑问、意见或建议，或者需要行使您的权利，请通过以下方式联系开发者：
               </p>
-              
+
               <ul>
-                <li><strong>电子邮件：</strong>privacy@xiangfeng.com</li>
-                <li><strong>邮寄地址：</strong>中国北京市朝阳区XX路XX号XX大厦XX层 相逢科技有限公司 法务部 收</li>
-                <li><strong>在线表单：</strong>您也可以通过我们的联系表单提交您的请求</li>
+                <li><strong>电子邮件：</strong>support@xiangfeng.com</li>
               </ul>
-              
+
               <p>
-                我们将在收到您的联系后，在合理时间内（通常为15个工作日内）予以处理并回复。
+                开发者将在收到您的联系后尽快回复。由于为独立开发运营，回复时间可能有所延迟，敬请谅解。
               </p>
-              
+
               <div className="policy-note">
-                <p className="font-medium text-xf-dark mb-1">数据保护官</p>
+                <p className="font-medium text-xf-dark mb-1">数据保护</p>
                 <p className="text-xf-medium text-sm">
-                  如果您认为我们对您个人信息的处理违反了适用的数据保护法律，您有权向相关监管机构投诉。我们指定了数据保护官，您可以通过上述联系方式与数据保护官联系。
+                  如果您认为开发者对您个人信息的处理违反了适用的数据保护法律，您有权向相关监管机构投诉。
                 </p>
               </div>
             </div>

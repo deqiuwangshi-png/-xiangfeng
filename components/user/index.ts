@@ -6,3 +6,6 @@
 
 export { UserDropdownMenu } from './UserDropdownMenu'
 export { UserProfileSection } from './UserProfileSection'
+export { VerifyBadge } from './VerifyBadge'
+export { LevelBadge } from './LevelBadge'
+export { UserBadges } from './UserBadges'
