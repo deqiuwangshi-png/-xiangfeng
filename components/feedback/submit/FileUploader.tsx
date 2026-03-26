@@ -149,7 +149,7 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
           >
             <UploadCloud className="w-8 h-8 text-xf-primary mx-auto mb-2" />
             <p className="text-sm font-medium text-xf-dark">点击或拖拽上传</p>
-            <p className="text-xs text-xf-primary">支持 PNG, JPG, JPEG, GIF, WEBP, MD, PDF 格式，最大10MB</p>
+            <p className="text-xs text-xf-primary">支持 PNG, JPG, JPEG, GIF, WEBP 格式，最大10MB</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -169,7 +169,7 @@ export default function FileUploader({ files, onFilesChange }: FileUploaderProps
           type="file"
           className="hidden"
           multiple
-          accept=".png,.jpg,.jpeg,.gif,.webp,.md,.pdf"
+          accept=".png,.jpg,.jpeg,.gif,.webp"
           onChange={handleFileSelect}
         />
       </div>

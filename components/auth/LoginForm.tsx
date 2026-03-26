@@ -5,6 +5,10 @@
  * @module components/auth/LoginForm
  * @description 登录表单逻辑和交互
  * @性能优化 P1: 从 page.tsx 分离，使页面主体支持 SSR
+ *
+ * @安全修复 S-06: 登录响应篡改防护
+ * - 跳转前进行二次 Session 验证
+ * - 防止 Burp Suite 等工具篡改响应包绕过登录
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -14,6 +18,7 @@ import { useAuthToast } from '@/hooks/useAuthToast';
 import { checkRateLimit } from '@/lib/security/rateLimit';
 import { login } from '@/lib/auth';
 import { sanitizeRedirect } from '@/lib/auth/redir';
+import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
@@ -145,6 +150,22 @@ export function LoginForm() {
       {/* 登录成功，重置客户端限流 */}
       const { resetRateLimit } = await import('@/lib/security/rateLimit');
       resetRateLimit(getClientId());
+
+      {/*
+        @安全修复 S-06: 二次 Session 验证
+        - 防止响应包篡改攻击（Burp Suite 等工具将 success: false 改为 true）
+        - 跳转前直接查询 Supabase 验证 Session 是否真实存在
+        - 即使前端响应被篡改，无有效 Session 也无法进入后台
+      */}
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        dismiss(toastId);
+        showError('登录验证失败，请重试');
+        setIsLoading(false);
+        return;
+      }
 
       {/* 登录成功 - 登录页无toast，直接跳转 */}
       dismiss(toastId);
