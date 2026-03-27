@@ -25,7 +25,6 @@ import { Suspense } from 'react'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
-import { ProfileDomain } from '@/components/profile/ProfileDomain'
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
@@ -112,21 +111,11 @@ export default async function ProfilePage() {
             </Suspense>
           </ProfileTabContent>
 
-          {/* 领域贡献区域 - 条件渲染 */}
-          <ProfileTabContent tab="domain">
-            <ProfileDomain />
-          </ProfileTabContent>
-
           {/* 思想轨迹区域 - 灵感热力图 */}
           <ProfileTabContent tab="thought">
-            <div className="bg-white rounded-xl border border-xf-bg/60 p-6">
-              <h3 className="text-base font-semibold text-xf-dark mb-4">
-                思考热力图
-              </h3>
-              <Suspense fallback={<HeatMapSkeleton />}>
-                <HeatMap />
-              </Suspense>
-            </div>
+            <Suspense fallback={<HeatMapSkeleton />}>
+              <HeatMap />
+            </Suspense>
           </ProfileTabContent>
         </ProfileTabsProvider>
       </div>
