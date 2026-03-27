@@ -33,9 +33,9 @@ const updateSettingSchema = z.object({
  * @安全增强 P2: 防止任意字段写入
  */
 const ALLOWED_SETTING_KEYS: Record<string, string[]> = {
-  privacy: ['profile_visible', 'show_email', 'allow_follow'],
-  notifications: ['email_notify', 'push_notify', 'comment_notify'],
-  appearance: ['theme', 'font_size', 'compact_mode'],
+  privacy: ['profile_visible', 'show_email', 'allow_follow', 'message_permission'],
+  notifications: ['email', 'newFollowers', 'comments', 'likes', 'mentions', 'system', 'achievements'],
+  appearance: ['theme', 'theme_color', 'font_size', 'compact_mode'],
   content: ['language', 'default_sort', 'items_per_page'],
   advanced: ['auto_save', 'keyboard_shortcuts', 'beta_features'],
 }
@@ -260,12 +260,149 @@ function createSettingUpdater(category: SettingCategory) {
 }
 
 /**
+ * 隐私设置结果类型
+ */
+export interface PrivacySettingsResult {
+  success: boolean
+  settings?: {
+    profileVisibility: string
+    messagePermission: string
+  }
+  error?: string
+}
+
+/**
+ * 获取隐私设置
+ * @returns 隐私设置结果
+ */
+export async function getPrivacySettings(): Promise<PrivacySettingsResult> {
+  try {
+    const supabase = await createClient()
+
+    // 获取当前用户
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
+    }
+
+    // 查询用户隐私设置
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('privacy_profile_visible, privacy_message_permission')
+      .eq('user_id', user.id)
+      .single()
+
+    if (error) {
+      // 如果没有记录，返回默认值
+      if (error.code === 'PGRST116') {
+        return {
+          success: true,
+          settings: {
+            profileVisibility: 'public',
+            messagePermission: 'everyone',
+          },
+        }
+      }
+      console.error('获取隐私设置失败:', error)
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
+    }
+
+    return {
+      success: true,
+      settings: {
+        profileVisibility: data?.privacy_profile_visible || 'public',
+        messagePermission: data?.privacy_message_permission || 'everyone',
+      },
+    }
+  } catch (err) {
+    console.error('获取隐私设置时出错:', err)
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
+  }
+}
+
+/**
  * 更新隐私设置
  *
  * @param formData 表单数据
  * @returns 更新结果
  */
 export const updatePrivacySettings = createSettingUpdater('privacy')
+
+/**
+ * 通知设置结果类型
+ */
+export interface NotificationSettingsResult {
+  success: boolean
+  settings?: Record<string, boolean>
+  error?: string
+}
+
+/**
+ * 获取通知设置
+ * @returns 通知设置结果
+ */
+export async function getNotificationSettings(): Promise<NotificationSettingsResult> {
+  try {
+    const supabase = await createClient()
+
+    // 获取当前用户
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
+    }
+
+    // 查询用户通知设置
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('notifications_email, notifications_newFollowers, notifications_comments, notifications_likes, notifications_mentions, notifications_system, notifications_achievements')
+      .eq('user_id', user.id)
+      .single()
+
+    if (error) {
+      // 如果没有记录，返回默认值
+      if (error.code === 'PGRST116') {
+        return {
+          success: true,
+          settings: {
+            email: true,
+            newFollowers: true,
+            comments: true,
+            likes: true,
+            mentions: true,
+            system: true,
+            achievements: true,
+          },
+        }
+      }
+      console.error('获取通知设置失败:', error)
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
+    }
+
+    // 映射数据库字段到前端格式
+    const settings: Record<string, boolean> = {
+      email: data?.notifications_email ?? true,
+      newFollowers: data?.notifications_newFollowers ?? true,
+      comments: data?.notifications_comments ?? true,
+      likes: data?.notifications_likes ?? true,
+      mentions: data?.notifications_mentions ?? true,
+      system: data?.notifications_system ?? true,
+      achievements: data?.notifications_achievements ?? true,
+    }
+
+    return { success: true, settings }
+  } catch (err) {
+    console.error('获取通知设置时出错:', err)
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
+  }
+}
 
 /**
  * 更新通知设置

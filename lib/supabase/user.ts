@@ -19,19 +19,41 @@ import type { User } from '@supabase/supabase-js'
  * // 在页面中使用（同一请求内会复用缓存）
  * const user = await getCurrentUser() // 不会重复查询
  */
+/**
+ * 判断是否为匿名用户访问的正常错误
+ * 这些错误不应输出到控制台
+ *
+ * @param errorMessage - 错误信息
+ * @returns 是否为正常匿名访问错误
+ */
+function isAnonymousAccessError(errorMessage: string): boolean {
+  const anonymousErrors = [
+    'Auth session missing!',
+    'Invalid Refresh Token: Refresh Token Not Found',
+    'Invalid token',
+    'Token expired',
+    'JWT expired',
+    'user not found',
+  ]
+  return anonymousErrors.some(msg => 
+    errorMessage.toLowerCase().includes(msg.toLowerCase())
+  )
+}
+
 export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
-  
+
   if (error) {
-    // 会话缺失是正常情况（如用户已退出或删除账户），不报错
-    if (error.message === 'Auth session missing!') {
+    // 匿名用户访问或会话过期是正常情况，不报错
+    if (isAnonymousAccessError(error.message)) {
       return null
     }
+    // 其他未知错误才输出日志
     console.error('获取用户信息失败:', error.message)
     return null
   }
-  
+
   return user
 })
 
