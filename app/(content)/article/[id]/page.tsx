@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { Suspense, cache } from 'react';
 import Link from 'next/link';
 import { Home } from '@/components/icons';
-import ArticleContent from '@/components/article/ArticleContent';
+import { ProtectedArticleContent } from '@/components/article/ProtectedArticleContent';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArtAct from '@/components/article/ArtAct';
 import { CommentPanel } from '@/components/article/comments';
@@ -242,8 +242,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {/* 直接传递完整文章数据 */}
           <ArticleHeader article={article} />
           
-          {/* ArticleContent 改为接收 content 直接渲染 */}
-          <ArticleContent content={article.content} />
+          {/* 受保护的文章内容 - 启用防复制保护 */}
+          <ProtectedArticleContent
+            content={article.content}
+            protectionEnabled={true}
+            protectionMessage="文章内容受保护，禁止复制"
+          />
         </div>
       </div>
       

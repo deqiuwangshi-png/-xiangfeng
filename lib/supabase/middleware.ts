@@ -136,13 +136,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL(targetPath, request.url))
   }
 
-  if (!user && isProtectedRoute) {
-    {/* 未登录用户访问受保护路由，重定向到登录页 */}
-    const loginUrl = new URL('/login', request.url)
-    const redirectPathWithSearch = `${path}${request.nextUrl.search}`
-    loginUrl.searchParams.set('redirect', redirectPathWithSearch)
-    return NextResponse.redirect(loginUrl)
-  }
+  {/*
+    注意：受保护路由的匿名用户处理已移至页面层
+    - 中间件不再重定向到登录页
+    - 由 (main)/layout.tsx 中的 AuthRequiredPage 组件显示登录提示
+    - 这样用户体验更好，保留页面上下文
+  */}
 
   {/* 安全头部 - 仅对受保护路由设置，减少开销 */}
   if (isProtectedRoute) {

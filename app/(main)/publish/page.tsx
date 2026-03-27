@@ -1,6 +1,8 @@
 import { Suspense } from 'react'
 import PublishPageClient from './PublishPageClient'
+import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
+import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 
 /**
  * 发布页
@@ -10,10 +12,23 @@ import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
  * 2. 客户端组件封装动态导入逻辑
  * 3. 骨架屏优化感知性能
  * 4. 支持编辑模式：通过URL参数edit获取草稿ID
+ * 5. 未登录状态显示登录引导
  *
  * @returns 发布页JSX
  */
-export default function PublishPage() {
+export default async function PublishPage() {
+  const profile = await getCurrentUserWithProfile()
+
+  {/* 未登录状态：显示登录引导 */}
+  if (!profile) {
+    return (
+      <AuthRequiredContent
+        title="发布文章"
+        description="登录后即可发布你的文章"
+      />
+    )
+  }
+
   return (
     <Suspense fallback={<EditorSkeleton />}>
       <PublishPageClient />

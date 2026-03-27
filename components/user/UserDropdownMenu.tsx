@@ -61,9 +61,6 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
       {/* 匿名用户菜单 */}
       return [
         { label: '更新公告', icon: Newspaper, href: '/updates' },
-        { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
-        { label: '登录', icon: LogOut, href: '/login' },
-        { label: '注册', icon: User, href: '/register' },
       ]
     }
     {/* 已登录用户菜单 */}
