@@ -4,6 +4,7 @@ import { Suspense, cache } from 'react';
 import Link from 'next/link';
 import { Home } from '@/components/icons';
 import { ProtectedArticleContent } from '@/components/article/ProtectedArticleContent';
+import { ArticlePaywall } from '@/components/article/ArticlePaywall';
 import ArticleHeader from '@/components/article/ArticleHeader';
 import ArtAct from '@/components/article/ArtAct';
 import { CommentPanel } from '@/components/article/comments';
@@ -242,12 +243,22 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {/* 直接传递完整文章数据 */}
           <ArticleHeader article={article} />
           
-          {/* 受保护的文章内容 - 启用防复制保护 */}
-          <ProtectedArticleContent
-            content={article.content}
-            protectionEnabled={true}
-            protectionMessage="文章内容受保护，禁止复制"
-          />
+          {/* 根据用户状态显示完整内容或预览墙 */}
+          {user ? (
+            /* 已登录用户：显示完整内容 */
+            <ProtectedArticleContent
+              content={article.content}
+              protectionEnabled={true}
+              protectionMessage="文章内容受保护，禁止复制"
+            />
+          ) : (
+            /* 匿名用户：显示预览墙（嵌入式渐变引导，智能文案） */
+            <ArticlePaywall
+              content={article.content}
+              articleTitle={article.title}
+              tags={article.tags}
+            />
+          )}
         </div>
       </div>
       
