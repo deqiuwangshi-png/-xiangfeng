@@ -168,7 +168,6 @@ export function DraftCard({
       className={`
         draft-card group bg-white border border-gray-200 rounded-xl p-4
         transition-all duration-200 ease-out cursor-pointer
-        hover:border-gray-300 hover:shadow-sm
         ${selected ? 'border-gray-400 bg-gray-50' : ''}
       `}
       onClick={handleCardClick}
@@ -252,7 +251,6 @@ export function DraftCard({
       className={`
         draft-card group bg-white border border-gray-200 rounded-2xl p-5
         transition-all duration-300 ease-out cursor-pointer relative
-        hover:border-gray-300 hover:-translate-y-0.5
         ${selected ? 'border-gray-400 bg-gray-50' : ''}
       `}
       onClick={handleCardClick}
