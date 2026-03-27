@@ -13,7 +13,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus, Image, Table
+  List, ListOrdered, Minus, Image
 } from '@/components/icons'
 import { selectImageFile, uploadImage } from '@/lib/upload/img'
 import { toast } from 'sonner'
@@ -156,16 +156,6 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
           }
         },
       },
-      {
-        id: 'table',
-        label: '表格',
-        icon: Table,
-        shortcut: '/table',
-        action: () => {
-          // 创建 3×3 表格
-          editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()
-        },
-      },
     ]
 
     // 根据输入过滤命令
@@ -252,10 +242,8 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
           // 只在空段落或行首允许唤起
           const $pos = editor.state.doc.resolve(from)
           const isAtStart = $pos.parentOffset === 0
-          // 表格内不唤起菜单
-          const isInTable = editor.isActive('table')
 
-          if (empty && isAtStart && !isInTable) {
+          if (empty && isAtStart) {
             event.preventDefault()
             showMenu()
           }

@@ -17,10 +17,6 @@ import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-import { Table } from '@tiptap/extension-table'
-import { TableCell } from '@tiptap/extension-table-cell'
-import { TableHeader } from '@tiptap/extension-table-header'
-import { TableRow } from '@tiptap/extension-table-row'
 import Paragraph from '@tiptap/extension-paragraph'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import type { EditorView } from '@tiptap/pm/view'
@@ -135,23 +131,6 @@ export function useTipTapEditor({
         Paragraph.extend({
           addNodeView() {
             return ReactNodeViewRenderer(ParaNodeView)
-          },
-        }),
-        Table.configure({
-          resizable: false,
-          HTMLAttributes: {
-            class: 'simple-table',
-          },
-        }),
-        TableRow,
-        TableHeader.configure({
-          HTMLAttributes: {
-            class: 'simple-table-header',
-          },
-        }),
-        TableCell.configure({
-          HTMLAttributes: {
-            class: 'simple-table-cell',
           },
         }),
         Image.extend({
