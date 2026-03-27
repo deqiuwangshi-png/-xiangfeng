@@ -212,3 +212,15 @@ export type {
 // Supabase 数据库类型
 // ============================================
 export type { Json, Database, UserRole } from './supabase';
+
+// ============================================
+// 媒体资源模块
+// ============================================
+export type {
+  MediaStatus,
+  MediaRecord,
+  CreateMediaParams,
+  UpdateMediaStatusParams,
+  UploadProgress,
+  ImageUploadResult,
+} from './media';
