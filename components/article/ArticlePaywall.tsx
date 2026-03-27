@@ -118,27 +118,69 @@ function calculatePreviewLength(content: string, ratio: number): number {
 }
 
 /**
- * 截取预览内容
- * @param {string} content - 文章内容
- * @param {number} previewLength - 预览长度
- * @returns {string} 预览内容
+ * 智能截断HTML内容，保留标签结构
+ * @param {string} html - HTML格式的文章内容
+ * @param {number} maxLength - 最大文本长度
+ * @returns {string} 保留HTML标签的预览内容
  */
-function truncateContent(content: string, previewLength: number): string {
-  const textContent = content.replace(/<[^>]*>/g, '');
-  const previewText = textContent.slice(0, previewLength);
+function truncateHtml(html: string, maxLength: number): string {
+  // 解析HTML，提取带标签的段落
+  const paragraphs: string[] = [];
+  const tagRegex = /<(p|h[1-6]|blockquote|li)[^>]*>([\s\S]*?)<\/\1>/gi;
+  let match;
 
-  // 在语义边界截断
-  const lastPeriod = previewText.lastIndexOf('。');
-  const lastNewline = previewText.lastIndexOf('\n');
-
-  let truncateIndex = previewText.length;
-  if (lastPeriod > previewLength * 0.85) {
-    truncateIndex = lastPeriod + 1;
-  } else if (lastNewline > previewLength * 0.85) {
-    truncateIndex = lastNewline + 1;
+  while ((match = tagRegex.exec(html)) !== null) {
+    const tagName = match[1];
+    const content = match[2];
+    paragraphs.push({ tag: tagName, content, fullMatch: match[0] } as unknown as string);
   }
 
-  return previewText.slice(0, truncateIndex);
+  // 如果没有匹配到标准标签，尝试按段落分割
+  if (paragraphs.length === 0) {
+    const simpleParagraphs = html.split(/\n{2,}/);
+    return simpleParagraphs
+      .slice(0, 3)
+      .map((p) => `<p>${p.trim()}</p>`)
+      .join('');
+  }
+
+  // 累积文本直到达到预览长度
+  let currentLength = 0;
+  const result: string[] = [];
+
+  for (const para of paragraphs) {
+    const p = para as unknown as { tag: string; content: string; fullMatch: string };
+    const textContent = p.content.replace(/<[^>]*>/g, '');
+
+    if (currentLength + textContent.length <= maxLength) {
+      // 完整保留这个段落
+      result.push(p.fullMatch);
+      currentLength += textContent.length;
+    } else {
+      // 需要截断这个段落
+      const remaining = maxLength - currentLength;
+      if (remaining > 20) {
+        // 如果剩余空间足够，截断并保留部分
+        let truncatedText = textContent.slice(0, remaining);
+
+        // 在语义边界截断
+        const lastPeriod = truncatedText.lastIndexOf('。');
+        const lastComma = truncatedText.lastIndexOf('，');
+        const boundaryIndex = Math.max(lastPeriod, lastComma);
+
+        if (boundaryIndex > remaining * 0.7) {
+          truncatedText = truncatedText.slice(0, boundaryIndex + 1);
+        }
+
+        // 重建HTML标签
+        const truncatedHtml = `<${p.tag}>${truncatedText}</${p.tag}>`;
+        result.push(truncatedHtml);
+      }
+      break;
+    }
+  }
+
+  return result.join('');
 }
 
 /**
@@ -166,8 +208,8 @@ export function ArticlePaywall({
   const finalCtaText = themeCopy.ctaText;
 
   const previewLength = calculatePreviewLength(content, previewRatio);
-  const previewText = truncateContent(content, previewLength);
-  const sanitizedPreview = sanitizeRichText(previewText);
+  const previewHtml = truncateHtml(content, previewLength);
+  const sanitizedPreview = sanitizeRichText(previewHtml);
 
   return (
     <div className="relative">

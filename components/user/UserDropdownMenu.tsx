@@ -6,7 +6,7 @@
 
 'use client'
 
-import { User, Newspaper, MessageSquare, Settings, LogOut} from 'lucide-react'
+import { User, Newspaper, MessageSquare, Settings, LogOut, LogIn, UserPlus } from 'lucide-react'
 import { useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -58,8 +58,10 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
    */
   const menuItems: DropdownItem[] = useMemo(() => {
     if (!isAuthenticated) {
-      {/* 匿名用户菜单 */}
+      {/* 匿名用户菜单 - 提供登录和注册入口 */}
       return [
+        { label: '登录', icon: LogIn, href: '/login' },
+        { label: '注册', icon: UserPlus, href: '/register' },
         { label: '更新公告', icon: Newspaper, href: '/updates' },
       ]
     }
