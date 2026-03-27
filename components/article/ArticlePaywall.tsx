@@ -14,7 +14,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, ArrowRight, Users, MessageCircle, Bookmark } from 'lucide-react';
+import { Sparkles, ArrowRight, Users } from 'lucide-react';
 import { sanitizeRichText } from '@/lib/utils/purify';
 
 /**

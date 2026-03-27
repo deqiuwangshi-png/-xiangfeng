@@ -3,7 +3,12 @@
 /**
  * 作者头像组件
  * @module components/article/AuthorAvatar
- * @description 显示作者头像，带关注功能按钮，点击头像可跳转到作者个人主页
+ * @description 显示作者头像，带关注功能按钮
+ *
+ * @安全特性
+ * - 匿名用户无法点击头像跳转主页
+ * - 匿名用户无法关注作者
+ * - 点击时提示需要登录
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -22,8 +27,9 @@ import { useArticleToast } from '@/hooks/useArticleToast'
  *
  * @description
  * 作者头像+关注按钮
- * - 显示作者头像，点击可跳转到作者个人主页
- * - 底部白色加号按钮表示可关注
+ * - 显示作者头像，已登录用户点击可跳转到作者个人主页
+ * - 匿名用户点击头像提示登录
+ * - 底部白色加号按钮表示可关注（仅登录用户可见）
  * - 点击后切换关注状态
  */
 export function AuthorAvatar({
@@ -34,7 +40,7 @@ export function AuthorAvatar({
 }: AuthorAvatarProps) {
   const [isFollowing, setIsFollowing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { showSuccess, showError, showAuthRequired, showWarning } = useArticleToast()
+  const { showSuccess, showError, showAuthRequired } = useArticleToast()
 
   /**
    * 获取初始关注状态
@@ -67,26 +73,23 @@ export function AuthorAvatar({
    * @param {React.MouseEvent} e - 点击事件
    */
   const handleFollow = async (e: React.MouseEvent) => {
-    {/* 阻止事件冒泡，防止触发头像链接跳转 */}
     e.preventDefault()
     e.stopPropagation()
 
-    {/* 未登录提示 */}
+    // 未登录提示
     if (!currentUser) {
       showAuthRequired('关注作者')
       return
     }
 
-    {/* 不能关注自己 */}
+    // 不能关注自己
     if (currentUser.id === authorId) {
-      showWarning('不能关注自己')
       return
     }
 
     setIsLoading(true)
 
     try {
-      {/* 调用真实关注API */}
       const result = await toggleFollow(authorId)
 
       if (result.success) {
@@ -102,13 +105,26 @@ export function AuthorAvatar({
     }
   }
 
+  /**
+   * 处理头像点击 - 匿名用户提示登录
+   *
+   * @param {React.MouseEvent} e - 点击事件
+   */
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    if (!currentUser) {
+      e.preventDefault()
+      showAuthRequired('查看作者主页')
+    }
+  }
+
   return (
     <div className="author-avatar-container">
-      {/* 头像 - 点击跳转到作者个人主页 */}
+      {/* 头像 - 已登录用户点击跳转到作者个人主页 */}
       <Link
         href={`/profile/${authorId}`}
-        className="author-avatar-wrapper cursor-pointer"
-        title={`查看 ${authorName} 的个人主页`}
+        className={`author-avatar-wrapper ${currentUser ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        title={currentUser ? `查看 ${authorName} 的个人主页` : '登录后查看作者主页'}
+        onClick={handleAvatarClick}
       >
         <div className="author-avatar-image">
           <UserAvatar
@@ -119,34 +135,36 @@ export function AuthorAvatar({
           />
         </div>
 
-        {/* 关注按钮 - 白色圆形加号 */}
-        <button
-          className={`follow-btn ${isFollowing ? 'following' : ''} ${isLoading ? 'loading' : ''}`}
-          onClick={handleFollow}
-          disabled={isLoading}
-          title={isFollowing ? '取消关注' : '关注作者'}
-        >
-          {isFollowing ? (
-            // 已关注状态显示对勾
-            <svg
-              className="w-3 h-3 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={3}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          ) : (
-            // 未关注状态显示加号
-            <Plus className="w-3 h-3 text-gray-600" strokeWidth={3} />
-          )}
-        </button>
+        {/* 关注按钮 - 仅登录用户可见且可操作 */}
+        {currentUser && (
+          <button
+            className={`follow-btn ${isFollowing ? 'following' : ''} ${isLoading ? 'loading' : ''}`}
+            onClick={handleFollow}
+            disabled={isLoading}
+            title={isFollowing ? '取消关注' : '关注作者'}
+          >
+            {isFollowing ? (
+              <svg
+                className="w-3 h-3 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            ) : (
+              <Plus className="w-3 h-3 text-gray-600" strokeWidth={3} />
+            )}
+          </button>
+        )}
       </Link>
     </div>
   )
 }
+
+export default AuthorAvatar

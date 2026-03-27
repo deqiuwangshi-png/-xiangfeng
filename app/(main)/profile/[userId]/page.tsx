@@ -20,7 +20,7 @@
  */
 
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
@@ -29,6 +29,7 @@ import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/supabase/user'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
 /**
@@ -109,6 +110,10 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
 /**
  * 用户个人主页页面组件
  *
+ * @安全说明
+ * - 必须登录才能访问他人主页
+ * - 匿名用户会被重定向到登录页
+ *
  * @性能优化 关键改进:
  * 1. 使用 Suspense 分离 ProfileHeader 和 ProfileContent
  * 2. ProfileHeader 优先渲染（关键路径）
@@ -116,6 +121,12 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * 4. 避免级联数据获取阻塞
  */
 export default async function UserProfilePage({ params }: UserProfilePageProps) {
+  // 检查用户是否登录 - 未登录则重定向
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    redirect('/login')
+  }
+
   const { userId } = await params
 
   return (
