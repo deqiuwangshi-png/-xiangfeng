@@ -37,13 +37,6 @@ interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
  * @param {React.Ref<HTMLInputElement>} ref - 转发ref
  * @returns {JSX.Element} 密码输入组件
  * 
- * @example
- * <PasswordInput
- *   label="密码"
- *   placeholder="请输入密码"
- *   value={password}
- *   onChange={(e) => setPassword(e.target.value)}
- * />
  */
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ label, error, helper, className = '', disabled, autoComplete = 'current-password', ...props }, ref) => {

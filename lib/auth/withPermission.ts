@@ -10,6 +10,7 @@ import {
   requireOwnership,
   type WriteOperation,
 } from './permissions';
+import { COMMON_ERRORS } from '@/lib/messages';
 
 /**
  * Server Action 函数类型
@@ -63,7 +64,7 @@ export function withPermission<T extends unknown[], R>(
       console.error(`[权限保护] ${options.operation} 操作失败:`, error);
       return {
         success: false,
-        error: '操作失败，请稍后重试',
+        error: COMMON_ERRORS.UNKNOWN_ERROR,
       };
     }
   };

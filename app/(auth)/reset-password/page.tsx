@@ -8,9 +8,6 @@ import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
  * 重置密码页面 - Server Component
  * @function ResetPasswordPage
  * @returns {JSX.Element} 重置密码页面
- * @性能优化 P1: 将页面改为 Server Component，仅表单部分使用 Client Component
- * @优化说明
-
  * @特殊处理
  * - session 检查必须在客户端执行（需要访问浏览器存储）
  * - 添加 isChecking 状态显示骨架屏，避免页面闪烁

@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { User } from '@supabase/supabase-js';
 import type {
   UserRole,
@@ -106,7 +107,7 @@ export async function checkWritePermission(
   if (role === 'anonymous') {
     return {
       allowed: false,
-      error: '请先登录后再进行此操作',
+      error: LOGIN_MESSAGES.NOT_AUTHENTICATED,
       user: null,
       role: 'anonymous',
     };
@@ -118,7 +119,7 @@ export async function checkWritePermission(
     if (resourceOwnerId !== user.id) {
       return {
         allowed: false,
-        error: '您没有权限操作此资源',
+        error: COMMON_ERRORS.FORBIDDEN,
         user,
         role: 'authenticated',
       };
@@ -141,7 +142,7 @@ export async function requireAuth(): Promise<User> {
   const { user, role } = await getCurrentUserWithRole();
 
   if (role === 'anonymous' || !user) {
-    throw new Error('请先登录后再进行此操作');
+    throw new Error(LOGIN_MESSAGES.NOT_AUTHENTICATED);
   }
 
   return user;
@@ -167,7 +168,7 @@ export async function requireOwnership(resourceOwnerId: string): Promise<User> {
   }
 
   if (user.id !== resourceOwnerId) {
-    throw new Error('您没有权限操作此资源');
+    throw new Error(COMMON_ERRORS.FORBIDDEN);
   }
 
   return user;
@@ -190,7 +191,7 @@ export function createPermissionGuard(allowedOperations: WriteOperation[]) {
     if (!allowedOperations.includes(operation)) {
       return {
         allowed: false,
-        error: '不支持此操作类型',
+        error: COMMON_ERRORS.INVALID_PARAMS,
         user: null,
         role: 'anonymous',
       };

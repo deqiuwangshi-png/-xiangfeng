@@ -38,30 +38,7 @@ export interface LogoutButtonProps extends Omit<UseLogoutOptions, 'onSuccess' | 
  * @param {LogoutButtonProps} props - 组件属性
  * @returns {JSX.Element} 退出登录按钮
  * 
- * @example
- * // 基础用法
- * <LogoutButton />
- * 
- * @example
- * // 危险样式（红色）
- * <LogoutButton variant="danger" />
- * 
- * @example
- * // 自定义文本和回调
- * <LogoutButton 
- *   label="安全退出"
- *   variant="ghost"
- *   size="sm"
- *   onSuccess={() => console.log('已退出')}
- * />
- * 
- * @example
- * // 在菜单中使用
- * <LogoutButton 
- *   variant="danger" 
- *   className="w-full justify-start"
- *   showIcon
- * />
+
  */
 export function LogoutButton({
   variant = 'default',

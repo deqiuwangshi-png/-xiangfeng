@@ -22,6 +22,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
 import { checkLikeArticleTask } from '@/lib/rewards/actions/tasks';
+import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
 export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
@@ -100,7 +101,7 @@ export const toggleArticleLike = withAuth(
           }
         } else {
           console.error('[点赞 Server] 点赞插入失败:', insertError);
-          return { success: false, liked: false, likes: 0, error: '操作失败' };
+          return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.LIKE_ERROR };
         }
       } else {
         liked = true;
@@ -142,7 +143,7 @@ export const toggleArticleLike = withAuth(
       };
     } catch (error) {
       console.error('[点赞 Server] 点赞操作失败:', error);
-      return { success: false, liked: false, likes: 0, error: '操作失败' };
+      return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
   }
 );
@@ -193,13 +194,13 @@ export const toggleCommentLike = withAuth(
 
           if (deleteError) {
             console.error('[点赞 Server] 取消评论点赞失败:', deleteError);
-            return { success: false, liked: false, likes: 0, error: '取消点赞失败' };
+            return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.UNLIKE_ERROR };
           }
           liked = false;
           console.log('[点赞 Server] 取消评论点赞成功');
         } else {
           console.error('[点赞 Server] 评论点赞插入失败:', insertError);
-          return { success: false, liked: false, likes: 0, error: '操作失败' };
+          return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.LIKE_ERROR };
         }
       } else {
         // 插入成功 = 新点赞
@@ -216,7 +217,7 @@ export const toggleCommentLike = withAuth(
       };
     } catch (error) {
       console.error('[点赞 Server] 评论点赞操作失败:', error);
-      return { success: false, liked: false, likes: 0, error: '操作失败' };
+      return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
   }
 );

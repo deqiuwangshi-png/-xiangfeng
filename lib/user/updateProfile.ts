@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { UpdateProfileParams, UpdateProfileResult } from '@/types/settings'
 import { validateProfileInput } from '@/lib/security/inputValidator'
+import { PROFILE_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 
 /**
  * 将字符串转换为 PostgreSQL 数组格式
@@ -48,7 +49,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: COMMON_ERRORS.UNKNOWN_ERROR }
     }
 
     /**
@@ -62,7 +63,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     if (!validation.success) {
       return {
         success: false,
-        error: `输入验证失败: ${validation.errors?.join(', ')}`,
+        error: PROFILE_MESSAGES.UPDATE_ERROR,
       }
     }
 
@@ -91,7 +92,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
 
     if (profileError) {
       console.error('更新 profiles 表失败:', profileError)
-      return { success: false, error: '保存资料失败，请稍后重试' }
+      return { success: false, error: PROFILE_MESSAGES.UPDATE_ERROR }
     }
 
     // 2. 更新 user_metadata（用于 Sidebar 等组件，使用安全数据）
@@ -128,6 +129,6 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
 
   } catch (error) {
     console.error('更新用户资料时出错:', error)
-    return { success: false, error: '保存失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.UNKNOWN_ERROR }
   }
 }

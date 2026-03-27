@@ -23,6 +23,7 @@ import { CommentSchema, CommentIdSchema } from '../schema';
 import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
+import { COMMENT_ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
 import type { Comment } from '@/components/article/comments/types';
 
@@ -68,7 +69,7 @@ export async function getArticleComments(
     };
   } catch (error) {
     console.error('获取评论失败:', error);
-    return { success: false, error: '获取评论失败' };
+    return { success: false, error: COMMENT_ERROR_MESSAGES.FETCH_ERROR };
   }
 }
 
@@ -103,7 +104,7 @@ export const submitArticleComment = withAuth(
       });
 
       if (!rateLimit.allowed) {
-        return { success: false, error: '评论过于频繁，请稍后再试' };
+        return { success: false, error: COMMENT_ERROR_MESSAGES.RATE_LIMITED };
       }
 
       {/* Zod 输入验证 */}
@@ -123,8 +124,7 @@ export const submitArticleComment = withAuth(
       {/* 净化评论内容 - 评论只允许纯文本 - 使用 DOMPurify */}
       const sanitizedContent = sanitizePlainText(validatedData.content);
 
-      // 注意：用户资料应在注册时初始化，此处不再重复检查
-      // 如需确保资料存在，应在认证流程中处理
+
 
       {/* 准备插入数据 */}
       const insertData: {
@@ -170,7 +170,7 @@ export const submitArticleComment = withAuth(
 
       if (error || !comment) {
         console.error('插入评论失败:', error);
-        return { success: false, error: `评论提交失败: ${error?.message || '未知错误'}` };
+        return { success: false, error: COMMENT_ERROR_MESSAGES.CREATE_ERROR };
       }
 
       {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
@@ -200,7 +200,7 @@ export const submitArticleComment = withAuth(
       };
     } catch (error) {
       console.error('提交评论失败:', error);
-      return { success: false, error: '评论提交失败' };
+      return { success: false, error: COMMENT_ERROR_MESSAGES.CREATE_ERROR };
     }
   }
 );
@@ -225,13 +225,13 @@ export const deleteArticleComment = withAuth(
       {/* 验证评论ID格式 */}
       const idValidation = CommentIdSchema.safeParse(commentId);
       if (!idValidation.success) {
-        return { success: false, error: '无效的评论ID' };
+        return { success: false, error: COMMENT_ERROR_MESSAGES.INVALID_ID };
       }
 
       {/* 验证用户是否为评论作者 */}
       const isOwner = await verifyCommentOwnership(commentId, user.id);
       if (!isOwner) {
-        return { success: false, error: '无权删除此评论' };
+        return { success: false, error: COMMENT_ERROR_MESSAGES.NO_PERMISSION };
       }
 
       {/* 删除评论 */}
@@ -243,13 +243,13 @@ export const deleteArticleComment = withAuth(
 
       if (error) {
         console.error('删除评论失败:', error);
-        return { success: false, error: '删除评论失败' };
+        return { success: false, error: COMMENT_ERROR_MESSAGES.DELETE_ERROR };
       }
 
       return { success: true };
     } catch (error) {
       console.error('删除评论操作失败:', error);
-      return { success: false, error: '操作失败' };
+      return { success: false, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
   }
 );

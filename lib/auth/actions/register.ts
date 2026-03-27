@@ -9,7 +9,7 @@
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
-import { REGISTER_ERRORS } from '../errorMessages';
+import { REGISTER_MESSAGES } from '@/lib/messages';
 import { isAllowedEmail } from '../utils';
 import type { AuthResult } from './types';
 
@@ -39,12 +39,12 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   const validation = registerSchema.safeParse({ email, password, username });
   if (!validation.success) {
-    return { success: false, error: validation.error.issues[0]?.message || '输入无效' };
+    return { success: false, error: validation.error.issues[0]?.message || REGISTER_MESSAGES.DEFAULT_ERROR };
   }
 
   // 验证邮箱域名白名单
   if (!isAllowedEmail(email)) {
-    return { success: false, error: REGISTER_ERRORS.EMAIL_NOT_ALLOWED };
+    return { success: false, error: REGISTER_MESSAGES.EMAIL_NOT_ALLOWED };
   }
 
   const supabase = await createClient();
@@ -58,17 +58,17 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   if (checkError) {
     console.error('检查用户名失败:', checkError);
-    return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
+    return { success: false, error: REGISTER_MESSAGES.DEFAULT_ERROR };
   }
 
   if (existingUser) {
-    return { success: false, error: REGISTER_ERRORS.USERNAME_ALREADY_TAKEN };
+    return { success: false, error: REGISTER_MESSAGES.USERNAME_ALREADY_TAKEN };
   }
 
   // 注册限流（更严格）
   const rateLimit = checkServerRateLimit(`register:${email}`, { maxAttempts: 3, windowMs: 60 * 60 * 1000 });
   if (!rateLimit.allowed) {
-    return { success: false, error: '注册尝试次数过多，请1小时后再试' };
+    return { success: false, error: REGISTER_MESSAGES.RATE_LIMITED };
   }
 
   try {
@@ -85,20 +85,20 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
     if (signUpError) {
       if (signUpError.message.includes('User already registered')) {
-        return { success: false, error: REGISTER_ERRORS.EMAIL_ALREADY_REGISTERED };
+        return { success: false, error: REGISTER_MESSAGES.EMAIL_ALREADY_REGISTERED };
       }
       if (signUpError.message.includes('Error sending confirmation email')) {
-        return { success: false, error: REGISTER_ERRORS.EMAIL_SEND_FAILED };
+        return { success: false, error: REGISTER_MESSAGES.EMAIL_SEND_FAILED };
       }
-      return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
+      return { success: false, error: REGISTER_MESSAGES.DEFAULT_ERROR };
     }
 
     if (!signUpData.user) {
-      return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
+      return { success: false, error: REGISTER_MESSAGES.DEFAULT_ERROR };
     }
-    return { success: true, message: '注册成功，请检查邮箱完成验证' };
+    return { success: true, message: REGISTER_MESSAGES.SUCCESS };
   } catch (err) {
     console.error('注册失败:', err);
-    return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
+    return { success: false, error: REGISTER_MESSAGES.DEFAULT_ERROR };
   }
 }

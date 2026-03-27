@@ -18,30 +18,16 @@ import type { ArticlePageProps } from '@/types';
 
 export type { ArticlePageProps } from '@/types';
 
-/**
- * 页面级别缓存配置
- * - revalidate: 6000秒（约100分钟）增量静态再生
- * - 已发布文章不经常变动，适合较长缓存
- */
 export const revalidate = 6000;
 
 /**
- * 缓存文章查询
- * 同一请求内多次调用返回缓存结果
- *
  * @安全优化 S1: userId 由服务端内部获取，不依赖客户端传入
  */
 const getCachedArticle = cache(async (id: string) => {
   return getArticleDetailById(id);
 });
 
-/**
- * 缓存评论查询
- * 同一请求内多次调用返回缓存结果
- *
- * @安全优化 S1: currentUserId 由服务端内部获取，不依赖客户端传入
- * @性能优化 P1: 自动判断当前用户点赞状态
- */
+
 const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
   return getArticleCommentsPaginated(articleId, page, limit);
 });

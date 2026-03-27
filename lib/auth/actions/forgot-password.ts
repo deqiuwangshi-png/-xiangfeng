@@ -15,9 +15,8 @@ import { z } from 'zod';
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
+import { RESET_PASSWORD_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from './types';
-
-const FORGOT_PASSWORD_SUCCESS_MESSAGE = '如果该邮箱存在，我们会向您发送重置密码邮件，请检查邮箱';
 
 /**
  * 忘记密码
@@ -34,7 +33,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
 
   // 统一返回成功消息，防止邮箱枚举攻击
   if (!email || !z.email().safeParse(email).success) {
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   }
 
   // 获取客户端 IP
@@ -55,7 +54,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
   if (!ipRateLimit.allowed) {
     // 记录可疑行为但不暴露限流信息
     console.warn(`[安全警告] IP ${clientIp} 触发忘记密码限流`);
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   }
 
   /**
@@ -70,7 +69,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
     windowMs: 60 * 60 * 1000, // 1 小时
   });
   if (!emailRateLimit.allowed) {
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   }
 
   /**
@@ -84,7 +83,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
     windowMs: 60 * 60 * 1000, // 1 小时
   });
   if (!comboRateLimit.allowed) {
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   }
 
   try {
@@ -97,9 +96,9 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
       console.error('发送重置邮件失败:', error);
     }
 
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   } catch (err) {
     console.error('发送重置邮件失败:', err);
-    return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
+    return { success: true, message: RESET_PASSWORD_MESSAGES.EMAIL_SENT };
   }
 }

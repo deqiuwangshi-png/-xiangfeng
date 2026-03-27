@@ -1,7 +1,7 @@
 'use client'
 
 import { Save, Send, Loader2, Maximize, Minimize } from '@/components/icons'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils/utils'
 
 interface EditorHeaderProps {
   onSaveDraft: () => void

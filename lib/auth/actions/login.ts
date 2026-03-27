@@ -11,7 +11,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit, resetServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
-import { LOGIN_ERRORS, mapSupabaseError } from '../errorMessages';
+import { LOGIN_MESSAGES, mapSupabaseError } from '@/lib/messages';
 import { sanitizeRedirect } from '../redir';
 import { activateAccount } from '@/lib/user/deactivateAccount';
 import { recordLoginHistory } from '@/lib/auth/loginHistory';
@@ -42,7 +42,7 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
   // 输入验证
   const validation = loginSchema.safeParse({ email, password });
   if (!validation.success) {
-    return { success: false, error: validation.error.issues[0]?.message || '输入无效' };
+    return { success: false, error: validation.error.issues[0]?.message || LOGIN_MESSAGES.DEFAULT_ERROR };
   }
 
   // 获取客户端 IP
@@ -60,7 +60,7 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
   const rateLimit = checkServerRateLimit(rateLimitKey);
   if (!rateLimit.allowed) {
     const minutes = Math.ceil((rateLimit.resetTime - Date.now()) / 60000);
-    return { success: false, error: `尝试次数过多，请 ${minutes} 分钟后再试` };
+    return { success: false, error: LOGIN_MESSAGES.RATE_LIMITED.replace('{minutes}', String(minutes)) };
   }
 
   try {
@@ -69,7 +69,7 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
 
     if (signInError) {
       const friendlyError = mapSupabaseError(signInError.message, 'login');
-      return { success: false, error: friendlyError || LOGIN_ERRORS.INVALID_CREDENTIALS };
+      return { success: false, error: friendlyError || LOGIN_MESSAGES.INVALID_CREDENTIALS };
     }
 
     {/* 登录成功，自动激活账户（如果之前被停用） */}
@@ -89,6 +89,6 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
     return { success: true, redirectTo };
   } catch (err) {
     console.error('登录失败:', err);
-    return { success: false, error: '登录失败，请稍后重试' };
+    return { success: false, error: LOGIN_MESSAGES.DEFAULT_ERROR };
   }
 }

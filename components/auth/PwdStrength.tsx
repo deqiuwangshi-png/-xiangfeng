@@ -46,11 +46,6 @@ const STRENGTH_PROGRESS: Record<string, number> = {
  * @description 显示密码强度等级和验证提示，包含可视化进度条
  * @param {PwdStrengthProps} props - 组件属性
  * @returns {JSX.Element | null} 密码强度指示器
- * @example
- * <PwdStrength
- *   validation={passwordValidation}
-   strengthColor="text-green-600"
- * />
  */
 export function PwdStrength({
   validation,

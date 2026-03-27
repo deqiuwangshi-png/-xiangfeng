@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { validatePassword } from '@/lib/security/passwordPolicy';
+import { REGISTER_MESSAGES, LOGIN_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from './actions/types';
 import type { User } from '@supabase/supabase-js';
 
@@ -51,7 +52,7 @@ export function validatePasswordMatch(
   }
 
   if (password !== confirmPassword) {
-    return { success: false, error: '两次输入的密码不一致' };
+    return { success: false, error: REGISTER_MESSAGES.PASSWORD_MISMATCH };
   }
 
   return null;
@@ -82,7 +83,7 @@ export async function requireCurrentUser(): Promise<{ user: User } | AuthResult>
   const user = await getCurrentUser();
   
   if (!user) {
-    return { success: false, error: '未登录或登录已过期' };
+    return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED };
   }
 
   return { user };

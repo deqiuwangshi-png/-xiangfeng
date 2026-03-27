@@ -22,6 +22,7 @@ import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
 import { checkCollectArticleTask } from '@/lib/rewards/actions/tasks';
 import { isValidUUID } from '../helpers/utils';
+import { ARTICLE_ERROR_MESSAGES, ARTICLE_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
 /**
  * 收藏/取消收藏结果
@@ -50,7 +51,7 @@ export const toggleArticleBookmark = withAuth(
   async (articleId: string): Promise<ToggleBookmarkResult> => {
     // 1. 验证 articleId 格式
     if (!isValidUUID(articleId)) {
-      return { success: false, favorited: false, favorites: 0, error: '无效的文章ID' };
+      return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
     }
 
     const user = await requireAuth();
@@ -80,16 +81,16 @@ export const toggleArticleBookmark = withAuth(
 
           if (deleteError) {
             console.error('取消收藏失败:', deleteError);
-            return { success: false, favorited: false, favorites: 0, error: '取消收藏失败' };
+            return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.UNBOOKMARK_ERROR };
           }
           favorited = false;
         } else if (insertError.code === '23503') {
           // 外键约束错误 - 文章不存在
           console.error('收藏失败，文章不存在:', insertError);
-          return { success: false, favorited: false, favorites: 0, error: '文章不存在' };
+          return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
         } else {
           console.error('收藏插入失败:', insertError);
-          return { success: false, favorited: false, favorites: 0, error: '操作失败' };
+          return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.BOOKMARK_ERROR };
         }
       } else {
         // 插入成功 = 新收藏
@@ -125,7 +126,7 @@ export const toggleArticleBookmark = withAuth(
       };
     } catch (error) {
       console.error('收藏操作失败:', error);
-      return { success: false, favorited: false, favorites: 0, error: '操作失败' };
+      return { success: false, favorited: false, favorites: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
   }
 );

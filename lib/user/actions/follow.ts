@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
 import { checkFollowUserTask } from '@/lib/rewards/actions/tasks';
+import { FOLLOW_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
 /**
  * 关注/取消关注结果
@@ -63,7 +64,7 @@ export const toggleFollow = withAuth(
     try {
       // 不能关注自己
       if (user.id === targetUserId) {
-        return { success: false, following: false, error: '不能关注自己' };
+        return { success: false, following: false, error: FOLLOW_MESSAGES.SELF_FOLLOW };
       }
 
       let following = false;
@@ -87,12 +88,12 @@ export const toggleFollow = withAuth(
 
           if (deleteError) {
             console.error('取消关注失败:', deleteError);
-            return { success: false, following: false, error: '取消关注失败' };
+            return { success: false, following: false, error: FOLLOW_MESSAGES.UNFOLLOW_ERROR };
           }
           following = false;
         } else {
           console.error('关注插入失败:', insertError);
-          return { success: false, following: false, error: '操作失败' };
+          return { success: false, following: false, error: FOLLOW_MESSAGES.FOLLOW_ERROR };
         }
       } else {
         // 插入成功 = 新关注
@@ -114,7 +115,7 @@ export const toggleFollow = withAuth(
       };
     } catch (error) {
       console.error('关注操作失败:', error);
-      return { success: false, following: false, error: '操作失败' };
+      return { success: false, following: false, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
   }
 );
@@ -164,8 +165,7 @@ export async function getFollowStatus(targetUserId: string): Promise<FollowStatu
     };
   } catch (error) {
     console.error('获取关注状态失败:', error);
-    return { success: false, error: '获取关注状态失败' };
+    return { success: false, error: FOLLOW_MESSAGES.GET_STATUS_ERROR };
   }
 }
 
-{/* 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql */}

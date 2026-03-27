@@ -16,6 +16,7 @@ import {
   UpdateSettingResult,
   SettingCategory,
 } from '@/types/settings'
+import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UserStats } from '@/types'
 
 /**
@@ -66,7 +67,7 @@ export async function getContentSettings(): Promise<ContentSettingsResult> {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 查询用户设置
@@ -82,7 +83,7 @@ export async function getContentSettings(): Promise<ContentSettingsResult> {
         return { success: true, content_language: 'zh-CN' }
       }
       console.error('获取内容设置失败:', error)
-      return { success: false, error: '获取设置失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     return {
@@ -91,7 +92,7 @@ export async function getContentSettings(): Promise<ContentSettingsResult> {
     }
   } catch (err) {
     console.error('获取内容设置时出错:', err)
-    return { success: false, error: '获取设置失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 
@@ -106,7 +107,7 @@ export async function updateContentLanguage(
   // 验证语言代码
   const validLanguages = ['zh-CN', 'zh-TW', 'en', 'ja']
   if (!validLanguages.includes(language)) {
-    return { success: false, error: '无效的语言代码' }
+    return { success: false, error: COMMON_ERRORS.INVALID_PARAMS }
   }
 
   try {
@@ -119,7 +120,7 @@ export async function updateContentLanguage(
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 更新或插入设置记录
@@ -136,7 +137,7 @@ export async function updateContentLanguage(
 
     if (error) {
       console.error('更新内容语言失败:', error)
-      return { success: false, error: '保存失败，请稍后重试' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     return {
@@ -145,7 +146,7 @@ export async function updateContentLanguage(
     }
   } catch (err) {
     console.error('更新内容语言时出错:', err)
-    return { success: false, error: '保存失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 

@@ -8,6 +8,7 @@
 
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
 /**
  * OAuth 提供商类型
@@ -55,7 +56,7 @@ export async function oauthLogin(
   if (!config || !config.enabled) {
     return {
       success: false,
-      error: `${config?.name || provider} 登录暂未开通`,
+      error: LOGIN_MESSAGES.OAUTH_NOT_ENABLED.replace('{provider}', config?.name || provider),
     };
   }
 
@@ -75,14 +76,14 @@ export async function oauthLogin(
       console.error('OAuth login error:', error);
       return {
         success: false,
-        error: '登录请求失败，请稍后重试',
+        error: LOGIN_MESSAGES.OAUTH_ERROR,
       };
     }
 
     if (!data.url) {
       return {
         success: false,
-        error: '获取授权链接失败',
+        error: LOGIN_MESSAGES.OAUTH_URL_ERROR,
       };
     }
 
@@ -94,7 +95,7 @@ export async function oauthLogin(
     console.error('OAuth login exception:', err);
     return {
       success: false,
-      error: '系统错误，请稍后重试',
+      error: COMMON_ERRORS.UNKNOWN_ERROR,
     };
   }
 }
