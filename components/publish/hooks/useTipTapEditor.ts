@@ -22,6 +22,7 @@ import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableRow } from '@tiptap/extension-table-row'
 import Paragraph from '@tiptap/extension-paragraph'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import type { EditorView } from '@tiptap/pm/view'
 import type { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
@@ -199,6 +200,11 @@ export function useTipTapEditor({
         }).configure({
           inline: false,
           allowBase64: false,
+        }),
+        HorizontalRule.configure({
+          HTMLAttributes: {
+            class: 'editor-hr',
+          },
         }),
         Placeholder.configure({
           placeholder,

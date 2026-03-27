@@ -255,3 +255,40 @@
   border-radius: 2px;
   pointer-events: none;
 }
+
+/* ============================================
+ * 分割线样式 - 极简优雅风格
+ * ============================================ */
+
+/* 编辑器内分割线 - 极简风格 */
+.tiptap hr.editor-hr {
+  margin: 2rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-xf-medium) 20%,
+    var(--color-xf-medium) 80%,
+    transparent 100%
+  );
+  opacity: 0.4;
+  position: relative;
+}
+
+/* 分割线悬停效果 - 轻微增强可见性 */
+.tiptap hr.editor-hr:hover {
+  opacity: 0.6;
+}
+
+/* 选中状态的分割线 */
+.tiptap hr.editor-hr.ProseMirror-selectednode {
+  opacity: 0.8;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-xf-primary) 20%,
+    var(--color-xf-primary) 80%,
+    transparent 100%
+  );
+}
