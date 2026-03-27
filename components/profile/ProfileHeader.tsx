@@ -11,11 +11,13 @@
  */
 
 import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { UserAvatar } from '@/components/ui'
 import { VerifyBadge } from '@/components/user/VerifyBadge'
 import { UserBadges } from '@/components/user/UserBadges'
 import { escapeHtml } from '@/lib/utils/purify'
+import { toggleFollow, getFollowStatus } from '@/lib/user/actions/follow'
 import type { UserDisplayInfo, UserStats } from '@/types'
 
 interface ProfileHeaderProps {
@@ -30,9 +32,50 @@ interface ProfileHeaderProps {
  */
 export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
   const [isFollowing, setIsFollowing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
 
-  const handleFollowClick = () => {
-    setIsFollowing(!isFollowing)
+  /**
+   * 获取初始关注状态
+   */
+  useEffect(() => {
+    const loadFollowStatus = async () => {
+      try {
+        const result = await getFollowStatus(user.id)
+        if (result.success && result.following !== undefined) {
+          setIsFollowing(result.following)
+        }
+      } catch (error) {
+        console.error('获取关注状态失败:', error)
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    loadFollowStatus()
+  }, [user.id])
+
+  /**
+   * 处理关注/取消关注
+   */
+  const handleFollowClick = async () => {
+    if (isLoading || isInitialLoading) return
+
+    setIsLoading(true)
+    try {
+      const result = await toggleFollow(user.id)
+      if (result.success) {
+        setIsFollowing(result.following)
+        toast.success(result.following ? '关注成功' : '已取消关注')
+      } else {
+        toast.error(result.error || '操作失败')
+      }
+    } catch (error) {
+      toast.error('操作失败，请重试')
+      console.error('关注操作失败:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // 对用户生成内容进行 HTML 转义，防止 XSS 攻击
@@ -90,13 +133,16 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
         {/* 关注按钮 */}
         <button
           onClick={handleFollowClick}
+          disabled={isLoading || isInitialLoading}
           className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-sm flex items-center gap-1.5 transition-colors ${
             isFollowing
               ? 'bg-xf-light text-xf-medium border border-xf-bg/60'
               : 'bg-xf-accent text-white hover:bg-xf-accent/90'
-          }`}
+          } ${isLoading || isInitialLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          {isFollowing ? (
+          {isLoading || isInitialLoading ? (
+            <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : isFollowing ? (
             <>
               <UserCheck className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">已关注</span>

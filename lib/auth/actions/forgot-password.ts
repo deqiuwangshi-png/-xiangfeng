@@ -33,7 +33,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
   const email = formData.get('email') as string;
 
   // 统一返回成功消息，防止邮箱枚举攻击
-  if (!email || !z.string().email().safeParse(email).success) {
+  if (!email || !z.email().safeParse(email).success) {
     return { success: true, message: FORGOT_PASSWORD_SUCCESS_MESSAGE };
   }
 

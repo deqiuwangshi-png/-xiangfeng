@@ -37,10 +37,7 @@ interface ServerPermissionCheckResult extends PermissionCheckResult {
  * @returns {Promise<{user: User | null, role: UserRole}>} 用户信息和角色
  *
  * @example
- * const { user, role } = await getCurrentUserWithRole();
- * if (role === 'anonymous') {
- *   // 处理匿名用户逻辑
- * }
+
  */
 export async function getCurrentUserWithRole(): Promise<{
   user: User | null;
@@ -86,26 +83,16 @@ export async function isAdmin(): Promise<boolean> {
 /**
  * 验证写入操作权限
  *
- * @param {WriteOperation} operation - 操作类型
+ * @param {WriteOperation} _operation - 操作类型
  * @param {string} [resourceOwnerId] - 资源所有者ID（用于验证是否操作自己的资源）
  * @returns {Promise<PermissionCheckResult>} 权限检查结果
  *
  * @example
- * 
- 
- * const result = await checkWritePermission('like');
- * if (!result.allowed) {
- *   return { success: false, error: result.error };
- * }
- *
  * @example
- * const result = await checkWritePermission('update', article.author_id);
- * if (!result.allowed) {
- *   return { success: false, error: result.error };
- * }
+
  */
 export async function checkWritePermission(
-  operation: WriteOperation,
+  _operation: WriteOperation,
   resourceOwnerId?: string
 ): Promise<ServerPermissionCheckResult> {
   const { user, role } = await getCurrentUserWithRole();
@@ -148,11 +135,7 @@ export async function checkWritePermission(
  * @throws {Error} 如果用户未登录
  *
  * @example
- * try {
- *   const user = await requireAuth();
- * } catch (error) {
- *   return { success: false, error: error.message };
- * }
+
  */
 export async function requireAuth(): Promise<User> {
   const { user, role } = await getCurrentUserWithRole();
@@ -172,11 +155,7 @@ export async function requireAuth(): Promise<User> {
  * @throws {Error} 如果用户未登录或无权限
  *
  * @example
- * try {
- *   const user = await requireOwnership(article.author_id);
- * } catch (error) {
- *   return { success: false, error: error.message };
- * }
+
  */
 export async function requireOwnership(resourceOwnerId: string): Promise<User> {
   const user = await requireAuth();
@@ -201,14 +180,7 @@ export async function requireOwnership(resourceOwnerId: string): Promise<User> {
  * @returns {Function} 权限检查函数
  *
  * @example
- * const articleGuard = createPermissionGuard(['create', 'update', 'delete']);
- *
- * export async function updateArticle(articleId: string, data: ArticleData) {
- *   const check = await articleGuard('update', articleId);
- *   if (!check.allowed) {
- *     return { success: false, error: check.error };
- *   }
- * }
+
  */
 export function createPermissionGuard(allowedOperations: WriteOperation[]) {
   return async (

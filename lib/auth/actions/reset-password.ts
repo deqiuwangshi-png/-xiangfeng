@@ -8,7 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
-import { mapSupabaseError } from '../errorMessages';
+import { mapSupabaseError, RESET_PASSWORD_ERRORS } from '../errorMessages';
 import { validatePasswordMatch, getCurrentUser } from '../utils';
 import type { AuthResult } from './types';
 
@@ -31,7 +31,7 @@ export async function resetPassword(formData: FormData): Promise<AuthResult> {
 
     const user = await getCurrentUser();
     if (!user) {
-      return { success: false, error: '链接已过期，请重新申请' };
+      return { success: false, error: RESET_PASSWORD_ERRORS.SESSION_EXPIRED };
     }
 
     const rateLimit = checkServerRateLimit(`reset:${user.id}`, {
@@ -39,7 +39,7 @@ export async function resetPassword(formData: FormData): Promise<AuthResult> {
       windowMs: 60 * 60 * 1000,
     });
     if (!rateLimit.allowed) {
-      return { success: false, error: '尝试次数过多，请1小时后再试' };
+      return { success: false, error: RESET_PASSWORD_ERRORS.RATE_LIMITED };
     }
 
     const { error } = await supabase.auth.updateUser({ password });
@@ -52,9 +52,9 @@ export async function resetPassword(formData: FormData): Promise<AuthResult> {
       };
     }
 
-    return { success: true, message: '密码重置成功，请使用新密码登录' };
+    return { success: true, message: RESET_PASSWORD_ERRORS.SUCCESS };
   } catch (err) {
     console.error('重置密码失败:', err);
-    return { success: false, error: '重置失败，请稍后重试' };
+    return { success: false, error: RESET_PASSWORD_ERRORS.DEFAULT_ERROR };
   }
 }

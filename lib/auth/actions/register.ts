@@ -19,7 +19,7 @@ import type { AuthResult } from './types';
 const USERNAME_REGEX = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
 
 const registerSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
+  email: z.email('请输入有效的邮箱地址'),
   password: z.string().min(8, '密码至少需要8位'),
   username: z.string()
     .min(2, '用户名至少需要2位')
@@ -58,7 +58,7 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   if (checkError) {
     console.error('检查用户名失败:', checkError);
-    return { success: false, error: '注册失败，请稍后重试' };
+    return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
   }
 
   if (existingUser) {
@@ -87,22 +87,18 @@ export async function register(formData: FormData): Promise<AuthResult> {
       if (signUpError.message.includes('User already registered')) {
         return { success: false, error: REGISTER_ERRORS.EMAIL_ALREADY_REGISTERED };
       }
-      {/* @修复 U-03: 将 Supabase 英文错误转换为中文 */}
       if (signUpError.message.includes('Error sending confirmation email')) {
-        return { success: false, error: '验证邮件发送失败，请检查邮箱地址是否正确或稍后重试' };
+        return { success: false, error: REGISTER_ERRORS.EMAIL_SEND_FAILED };
       }
-      return { success: false, error: signUpError.message };
+      return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
     }
 
     if (!signUpData.user) {
-      return { success: false, error: '注册失败，请稍后重试' };
+      return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
     }
-
-    {/* 不再自动生成默认头像，由组件统一处理无头像情况 */}
-
     return { success: true, message: '注册成功，请检查邮箱完成验证' };
   } catch (err) {
     console.error('注册失败:', err);
-    return { success: false, error: '注册失败，请稍后重试' };
+    return { success: false, error: REGISTER_ERRORS.DEFAULT_ERROR };
   }
 }
