@@ -16,6 +16,7 @@ interface Tab {
 const tabs: Tab[] = [
   { id: 'content', label: '我的内容' },
   { id: 'domain', label: '领域贡献' },
+  { id: 'thought', label: '思想轨迹' },
 ]
 
 /**

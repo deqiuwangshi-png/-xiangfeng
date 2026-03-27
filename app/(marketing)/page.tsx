@@ -8,7 +8,7 @@ import EconomySection from '@/components/marketing/EconomySection'
 import CTASection from '@/components/marketing/CTASection'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
-const siteName = '相逢 Xiangfeng'
+const siteName = '相逢'
 
 /**
  * 首页SEO元数据 - 核心着陆页优化
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
         url: `${siteUrl}/og-image.svg`,
         width: 1200,
         height: 630,
-        alt: '相逢 Xiangfeng - 深度思考者社区与知识分享平台',
+        alt: '相逢- 深度思考者社区与知识分享平台',
       },
     ],
   },

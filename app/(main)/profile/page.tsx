@@ -29,6 +29,7 @@ import { ProfileDomain } from '@/components/profile/ProfileDomain'
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
+import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -114,6 +115,18 @@ export default async function ProfilePage() {
           {/* 领域贡献区域 - 条件渲染 */}
           <ProfileTabContent tab="domain">
             <ProfileDomain />
+          </ProfileTabContent>
+
+          {/* 思想轨迹区域 - 灵感热力图 */}
+          <ProfileTabContent tab="thought">
+            <div className="bg-white rounded-xl border border-xf-bg/60 p-6">
+              <h3 className="text-base font-semibold text-xf-dark mb-4">
+                思考热力图
+              </h3>
+              <Suspense fallback={<HeatMapSkeleton />}>
+                <HeatMap />
+              </Suspense>
+            </div>
           </ProfileTabContent>
         </ProfileTabsProvider>
       </div>
