@@ -11,12 +11,79 @@
  * - 限制单次删除数量（最多50篇）
  * - 记录安全审计日志
  * - 不返回详细错误信息，防止资源枚举攻击
+ * - 级联删除关联的媒体资源
  */
 
 import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { BatchDeleteSchema } from '../schema';
 import { revalidatePathsAsync } from './utils';
+
+/**
+ * 批量删除文章关联的媒体资源
+ *
+ * @param supabase - Supabase客户端
+ * @param articleIds - 文章ID数组
+ * @returns 删除结果
+ *
+ * @安全说明
+ * - 只删除与指定文章关联的媒体
+ * - 同时删除Storage中的文件
+ * - 错误不影响主流程，记录日志
+ */
+async function batchDeleteArticlesMedia(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleIds: string[]
+): Promise<{ success: boolean; deletedCount: number; error?: string }> {
+  if (articleIds.length === 0) {
+    return { success: true, deletedCount: 0 };
+  }
+
+  try {
+    // 1. 查询关联的媒体记录
+    const { data: mediaRecords, error: fetchError } = await supabase
+      .from('media')
+      .select('id, storage_path')
+      .in('article_id', articleIds);
+
+    if (fetchError) {
+      console.error('批量查询文章媒体失败:', fetchError);
+      return { success: false, deletedCount: 0, error: fetchError.message };
+    }
+
+    if (!mediaRecords || mediaRecords.length === 0) {
+      return { success: true, deletedCount: 0 };
+    }
+
+    // 2. 从Storage删除文件
+    const storagePaths = mediaRecords.map((m) => m.storage_path);
+    const { error: storageError } = await supabase.storage
+      .from('wenjian')
+      .remove(storagePaths);
+
+    if (storageError) {
+      console.error('批量删除Storage文件失败:', storageError);
+      // 继续删除数据库记录，不中断流程
+    }
+
+    // 3. 删除数据库记录
+    const { error: deleteError } = await supabase
+      .from('media')
+      .delete()
+      .in('article_id', articleIds);
+
+    if (deleteError) {
+      console.error('批量删除媒体记录失败:', deleteError);
+      return { success: false, deletedCount: 0, error: deleteError.message };
+    }
+
+    return { success: true, deletedCount: mediaRecords.length };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    console.error('批量删除文章媒体异常:', message);
+    return { success: false, deletedCount: 0, error: message };
+  }
+}
 
 /**
  * 批量删除文章结果
@@ -30,6 +97,8 @@ interface BatchDeleteResult {
   deletedCount: number;
   /** 失败的数量（不包含具体ID，防止信息泄露） */
   failedCount: number;
+  /** 删除的媒体资源数量 */
+  mediaDeleted?: number;
 }
 
 /**
@@ -96,7 +165,19 @@ export async function batchDeleteArticles(ids: string[]): Promise<BatchDeleteRes
 
   // 执行批量删除
   let deletedCount = 0;
+  let mediaDeletedCount = 0;
+
   if (authorizedIds.length > 0) {
+    // 1. 先批量删除关联的媒体资源（级联删除）
+    const mediaResult = await batchDeleteArticlesMedia(supabase, authorizedIds);
+    if (mediaResult.success) {
+      mediaDeletedCount = mediaResult.deletedCount;
+    } else {
+      console.warn('批量删除媒体资源失败:', mediaResult.error);
+      // 继续删除文章，不中断流程
+    }
+
+    // 2. 批量删除文章
     const { error: deleteError } = await supabase
       .from('articles')
       .delete()
@@ -114,6 +195,7 @@ export async function batchDeleteArticles(ids: string[]): Promise<BatchDeleteRes
       user_id: user.id,
       action: 'batch_delete',
       target_count: authorizedIds.length,
+      media_deleted: mediaDeletedCount,
       created_at: new Date().toISOString(),
     });
   }
@@ -127,5 +209,6 @@ export async function batchDeleteArticles(ids: string[]): Promise<BatchDeleteRes
     success: failedCount === 0,
     deletedCount,
     failedCount,
+    mediaDeleted: mediaDeletedCount,
   };
 }

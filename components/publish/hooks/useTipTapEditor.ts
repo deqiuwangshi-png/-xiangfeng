@@ -18,7 +18,6 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Paragraph from '@tiptap/extension-paragraph'
-import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
@@ -104,7 +103,11 @@ export function useTipTapEditor({
           paragraph: false,
           heading: undefined,
           blockquote: undefined,
-          horizontalRule: undefined,
+          horizontalRule: {
+            HTMLAttributes: {
+              class: 'editor-hr',
+            },
+          },
           link: {
             openOnClick: false,
             linkOnPaste: true,
@@ -162,11 +165,6 @@ export function useTipTapEditor({
         }).configure({
           inline: false,
           allowBase64: false,
-        }),
-        HorizontalRule.configure({
-          HTMLAttributes: {
-            class: 'editor-hr',
-          },
         }),
         Placeholder.configure({
           placeholder,

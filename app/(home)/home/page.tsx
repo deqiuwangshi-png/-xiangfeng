@@ -15,6 +15,19 @@ export const metadata: Metadata = {
 }
 
 /**
+ * 页面重新验证时间
+ * @description 每30秒重新验证一次，确保文章列表及时更新
+ * @性能优化 平衡实时性和性能
+ */
+export const revalidate = 30
+
+/**
+ * 动态渲染配置
+ * @description 强制动态渲染，确保数据实时性
+ */
+export const dynamic = 'force-dynamic'
+
+/**
  * 文章列表组件 - 独立获取数据，支持Suspense
  * @param {Object} props - 组件属性
  * @param {boolean} props.isAuthenticated - 是否已认证

@@ -23,6 +23,16 @@
   word-wrap: break-word;
 }
 
+/* 列表项内的段落重置间距 - 解决 WYSIWYG 不一致问题 */
+.article-content li p {
+  margin: 0;
+}
+
+/* 列表项内多个段落时的间距 */
+.article-content li p + p {
+  margin-top: 0.5rem;
+}
+
 /* ====== 标题样式 ====== */
 .article-content h1 {
   font-size: 2rem;
@@ -62,11 +72,16 @@
   margin: 1.25rem 0 0.5rem;
 }
 
-/* ====== 列表样式 ====== */
+/* ====== 列表样式 ======
+ * 设计原则：
+ * - 首行段落左对齐
+ * - 列表项整体向右缩进，和上文形成视觉区分
+ * - 项目符号与段落文字对齐，结构清晰
+ */
 .article-content ul,
 .article-content ol {
   margin: 1.5rem 0;
-  padding-left: 1.5rem;
+  padding-left: 2.5rem; /* 列表整体向右缩进，与正文区分 */
 }
 
 .article-content ul {
@@ -79,15 +94,27 @@
 
 .article-content ul li,
 .article-content ol li {
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-left: 0; /* 项目符号与文字对齐 */
+  line-height: 1.7;
 }
 
+/* 嵌套列表样式 */
 .article-content ul ul,
 .article-content ol ol,
 .article-content ul ol,
 .article-content ol ul {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
+  padding-left: 1.5rem; /* 嵌套列表进一步缩进 */
+}
+
+/* 嵌套列表使用不同的符号 */
+.article-content ul ul {
+  list-style-type: circle;
+}
+
+.article-content ul ul ul {
+  list-style-type: square;
 }
 
 /* ====== 引用块样式 ====== */
@@ -224,8 +251,19 @@
 }
 
 /* ====== 首行缩进（中文排版） ====== */
-.article-content p {
+/* 只有直接作为内容子元素的段落才需要首行缩进 */
+.article-content > p,
+.article-content section > p,
+.article-content article > p {
   text-indent: 2em;
+}
+
+/* 嵌套元素内的段落不需要首行缩进 */
+.article-content li p,
+.article-content blockquote p,
+.article-content td p,
+.article-content th p {
+  text-indent: 0;
 }
 
 .article-content h1,
