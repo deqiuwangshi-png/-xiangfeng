@@ -1,9 +1,8 @@
-'use client'
-
 /**
- * 积分等级组件
+ * 积分等级组件 (Server Component)
  * @module components/rewards/overview/PtLevel
  * @description 显示用户当前积分等级和升级进度
+ * @优化说明 改为Server Component，服务端计算等级和进度
  */
 
 import { TrendingUp } from '@/components/icons'
@@ -87,6 +86,7 @@ function calculateProgress(totalEarned: number): number {
  * @returns {JSX.Element} 积分等级卡片
  */
 export function PtLevel({ totalEarned }: PtLevelProps) {
+  // 在服务端计算等级和进度
   const currentLevel = getCurrentLevel(totalEarned)
   const nextLevel = getNextLevel(totalEarned)
   const progress = calculateProgress(totalEarned)

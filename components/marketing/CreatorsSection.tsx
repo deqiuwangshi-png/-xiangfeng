@@ -1,14 +1,13 @@
 /**
- * 创作者区组件
+ * 创作者区组件 (Server Component)
  * @module components/marketing/CreatorsSection
  * @description 响应式创作者展示，移动端优化布局
+ * @优化说明 改为Server Component，动画部分使用客户端组件包裹
  */
-
-'use client'
 
 import Image from 'next/image'
 import { Star, Award, TrendingUp, Users } from 'lucide-react'
-import { RevealOnScroll } from './RevealOnScroll'
+import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
  * 创作者数据
@@ -64,14 +63,14 @@ export default function CreatorsSection() {
       <div className="absolute inset-0 bg-linear-to-b from-white via-xf-surface/20 to-white -z-10"></div>
 
       <div className="container mx-auto px-4 sm:px-6">
-        <RevealOnScroll>
+        <RevealOnScrollClient>
           <div className="text-center mb-10 sm:mb-16 max-w-6xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-xf-dark mb-3 sm:mb-4">生态创作者网络</h2>
             <p className="text-sm sm:text-lg text-xf-medium">加入顶尖深度思考者社区，共建知识生态系统</p>
           </div>
-        </RevealOnScroll>
+        </RevealOnScrollClient>
 
-        <RevealOnScroll delay={100}>
+        <RevealOnScrollClient delay={100}>
           <div className="max-w-6xl mx-auto">
             <div className="glass rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl ring-1 ring-black/5">
               <div className="p-4 sm:p-8">
@@ -125,6 +124,7 @@ export default function CreatorsSection() {
                     </div>
 
                     {/* 支持计划 */}
+                    <div className="space-y-2 sm:space-y-3">
                       {supportPlans.map((plan) => (
                         <div key={plan.label} className="flex items-center gap-3 p-2.5 sm:p-3 bg-white/50 rounded-lg touch-manipulation">
                           <div className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-xf-${plan.color}/10 flex items-center justify-center text-xf-${plan.color}`}>
@@ -138,8 +138,8 @@ export default function CreatorsSection() {
                 </div>
               </div>
             </div>
-      
-        </RevealOnScroll>
+          </div>
+        </RevealOnScrollClient>
       </div>
     </section>
   )

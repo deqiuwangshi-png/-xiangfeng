@@ -1,4 +1,9 @@
-'use client'
+/**
+ * 卡片骨架屏组件 (Server Component)
+ * @module components/inbox/_list/CardSkeleton
+ * @description 用于Suspense fallback，优化LCP感知性能
+ * @优化说明 改为Server Component，纯展示无需客户端交互
+ */
 
 /**
  * 卡片骨架屏组件属性接口
@@ -11,7 +16,6 @@ interface CardSkeletonProps {
 
 /**
  * 卡片骨架屏组件
- * @description 用于Suspense fallback，优化LCP感知性能
  * @param {CardSkeletonProps} props - 组件属性
  * @returns {JSX.Element} 骨架屏组件
  */
