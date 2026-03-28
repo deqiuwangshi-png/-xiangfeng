@@ -9,8 +9,8 @@ import { TasksHeader } from '@/components/rewards/tasks/TasksHeader'
 import { TasksServerList } from '@/components/rewards/tasks/TasksServerList'
 import { CategoryNavClient } from '@/components/rewards/tasks/CategoryNavClient'
 import { MobileBackButton } from '@/components/mobile/MobileBackButton'
-import { getUserPointsOverview } from '@/lib/rewards/actions/points'
-import { getUserTaskProgress } from '@/lib/rewards/actions/tasks'
+import { getUserPointsOverview } from '@/lib/rewards/points'
+import { getUserTaskProgress } from '@/lib/rewards/tasks'
 import type { TaskCategory } from '@/types/rewards'
 
 /**

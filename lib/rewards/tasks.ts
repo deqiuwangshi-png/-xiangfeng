@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type {
   Task,
   TaskProgressResponse,
@@ -221,6 +222,19 @@ export async function updateTaskProgress(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
+  // 验证 increment 参数
+  if (increment < 1 || increment > 10) {
+    console.error('[任务系统] 无效的进度增量:', increment)
+    return false
+  }
+
+  // 验证 taskType 参数
+  const validTaskTypes: TaskType[] = ['read_article', 'publish_article', 'publish_idea', 'like_article', 'comment_article', 'follow_user', 'collect_article']
+  if (!validTaskTypes.includes(taskType)) {
+    console.error('[任务系统] 无效的任务类型:', taskType)
+    return false
+  }
+
   const today = new Date().toISOString().split('T')[0]
   const { data: expiredRecords } = await supabase
     .from('user_task_records')
@@ -233,6 +247,17 @@ export async function updateTaskProgress(
     for (const record of expiredRecords) {
       await resetExpiredTask(user.id, record.id)
     }
+  }
+
+  // 任务进度更新频率限制：每分钟最多更新5次
+  const rateLimit = checkServerRateLimit(`task:${user.id}:update`, {
+    maxAttempts: 5,
+    windowMs: 60 * 1000, // 1分钟
+  });
+
+  if (!rateLimit.allowed) {
+    console.error('[任务系统] 更新过于频繁:', user.id)
+    return false
   }
 
   const { error } = await supabase.rpc('safe_update_task_prog', {
@@ -268,6 +293,21 @@ export async function claimTaskReward(
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: '请先登录' }
+
+  // 验证 taskId 参数
+  if (!taskId || taskId.length !== 36) {
+    return { success: false, error: '无效的任务ID' }
+  }
+
+  // 任务奖励领取频率限制：每分钟最多领取3次
+  const rateLimit = checkServerRateLimit(`task:${user.id}:claim`, {
+    maxAttempts: 3,
+    windowMs: 60 * 1000, // 1分钟
+  });
+
+  if (!rateLimit.allowed) {
+    return { success: false, error: '领取过于频繁，请稍后再试' }
+  }
 
   // 调用安全领取函数（带并发保护）
   const { data, error } = await supabase.rpc('safe_claim_task_reward', {

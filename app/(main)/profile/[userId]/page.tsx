@@ -14,9 +14,16 @@
  *   - 使用 Server Component 获取用户数据
  *   - 支持查看任意用户的公开资料
  *   - 与 /profile 页面（当前用户）保持一致的UI
+ *   - 支持查看他人思想轨迹
  *
  * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
- * @性能优化 P2: ProfileContent 使用流式传输，不阻塞首屏渲染
+ * @性能优化 P2: ProfileContent 和 HeatMap 使用流式传输，不阻塞首屏渲染
+ *
+ * @隐私安全
+ *   - 检查用户资料可见性设置
+ *   - private: 仅自己可见
+ *   - followers: 仅粉丝可见
+ *   - public/community: 所有人可见
  */
 
 import { Suspense } from 'react'
@@ -27,6 +34,7 @@ import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/Pro
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
+import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/supabase/user'
 import type { UserStats, UserDisplayInfo } from '@/types'
@@ -65,6 +73,73 @@ async function getUserPublicStats(userId: string): Promise<UserStats> {
     likes: data.likes_received || 0,
     nodes: data.nodes_count || 0,
   }
+}
+
+/**
+ * 检查用户资料可见性权限
+ *
+ * @param {string} targetUserId - 目标用户ID
+ * @param {string | null} currentUserId - 当前登录用户ID
+ * @returns {Promise<{ allowed: boolean; visibility?: string }>} 是否允许访问
+ */
+async function checkProfileVisibility(
+  targetUserId: string,
+  currentUserId: string | null
+): Promise<{ allowed: boolean; visibility?: string }> {
+  const supabase = await createClient()
+
+  // 获取目标用户的可见性设置
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('visibility')
+    .eq('id', targetUserId)
+    .single()
+
+  if (error || !profile) {
+    return { allowed: false }
+  }
+
+  const visibility = profile.visibility
+
+  // 自己访问自己，始终允许
+  if (currentUserId === targetUserId) {
+    return { allowed: true, visibility }
+  }
+
+  // 公开或社群可见性，允许访问
+  if (visibility === 'public' || visibility === 'community') {
+    return { allowed: true, visibility }
+  }
+
+  // 私密资料，不允许他人访问
+  if (visibility === 'private') {
+    return { allowed: false, visibility }
+  }
+
+  // 仅粉丝可见，需要检查关注关系
+  if (visibility === 'followers') {
+    // 未登录用户无法查看
+    if (!currentUserId) {
+      return { allowed: false, visibility }
+    }
+
+    // 查询是否已关注
+    const { data: followRecord } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', currentUserId)
+      .eq('following_id', targetUserId)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (followRecord) {
+      return { allowed: true, visibility }
+    }
+
+    return { allowed: false, visibility }
+  }
+
+  return { allowed: true, visibility }
 }
 
 /**
@@ -112,11 +187,12 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * @安全说明
  * - 必须登录才能访问他人主页
  * - 匿名用户会被重定向到登录页
+ * - 检查用户资料可见性设置
  *
  * @性能优化 关键改进:
  * 1. 使用 Suspense 分离 ProfileHeader 和 ProfileContent
  * 2. ProfileHeader 优先渲染（关键路径）
- * 3. ProfileContent 流式传输（非关键）
+ * 3. ProfileContent 和 HeatMap 流式传输（非关键）
  * 4. 避免级联数据获取阻塞
  */
 export default async function UserProfilePage({ params }: UserProfilePageProps) {
@@ -128,6 +204,21 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   const { userId } = await params
 
+  // 检查资料可见性权限
+  const { allowed, visibility } = await checkProfileVisibility(userId, currentUser.id)
+
+  if (!allowed) {
+    // 根据可见性返回不同的提示
+    if (visibility === 'private') {
+      // 私密用户，返回 404（不暴露用户存在）
+      notFound()
+    } else if (visibility === 'followers') {
+      // 仅粉丝可见，重定向到提示页面或显示关注按钮
+      // 暂时返回 404，后续可以优化为显示关注提示
+      notFound()
+    }
+  }
+
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       <div className="max-w-4xl mx-auto fade-in-up">
@@ -138,13 +229,20 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">
-          {/* 标签页切换 */}
-          <ProfileTabs />
+          {/* 标签页切换 - 他人主页显示"他的内容" */}
+          <ProfileTabs isOwnProfile={false} />
 
-          {/* 我的内容区域 - 使用 Suspense 流式传输 */}
+          {/* 内容区域 - 使用 Suspense 流式传输 */}
           <ProfileTabContent tab="content">
             <Suspense fallback={<ProfileContentSkeleton />}>
               <ProfileContent userId={userId} />
+            </Suspense>
+          </ProfileTabContent>
+
+          {/* 思想轨迹区域 - 灵感热力图 */}
+          <ProfileTabContent tab="thought">
+            <Suspense fallback={<HeatMapSkeleton />}>
+              <HeatMap userId={userId} />
             </Suspense>
           </ProfileTabContent>
 

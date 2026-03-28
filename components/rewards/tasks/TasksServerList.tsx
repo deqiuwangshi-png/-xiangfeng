@@ -111,33 +111,6 @@ function isCompleted(status: TaskStatus): boolean {
 }
 
 /**
- * 判断是否可领取奖励
- * @param {TaskStatus} status - 任务状态
- * @returns {boolean} 是否可领取
- */
-function canClaimReward(status: TaskStatus): boolean {
-  return status === 'completed'
-}
-
-/**
- * 判断是否已接取（进行中）
- * @param {TaskStatus} status - 任务状态
- * @returns {boolean} 是否进行中
- */
-function isInProgress(status: TaskStatus): boolean {
-  return status === 'in_progress'
-}
-
-/**
- * 判断是否未接取
- * @param {TaskStatus} status - 任务状态
- * @returns {boolean} 是否未接取
- */
-function isPending(status: TaskStatus): boolean {
-  return status === 'pending'
-}
-
-/**
  * 获取分类样式
  * @param {TaskCategory} taskCategory - 任务分类
  * @returns {Object} 背景色和文字色
@@ -170,9 +143,6 @@ export function TasksServerList({ tasks }: TasksServerListProps) {
         const Icon = getIcon(task.icon_name)
         const percent = calcPercent(task.current_progress, task.target_progress)
         const completed = isCompleted(task.status)
-        const claimable = canClaimReward(task.status)
-        const inProgress = isInProgress(task.status)
-        const pending = isPending(task.status)
         const style = getCategoryStyle(task.category)
 
         return (

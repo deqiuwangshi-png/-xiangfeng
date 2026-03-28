@@ -8,6 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { genNonce, verNonce } from '@/lib/security/nonce'
+import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type { SignInResponse, SignInRecord } from '@/types/rewards'
 
 /**
@@ -96,6 +97,23 @@ export async function performSignIn(nonce: string): Promise<SignInResponse> {
       is_bonus_day: false,
       current_points: 0,
       error: '请求已过期或重复提交',
+    } as SignInResponse
+  }
+
+  // 签到频率限制：每小时最多签到1次
+  const rateLimit = checkServerRateLimit(`signin:${user.id}`, {
+    maxAttempts: 1,
+    windowMs: 60 * 60 * 1000, // 1小时
+  });
+
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      points_earned: 0,
+      consecutive_days: 0,
+      is_bonus_day: false,
+      current_points: 0,
+      error: '签到过于频繁，请稍后再试',
     } as SignInResponse
   }
 

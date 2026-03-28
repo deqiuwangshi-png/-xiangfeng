@@ -4,8 +4,9 @@ import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { ColorPreview } from '../_ui/ColorPreview'
 import { useState, useEffect, useCallback } from 'react'
-import { PRESET_THEME_COLORS, THEME_MODES } from '@/types/settings'
-import { updateAppearanceSettings } from '@/lib/settings/actions'
+import { PRESET_THEME_BACKGROUNDS, THEME_MODES } from '@/types/settings'
+import { updateAppearanceSettings } from '@/lib/settings/actions/appearance'
+import { useSettings } from '../_layout/SettingsLayout'
 import { toast } from 'sonner'
 
 /**
@@ -16,15 +17,16 @@ import { toast } from 'sonner'
  * @returns {JSX.Element} 外观与主题设置区块
  *
  * 性能优化:
+ *   - 从 Context 获取服务端预取的数据，避免重复请求
  *   - 使用 localStorage 缓存主题设置，减少服务端请求
  *   - 实时应用主题，无需刷新页面
- *   - 防抖保存到服务端
  *
  * 架构说明:
  *   - 使用'use client'指令
  *   - 使用Server Actions进行数据持久化
+ *   - 数据通过 Context 从 Server Component 传递
  *   - 支持实时主题切换
- * 更新时间: 2026-03-27
+ * 更新时间: 2026-03-28
  */
 
 /**
@@ -51,38 +53,40 @@ function applyTheme(theme: string) {
 }
 
 /**
- * 应用主题颜色
- * @param color - 主题颜色值
+ * 应用主题背景
+ * @param background - 主题背景值
  */
-function applyThemeColor(color: string) {
+function applyThemeBackground(background: string) {
   const root = document.documentElement
-  root.style.setProperty('--theme-primary', color)
-  localStorage.setItem('theme-color', color)
+  root.style.setProperty('--theme-background', background)
+  localStorage.setItem('theme-background', background)
 }
 
 export function AppearanceSection() {
-  // 从 localStorage 初始化状态，避免闪烁
-  const [selectedTheme, setSelectedTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') || 'light'
-    }
-    return 'light'
-  })
+  const { userSettings } = useSettings()
 
-  const [selectedColor, setSelectedColor] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme-color') || '#6A5B8A'
-    }
-    return '#6A5B8A'
-  })
-
+  // 使用服务端预取的数据初始化，避免 hydration 错误
+  // 同时与 localStorage 同步，确保用户体验一致性
+  const [selectedTheme, setSelectedTheme] = useState(userSettings.appearance.theme)
+  const [selectedBackground, setSelectedBackground] = useState(userSettings.appearance.theme_background)
   const [isSaving, setIsSaving] = useState(false)
 
-  // 组件挂载时应用保存的主题 - 只在挂载时执行一次 
+  // 组件挂载时应用主题（服务端数据已初始化，这里主要是应用样式）
   useEffect(() => {
-    applyTheme(selectedTheme)
-    applyThemeColor(selectedColor)
-  },)
+    // 从 localStorage 读取保存的主题设置（优先于服务端数据）
+    const savedTheme = localStorage.getItem('theme')
+    const savedBackground = localStorage.getItem('theme-background')
+
+    // 如果有本地缓存，使用本地缓存；否则使用服务端数据
+    const effectiveTheme = savedTheme || userSettings.appearance.theme
+    const effectiveBackground = savedBackground || userSettings.appearance.theme_background
+
+    setSelectedTheme(effectiveTheme)
+    setSelectedBackground(effectiveBackground)
+
+    applyTheme(effectiveTheme)
+    applyThemeBackground(effectiveBackground)
+  }, [userSettings.appearance.theme, userSettings.appearance.theme_background])
 
   /**
    * 处理主题切换
@@ -111,26 +115,26 @@ export function AppearanceSection() {
   }, [])
 
   /**
-   * 处理颜色切换
-   * @param color - 新颜色
+   * 处理背景切换
+   * @param background - 新背景
    */
-  const handleColorChange = useCallback(async (color: string) => {
-    setSelectedColor(color)
-    applyThemeColor(color)
+  const handleBackgroundChange = useCallback(async (background: string) => {
+    setSelectedBackground(background)
+    applyThemeBackground(background)
 
     // 保存到服务端
     setIsSaving(true)
     try {
       const formData = new FormData()
-      formData.append('key', 'theme_color')
-      formData.append('value', color)
+      formData.append('key', 'theme_background')
+      formData.append('value', background)
 
       const result = await updateAppearanceSettings(formData)
       if (!result.success) {
-        toast.error('颜色保存失败: ' + (result.error || '未知错误'))
+        toast.error('背景保存失败: ' + (result.error || '未知错误'))
       }
     } catch {
-      toast.error('颜色保存失败，请稍后重试')
+      toast.error('背景保存失败，请稍后重试')
     } finally {
       setIsSaving(false)
     }
@@ -159,18 +163,18 @@ export function AppearanceSection() {
         />
 
         <SettingItem
-          label="主题颜色"
-          description="选择主色调"
+          label="主题背景"
+          description="选择界面背景风格"
           control={
             <div className="flex flex-wrap gap-3">
-              {PRESET_THEME_COLORS.map((color) => (
-                <div key={color.value} className="flex flex-col items-center">
+              {PRESET_THEME_BACKGROUNDS.map((bg) => (
+                <div key={bg.value} className="flex flex-col items-center">
                   <ColorPreview
-                    color={color.value}
-                    isActive={selectedColor === color.value}
-                    onClick={() => handleColorChange(color.value)}
+                    color={bg.previewColor}
+                    isActive={selectedBackground === bg.value}
+                    onClick={() => handleBackgroundChange(bg.value)}
                   />
-                  <span className="text-xs mt-2 text-xf-dark">{color.label}</span>
+                  <span className="text-xs mt-2 text-xf-dark">{bg.label}</span>
                 </div>
               ))}
             </div>

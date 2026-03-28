@@ -12,7 +12,7 @@ import {
   getUserTaskProgress,
   claimTaskReward,
   acceptTask,
-} from '@/lib/rewards/actions/tasks'
+} from '@/lib/rewards/tasks'
 import type { TaskProgressResponse, TaskCategory } from '@/types/rewards'
 
 /**

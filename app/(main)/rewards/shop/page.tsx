@@ -2,14 +2,20 @@
  * 积分商城子页面
  * @module app/(main)/rewards/shop/page
  * @description 积分商城子页面，展示所有可兑换商品
- * @优化说明 改为Server Component，服务端获取商品列表和积分数据，减少客户端JS体积
+ * @优化说明 
+ * 1. 改为Server Component，服务端获取商品列表和积分数据，减少客户端JS体积
+ * 2. 使用 React cache 避免重复请求
+ * 3. 添加错误处理和超时控制
  */
 
 import { ShopHeader } from '@/components/rewards/shop/ShopHeader'
 import { ShopServerGrid } from '@/components/rewards/shop/ShopServerGrid'
 import { ShopCategoryNav } from '@/components/rewards/shop/ShopCategoryNav'
 import { MobileBackButton } from '@/components/mobile/MobileBackButton'
-import { getUserPointsOverview } from '@/lib/rewards/actions/points'
+import { 
+  getCachedUserPoints,
+  fetchWithTimeout 
+} from '@/lib/utils/cachedActions'
 import type { ShopItemCategory } from '@/types/rewards'
 
 /**
@@ -26,8 +32,11 @@ export default async function ShopPage({
   const params = await searchParams
   const category = (params.category as ShopItemCategory | 'all' | undefined) || 'all'
 
-  // 并行获取积分数据
-  const overview = await getUserPointsOverview()
+  // 并行获取数据，使用缓存避免重复请求
+  const [overview] = await Promise.all([
+    fetchWithTimeout(() => getCachedUserPoints(), 5000).catch(() => null),
+  ])
+  
   const currentPoints = overview?.current_points ?? 0
 
   return (

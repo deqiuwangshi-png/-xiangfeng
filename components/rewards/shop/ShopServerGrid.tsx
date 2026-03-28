@@ -1,4 +1,4 @@
-import { getShopItems } from '@/lib/rewards/actions/shop'
+import { getCachedShopItems } from '@/lib/utils/cachedActions'
 import { ShopExchangeButton } from './ShopExchangeButton'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 
@@ -43,10 +43,10 @@ function getIconEmoji(iconName: string): string {
  * @returns {JSX.Element} 商品网格
  */
 export async function ShopServerGrid({ category = 'all', userPoints = 0 }: ShopServerGridProps) {
-  // 服务端获取商品列表
-  const items = await getShopItems({
-    category: category === 'all' ? undefined : (category as ShopItemCategory),
-  })
+  // 服务端获取商品列表，使用缓存避免重复请求
+  const items = await getCachedShopItems(
+    category === 'all' ? undefined : (category as ShopItemCategory)
+  )
 
   // 空状态
   if (items.length === 0) {

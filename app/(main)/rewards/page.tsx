@@ -1,6 +1,6 @@
 import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
-import { getUserPointsOverview } from '@/lib/rewards/actions/points'
+import { getUserPointsOverview } from '@/lib/rewards/points'
 import { PtOverview } from '@/components/rewards/overview/PtOverview'
 import { PtLevel } from '@/components/rewards/overview/PtLevel'
 import { SignCardSection } from '@/components/rewards/RwClient'

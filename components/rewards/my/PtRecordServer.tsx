@@ -9,7 +9,7 @@ import {
   Heart,
   type LucideIcon,
 } from '@/components/icons'
-import { getPointTransactions } from '@/lib/rewards/actions/points'
+import { getPointTransactions } from '@/lib/rewards/points'
 import type { PointTransaction, PointSourceType } from '@/types/rewards'
 
 /**

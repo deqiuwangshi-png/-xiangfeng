@@ -20,7 +20,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
-import { checkFollowUserTask } from '@/lib/rewards/actions/tasks';
+import { checkFollowUserTask } from '@/lib/rewards/tasks';
 import { FOLLOW_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
 /**

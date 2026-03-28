@@ -20,7 +20,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { ensureUserProfile } from '../helpers/profile';
-import { checkPublishArticleTask } from '@/lib/rewards/actions/tasks';
+import { checkPublishArticleTask } from '@/lib/rewards/tasks';
 import { CreateArticleSchema, ArticleIdSchema } from '../schema';
 import { verifyArticleOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
@@ -54,13 +54,22 @@ export async function createArticle(data: {
   const supabase = await createClient();
   const user = await requireAuth();
 
-  // 速率限制检查：每用户每小时最多创建 20 篇文章
-  const rateLimit = checkServerRateLimit(user.id, {
-    maxAttempts: 20,
+  // 速率限制检查：每用户每小时最多创建 10 篇文章，每分钟最多 2 篇
+  const hourlyRateLimit = checkServerRateLimit(`create:${user.id}:hourly`, {
+    maxAttempts: 10,
     windowMs: 60 * 60 * 1000, // 1小时
   });
 
-  if (!rateLimit.allowed) {
+  const minuteRateLimit = checkServerRateLimit(`create:${user.id}:minute`, {
+    maxAttempts: 2,
+    windowMs: 60 * 1000, // 1分钟
+  });
+
+  if (!hourlyRateLimit.allowed) {
+    throw new Error('操作过于频繁，请稍后再试');
+  }
+
+  if (!minuteRateLimit.allowed) {
     throw new Error('操作过于频繁，请稍后再试');
   }
 
@@ -314,9 +323,21 @@ export async function updateArticle(
     updateData.excerpt = data.excerpt || generateExcerpt(sanitizedContent, 100);
   }
 
-  // 标签验证已通过 Zod Schema 处理，此处直接使用
+  // 标签验证：白名单验证，防止恶意标签
   if (data.tags !== undefined) {
-    updateData.tags = data.tags;
+    // 定义允许的标签白名单（实际项目中可从配置或数据库加载）
+    const allowedTags = [
+      '技术', '生活', '学习', '工作', '娱乐', '健康', '科技', '教育', '旅游', '美食',
+      '体育', '艺术', '音乐', '电影', '读书', '编程', '设计', '创业', '投资', '职场'
+    ];
+    
+    // 验证标签是否在白名单中
+    const validTags = data.tags.filter(tag => allowedTags.includes(tag));
+    if (validTags.length !== data.tags.length) {
+      throw new Error('包含不允许的标签');
+    }
+    
+    updateData.tags = validTags;
   }
 
   const { data: article, error } = await supabase

@@ -14,6 +14,62 @@ export interface ContentSettings {
 }
 
 /**
+ * 隐私设置数据接口
+ * 用于隐私偏好设置
+ */
+export interface PrivacySettings {
+  /** 个人资料可见性 */
+  profile_visibility: string
+}
+
+/**
+ * 通知设置数据接口
+ * 用于通知偏好设置
+ */
+export interface NotificationSettings {
+  /** 邮件通知 */
+  email: boolean
+  /** 新关注者通知 */
+  newFollowers: boolean
+  /** 评论通知 */
+  comments: boolean
+  /** 点赞通知 */
+  likes: boolean
+  /** 提及通知 */
+  mentions: boolean
+  /** 系统通知 */
+  system: boolean
+  /** 成就通知 */
+  achievements: boolean
+}
+
+/**
+ * 外观设置数据接口
+ * 用于外观主题设置
+ */
+export interface AppearanceSettings {
+  /** 主题模式 */
+  theme: string
+  /** 主题背景 */
+  theme_background: string
+}
+
+/**
+ * 用户所有设置数据接口
+ * 用于设置页面统一数据传递
+ */
+export interface UserSettings {
+  /** 隐私设置 */
+  privacy: PrivacySettings
+  /** 通知设置 */
+  notifications: NotificationSettings
+  /** 外观设置 */
+  appearance: AppearanceSettings
+  /** 内容设置 */
+  content: ContentSettings
+}
+
+/**
  * 用户基础数据接口
  * 用于设置页面各组件间传递用户数据
  */
@@ -255,6 +311,30 @@ export const PRESET_THEME_COLORS: ThemeColorOption[] = [
   { value: '#4CAF50', label: '绿色' },
   { value: '#FF9800', label: '橙色' },
   { value: '#9C27B0', label: '紫色' },
+] as const
+
+/**
+ * 主题背景选项
+ */
+export interface ThemeBackgroundOption {
+  /** 背景值 */
+  value: string
+  /** 背景名称 */
+  label: string
+  /** 预览颜色 */
+  previewColor: string
+}
+
+/**
+ * 预设主题背景
+ */
+export const PRESET_THEME_BACKGROUNDS: ThemeBackgroundOption[] = [
+  { value: 'default', label: '默认', previewColor: '#f5f5f5' },
+  { value: 'dark', label: '深色', previewColor: '#1a1a2e' },
+  { value: 'blue', label: '蓝色', previewColor: '#e3f2fd' },
+  { value: 'green', label: '绿色', previewColor: '#e8f5e9' },
+  { value: 'warm', label: '暖色', previewColor: '#fff3e0' },
+  { value: 'purple', label: '紫色', previewColor: '#f3e5f5' },
 ] as const
 
 /**

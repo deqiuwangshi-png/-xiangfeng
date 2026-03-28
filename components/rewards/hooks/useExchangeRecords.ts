@@ -7,7 +7,7 @@
  */
 
 import useSWR from 'swr'
-import { getExchangeRecords } from '@/lib/rewards/actions'
+import { getExchangeRecords } from '@/lib/rewards'
 import type { ExchangeRecordWithItem } from '@/types/rewards'
 
 /**

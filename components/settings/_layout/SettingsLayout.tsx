@@ -9,7 +9,7 @@ import { NotificationsSection } from '../sections/NotificationsSection'
 import { AppearanceSection } from '../sections/AppearanceSection'
 import { ContentSection } from '../content/ContentSection'
 import { AdvancedSection } from '../sections/AdvancedSection'
-import { UserData, ContentSettings } from '@/types/settings'
+import { UserData, UserSettings } from '@/types/settings'
 
 /**
  * 设置页面上下文
@@ -17,7 +17,7 @@ import { UserData, ContentSettings } from '@/types/settings'
  */
 interface SettingsContextType {
   userData: UserData | null
-  contentSettings: ContentSettings
+  userSettings: UserSettings
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -37,7 +37,7 @@ export function useSettings() {
 
 interface SettingsLayoutProps {
   userData: UserData | null
-  contentSettings?: ContentSettings
+  userSettings: UserSettings
 }
 
 {/* 有效的标签页ID列表 */}
@@ -50,7 +50,7 @@ const getTabFromSearchParams = (searchParams: URLSearchParams | null): string =>
 }
 
 {/* 内部内容组件 - 配合 Suspense 使用 */}
-function SettingsLayoutContent({ userData, contentSettings }: SettingsLayoutProps) {
+function SettingsLayoutContent({ userData, userSettings }: SettingsLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -75,7 +75,7 @@ function SettingsLayoutContent({ userData, contentSettings }: SettingsLayoutProp
   {/* 上下文数据 - 服务端获取的数据通过 Context 共享给子组件 */}
   const contextValue: SettingsContextType = {
     userData,
-    contentSettings: contentSettings || { content_language: 'zh-CN' },
+    userSettings,
   }
 
   return (
@@ -149,10 +149,10 @@ function SettingsLayoutContent({ userData, contentSettings }: SettingsLayoutProp
  * 
  * 更新时间: 2026-03-25
  */
-export function SettingsLayout({ userData, contentSettings }: SettingsLayoutProps) {
+export function SettingsLayout({ userData, userSettings }: SettingsLayoutProps) {
   return (
     <Suspense fallback={null}>
-      <SettingsLayoutContent userData={userData} contentSettings={contentSettings} />
+      <SettingsLayoutContent userData={userData} userSettings={userSettings} />
     </Suspense>
   )
 }

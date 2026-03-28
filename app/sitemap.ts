@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { createClient } from '@/lib/supabase/server'
+import { createSitemapClient } from '@/lib/supabase/sitemap-client'
 
 /**
  * 站点地图生成
@@ -77,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 动态获取已发布文章
   let articlePages: MetadataRoute.Sitemap = []
   try {
-    const supabase = await createClient()
+    const supabase = createSitemapClient()
     const { data: articles, error } = await supabase
       .from('articles')
       .select('id, updated_at, title')
@@ -102,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 动态获取活跃用户资料
   let profilePages: MetadataRoute.Sitemap = []
   try {
-    const supabase = await createClient()
+    const supabase = createSitemapClient()
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('id, updated_at')

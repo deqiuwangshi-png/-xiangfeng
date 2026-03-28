@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Twitter, Github, Mail, Sparkles, Code2 } from 'lucide-react'
+import {  Github, Mail, Sparkles, Code2 } from 'lucide-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import '@/styles/about.css'
@@ -46,9 +46,7 @@ export default function AboutPage() {
                 <p className="text-xf-accent text-center mt-1">全栈开发 · 理念驱动</p>
                 {/* 社交图标 */}
                 <div className="flex justify-center gap-4 my-5">
-                  <a href="#" className="p-2.5 bg-xf-light rounded-full text-xf-primary hover:bg-xf-primary hover:text-white transition-colors">
-                    <Twitter className="w-4 h-4" />
-                  </a>
+                 
                   <a href="#" className="p-2.5 bg-xf-light rounded-full text-xf-primary hover:bg-xf-primary hover:text-white transition-colors">
                     <Github className="w-4 h-4" />
                   </a>
@@ -68,7 +66,7 @@ export default function AboutPage() {
             {/* 引言 */}
             <section>
               <p className="text-xl text-xf-dark/80 leading-relaxed font-serif">
-                我曾是大厂的一颗螺丝，却始终怀念早期互联网的真诚与深度。2025年秋天，我决定独自搭建一个属于深度思考者的精神家园——没有流量算法，没有焦虑制造，只有认知的连接。
+                我曾是大厂的一颗螺丝，却始终怀念早期互联网的真诚与深度。2025年秋天，我决定独自搭建一个属于深度思考者的精神家园——没有焦虑制造，只有认知的连接。
               </p>
               <div className="flex items-center mt-6 text-xf-medium">
                 <span className="bg-xf-info/10 px-4 py-1.5 rounded-full text-sm">始于热爱</span>
@@ -86,7 +84,7 @@ export default function AboutPage() {
                 核心理念：价值驱动
               </h3>
               <p className="text-xf-medium leading-relaxed">
-                相逢不是另一个内容平台，而是一个「认知生态系统」。创作者通过深度内容获得回报，读者通过思考获得真知，而平台只做一件事——维护这片土壤的纯粹。没有广告竞价，没有流量分成，只有基于贡献的价值循环。
+                相逢不是另一个内容平台，而是一个「认知生态系统」。创作者通过深度内容获得回报，读者通过思考获得真知，而平台只做一件事——维护这片土壤的纯粹，只有基于贡献的价值循环。
               </p>
             </section>
 
@@ -101,7 +99,7 @@ export default function AboutPage() {
                   <div className="shrink-0 w-24 pt-1 text-xf-accent font-bold">2025.11</div>
                   <div>
                     <h4 className="font-bold text-xf-dark">理念 &amp; 第一行代码</h4>
-                    <p className="text-xf-medium text-sm mt-1">在AI的帮助下，我写下了产品文档，确立了「反算法、重连接」的原则。用Next+Tailwind搭起了第一个原型。</p>
+                    <p className="text-xf-medium text-sm mt-1">在AI的帮助下，我写下了产品文档，确立了「深阅读、重连接」的原则。用Next+Tailwind搭起了第一个原型。</p>
                   </div>
                 </div>
                 <div className="flex gap-5">
@@ -157,9 +155,6 @@ export default function AboutPage() {
                 <Link href="/login" className="px-8 py-3 bg-white text-xf-dark rounded-xl font-semibold hover:bg-slate-100 transition-colors shadow-lg">
                   加入相逢
                 </Link>
-                <a href="1641633140@qq.com" className="px-8 py-3 border border-white/30 text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">
-                  给开发者写信
-                </a>
               </div>
             </section>
           </div>
