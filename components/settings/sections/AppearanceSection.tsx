@@ -6,6 +6,7 @@ import { ColorPreview } from '../_ui/ColorPreview'
 import { useState, useEffect, useCallback } from 'react'
 import { PRESET_THEME_BACKGROUNDS, THEME_MODES } from '@/types/settings'
 import { updateAppearanceSettings } from '@/lib/settings/actions/appearance'
+import { useSettings } from '../_layout/SettingsLayout'
 import { toast } from 'sonner'
 
 /**
@@ -16,13 +17,14 @@ import { toast } from 'sonner'
  * @returns {JSX.Element} 外观与主题设置区块
  *
  * 性能优化:
+ *   - 从 Context 获取服务端预取的数据，避免重复请求
  *   - 使用 localStorage 缓存主题设置，减少服务端请求
  *   - 实时应用主题，无需刷新页面
- *   - 防抖保存到服务端
  *
  * 架构说明:
  *   - 使用'use client'指令
  *   - 使用Server Actions进行数据持久化
+ *   - 数据通过 Context 从 Server Component 传递
  *   - 支持实时主题切换
  * 更新时间: 2026-03-28
  */
@@ -61,27 +63,30 @@ function applyThemeBackground(background: string) {
 }
 
 export function AppearanceSection() {
-  // 使用固定默认值，避免服务端/客户端渲染不一致导致 hydration 错误
-  // 实际的主题值在 useEffect 中从 localStorage 读取并应用
-  const [selectedTheme, setSelectedTheme] = useState('auto')
-  const [selectedBackground, setSelectedBackground] = useState('default')
-  const [, setIsMounted] = useState(false)
+  const { userSettings } = useSettings()
+
+  // 使用服务端预取的数据初始化，避免 hydration 错误
+  // 同时与 localStorage 同步，确保用户体验一致性
+  const [selectedTheme, setSelectedTheme] = useState(userSettings.appearance.theme)
+  const [selectedBackground, setSelectedBackground] = useState(userSettings.appearance.theme_background)
   const [isSaving, setIsSaving] = useState(false)
 
-  // 组件挂载时从 localStorage 读取并应用主题
+  // 组件挂载时应用主题（服务端数据已初始化，这里主要是应用样式）
   useEffect(() => {
-    setIsMounted(true)
+    // 从 localStorage 读取保存的主题设置（优先于服务端数据）
+    const savedTheme = localStorage.getItem('theme')
+    const savedBackground = localStorage.getItem('theme-background')
 
-    // 从 localStorage 读取保存的主题设置
-    const savedTheme = localStorage.getItem('theme') || 'auto'
-    const savedBackground = localStorage.getItem('theme-background') || 'default'
+    // 如果有本地缓存，使用本地缓存；否则使用服务端数据
+    const effectiveTheme = savedTheme || userSettings.appearance.theme
+    const effectiveBackground = savedBackground || userSettings.appearance.theme_background
 
-    setSelectedTheme(savedTheme)
-    setSelectedBackground(savedBackground)
+    setSelectedTheme(effectiveTheme)
+    setSelectedBackground(effectiveBackground)
 
-    applyTheme(savedTheme)
-    applyThemeBackground(savedBackground)
-  }, [])
+    applyTheme(effectiveTheme)
+    applyThemeBackground(effectiveBackground)
+  }, [userSettings.appearance.theme, userSettings.appearance.theme_background])
 
   /**
    * 处理主题切换

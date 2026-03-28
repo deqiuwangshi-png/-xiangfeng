@@ -4,7 +4,10 @@ import '@/styles/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions/content'
-import type { ContentSettingsResult } from '@/types/settings'
+import { getPrivacySettings } from '@/lib/settings/actions/privacy'
+import { getNotificationSettings } from '@/lib/settings/actions/notifications'
+import { getAppearanceSettings } from '@/lib/settings/actions/appearance'
+import type { UserSettings } from '@/types/settings'
 
 /**
  * 强制动态渲染
@@ -64,22 +67,79 @@ async function getUserProfile(userId: string): Promise<UserProfileData | null> {
   }
 }
 
+/**
+ * 默认用户设置
+ * 当获取失败时作为降级方案
+ */
+const DEFAULT_USER_SETTINGS: UserSettings = {
+  privacy: { profile_visibility: 'public' },
+  notifications: {
+    email: true,
+    newFollowers: true,
+    comments: true,
+    likes: true,
+    mentions: true,
+    system: true,
+    achievements: true,
+  },
+  appearance: { theme: 'auto', theme_background: 'default' },
+  content: { content_language: 'zh-CN' },
+}
+
 export default async function SettingsPage() {
   // 初始化默认值，防止异常导致页面崩溃
   let user = null
-  let contentSettingsResult: ContentSettingsResult = { success: false, error: '初始化状态' }
   let profile: UserProfileData | null = null
+  let userSettings: UserSettings = DEFAULT_USER_SETTINGS
 
   try {
-    // 并行获取用户数据和内容设置，减少总等待时间
-    ;[user, contentSettingsResult] = await Promise.all([
+    // 并行获取所有数据，减少总等待时间
+    const [
+      currentUser,
+      privacyResult,
+      notificationsResult,
+      appearanceResult,
+      contentResult,
+    ] = await Promise.all([
       getCurrentUser(),
-      getContentSettings()
+      getPrivacySettings(),
+      getNotificationSettings(),
+      getAppearanceSettings(),
+      getContentSettings(),
     ])
+
+    user = currentUser
 
     // 如果用户已登录，获取用户资料
     if (user) {
       profile = await getUserProfile(user.id)
+    }
+
+    // 组装所有设置数据
+    userSettings = {
+      privacy: privacyResult.success && privacyResult.settings
+        ? { profile_visibility: privacyResult.settings.profileVisibility }
+        : DEFAULT_USER_SETTINGS.privacy,
+      notifications: notificationsResult.success && notificationsResult.settings
+        ? {
+            email: notificationsResult.settings.email ?? true,
+            newFollowers: notificationsResult.settings.newFollowers ?? true,
+            comments: notificationsResult.settings.comments ?? true,
+            likes: notificationsResult.settings.likes ?? true,
+            mentions: notificationsResult.settings.mentions ?? true,
+            system: notificationsResult.settings.system ?? true,
+            achievements: notificationsResult.settings.achievements ?? true,
+          }
+        : DEFAULT_USER_SETTINGS.notifications,
+      appearance: appearanceResult.success && appearanceResult.settings
+        ? {
+            theme: appearanceResult.settings.theme,
+            theme_background: appearanceResult.settings.theme_background,
+          }
+        : DEFAULT_USER_SETTINGS.appearance,
+      content: contentResult.success && contentResult.content_language
+        ? { content_language: contentResult.content_language }
+        : DEFAULT_USER_SETTINGS.content,
     }
   } catch (err) {
     console.error('获取设置页面数据失败:', err)
@@ -102,11 +162,6 @@ export default async function SettingsPage() {
       }
     : null
 
-  // 处理内容设置数据
-  const contentSettings = contentSettingsResult.success
-    ? { content_language: contentSettingsResult.content_language || 'zh-CN' }
-    : { content_language: 'zh-CN' }
-
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       {/* 移动端顶部栏 */}
@@ -116,7 +171,7 @@ export default async function SettingsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto fade-in-up">
-        <SettingsLayout userData={userData} contentSettings={contentSettings} />
+        <SettingsLayout userData={userData} userSettings={userSettings} />
       </div>
     </main>
   )

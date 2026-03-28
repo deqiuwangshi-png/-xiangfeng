@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { LoginHistoryDialog } from '../_dialogs/LoginHistoryDialog'
 import { PRIVACY_VISIBILITY_OPTIONS } from '@/types/settings'
-import { getPrivacySettings, updatePrivacySettings } from '@/lib/settings/actions/privacy'
+import { updatePrivacySettings } from '@/lib/settings/actions/privacy'
+import { useSettings } from '../_layout/SettingsLayout'
 import { toast } from 'sonner'
 
 /**
@@ -16,43 +17,24 @@ import { toast } from 'sonner'
  * @returns {JSX.Element} 隐私与安全设置区块
  *
  * 性能优化:
- *   - 组件挂载时从服务端获取真实设置
+ *   - 从 Context 获取服务端预取的数据，避免重复请求
  *   - 本地状态优先响应，异步保存到服务端
  *   - 保存失败时回滚状态
  *
  * 架构说明:
  *   - 使用'use client'指令
- *   - 使用Server Actions进行数据获取和修改
+ *   - 使用Server Actions进行数据修改
+ *   - 数据通过 Context 从 Server Component 传递
  * 更新时间: 2026-03-28
  */
 
 export function PrivacySection() {
+  const { userSettings } = useSettings()
   const [showLoginHistory, setShowLoginHistory] = useState(false)
-  const [profileVisibility, setProfileVisibility] = useState('public')
-  const [isLoading, setIsLoading] = useState(true)
+  const [profileVisibility, setProfileVisibility] = useState(
+    userSettings.privacy.profile_visibility
+  )
   const [isSaving, setIsSaving] = useState(false)
-
-  /**
-   * 组件挂载时从服务端获取隐私设置
-   */
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        setIsLoading(true)
-        const result = await getPrivacySettings()
-
-        if (result.success && result.settings) {
-          setProfileVisibility(result.settings.profileVisibility || 'public')
-        }
-      } catch {
-        toast.error('加载隐私设置失败')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadSettings()
-  }, [])
 
   /**
    * 处理个人资料可见性变更
@@ -93,7 +75,7 @@ export function PrivacySection() {
             <select
               value={profileVisibility}
               onChange={(e) => handleVisibilityChange(e.target.value)}
-              disabled={isLoading || isSaving}
+              disabled={isSaving}
               className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl disabled:opacity-50"
             >
               {PRIVACY_VISIBILITY_OPTIONS.map((option) => (

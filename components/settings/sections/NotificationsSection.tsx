@@ -3,8 +3,9 @@
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updateNotificationSettings, getNotificationSettings } from '@/lib/settings/actions/notifications'
-import { useState, useEffect, useCallback } from 'react'
+import { updateNotificationSettings } from '@/lib/settings/actions/notifications'
+import { useSettings } from '../_layout/SettingsLayout'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 
 /**
@@ -30,57 +31,30 @@ const NOTIFICATION_CONFIG = [
  * @returns {JSX.Element} 通知设置区块
  *
  * 性能优化:
- *   - 组件挂载时从服务端获取真实设置
+ *   - 从 Context 获取服务端预取的数据，避免重复请求
  *   - 本地状态优先响应，异步保存到服务端
  *   - 保存失败时回滚状态
  *
  * 架构说明:
  *   - 使用'use client'指令
- *   - 使用Server Actions进行数据获取和修改
- *   - 数据驱动渲染，配置与视图分离
- * 更新时间: 2026-03-27
+ *   - 使用Server Actions进行数据修改
+ *   - 数据通过 Context 从 Server Component 传递
+ * 更新时间: 2026-03-28
  */
 
 export function NotificationsSection() {
-  // 使用对象存储所有通知设置状态
-  const [settings, setSettings] = useState<Record<string, boolean>>({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { userSettings } = useSettings()
 
-  /**
-   * 组件挂载时从服务端获取通知设置
-   */
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        setIsLoading(true)
-        const result = await getNotificationSettings()
-
-        if (result.success && result.settings) {
-          setSettings(result.settings)
-        } else {
-          // 使用默认设置
-          const defaults: Record<string, boolean> = {}
-          NOTIFICATION_CONFIG.forEach((config) => {
-            defaults[config.key] = true
-          })
-          setSettings(defaults)
-        }
-      } catch {
-        setError('加载通知设置失败')
-        // 使用默认设置
-        const defaults: Record<string, boolean> = {}
-        NOTIFICATION_CONFIG.forEach((config) => {
-          defaults[config.key] = true
-        })
-        setSettings(defaults)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadSettings()
-  }, [])
+  // 使用对象存储所有通知设置状态，从 Context 初始化
+  const [settings, setSettings] = useState<Record<string, boolean>>({
+    email: userSettings.notifications.email,
+    newFollowers: userSettings.notifications.newFollowers,
+    comments: userSettings.notifications.comments,
+    likes: userSettings.notifications.likes,
+    mentions: userSettings.notifications.mentions,
+    system: userSettings.notifications.system,
+    achievements: userSettings.notifications.achievements,
+  })
 
   /**
    * 处理开关变化
@@ -110,28 +84,8 @@ export function NotificationsSection() {
     }
   }, [])
 
-  if (isLoading) {
-    return (
-      <SettingsSection id="settings-notifications-section" title="通知设置">
-        <div className="space-y-8">
-          {NOTIFICATION_CONFIG.map((config) => (
-            <div key={config.key} className="animate-pulse">
-              <div className="h-6 bg-gray-200 rounded w-1/3 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      </SettingsSection>
-    )
-  }
-
   return (
     <SettingsSection id="settings-notifications-section" title="通知设置">
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
       <div className="space-y-8">
         {NOTIFICATION_CONFIG.map((config) => (
           <SettingItem

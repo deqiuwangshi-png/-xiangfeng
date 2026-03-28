@@ -17,11 +17,11 @@ import { useSettings } from '../_layout/SettingsLayout'
  */
 export function ContentSection() {
   {/* 从 Context 获取服务端预取的数据，避免重复请求 */}
-  const { contentSettings } = useSettings()
+  const { userSettings } = useSettings()
 
   {/* 使用服务端获取的初始值 */}
   const [contentLanguage, setContentLanguage] = useState(
-    contentSettings.content_language
+    userSettings.content.content_language
   )
 
   /**

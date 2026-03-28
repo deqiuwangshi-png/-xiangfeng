@@ -14,6 +14,62 @@ export interface ContentSettings {
 }
 
 /**
+ * 隐私设置数据接口
+ * 用于隐私偏好设置
+ */
+export interface PrivacySettings {
+  /** 个人资料可见性 */
+  profile_visibility: string
+}
+
+/**
+ * 通知设置数据接口
+ * 用于通知偏好设置
+ */
+export interface NotificationSettings {
+  /** 邮件通知 */
+  email: boolean
+  /** 新关注者通知 */
+  newFollowers: boolean
+  /** 评论通知 */
+  comments: boolean
+  /** 点赞通知 */
+  likes: boolean
+  /** 提及通知 */
+  mentions: boolean
+  /** 系统通知 */
+  system: boolean
+  /** 成就通知 */
+  achievements: boolean
+}
+
+/**
+ * 外观设置数据接口
+ * 用于外观主题设置
+ */
+export interface AppearanceSettings {
+  /** 主题模式 */
+  theme: string
+  /** 主题背景 */
+  theme_background: string
+}
+
+/**
+ * 用户所有设置数据接口
+ * 用于设置页面统一数据传递
+ */
+export interface UserSettings {
+  /** 隐私设置 */
+  privacy: PrivacySettings
+  /** 通知设置 */
+  notifications: NotificationSettings
+  /** 外观设置 */
+  appearance: AppearanceSettings
+  /** 内容设置 */
+  content: ContentSettings
+}
+
+/**
  * 用户基础数据接口
  * 用于设置页面各组件间传递用户数据
  */
