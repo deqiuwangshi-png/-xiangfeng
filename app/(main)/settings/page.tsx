@@ -3,7 +3,7 @@ import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
 import '@/styles/settings.css'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
-import { getContentSettings } from '@/lib/settings/actions'
+import { getContentSettings } from '@/lib/settings/actions/content'
 import type { ContentSettingsResult } from '@/types/settings'
 
 /**

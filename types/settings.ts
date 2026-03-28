@@ -258,6 +258,30 @@ export const PRESET_THEME_COLORS: ThemeColorOption[] = [
 ] as const
 
 /**
+ * 主题背景选项
+ */
+export interface ThemeBackgroundOption {
+  /** 背景值 */
+  value: string
+  /** 背景名称 */
+  label: string
+  /** 预览颜色 */
+  previewColor: string
+}
+
+/**
+ * 预设主题背景
+ */
+export const PRESET_THEME_BACKGROUNDS: ThemeBackgroundOption[] = [
+  { value: 'default', label: '默认', previewColor: '#f5f5f5' },
+  { value: 'dark', label: '深色', previewColor: '#1a1a2e' },
+  { value: 'blue', label: '蓝色', previewColor: '#e3f2fd' },
+  { value: 'green', label: '绿色', previewColor: '#e8f5e9' },
+  { value: 'warm', label: '暖色', previewColor: '#fff3e0' },
+  { value: 'purple', label: '紫色', previewColor: '#f3e5f5' },
+] as const
+
+/**
  * 主题模式选项
  */
 export interface ThemeModeOption {

@@ -4,10 +4,16 @@
  * 关联账号管理 Server Actions
  * @module lib/settings/actions/linkedAccounts
  * @description 处理第三方账号的绑定、解绑和查询
+ * @version 2.0.0
+ * @lastUpdated 2026-03-28
+ *
+ * @重构说明
+ * - 使用公共认证工具 withAuth 替代重复认证逻辑
+ * - 统一错误处理
  */
 
 import { headers } from 'next/headers'
-import { createClient } from '@/lib/supabase/server'
+import { withAuth } from '../utils/auth'
 import { LOGIN_MESSAGES, COMMON_ERRORS, SUCCESS_MESSAGES } from '@/lib/messages'
 import type {
   OAuthProvider,
@@ -32,29 +38,10 @@ const PROVIDER_CONFIG: Record<
  * 获取用户已关联的第三方账号列表
  *
  * @returns 关联账号列表结果
- *
- * @example
- * ```ts
- * const result = await getLinkedAccounts()
- * if (result.success && result.accounts) {
- *   console.log(result.accounts)
- * }
- * ```
+
  */
 export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
-  try {
-    const supabase = await createClient()
-
-    // 获取当前用户
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
-    }
-
+  return withAuth(async (user, supabase) => {
     // 从数据库查询已关联的账号
     const { data: dbIdentities, error: queryError } = await supabase
       .from('user_identities')
@@ -108,10 +95,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
     })
 
     return { success: true, accounts }
-  } catch (err) {
-    console.error('获取关联账号时出错:', err)
-    return { success: false, error: COMMON_ERRORS.DEFAULT }
-  }
+  }) as Promise<GetLinkedAccountsResult>
 }
 
 /**
@@ -125,14 +109,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
  *
  * @param provider OAuth提供商
  * @returns 绑定结果，包含授权URL
- *
- * @example
- * ```ts
- * const result = await linkAccount('github')
- * if (result.success && result.url) {
- *   window.location.href = result.url
- * }
- * ```
+
  */
 export async function linkAccount(
   provider: OAuthProvider
@@ -146,19 +123,7 @@ export async function linkAccount(
     }
   }
 
-  try {
-    const supabase = await createClient()
-
-    // 获取当前用户
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
-    }
-
+  return withAuth(async (user, supabase) => {
     // 检查是否已绑定
     const { data: existingIdentity, error: checkError } = await supabase
       .from('user_identities')
@@ -208,13 +173,7 @@ export async function linkAccount(
       success: true,
       url: data.url,
     }
-  } catch (err) {
-    console.error('绑定账号时出错:', err)
-    return {
-      success: false,
-      error: COMMON_ERRORS.UNKNOWN_ERROR,
-    }
-  }
+  }) as Promise<LinkAccountResult>
 }
 
 /**
@@ -234,19 +193,7 @@ export async function linkAccount(
 export async function unlinkAccount(
   provider: OAuthProvider
 ): Promise<LinkAccountResult> {
-  try {
-    const supabase = await createClient()
-
-    // 获取当前用户
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
-    }
-
+  return withAuth(async (user, supabase) => {
     // 从 Supabase Auth 获取 identities（作为权威来源）
     const { data: authIdentitiesData, error: authIdentitiesError } =
       await supabase.auth.getUserIdentities()
@@ -333,13 +280,7 @@ export async function unlinkAccount(
       success: true,
       message: SUCCESS_MESSAGES.DEFAULT,
     }
-  } catch (err) {
-    console.error('解绑账号时出错:', err)
-    return {
-      success: false,
-      error: COMMON_ERRORS.UNKNOWN_ERROR,
-    }
-  }
+  }) as Promise<LinkAccountResult>
 }
 
 /**
@@ -353,19 +294,7 @@ export async function syncIdentitiesToDatabase(): Promise<{
   success: boolean
   error?: string
 }> {
-  try {
-    const supabase = await createClient()
-
-    // 获取当前用户
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return { success: false, error: '未登录' }
-    }
-
+  return withAuth(async (user, supabase) => {
     // 获取用户的所有身份
     const { data: identities, error: identitiesError } =
       await supabase.auth.getUserIdentities()
@@ -420,8 +349,5 @@ export async function syncIdentitiesToDatabase(): Promise<{
     }
 
     return { success: true }
-  } catch (err) {
-    console.error('同步身份信息时出错:', err)
-    return { success: false, error: '同步失败' }
-  }
+  }) as Promise<{ success: boolean; error?: string }>
 }

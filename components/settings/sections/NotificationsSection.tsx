@@ -3,7 +3,7 @@
 import { SettingsSection } from '../_layout/SettingsSection'
 import { SettingItem } from '../_layout/SettingItem'
 import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updateNotificationSettings, getNotificationSettings } from '@/lib/settings/actions'
+import { updateNotificationSettings, getNotificationSettings } from '@/lib/settings/actions/notifications'
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 

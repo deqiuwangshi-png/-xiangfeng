@@ -13,10 +13,10 @@ interface Tab {
   label: string
 }
 
-const tabs: Tab[] = [
-  { id: 'content', label: '我的内容' },
-  { id: 'thought', label: '思想轨迹' },
-]
+interface ProfileTabsProps {
+  /** 是否为自己主页（影响标签文本） */
+  isOwnProfile?: boolean
+}
 
 /**
  * 标签页切换组件 - 极简风格
@@ -25,9 +25,15 @@ const tabs: Tab[] = [
  * - 采用极简设计，不抢夺内容视觉焦点
  * - 使用文字颜色和下划线区分状态
  * - 减少间距，让内容区更快露出
+ * - 支持自己/他人主页的不同标签文本
  */
-export function ProfileTabs() {
+export function ProfileTabs({ isOwnProfile = true }: ProfileTabsProps) {
   const { activeTab, setActiveTab } = useProfileTabs()
+
+  const tabs: Tab[] = [
+    { id: 'content', label: isOwnProfile ? '我的内容' : '他的内容' },
+    { id: 'thought', label: '思想轨迹' },
+  ]
 
   return (
     <div className="flex gap-6 sm:gap-8 mb-4 border-b border-xf-bg/60">
