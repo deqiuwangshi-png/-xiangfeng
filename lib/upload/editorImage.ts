@@ -61,6 +61,18 @@ function validateImage(file: File): void {
       'SIZE_EXCEEDED'
     )
   }
+
+  // 验证文件名安全性
+  const fileName = file.name
+  if (fileName.length > 255) {
+    throw new EditorImageUploadError('文件名过长', 'INVALID_TYPE')
+  }
+
+  // 检查文件名是否包含恶意字符
+  const maliciousChars = /[<>:"/\\|?*]/g
+  if (maliciousChars.test(fileName)) {
+    throw new EditorImageUploadError('文件名包含非法字符', 'INVALID_TYPE')
+  }
 }
 
 /**

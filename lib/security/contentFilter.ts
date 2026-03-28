@@ -202,26 +202,47 @@ export function validateArticleContent(
 } {
   const errors: string[] = [];
 
-  // 使用宽松级别检测标题
+  // 验证标题长度
+  if (title.length < 1 || title.length > 100) {
+    errors.push('标题长度必须在1-100字符之间');
+  }
+
+  // 验证内容长度
+  if (content.length < 1 || content.length > 50000) {
+    errors.push('内容长度必须在1-50000字符之间');
+  }
+
+  // 使用严格级别检测标题
   const titleResult = filterSensitiveWords(title, {
     detectOnly: true,
-    level: 'loose',
+    level: 'strict',
   });
 
-  // 使用宽松级别检测内容
+  // 使用严格级别检测内容
   const contentResult = filterSensitiveWords(content, {
     detectOnly: true,
-    level: 'loose',
+    level: 'strict',
   });
 
-  // 宽松策略：仅记录敏感词，不阻止发布
-  // 如需严格策略，可取消下面注释
-  // if (titleResult.hasSensitiveWords) {
-  //   errors.push(`标题包含敏感词: ${titleResult.detectedWords.join(', ')}`);
-  // }
-  // if (contentResult.hasSensitiveWords) {
-  //   errors.push(`内容包含敏感词: ${contentResult.detectedWords.join(', ')}`);
-  // }
+  // 严格策略：阻止包含敏感词的内容
+  if (titleResult.hasSensitiveWords) {
+    errors.push(`标题包含敏感词: ${titleResult.detectedWords.join(', ')}`);
+  }
+  if (contentResult.hasSensitiveWords) {
+    errors.push(`内容包含敏感词: ${contentResult.detectedWords.join(', ')}`);
+  }
+
+  // 检测恶意脚本
+  const scriptRegex = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+  if (scriptRegex.test(content)) {
+    errors.push('内容包含恶意脚本');
+  }
+
+  // 检测iframe标签
+  const iframeRegex = /<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi;
+  if (iframeRegex.test(content)) {
+    errors.push('内容包含不允许的iframe标签');
+  }
 
   return {
     valid: errors.length === 0,

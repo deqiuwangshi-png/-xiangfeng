@@ -18,6 +18,9 @@ export async function genNonce(action: string, userId: string): Promise<string> 
   const random = Math.random().toString(36).slice(2, 8);
   const nonce = `${action}:${userId}:${timestamp}:${random}`;
   
+  // 清理过期令牌
+  clrNonce();
+  
   // 存储令牌，5分钟过期
   nonceStore.set(nonce, {
     used: false,
