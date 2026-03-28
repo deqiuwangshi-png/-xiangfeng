@@ -1,15 +1,13 @@
 /**
- * 生态经济区组件
+ * 生态经济区组件 (Server Component)
  * @module components/marketing/EconomySection
  * @description 响应式生态经济展示，移动端优化
- * @性能优化 P1: 将 router.push 改为 Link 组件，启用自动预加载
+ * @优化说明 改为Server Component，移除'use client'，动画部分使用客户端组件包裹
  */
-
-'use client'
 
 import Link from 'next/link'
 import { DollarSign, RefreshCw, Clock, Check } from 'lucide-react'
-import { RevealOnScroll } from './RevealOnScroll'
+import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
  * 经济特性数据
@@ -64,29 +62,29 @@ export default function EconomySection() {
   return (
     <section id="economy" className="py-12 sm:py-24 bg-white">
       <div className="container mx-auto px-4 sm:px-6">
-        <RevealOnScroll>
+        <RevealOnScrollClient>
           <div className="text-center mb-10 sm:mb-16 max-w-6xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-xf-dark mb-3 sm:mb-4">价值驱动的生态经济</h2>
             <p className="text-sm sm:text-lg text-xf-medium">拒绝流量算法，回归价值本质</p>
           </div>
-        </RevealOnScroll>
+        </RevealOnScrollClient>
 
         <div className="max-w-6xl mx-auto">
           {/* 特性卡片 - 移动端单列，桌面端三列 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-16">
             {economyFeatures.map((feature, index) => (
-              <RevealOnScroll key={feature.title} delay={(index + 1) * 100}>
+              <RevealOnScrollClient key={feature.title} delay={(index + 1) * 100}>
                 <div className="bg-xf-light/50 rounded-xl sm:rounded-2xl p-5 sm:p-8 border border-slate-100 touch-manipulation">
                   <feature.icon className={`w-6 sm:w-8 h-6 sm:h-8 text-xf-${feature.color} mb-3 sm:mb-4`} />
                   <h3 className="text-lg sm:text-xl font-bold text-xf-dark mb-2">{feature.title}</h3>
                   <p className="text-xf-medium text-xs sm:text-sm">{feature.description}</p>
                 </div>
-              </RevealOnScroll>
+              </RevealOnScrollClient>
             ))}
           </div>
 
           {/* 权益对比卡片 */}
-          <RevealOnScroll delay={200}>
+          <RevealOnScrollClient delay={200}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
               {/* 创作者卡片 */}
               <div className="flex flex-col bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border-2 border-xf-bg shadow-sm">
@@ -102,7 +100,6 @@ export default function EconomySection() {
                     </li>
                   ))}
                 </ul>
-                {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
                 <Link
                   href="/login"
                   className="block w-full py-3 bg-xf-light hover:bg-slate-200 text-xf-dark rounded-xl font-medium transition-colors mt-auto touch-manipulation active-scale text-center"
@@ -129,7 +126,6 @@ export default function EconomySection() {
                     </li>
                   ))}
                 </ul>
-                {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
                 <Link
                   href="/login"
                   className="block w-full py-3 bg-white text-xf-primary hover:bg-slate-50 rounded-xl font-bold transition-colors shadow-md mt-auto text-center"
@@ -138,7 +134,7 @@ export default function EconomySection() {
                 </Link>
               </div>
             </div>
-          </RevealOnScroll>
+          </RevealOnScrollClient>
         </div>
       </div>
     </section>

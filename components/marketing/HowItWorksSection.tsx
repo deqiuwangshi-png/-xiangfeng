@@ -1,12 +1,11 @@
 /**
- * 如何运作区组件
+ * 如何运作区组件 (Server Component)
  * @module components/marketing/HowItWorksSection
  * @description 响应式步骤展示，移动端垂直布局
+ * @优化说明 改为Server Component，动画部分使用客户端组件包裹
  */
 
-'use client'
-
-import { RevealOnScroll } from './RevealOnScroll'
+import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
  * 步骤数据
@@ -41,12 +40,12 @@ export default function HowItWorksSection() {
   return (
     <section id="how-it-works" className="py-12 sm:py-24 bg-xf-light/30">
       <div className="container mx-auto px-4 sm:px-6">
-        <RevealOnScroll>
+        <RevealOnScrollClient>
           <div className="text-center mb-10 sm:mb-20 max-w-6xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-xf-dark mb-3 sm:mb-4">简单三步，开启旅程</h2>
             <p className="text-sm sm:text-lg text-xf-medium">从注册到共赢，你的每一步都算数</p>
           </div>
-        </RevealOnScroll>
+        </RevealOnScrollClient>
 
         <div className="max-w-5xl mx-auto">
           <div className="relative">
@@ -58,7 +57,7 @@ export default function HowItWorksSection() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-12 relative">
               {steps.map((step, index) => (
-                <RevealOnScroll key={step.number} delay={(index + 1) * 100}>
+                <RevealOnScrollClient key={step.number} delay={(index + 1) * 100}>
                   <div className="flex sm:flex-col items-start sm:items-center gap-4 sm:gap-0 group">
                     {/* 步骤编号 */}
                     <div className={`w-14 sm:w-20 h-14 sm:h-20 rounded-xl sm:rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-soft group-hover:scale-110 transition-transform duration-300 relative z-10 touch-manipulation`}>
@@ -71,7 +70,7 @@ export default function HowItWorksSection() {
                       <p className="text-xf-medium text-sm leading-relaxed sm:px-4">{step.description}</p>
                     </div>
                   </div>
-                </RevealOnScroll>
+                </RevealOnScrollClient>
               ))}
             </div>
           </div>

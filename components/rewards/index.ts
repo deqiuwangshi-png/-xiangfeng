@@ -4,7 +4,12 @@
  * @description 福利中心页面所有组件的统一导出
  */
 
-export { RwClient } from './RwClient'
+export {
+  SignCardSection,
+  TaskBoardSection,
+  ShopGridSection,
+  MyRwSection,
+} from './RwClient'
 
 /**
  * 积分总览相关组件
@@ -50,4 +55,10 @@ export { PtRecord } from './my/PtRecord'
  * 福利中心 Hooks 统一出口
  * @module components/rewards/hooks
  */
-export { useSignIn, usePoints, useTasks, useShop } from './hooks'
+export {
+  useSignIn,
+  usePoints,
+  useTasks,
+  useShop,
+  useExchangeRecords,
+} from './hooks'

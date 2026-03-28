@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { VALIDATION_MESSAGES, COMMENT_ERROR_MESSAGES, ARTICLE_ERROR_MESSAGES } from '@/lib/messages';
 
 /**
  * 文章状态枚举
@@ -24,13 +25,13 @@ export const ArticleStatusSchema = z.enum(['draft', 'published', 'archived']);
 export const CreateArticleSchema = z.object({
   title: z
     .string()
-    .min(1, '标题不能为空')
-    .max(100, '标题不能超过100个字符')
+    .min(1, VALIDATION_MESSAGES.REQUIRED)
+    .max(100, VALIDATION_MESSAGES.TOO_LONG)
     .transform((val) => val.trim()),
   content: z
     .string()
-    .min(1, '内容不能为空')
-    .max(50000, '内容不能超过50000个字符')
+    .min(1, VALIDATION_MESSAGES.REQUIRED)
+    .max(50000, VALIDATION_MESSAGES.TOO_LONG)
     .transform((val) => val.trim()),
   status: z.enum(['draft', 'published']).default('draft'),
 });
@@ -47,16 +48,16 @@ export const ArticleTagsSchema = z
   .array(
     z
       .string()
-      .min(1, '标签不能为空')
-      .max(20, '标签不能超过20个字符')
+      .min(1, VALIDATION_MESSAGES.REQUIRED)
+      .max(20, VALIDATION_MESSAGES.TOO_LONG)
       // 安全：只允许字母、数字、中文、连字符和下划线
       .regex(
         /^[a-zA-Z0-9\u4e00-\u9fa5\-_]+$/,
-        '标签只能包含字母、数字、中文、连字符(-)和下划线(_)'
+        VALIDATION_MESSAGES.INVALID_FORMAT
       )
       .transform((val) => val.trim().toLowerCase())
   )
-  .max(10, '最多只能添加10个标签');
+  .max(10, VALIDATION_MESSAGES.TOO_MANY);
 
 /**
  * 更新文章数据验证 Schema
@@ -66,17 +67,17 @@ export const ArticleTagsSchema = z
  * - 每个标签长度限制：1-20字符
  */
 export const UpdateArticleSchema = z.object({
-  id: z.uuid({ message: '无效的文章ID' }),
+  id: z.uuid({ message: ARTICLE_ERROR_MESSAGES.NOT_FOUND }),
   title: z
     .string()
-    .min(1, '标题不能为空')
-    .max(100, '标题不能超过100个字符')
+    .min(1, VALIDATION_MESSAGES.REQUIRED)
+    .max(100, VALIDATION_MESSAGES.TOO_LONG)
     .transform((val) => val.trim())
     .optional(),
   content: z
     .string()
-    .min(1, '内容不能为空')
-    .max(50000, '内容不能超过50000个字符')
+    .min(1, VALIDATION_MESSAGES.REQUIRED)
+    .max(50000, VALIDATION_MESSAGES.TOO_LONG)
     .transform((val) => val.trim())
     .optional(),
   status: ArticleStatusSchema.optional(),
@@ -92,24 +93,24 @@ export const UpdateArticleSchema = z.object({
  * - 净化 HTML 标签
  */
 export const CommentSchema = z.object({
-  articleId: z.uuid({ message: '无效的文章ID' }),
+  articleId: z.uuid({ message: ARTICLE_ERROR_MESSAGES.NOT_FOUND }),
   content: z
     .string()
-    .min(1, '评论内容不能为空')
-    .max(500, '评论内容不能超过500个字符')
+    .min(1, COMMENT_ERROR_MESSAGES.EMPTY_CONTENT)
+    .max(500, COMMENT_ERROR_MESSAGES.CONTENT_TOO_LONG)
     .transform((val) => val.trim()),
-  parentId: z.uuid({ message: '无效的评论ID' }).optional(),
+  parentId: z.uuid({ message: COMMENT_ERROR_MESSAGES.INVALID_ID }).optional(),
 });
 
 /**
  * 文章ID验证 Schema
  */
-export const ArticleIdSchema = z.uuid({ message: '无效的文章ID' });
+export const ArticleIdSchema = z.uuid({ message: ARTICLE_ERROR_MESSAGES.NOT_FOUND });
 
 /**
  * 评论ID验证 Schema
  */
-export const CommentIdSchema = z.uuid({ message: '无效的评论ID' });
+export const CommentIdSchema = z.uuid({ message: COMMENT_ERROR_MESSAGES.INVALID_ID });
 
 /**
  * 分页参数验证 Schema

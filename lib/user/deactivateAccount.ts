@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { DeactivateAccountResult } from '@/types'
 
 export type { DeactivateAccountResult } from '@/types'
@@ -27,7 +28,7 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     const userId = user.id
@@ -40,7 +41,7 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
 
     if (updateError) {
       console.error('停用账户失败:', updateError)
-      return { success: false, error: '停用账户失败，请稍后重试' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     {/* 退出登录 */}
@@ -52,7 +53,7 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
     }
   } catch (error) {
     console.error('停用账户时出错:', error)
-    return { success: false, error: '停用账户失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 
@@ -78,7 +79,7 @@ export async function activateAccount(userId: string): Promise<DeactivateAccount
 
     if (updateError) {
       console.error('激活账户失败:', updateError)
-      return { success: false, error: '激活账户失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     return {
@@ -87,7 +88,7 @@ export async function activateAccount(userId: string): Promise<DeactivateAccount
     }
   } catch (error) {
     console.error('激活账户时出错:', error)
-    return { success: false, error: '激活账户失败' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 

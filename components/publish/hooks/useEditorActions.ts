@@ -1,16 +1,24 @@
 'use client'
 
+/**
+ * 编辑器操作 Hook - 带媒体状态管理
+ *
+ * 提供保存草稿、发布文章等操作功能
+ * 保存/发布时自动更新 media 表状态
+ *
+ * @module useEditorActions
+ */
+
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { EditorState } from './useEditorState'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { batchUpdateMediaStatus } from '@/lib/media/actions'
+import { extractImageUrls } from '@/lib/media/utils'
 
 /**
  * 编辑器操作 Hook
- *
- * 提供保存草稿、发布文章等操作功能
- * 采用单向数据流，所有内容从 editorState 读取
  *
  * @param editorState - 编辑器状态
  * @param setEditorState - 设置编辑器状态
@@ -24,11 +32,35 @@ export const useEditorActions = (
   const router = useRouter()
 
   /**
+   * 更新文章中媒体状态为 published
+   *
+   * @param articleId - 文章ID
+   * @param content - 文章内容（HTML）
+   */
+  const updateMediaStatus = async (articleId: string, content: string) => {
+    try {
+      // 从内容中提取所有图片 URL
+      const imageUrls = extractImageUrls(content)
+
+      if (imageUrls.length > 0) {
+        // 批量更新媒体状态
+        const result = await batchUpdateMediaStatus(imageUrls, articleId, 'published')
+
+        if (!result.success) {
+          console.error('更新媒体状态失败:', result.error)
+        } else {
+          console.log(`已更新 ${result.updated} 张图片状态为 published`)
+        }
+      }
+    } catch (error) {
+      // 媒体状态更新失败不影响主流程
+      console.error('更新媒体状态异常:', error)
+    }
+  }
+
+  /**
    * 保存草稿
    *
-   * @description 将当前编辑器内容保存为草稿
-   * @requires 标题不能为空
-   * @logic 如果有 draftId 则更新，否则创建新草稿
    * @param options - 保存选项
    * @param options.silent - 是否静默保存（不显示 toast，不跳转）
    * @param options.skipIfEmpty - 如果标题为空是否跳过保存
@@ -36,7 +68,6 @@ export const useEditorActions = (
   const saveDraft = async (options?: { silent?: boolean; skipIfEmpty?: boolean }) => {
     const { silent = false, skipIfEmpty = false } = options || {}
 
-    // 自动保存时如果标题为空可以跳过
     if (!editorState.title.trim()) {
       if (skipIfEmpty) return
       if (!silent) {
@@ -49,12 +80,15 @@ export const useEditorActions = (
     setEditorState(prev => ({ ...prev, isSaving: true }))
 
     try {
+      let articleId: string
+
       if (editorState.draftId) {
         // 已有草稿ID，执行更新
         await updateArticle(editorState.draftId, {
           title: editorState.title,
           content: editorState.content,
         })
+        articleId = editorState.draftId
         if (!silent) toast.success('草稿更新成功')
       } else {
         // 无草稿ID，创建新草稿
@@ -63,10 +97,14 @@ export const useEditorActions = (
           content: editorState.content,
           status: 'draft',
         })
+        articleId = article.id
         // 保存草稿ID到状态
         setEditorState(prev => ({ ...prev, draftId: article.id }))
         if (!silent) toast.success('草稿保存成功')
       }
+
+      // 更新媒体状态为 published（草稿也更新，方便后续直接发布）
+      await updateMediaStatus(articleId, editorState.content)
 
       // 只有手动保存才跳转到草稿页
       if (!silent) {
@@ -85,9 +123,6 @@ export const useEditorActions = (
    * 发布文章
    *
    * @description 将当前编辑器内容发布为正式文章
-   * @requires 标题和内容都不能为空（内容检查纯文本长度，避免HTML标签干扰）
-   * @logic 如果有draftId则更新原草稿状态为published，否则创建新文章
-   * @redirects 发布成功后跳转到文章详情页
    */
   const publishContent = async () => {
     if (!editorState.title.trim()) {
@@ -95,7 +130,7 @@ export const useEditorActions = (
       titleRef.current?.focus()
       return
     }
-    // 检查纯文本长度，避免HTML标签（如<p></p>）通过校验
+    // 检查纯文本长度
     const textContent = editorState.content.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim()
     if (!textContent || textContent.length === 0) {
       toast.error('请输入文章内容')
@@ -126,6 +161,9 @@ export const useEditorActions = (
         articleId = article.id
         toast.success('发布成功')
       }
+
+      // 更新媒体状态为 published
+      await updateMediaStatus(articleId, editorState.content)
 
       // 直接跳转到文章详情页
       router.push(`/article/${articleId}`)

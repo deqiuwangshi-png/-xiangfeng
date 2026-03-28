@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { ArticleCard } from '@/components/app/ArticleCard'
 import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
+import { SearchBox } from '@/components/app/SearchBox'
 import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/crud'
 import { getCurrentUser } from '@/lib/supabase/user'
@@ -73,17 +74,23 @@ export default async function HomePage() {
       {/* 欢迎区域 */}
       <div className="mb-6 sm:mb-10">
         {isAuthenticated ? (
-          <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
-            欢迎回来，{userName}
-          </h1>
-        ) : (
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <div className="flex items-center justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
-              发现深度文章
+              欢迎回来，{userName}
             </h1>
-            <p className="text-xf-medium text-sm sm:text-base">
-              登录后可以点赞、评论和发布自己的文章
-            </p>
+            <SearchBox placeholder="搜索文章..." />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <h1 className="text-2xl sm:text-3xl font-serif text-xf-accent font-bold text-layer-1">
+                发现深度文章
+              </h1>
+              <p className="text-xf-medium text-sm sm:text-base hidden sm:block">
+                登录后可以点赞、评论和发布自己的文章
+              </p>
+            </div>
+            <SearchBox placeholder="搜索文章..." />
           </div>
         )}
       </div>

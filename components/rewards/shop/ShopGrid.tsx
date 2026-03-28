@@ -43,7 +43,7 @@ export function ShopGrid({ userPoints }: ShopGridProps) {
     async (itemId: string, points: number) => {
       // 兑换功能暂未开放，仅做提示，避免调用未对接的后端流程
       if (userPoints < points) {
-        toast.error('积分不足')
+        toast.error('灵感币不足')
         return
       }
 

@@ -98,12 +98,25 @@ function SettingsLayoutContent({ userData, contentSettings }: SettingsLayoutProp
           </div>
 
           <div className="lg:col-span-9 max-w-3xl">
-            {activeTab === 'account' && <AccountSection userData={userData} />}
-            {activeTab === 'privacy' && <PrivacySection />}
-            {activeTab === 'notifications' && <NotificationsSection />}
-            {activeTab === 'appearance' && <AppearanceSection />}
-            {activeTab === 'content' && <ContentSection />}
-            {activeTab === 'advanced' && <AdvancedSection />}
+            {/* 使用 hidden 代替条件渲染，避免组件重新挂载，提升性能 */}
+            <div className={activeTab === 'account' ? 'block' : 'hidden'}>
+              <AccountSection userData={userData} />
+            </div>
+            <div className={activeTab === 'privacy' ? 'block' : 'hidden'}>
+              <PrivacySection />
+            </div>
+            <div className={activeTab === 'notifications' ? 'block' : 'hidden'}>
+              <NotificationsSection />
+            </div>
+            <div className={activeTab === 'appearance' ? 'block' : 'hidden'}>
+              <AppearanceSection />
+            </div>
+            <div className={activeTab === 'content' ? 'block' : 'hidden'}>
+              <ContentSection />
+            </div>
+            <div className={activeTab === 'advanced' ? 'block' : 'hidden'}>
+              <AdvancedSection />
+            </div>
           </div>
         </div>
       </div>

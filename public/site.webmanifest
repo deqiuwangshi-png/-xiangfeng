@@ -1,0 +1,46 @@
+{
+  "name": "相逢 Xiangfeng - 深度思考者社区",
+  "short_name": "相逢",
+  "description": "相逢是一个连接深度思考者的知识社区，专注于长文创作与深度阅读。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3A3C6E",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["social", "education", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "发现文章",
+      "short_name": "文章",
+      "description": "浏览最新深度文章",
+      "url": "/home",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "发布文章",
+      "short_name": "发布",
+      "description": "创作新的深度文章",
+      "url": "/publish",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -285,10 +285,7 @@ i[data-lucide],
   cursor: pointer;
 }
 
-.draft-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px -15px rgba(58, 60, 110, 0.15);
-}
+/* 卡片hover效果已移除：根据UI规范，取消整体位移和投影，保留内部按钮交互动画 */
 
 .draft-card.selected {
   border-color: var(--color-xf-primary);

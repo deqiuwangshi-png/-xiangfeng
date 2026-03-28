@@ -25,8 +25,8 @@ interface FilterTabsProps {
 }
 
 /**
- * 筛选标签组件
- * @description 消息页面筛选标签栏
+ * 筛选标签组件 (Client Component)
+ * @description 消息页面筛选标签栏，需要处理点击交互
  * @param {FilterTabsProps} props - 组件属性
  * @returns {JSX.Element} 筛选标签JSX
  */
@@ -39,6 +39,7 @@ export function FilterTabs({
       {filterTabs.map((tab) => (
         <span
           key={tab.key}
+          data-filter={tab.key}
           className={`px-4 py-1.5 text-sm rounded-md cursor-pointer transition-colors ${
             activeFilter === tab.key
               ? 'bg-xf-primary text-white'

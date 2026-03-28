@@ -9,6 +9,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
+import { CHANGE_PASSWORD_MESSAGES } from '@/lib/messages';
 import { validatePasswordMatch, getCurrentUser } from '../utils';
 import type { AuthResult } from './types';
 
@@ -31,7 +32,7 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
 
     const user = await getCurrentUser();
     if (!user) {
-      return { success: false, error: '未登录或登录已过期' };
+      return { success: false, error: CHANGE_PASSWORD_MESSAGES.NOT_AUTHENTICATED };
     }
 
     const rateLimit = checkServerRateLimit(`change:${user.id}`, {
@@ -39,7 +40,7 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
       windowMs: 15 * 60 * 1000,
     });
     if (!rateLimit.allowed) {
-      return { success: false, error: '尝试次数过多，请15分钟后再试' };
+      return { success: false, error: CHANGE_PASSWORD_MESSAGES.RATE_LIMITED };
     }
 
     const { error: updateError } = await supabase.auth.updateUser({ password });
@@ -52,9 +53,9 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
 
     revalidatePath('/', 'layout');
 
-    return { success: true, message: '密码修改成功，请使用新密码重新登录' };
+    return { success: true, message: CHANGE_PASSWORD_MESSAGES.SUCCESS };
   } catch (err) {
     console.error('修改密码失败:', err);
-    return { success: false, error: '修改密码失败，请稍后重试' };
+    return { success: false, error: CHANGE_PASSWORD_MESSAGES.DEFAULT_ERROR };
   }
 }

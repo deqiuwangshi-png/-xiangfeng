@@ -6,7 +6,7 @@
  * @description 显示用户的积分获得和消耗记录，支持筛选和分页
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import {
   Plus,
   Minus,
@@ -153,26 +153,26 @@ export function PtRecord() {
    * 处理筛选变化
    * @param {FilterType} newFilter - 新筛选条件
    */
-  const handleFilterChange = (newFilter: FilterType) => {
+  const handleFilterChange = useCallback((newFilter: FilterType) => {
     setFilter(newFilter)
     setCurrentPage(1)
-  }
+  }, [])
 
   /**
    * 处理页码变化
    * @param {number} page - 页码
    */
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
-  }
+  }, [])
 
   /**
-   * 加载中状态
+   * 加载中状态 - 使用 Array.from 优化
    */
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
+        {Array.from({ length: PAGE_SIZE }, (_, i) => (
           <div
             key={i}
             className="flex items-center gap-3 p-3 bg-xf-light/80 rounded-xl border border-xf-bg/30 animate-pulse"

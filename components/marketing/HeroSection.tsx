@@ -1,13 +1,12 @@
-'use client'
-
 /**
- * Hero区域组件 - 首屏关键内容
+ * Hero区域组件 - 首屏关键内容 (Server Component)
  * @module components/marketing/HeroSection
  * @description 响应式Hero区域，移动端优化显示
+ * @优化说明 改为Server Component，将动画部分分离到客户端组件
  */
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, Users, Bookmark, Sparkles, Brain } from 'lucide-react'
-import { RevealOnScroll } from './RevealOnScroll'
+import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
  * Hero区域组件
@@ -16,7 +15,7 @@ import { RevealOnScroll } from './RevealOnScroll'
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-6 sm:pt-12 pb-12 sm:pb-20">
-      {/* 背景装饰 - 不影响LCP */}
+      {/* 背景装饰 - 使用CSS动画，无需JavaScript */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[10%] left-[5%] w-32 sm:w-64 h-32 sm:h-64 bg-xf-info/20 rounded-full blur-2xl sm:blur-[80px] animate-pulse"></div>
         <div className="absolute bottom-[20%] right-[5%] w-40 sm:w-80 h-40 sm:h-80 bg-xf-primary/15 rounded-full blur-[50px] sm:blur-[100px] animate-float"></div>
@@ -26,8 +25,8 @@ export default function HeroSection() {
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="max-w-6xl mx-auto text-center">
           {/*
-           * LCP关键内容区域：不使用RevealOnScroll包装
-           * 确保标题、副标题、按钮立即可见
+           * LCP关键内容区域：服务端直接渲染
+           * 确保标题、副标题、按钮立即可见，无需等待JS加载
            */}
           <div className="hero-content">
             {/* 标签 */}
@@ -61,10 +60,10 @@ export default function HeroSection() {
           </div>
 
           {/*
-           * UI预览区域：非关键内容，使用reveal动画
+           * UI预览区域：非关键内容，使用客户端组件延迟加载
            * 不影响LCP，因为这不是 Largest Contentful Paint 的候选元素
            */}
-          <RevealOnScroll delay={100}>
+          <RevealOnScrollClient delay={100}>
             <div className="relative max-w-5xl mx-auto mt-8 sm:mt-12 px-2 sm:px-0">
               <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-white/50 bg-white/40 backdrop-blur-sm p-1.5 sm:p-2">
                 <div className="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/60 shadow-inner">
@@ -176,7 +175,7 @@ export default function HeroSection() {
               <div className="absolute -top-3 sm:-top-6 -right-3 sm:-right-6 w-16 sm:w-24 h-16 sm:h-24 bg-linear-to-br from-xf-soft to-xf-primary/30 rounded-full blur-lg sm:blur-xl opacity-60 animate-blob"></div>
               <div className="absolute -bottom-4 sm:-bottom-8 -left-4 sm:-left-8 w-20 sm:w-32 h-20 sm:h-32 bg-linear-to-tr from-xf-surface to-xf-accent/20 rounded-full blur-lg sm:blur-xl opacity-60 animate-blob" style={{ animationDelay: '2s' }}></div>
             </div>
-          </RevealOnScroll>
+          </RevealOnScrollClient>
         </div>
       </div>
     </section>

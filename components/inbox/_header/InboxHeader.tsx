@@ -1,39 +1,40 @@
 'use client'
 
 /**
- * 消息页头部组件
+ * 消息页头部组件 (Client Component)
  * @module components/inbox/_header/InboxHeader
- * @description 包含标题、未读数量、全部已读、批量删除等功能按钮
+ * @description 包含操作按钮：全部已读、批量删除等功能
+ * @优化说明 标题部分提取为InboxTitle Server Component
  */
 
-import { Bell, CheckCheck, Trash2, X, CheckSquare, Loader2 } from '@/components/icons'
+import { CheckCheck, Trash2, X, CheckSquare, Loader2 } from '@/components/icons'
+import { InboxTitle } from './InboxTitle'
 
 /**
  * 消息页头部组件属性接口
  * @interface InboxHeaderProps
- * @property {() => void} onMarkAllAsRead - 全部已读回调
- * @property {() => void} onBatchDelete - 批量删除回调
- * @property {boolean} isBatchMode - 是否处于批量模式
- * @property {() => void} onToggleBatchMode - 切换批量模式回调
- * @property {number} selectedCount - 选中的消息数量
- * @property {() => void} onCancelBatch - 取消批量模式回调
- * @property {number} unreadCount - 未读消息数量
- * @property {boolean} isValidating - 是否正在验证（后台更新中）
  */
 interface InboxHeaderProps {
+  /** 全部已读回调 */
   onMarkAllAsRead: () => void
+  /** 批量删除回调 */
   onBatchDelete?: () => void
+  /** 是否处于批量模式 */
   isBatchMode?: boolean
+  /** 切换批量模式回调 */
   onToggleBatchMode?: () => void
+  /** 选中的消息数量 */
   selectedCount?: number
+  /** 取消批量模式回调 */
   onCancelBatch?: () => void
+  /** 未读消息数量 */
   unreadCount?: number
+  /** 是否正在验证（后台更新中） */
   isValidating?: boolean
 }
 
 /**
  * 消息页头部组件
- * @description 包含标题、未读数量、全部已读、批量删除等功能按钮
  * @param {InboxHeaderProps} props - 组件属性
  * @returns {JSX.Element} 头部组件JSX
  */
@@ -44,15 +45,15 @@ export function InboxHeader({
   onToggleBatchMode,
   selectedCount = 0,
   onCancelBatch,
+  unreadCount = 0,
   isValidating = false,
 }: InboxHeaderProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div className="flex items-center gap-2 sm:gap-3">
-        <h1 className="text-xl sm:text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
-          <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-xf-primary" />
-          消息通知
-        </h1>
+        {/* Server Component 标题 */}
+        <InboxTitle unreadCount={unreadCount} />
+        
         {/* 后台更新指示器 */}
         {isValidating && (
           <span className="flex items-center gap-1 text-xs text-gray-400">

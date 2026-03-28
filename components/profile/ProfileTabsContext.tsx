@@ -11,7 +11,7 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 /**
  * 标签页类型
  */
-export type TabType = 'content' | 'domain'
+export type TabType = 'content' | 'thought'
 
 /**
  * Context值类型

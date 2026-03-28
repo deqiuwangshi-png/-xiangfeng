@@ -1,13 +1,12 @@
-'use client'
-
 /**
- * 特色功能区组件
+ * 特色功能区组件 (Server Component)
  * @module components/marketing/FeaturesSection
  * @description 响应式特色功能展示，移动端单列布局
+ * @优化说明 改为Server Component，动画部分使用客户端组件包裹
  */
 
 import { BookOpen, MessageCircle, Sprout } from 'lucide-react'
-import { RevealOnScroll } from './RevealOnScroll'
+import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
  * 功能特性数据
@@ -46,16 +45,16 @@ export default function FeaturesSection() {
     <section id="features" className="py-12 sm:py-24 bg-white relative">
       <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-xf-bg to-transparent"></div>
       <div className="container mx-auto px-4 sm:px-6">
-        <RevealOnScroll>
+        <RevealOnScrollClient>
           <div className="text-center mb-10 sm:mb-20 max-w-6xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-xf-dark mb-3 sm:mb-4">重新定义深度连接</h2>
             <p className="text-sm sm:text-lg text-xf-medium px-2 sm:px-0">相逢不仅是平台，更是思想碰撞与认知升级的催化剂</p>
           </div>
-        </RevealOnScroll>
+        </RevealOnScrollClient>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
-            <RevealOnScroll key={index} delay={(index + 1) * 100}>
+            <RevealOnScrollClient key={index} delay={(index + 1) * 100}>
               <div className="hover-card bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-100 shadow-soft group touch-manipulation">
                 <div className={`w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-xf-${feature.color}/10 flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-xf-${feature.color}/20 transition-colors`}>
                   <feature.icon className={`w-6 sm:w-7 h-6 sm:h-7 text-xf-${feature.color}`} />
@@ -68,7 +67,7 @@ export default function FeaturesSection() {
                   </span>
                 </div>
               </div>
-            </RevealOnScroll>
+            </RevealOnScrollClient>
           ))}
         </div>
       </div>

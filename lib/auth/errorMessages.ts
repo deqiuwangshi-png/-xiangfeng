@@ -50,6 +50,10 @@ export const REGISTER_ERRORS = {
   PASSWORD_MISMATCH: '两次输入的密码不一致',
   /** 未同意服务条款 */
   TERMS_NOT_ACCEPTED: '请阅读并同意服务条款',
+  /** 注册失败默认提示 */
+  DEFAULT_ERROR: '注册失败，请稍后重试',
+  /** 验证邮件发送失败 */
+  EMAIL_SEND_FAILED: '验证邮件发送失败，请检查邮箱地址是否正确或稍后重试',
 } as const;
 
 /**
@@ -63,7 +67,37 @@ export const RESET_PASSWORD_ERRORS = {
   /** 重置邮件已发送 */
   EMAIL_SENT: '重置密码邮件已发送，请检查邮箱',
   /** 密码重置成功 */
-  SUCCESS: '密码重置成功',
+  SUCCESS: '密码重置成功，请使用新密码登录',
+  /** 链接已过期（用户未登录） */
+  SESSION_EXPIRED: '链接已过期，请重新申请',
+  /** 尝试次数过多 */
+  RATE_LIMITED: '尝试次数过多，请1小时后再试',
+  /** 重置失败默认提示 */
+  DEFAULT_ERROR: '重置失败，请稍后重试',
+} as const;
+
+/**
+ * 修改密码相关错误消息（已登录用户）
+ */
+export const CHANGE_PASSWORD_ERRORS = {
+  /** 未登录或登录已过期 */
+  NOT_AUTHENTICATED: '未登录或登录已过期',
+  /** 尝试次数过多 */
+  RATE_LIMITED: '尝试次数过多，请15分钟后再试',
+  /** 密码修改成功 */
+  SUCCESS: '密码修改成功，请使用新密码重新登录',
+  /** 修改失败默认提示 */
+  DEFAULT_ERROR: '修改密码失败，请稍后重试',
+} as const;
+
+/**
+ * 登录历史相关错误消息
+ */
+export const LOGIN_HISTORY_ERRORS = {
+  /** 未登录 */
+  NOT_AUTHENTICATED: '未登录',
+  /** 获取登录历史失败 */
+  FETCH_ERROR: '获取登录历史失败',
 } as const;
 
 /**

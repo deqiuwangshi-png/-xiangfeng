@@ -137,13 +137,6 @@ export function LoginForm() {
         dismiss(toastId);
         showError(result.error || '登录失败');
         setIsLoading(false);
-
-        {/*
-          @安全修复 S-04: 消除用户名枚举暗示
-          - 登录失败时不自动聚焦到特定输入框
-          - 避免攻击者通过聚焦行为判断是邮箱错误还是密码错误
-          - 保持模糊的错误提示（"账号或密码错误"）
-        */}
         return;
       }
 
@@ -151,12 +144,6 @@ export function LoginForm() {
       const { resetRateLimit } = await import('@/lib/security/rateLimit');
       resetRateLimit(getClientId());
 
-      {/*
-        @安全修复 S-06: 二次 Session 验证
-        - 防止响应包篡改攻击（Burp Suite 等工具将 success: false 改为 true）
-        - 跳转前直接查询 Supabase 验证 Session 是否真实存在
-        - 即使前端响应被篡改，无有效 Session 也无法进入后台
-      */}
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -217,22 +204,6 @@ export function LoginForm() {
         <input type="hidden" name="redirectTo" value={redirectTo} />
 
         <div className="flex items-center justify-between text-sm">
-          {/*
-            @体验修复 U-01: 记住我功能
-            - 添加 name="rememberMe" 参与表单提交
-            - 使用 defaultChecked 保持状态
-            - 后端可根据此值调整会话过期时间
-          */}
-          <label className="flex items-center gap-2 text-xf-medium cursor-pointer">
-            <input
-              type="checkbox"
-              name="rememberMe"
-              className="custom-checkbox"
-              disabled={isLoading}
-              defaultChecked={false}
-            />
-            <span>记住我</span>
-          </label>
           <Link href="/forgot-password" className="text-xf-info hover:text-xf-accent transition font-medium">
             忘记密码?
           </Link>

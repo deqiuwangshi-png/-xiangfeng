@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { isAllowedEmail } from '@/lib/auth/utils'
+import { LOGIN_MESSAGES, REGISTER_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateEmailResult } from '@/types'
 
 export type { UpdateEmailResult } from '@/types'
@@ -29,7 +30,7 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 检查新邮箱是否与当前邮箱相同
@@ -39,7 +40,7 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
 
     // 验证邮箱域名白名单
     if (!isAllowedEmail(newEmail)) {
-      return { success: false, error: '暂不支持该邮箱，请使用 QQ邮箱(@qq.com)、Gmail(@gmail.com) 或 139邮箱(@139.com)' }
+      return { success: false, error: REGISTER_MESSAGES.EMAIL_NOT_ALLOWED }
     }
 
     // 检查新邮箱是否已被其他用户使用
@@ -51,11 +52,11 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
 
     if (checkError) {
       console.error('检查邮箱占用状态失败:', checkError)
-      return { success: false, error: '暂时无法验证邮箱可用性，请稍后重试' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     if (existingUser) {
-      return { success: false, error: '该邮箱已被其他账号使用' }
+      return { success: false, error: REGISTER_MESSAGES.EMAIL_ALREADY_REGISTERED }
     }
 
     // 调用 Supabase Auth 更新邮箱（会触发确认邮件）
@@ -83,7 +84,7 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
 
   } catch (error) {
     console.error('更换邮箱时出错:', error)
-    return { success: false, error: '更换邮箱失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 

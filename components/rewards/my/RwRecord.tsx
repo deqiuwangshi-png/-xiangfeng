@@ -3,116 +3,22 @@
 /**
  * 兑换记录组件
  * @module components/rewards/my/RwRecord
- * @description 显示用户的兑换记录，支持状态筛选和分页
+ * @description 显示用户的兑换记录，支持状态筛选和分页（使用 SWR 缓存优化）
  */
 
-import { useState, useMemo, useEffect } from 'react'
-import {
-  BookOpen,
-  Crown,
-  Coffee,
-  Sticker,
-  Calendar,
-  Gift,
-  ShoppingBag,
-  Film,
-  Music,
-  Smartphone,
-  CupSoda,
-  Palette,
-  Sparkles,
-  Zap,
-  type LucideIcon,
-} from '@/components/icons'
+import { useState, useMemo, useCallback } from 'react'
+import { Calendar, Gift } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-import { getExchangeRecords } from '@/lib/rewards/actions'
-import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
+import { useExchangeRecords } from '../hooks'
+import { mapExchangeToRecord } from './utils'
+import { statusConfig } from './constants'
+import type { ExchangeStatus } from '@/types/rewards'
 
 /**
  * 筛选类型
  * @type FilterType
  */
 type FilterType = 'all' | ExchangeStatus
-
-/**
- * 兑换记录展示项接口
- * @interface RwRecordItem
- */
-interface RwRecordItem {
-  id: string
-  name: string
-  points: number
-  status: ExchangeStatus
-  date: string
-  icon: LucideIcon
-  iconColor: string
-}
-
-/**
- * 图标映射配置
- * @constant iconMapping
- */
-const iconMapping: Record<string, { icon: LucideIcon; color: string }> = {
-  Coffee: { icon: Coffee, color: 'text-xf-primary' },
-  Film: { icon: Film, color: 'text-xf-accent' },
-  Music: { icon: Music, color: 'text-xf-accent' },
-  Crown: { icon: Crown, color: 'text-amber-600' },
-  ShoppingBag: { icon: ShoppingBag, color: 'text-xf-primary' },
-  Bookmark: { icon: BookOpen, color: 'text-xf-primary' },
-  Smartphone: { icon: Smartphone, color: 'text-xf-primary' },
-  CupSoda: { icon: CupSoda, color: 'text-xf-info' },
-  BookOpen: { icon: BookOpen, color: 'text-xf-accent' },
-  Palette: { icon: Palette, color: 'text-purple-600' },
-  Sparkles: { icon: Sparkles, color: 'text-rose-500' },
-  Gift: { icon: Gift, color: 'text-rose-500' },
-  Zap: { icon: Zap, color: 'text-amber-600' },
-  Sticker: { icon: Sticker, color: 'text-xf-primary' },
-}
-
-/**
- * 获取默认图标配置
- * @returns {Object} 默认图标和颜色
- */
-function getDefaultIcon() {
-  return { icon: Gift, color: 'text-xf-accent' }
-}
-
-/**
- * 将兑换记录转换为展示格式
- * @param {ExchangeRecordWithItem} record - 兑换记录
- * @returns {RwRecordItem} 展示用记录项
- */
-function mapExchangeToRecord(record: ExchangeRecordWithItem): RwRecordItem {
-  const iconName = record.item?.icon_name || 'Gift'
-  const iconColor = record.item?.icon_color || ''
-  const iconConfig = iconMapping[iconName] || getDefaultIcon()
-
-  return {
-    id: record.id,
-    name: record.item?.name || '未知商品',
-    points: record.points_spent,
-    status: record.status,
-    date: new Date(record.created_at).toISOString().split('T')[0],
-    icon: iconConfig.icon,
-    iconColor: iconColor || iconConfig.color,
-  }
-}
-
-/**
- * 状态配置
- * @constant statusConfig
- */
-const statusConfig: Record<
-  ExchangeStatus,
-  { label: string; bgColor: string; textColor: string }
-> = {
-  pending: { label: '待审核', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
-  processing: { label: '处理中', bgColor: 'bg-amber-100', textColor: 'text-amber-700' },
-  issued: { label: '已发放', bgColor: 'bg-green-100', textColor: 'text-green-700' },
-  used: { label: '已使用', bgColor: 'bg-blue-100', textColor: 'text-blue-700' },
-  expired: { label: '已过期', bgColor: 'bg-gray-100', textColor: 'text-gray-500' },
-  cancelled: { label: '已取消', bgColor: 'bg-red-100', textColor: 'text-red-700' },
-}
 
 /**
  * 筛选配置
@@ -136,32 +42,12 @@ const PAGE_SIZE = 5
  * @returns {JSX.Element} 兑换记录组件
  */
 export function RwRecord() {
-  const [records, setRecords] = useState<ExchangeRecordWithItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { records, isLoading } = useExchangeRecords({ limit: 50 })
   const [filter, setFilter] = useState<FilterType>('all')
   const [currentPage, setCurrentPage] = useState(1)
 
   /**
-   * 加载兑换记录（P1-3: 服务端已关联查询商品详情，无需二次请求）
-   */
-  useEffect(() => {
-    async function loadRecords() {
-      try {
-        setIsLoading(true)
-        const data = await getExchangeRecords({ limit: 50 })
-        setRecords(data)
-      } catch {
-        // 加载失败时保持空状态
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadRecords()
-  }, [])
-
-  /**
-   * 转换后的记录列表（P1-3: 直接使用服务端返回的商品详情）
+   * 转换后的记录列表（使用 useMemo 缓存）
    */
   const mappedRecords = useMemo(() => {
     return records.map(mapExchangeToRecord)
@@ -195,26 +81,26 @@ export function RwRecord() {
    * 处理筛选变化
    * @param {FilterType} newFilter - 新筛选条件
    */
-  const handleFilterChange = (newFilter: FilterType) => {
+  const handleFilterChange = useCallback((newFilter: FilterType) => {
     setFilter(newFilter)
     setCurrentPage(1)
-  }
+  }, [])
 
   /**
    * 处理页码变化
    * @param {number} page - 页码
    */
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
-  }
+  }, [])
 
   /**
-   * 加载中状态
+   * 加载中状态 - 使用 Array.from 替代展开运算符
    */
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
+        {Array.from({ length: PAGE_SIZE }, (_, i) => (
           <div
             key={i}
             className="flex items-center gap-3 p-3 bg-xf-light/80 rounded-xl border border-xf-bg/30 animate-pulse"
@@ -255,7 +141,7 @@ export function RwRecord() {
         {currentRecords.length > 0 ? (
           currentRecords.map((record) => {
             const Icon = record.icon
-            const status = statusConfig[record.status]
+            const status = statusConfig[record.status as ExchangeStatus]
 
             return (
               <div
@@ -282,7 +168,7 @@ export function RwRecord() {
                   <div className="flex items-center gap-3 mt-1">
                     <div className="flex items-center gap-1 text-xs text-xf-accent font-semibold">
                       <Gift className="w-3 h-3" />
-                      {record.points} 积分
+                      {record.points} 灵感币
                     </div>
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Calendar className="w-3 h-3" />

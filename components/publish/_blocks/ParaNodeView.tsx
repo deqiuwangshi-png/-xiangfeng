@@ -82,7 +82,7 @@ export function ParaNodeView(props: NodeViewProps) {
 
       {/* 段落内容 */}
       <div
-        className={`relative transition-all duration-200 ${
+        className={`relative ${
           selected ? 'bg-blue-50/30 rounded px-1 -mx-1' : ''
         }`}
       >

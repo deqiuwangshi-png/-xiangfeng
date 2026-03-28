@@ -31,7 +31,23 @@ const prodCspHeader = `
   form-action 'self';
 `.replace(/\s+/g, ' ').trim();
 
+/**
+ * Next.js 配置 - SEO与性能优化
+ * @description 全面优化网站性能和搜索引擎友好度
+ */
 const nextConfig: NextConfig = {
+  // 输出配置 - 静态导出优化
+  output: 'standalone',
+  
+  // 压缩配置
+  compress: true,
+  
+  //  poweredByHeader - 隐藏X-Powered-By头
+  poweredByHeader: false,
+  
+  // 生成Etags
+  generateEtags: true,
+  
   // Server Actions 配置
   experimental: {
     // 增加请求体大小限制到 10MB（用于文件上传）
@@ -39,10 +55,17 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '10mb',
     },
     // 优化包体积
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // 优化CSS
+    optimizeCss: true,
   },
+  
   // 禁用 React 实验性 draggable 功能，避免移动端指针事件错误
   reactStrictMode: true,
+  
+  /**
+   * 图片优化配置
+   */
   images: {
     // 图片优化配置
     remotePatterns: [
@@ -64,12 +87,60 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    // 图片格式优化
-    formats: ['image/webp', 'image/avif'],
-    // 设备尺寸断点
+    // 图片格式优化 - 优先WebP和AVIF
+    formats: ['image/avif', 'image/webp'],
+    // 设备尺寸断点 - 响应式图片
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // 图片尺寸
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 图片缓存时间
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30天
+    // 禁用静态导入图片的优化（用于SVG）
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  
+  /**
+   * 重写规则 - 优化URL结构
+   */
+  async rewrites() {
+    return [
+      {
+        source: '/sitemap.xml',
+        destination: '/sitemap',
+      },
+      {
+        source: '/robots.txt',
+        destination: '/robots',
+      },
+    ];
+  },
+  
+  /**
+   * 重定向规则 - SEO优化
+   */
+  async redirects() {
+    return [
+      // 强制HTTPS
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-forwarded-proto',
+            value: 'http',
+          },
+        ],
+        destination: 'https://www.xiangfeng.site/:path*',
+        permanent: true,
+      },
+      // 移除尾部斜杠
+      {
+        source: '/:path+/',
+        destination: '/:path+',
+        permanent: true,
+      },
+    ];
   },
   // 安全响应头配置 - 只在生产环境启用
   async headers() {

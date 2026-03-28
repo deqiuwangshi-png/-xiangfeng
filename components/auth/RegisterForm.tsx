@@ -42,11 +42,6 @@ export function RegisterForm() {
     submitForm();
   }
 
-  {/*
-    @修复 U-02: 成功状态只返回内容，不返回布局
-    - 页面已包含 BrandSection、MobileBrandTitle、FormCard
-    - 避免布局重复嵌套
-  */}
   if (isSuccess) {
     return (
       <div className="text-center py-8">

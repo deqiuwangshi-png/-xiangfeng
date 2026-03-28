@@ -1,16 +1,14 @@
-'use client';
-
 /**
- * ArticleHeader - 文章头部组件
+ * ArticleHeader - 文章头部组件 (Server Component)
  * @module components/article/ArticleHeader
  * @description 显示文章标题、作者、发布时间和浏览量
+ * @优化说明 改为Server Component，服务端直接渲染，减少客户端JS体积
  *
  * @安全特性
  * - 所有用户生成的内容（作者名）都经过 escapeHtml 转义
  * - 防止 XSS 攻击，确保恶意脚本不会被执行
  */
 
-import { useMemo } from 'react';
 import { escapeHtml } from '@/lib/utils/purify';
 import type { ArticleWithAuthor } from '@/types';
 
@@ -60,8 +58,8 @@ function formatPublishTime(dateStr: string): string {
  * @returns {JSX.Element} 文章头部
  */
 export default function ArticleHeader({ article }: ArticleHeaderProps) {
-  // 对作者名称进行 HTML 转义，防止 XSS
-  const safeAuthorName = useMemo(() => escapeHtml(article.author.name), [article.author.name]);
+  // 在服务端对作者名称进行 HTML 转义，防止 XSS
+  const safeAuthorName = escapeHtml(article.author.name);
 
   return (
     <div>

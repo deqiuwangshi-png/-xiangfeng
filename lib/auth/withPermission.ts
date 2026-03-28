@@ -10,6 +10,7 @@ import {
   requireOwnership,
   type WriteOperation,
 } from './permissions';
+import { COMMON_ERRORS } from '@/lib/messages';
 
 /**
  * Server Action 函数类型
@@ -63,7 +64,7 @@ export function withPermission<T extends unknown[], R>(
       console.error(`[权限保护] ${options.operation} 操作失败:`, error);
       return {
         success: false,
-        error: '操作失败，请稍后重试',
+        error: COMMON_ERRORS.UNKNOWN_ERROR,
       };
     }
   };
@@ -74,14 +75,6 @@ export function withPermission<T extends unknown[], R>(
  *
  * @param {ServerAction} action - 被保护的Server Action
  * @returns {ServerAction} 包装后的Server Action
- *
- * @example
- * export const createComment = withAuth(
- *   async (articleId: string, content: string) => {
- *     const user = await requireAuth();
-
- *   }
- * );
  */
 export function withAuth<T extends unknown[], R>(
   action: ServerAction<T, R>
@@ -106,14 +99,6 @@ export function withAuth<T extends unknown[], R>(
  * @param {Function} getResourceOwnerId - 从参数中提取资源所有者ID的函数
  * @param {ServerAction} action - 被保护的Server Action
  * @returns {ServerAction} 包装后的Server Action
- *
- * @example
- * export const deleteArticle = withOwnership(
- *   (articleId: string) => getArticleAuthorId(articleId),
- *   async (articleId: string) => {
- *
- *   }
- * );
  */
 export function withOwnership<T extends unknown[], R>(
   getResourceOwnerId: (...args: T) => string | Promise<string>,

@@ -66,7 +66,7 @@ export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'reward_claim
  * 商品分类
  * @type ShopItemCategory
  */
-export type ShopItemCategory = 'card' | 'merch' | 'physical' | 'lottery'
+export type ShopItemCategory = 'card' | 'merch' | 'physical' | 'lottery' | 'skin'
 
 /**
  * 兑换状态

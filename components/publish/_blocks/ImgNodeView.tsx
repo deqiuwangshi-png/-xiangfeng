@@ -2,21 +2,22 @@
 'use client'
 
 /**
- * 图片节点视图组件
+ * 图片节点视图组件 - 支持上传状态显示
  *
  * @module ImgNodeView
- * @description TipTap 图片节点的自定义视图，支持悬浮工具栏
+ * @description TipTap 图片节点的自定义视图，支持悬浮工具栏和上传状态
  *
  * 功能：
  * - 自定义图片渲染
  * - 悬浮显示对齐工具栏
  * - 支持点击选中
  * - 图片加载错误处理
+ * - 上传中状态显示（针对 Blob URL）
  */
 
 import { useState, useCallback, useMemo } from 'react'
 import { NodeViewWrapper, NodeViewProps } from '@tiptap/react'
-import { Trash2, ImageOff } from '@/components/icons'
+import { Trash2, ImageOff, Loader2 } from '@/components/icons'
 
 /**
  * 图片节点视图
@@ -26,9 +27,12 @@ import { Trash2, ImageOff } from '@/components/icons'
  */
 export function ImgNodeView(props: NodeViewProps) {
   const { node, deleteNode, selected } = props
-  const { src, alt, title } = node.attrs
+  const { src, alt, title, 'data-uploading': isUploading } = node.attrs
   const [loadError, setLoadError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  // 判断是否为 Blob URL（本地预览）
+  const isBlobUrl = useMemo(() => src?.startsWith('blob:'), [src])
 
   // 缓存事件处理函数
   const handleLoad = useCallback(() => setIsLoading(false), [])
@@ -64,8 +68,17 @@ export function ImgNodeView(props: NodeViewProps) {
         </button>
       </div>
 
-      {/* 加载中状态 */}
-      {isLoading && !loadError && (
+      {/* 上传中状态 - 针对 Blob URL */}
+      {isUploading === 'true' && isBlobUrl && (
+        <div className="flex flex-col items-center justify-center py-12 bg-xf-bg/50 rounded-lg border-2 border-dashed border-xf-primary/30">
+          <Loader2 className="w-8 h-8 text-xf-primary animate-spin mb-3" />
+          <span className="text-sm text-xf-medium">正在上传图片...</span>
+          <span className="text-xs text-xf-light mt-1">请稍候，上传完成后自动替换</span>
+        </div>
+      )}
+
+      {/* 加载中状态 - 非上传中的正常加载 */}
+      {isLoading && !loadError && isUploading !== 'true' && (
         <div className="flex items-center justify-center py-8 bg-xf-bg/50 rounded-lg">
           <div className="w-6 h-6 border-2 border-xf-primary/30 border-t-xf-primary rounded-full animate-spin" />
           <span className="ml-2 text-sm text-xf-medium">图片加载中...</span>
@@ -87,7 +100,7 @@ export function ImgNodeView(props: NodeViewProps) {
         alt={alt || ''}
         className={`editor-image max-w-full h-auto rounded-lg shadow-sm transition-opacity duration-300 block ${
           selected ? 'ring-2 ring-xf-primary ring-offset-2' : ''
-        } ${isLoading || loadError ? 'hidden' : 'block'}`}
+        } ${isLoading || loadError || isUploading === 'true' ? 'hidden' : 'block'}`}
         onLoad={handleLoad}
         onError={handleError}
       />

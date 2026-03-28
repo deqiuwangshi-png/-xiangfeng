@@ -10,6 +10,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { logout as logoutAction } from '@/lib/auth/actions/logout'
 import { sanitizeRedirect } from '@/lib/auth/redir'
 import type { LogoutResult, UseLogoutOptions, UseLogoutReturn } from '@/types'
@@ -26,24 +27,11 @@ const DEFAULT_REDIRECT = '/login'
  * @param {UseLogoutOptions} [options={}] - 配置选项
  * @returns {UseLogoutReturn} 退出状态和执行函数
  *
- * @example
- * // 基础用法（退出后跳转到 /login）
- * const { isLoggingOut, handleLogout } = useLogout()
- *
- * @example
- * // 自定义跳转路径
- * const { isLoggingOut, handleLogout } = useLogout({ redirectTo: '/home' })
- *
- * @example
- * // 使用回调
- * const { isLoggingOut, handleLogout } = useLogout({
- *   onSuccess: () => console.log('退出成功'),
- *   onError: (err) => console.error('退出失败', err)
- * })
  */
 export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
   const { redirectTo = DEFAULT_REDIRECT, onSuccess, onError } = options
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const router = useRouter()
 
   /**
    * 执行退出登录
@@ -64,8 +52,9 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
         onSuccess?.()
         // 安全边界：清洗重定向路径，防止开放重定向
         const safeRedirect = sanitizeRedirect(redirectTo, DEFAULT_REDIRECT)
-        // 强制刷新页面以确保中间件重新检查会话
-        window.location.href = safeRedirect
+        // 使用 Next.js router 进行导航，然后刷新页面以确保中间件重新检查会话
+        router.push(safeRedirect)
+        router.refresh()
       } else {
         onError?.(result.error || '退出失败')
       }
@@ -75,7 +64,7 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
     } finally {
       setIsLoggingOut(false)
     }
-  }, [isLoggingOut, redirectTo, onSuccess, onError])
+  }, [isLoggingOut, onSuccess, redirectTo, router, onError])
 
   /**
    * 执行退出登录（支持自定义跳转路径）
@@ -100,7 +89,9 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
           // 安全边界：清洗重定向路径，防止开放重定向
           const targetRedirect = customRedirect || redirectTo
           const safeRedirect = sanitizeRedirect(targetRedirect, DEFAULT_REDIRECT)
-          window.location.href = safeRedirect
+          // 使用 Next.js router 进行导航，然后刷新页面以确保中间件重新检查会话
+          router.push(safeRedirect)
+          router.refresh()
         } else {
           onError?.(result.error || '退出失败')
         }
@@ -114,7 +105,7 @@ export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
         setIsLoggingOut(false)
       }
     },
-    [isLoggingOut, redirectTo, onSuccess, onError]
+    [isLoggingOut, onSuccess, redirectTo, router, onError]
   )
 
   return {

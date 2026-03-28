@@ -25,10 +25,10 @@ import { Suspense } from 'react'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
-import { ProfileDomain } from '@/components/profile/ProfileDomain'
 import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
+import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
 import { getCurrentUser } from '@/lib/supabase/user'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -111,9 +111,11 @@ export default async function ProfilePage() {
             </Suspense>
           </ProfileTabContent>
 
-          {/* 领域贡献区域 - 条件渲染 */}
-          <ProfileTabContent tab="domain">
-            <ProfileDomain />
+          {/* 思想轨迹区域 - 灵感热力图 */}
+          <ProfileTabContent tab="thought">
+            <Suspense fallback={<HeatMapSkeleton />}>
+              <HeatMap />
+            </Suspense>
           </ProfileTabContent>
         </ProfileTabsProvider>
       </div>

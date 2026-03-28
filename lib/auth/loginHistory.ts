@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { LOGIN_HISTORY_MESSAGES } from '@/lib/messages'
 import type { LoginHistoryItem, GetLoginHistoryResult } from '@/types'
 
 export type { LoginHistoryItem, GetLoginHistoryResult } from '@/types'
@@ -27,7 +28,7 @@ export async function getLoginHistory(): Promise<GetLoginHistoryResult> {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录' }
+      return { success: false, error: LOGIN_HISTORY_MESSAGES.NOT_AUTHENTICATED }
     }
 
     {/* 查询登录历史 */}
@@ -41,7 +42,7 @@ export async function getLoginHistory(): Promise<GetLoginHistoryResult> {
 
     if (error) {
       console.error('获取登录历史失败:', error)
-      return { success: false, error: '获取登录历史失败' }
+      return { success: false, error: LOGIN_HISTORY_MESSAGES.FETCH_ERROR }
     }
 
     return {
@@ -50,7 +51,7 @@ export async function getLoginHistory(): Promise<GetLoginHistoryResult> {
     }
   } catch (error) {
     console.error('获取登录历史出错:', error)
-    return { success: false, error: '获取登录历史失败' }
+    return { success: false, error: LOGIN_HISTORY_MESSAGES.FETCH_ERROR }
   }
 }
 

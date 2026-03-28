@@ -8,6 +8,7 @@
 
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { LOGIN_MESSAGES, COMMON_ERRORS, SUCCESS_MESSAGES } from '@/lib/messages'
 import type {
   OAuthProvider,
   GetLinkedAccountsResult,
@@ -51,7 +52,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 从数据库查询已关联的账号
@@ -63,7 +64,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
 
     if (queryError) {
       console.error('查询关联账号失败:', queryError)
-      return { success: false, error: '获取关联账号失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     // 同时从 Supabase Auth 获取 identities（作为备用）
@@ -109,7 +110,7 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
     return { success: true, accounts }
   } catch (err) {
     console.error('获取关联账号时出错:', err)
-    return { success: false, error: '获取关联账号失败，请稍后重试' }
+    return { success: false, error: COMMON_ERRORS.DEFAULT }
   }
 }
 
@@ -141,7 +142,7 @@ export async function linkAccount(
   if (!config || !config.enabled) {
     return {
       success: false,
-      error: `${config?.name || provider} 绑定暂未开通`,
+      error: LOGIN_MESSAGES.OAUTH_NOT_ENABLED.replace('{provider}', config?.name || provider),
     }
   }
 
@@ -155,7 +156,7 @@ export async function linkAccount(
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 检查是否已绑定
@@ -169,7 +170,7 @@ export async function linkAccount(
 
     if (checkError) {
       console.error('检查绑定状态失败:', checkError)
-      return { success: false, error: '检查绑定状态失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     if (existingIdentity) {
@@ -192,14 +193,14 @@ export async function linkAccount(
       console.error('绑定账号失败:', error)
       return {
         success: false,
-        error: '绑定请求失败，请稍后重试',
+        error: LOGIN_MESSAGES.OAUTH_ERROR,
       }
     }
 
     if (!data?.url) {
       return {
         success: false,
-        error: '获取授权链接失败',
+        error: LOGIN_MESSAGES.OAUTH_URL_ERROR,
       }
     }
 
@@ -211,7 +212,7 @@ export async function linkAccount(
     console.error('绑定账号时出错:', err)
     return {
       success: false,
-      error: '系统错误，请稍后重试',
+      error: COMMON_ERRORS.UNKNOWN_ERROR,
     }
   }
 }
@@ -243,7 +244,7 @@ export async function unlinkAccount(
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return { success: false, error: '未登录或登录已过期' }
+      return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
     // 从 Supabase Auth 获取 identities（作为权威来源）
@@ -252,7 +253,7 @@ export async function unlinkAccount(
 
     if (authIdentitiesError) {
       console.error('获取 Auth identities 失败:', authIdentitiesError)
-      return { success: false, error: '获取身份信息失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     // 查找要解绑的 Auth identity
@@ -271,7 +272,7 @@ export async function unlinkAccount(
 
     if (queryError) {
       console.error('查询身份失败:', queryError)
-      return { success: false, error: '查询绑定信息失败' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     // 如果 Auth 和数据库中都没有，说明未绑定
@@ -295,7 +296,7 @@ export async function unlinkAccount(
     const identityId = authIdentity?.id || dbIdentity?.provider_user_id
 
     if (!identityId) {
-      return { success: false, error: '无法获取身份信息' }
+      return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
     // 方式1：使用Supabase unlinkIdentity（推荐）
@@ -330,13 +331,13 @@ export async function unlinkAccount(
 
     return {
       success: true,
-      message: '解绑成功',
+      message: SUCCESS_MESSAGES.DEFAULT,
     }
   } catch (err) {
     console.error('解绑账号时出错:', err)
     return {
       success: false,
-      error: '系统错误，请稍后重试',
+      error: COMMON_ERRORS.UNKNOWN_ERROR,
     }
   }
 }

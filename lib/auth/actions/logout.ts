@@ -13,6 +13,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { LOGOUT_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from './types';
 
 /**
@@ -43,6 +44,6 @@ export async function logout(): Promise<AuthResult> {
     return { success: true };
   } catch (err) {
     console.error('退出登录失败:', err);
-    return { success: false, error: '退出失败' };
+    return { success: false, error: LOGOUT_MESSAGES.DEFAULT_ERROR };
   }
 }
