@@ -8,7 +8,7 @@
 
 import useSWR from 'swr'
 import { useCallback, useState } from 'react'
-import { getShopItems, exchangeItem } from '@/lib/rewards/actions/shop'
+import { getShopItems, exchangeItem } from '@/lib/rewards/shop'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 
 /**

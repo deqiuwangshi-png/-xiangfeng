@@ -13,7 +13,7 @@ import {
   performSignIn,
   getSignInRewardsConfig,
   getSignInNonce,
-} from '@/lib/rewards/actions/signin'
+} from '@/lib/rewards/signin'
 import type { SignInResponse } from '@/types/rewards'
 
 /**

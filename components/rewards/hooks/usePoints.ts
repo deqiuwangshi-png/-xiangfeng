@@ -11,7 +11,7 @@ import { useState, useCallback, useEffect } from 'react'
 import {
   getUserPointsOverview,
   getPointTransactions,
-} from '@/lib/rewards/actions/points'
+} from '@/lib/rewards/points'
 import type { UserPointsOverview, PointTransaction } from '@/types/rewards'
 
 /**

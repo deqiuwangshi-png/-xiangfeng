@@ -10,7 +10,7 @@ import { useState, useCallback } from 'react'
 import { Loader2, Wallet } from '@/components/icons'
 import type { PtRwProps } from '@/types'
 import { usePoints } from '@/components/rewards/hooks'
-import { rewardArticle, getRewardNonce } from '@/lib/rewards/actions'
+import { rewardArticle, getRewardNonce } from '@/lib/rewards'
 import { useArticleToast } from '@/hooks/useArticleToast'
 
 /**

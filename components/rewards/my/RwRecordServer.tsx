@@ -1,5 +1,5 @@
 import { Gift, Calendar } from '@/components/icons'
-import { getExchangeRecords } from '@/lib/rewards/actions/shop'
+import { getExchangeRecords } from '@/lib/rewards/shop'
 import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
 
 /**

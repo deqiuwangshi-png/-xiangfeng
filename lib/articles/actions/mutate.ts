@@ -20,7 +20,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { ensureUserProfile } from '../helpers/profile';
-import { checkPublishArticleTask } from '@/lib/rewards/actions/tasks';
+import { checkPublishArticleTask } from '@/lib/rewards/tasks';
 import { CreateArticleSchema, ArticleIdSchema } from '../schema';
 import { verifyArticleOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';

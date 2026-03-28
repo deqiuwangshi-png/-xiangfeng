@@ -18,7 +18,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
 import { getArticleCommentsPaginated } from '../queries/comment';
-import { checkCommentArticleTask } from '@/lib/rewards/actions/tasks';
+import { checkCommentArticleTask } from '@/lib/rewards/tasks';
 import { CommentSchema, CommentIdSchema } from '../schema';
 import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';

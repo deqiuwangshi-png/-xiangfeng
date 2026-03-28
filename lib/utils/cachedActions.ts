@@ -5,8 +5,8 @@
  */
 
 import { cache } from 'react'
-import { getShopItems as originalGetShopItems } from '@/lib/rewards/actions/shop'
-import { getUserPointsOverview as originalGetUserPointsOverview } from '@/lib/rewards/actions/points'
+import { getShopItems as originalGetShopItems } from '@/lib/rewards/shop'
+import { getUserPointsOverview as originalGetUserPointsOverview } from '@/lib/rewards/points'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 import type { UserPointsOverview } from '@/types/rewards'
 

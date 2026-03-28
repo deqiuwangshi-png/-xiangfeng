@@ -8,7 +8,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import type { ReadingProgressProps } from '@/types';
-import { checkReadArticleTask } from '@/lib/rewards/actions/tasks';
+import { checkReadArticleTask } from '@/lib/rewards/tasks';
 
 /**
  * 阅读进度组件
