@@ -30,25 +30,27 @@ function formatPublishTime(dateStr: string): string {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  const hours = date.getHours();
+  const hours24 = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, '0');
 
   // 判断时间段
   let period = '';
-  const h = date.getHours();
-  if (h >= 0 && h < 6) {
+  if (hours24 >= 0 && hours24 < 6) {
     period = '凌晨';
-  } else if (h >= 6 && h < 12) {
+  } else if (hours24 >= 6 && hours24 < 12) {
     period = '上午';
-  } else if (h >= 12 && h < 14) {
+  } else if (hours24 >= 12 && hours24 < 14) {
     period = '中午';
-  } else if (h >= 14 && h < 18) {
+  } else if (hours24 >= 14 && hours24 < 18) {
     period = '下午';
   } else {
     period = '晚上';
   }
 
-  return `${year}.${month}.${day} ${period}${hours}：${minutes}分`;
+  // 转换为12小时制显示
+  const hours12 = hours24 > 12 ? hours24 - 12 : hours24;
+
+  return `${year}.${month}.${day} ${period}${hours12}:${minutes}`;
 }
 
 /**

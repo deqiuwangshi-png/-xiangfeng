@@ -25,7 +25,7 @@ export default function ArticleContent({ content }: ArticleContentProps) {
 
   return (
     <div
-      className="reading-mode"
+      className="article-content article-content-reader"
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

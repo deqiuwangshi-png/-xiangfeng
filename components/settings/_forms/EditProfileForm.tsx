@@ -98,6 +98,11 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
         await deleteOldAvatar(tempAvatarUrl)
       }
 
+      // 标记原始头像为待删除（如果是第一次上传新头像）
+      if (originalAvatarUrl.current && !pendingDeleteUrl.current) {
+        pendingDeleteUrl.current = originalAvatarUrl.current
+      }
+
       // 上传新头像到Storage（临时）
       const newAvatarUrl = await uploadAvatar(file, initialData.id)
 
@@ -165,7 +170,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
    * 处理表单提交
    * 保存时才将临时头像写入数据库
    */
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
@@ -186,9 +191,9 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
       const result = await updateProfile(params)
 
       if (result.success) {
-        // 保存成功后，删除旧头像
+        // 保存成功后，异步删除旧头像（不阻塞用户反馈）
         if (pendingDeleteUrl.current) {
-          await deleteOldAvatar(pendingDeleteUrl.current)
+          deleteOldAvatar(pendingDeleteUrl.current).catch(console.error)
           pendingDeleteUrl.current = null
         }
 

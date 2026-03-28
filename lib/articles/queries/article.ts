@@ -91,7 +91,7 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
       avatar: data.author?.avatar_url || undefined,
       bio: data.author?.bio || undefined,
     },
-    publishedAt: data.created_at,
+    publishedAt: data.published_at || data.created_at,
     readTime: Math.ceil(data.content.length / 500),
     likesCount: data.like_count || 0,
     commentsCount: data.comment_count || 0,

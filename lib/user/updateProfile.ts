@@ -75,7 +75,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     // 将 domain 字符串转换为 PostgreSQL 数组格式
     const domainArray = stringToPostgresArray(safeParams.domain)
 
-    // 1. 更新 profiles 表（使用验证后的安全数据）
+    // 1. 更新 profiles 表（使用验证后的安全数据）- 关键路径，必须成功
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
@@ -95,26 +95,31 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
       return { success: false, error: PROFILE_MESSAGES.UPDATE_ERROR }
     }
 
-    // 2. 更新 user_metadata（用于 Sidebar 等组件，使用安全数据）
-    const { error: metadataError } = await supabase.auth.updateUser({
-      data: {
-        username: safeParams.username,
-        bio: safeParams.bio,
-        location: safeParams.location,
-        avatar_url: safeParams.avatar_url,
-        domain: safeParams.domain,
+    // 2. 并行执行非关键操作（不阻塞主流程）
+    // 这些操作失败不影响核心功能
+    Promise.allSettled([
+      // 更新 user_metadata（用于 Sidebar 等组件）
+      supabase.auth.updateUser({
+        data: {
+          username: safeParams.username,
+          bio: safeParams.bio,
+          location: safeParams.location,
+          avatar_url: safeParams.avatar_url,
+          domain: safeParams.domain,
+        }
+      }),
+      // 刷新相关页面缓存
+      Promise.resolve().then(() => {
+        revalidatePath('/profile')
+        revalidatePath('/settings')
+        revalidatePath('/home')
+      })
+    ]).then((results) => {
+      const [metadataResult] = results
+      if (metadataResult.status === 'rejected') {
+        console.error('更新 user_metadata 失败:', metadataResult.reason)
       }
-    })
-
-    if (metadataError) {
-      console.error('更新 user_metadata 失败:', metadataError)
-      // 不影响主流程，因为 profiles 表已更新成功
-    }
-
-    // 3. 刷新相关页面缓存
-    revalidatePath('/profile')
-    revalidatePath('/settings')
-    revalidatePath('/home')
+    }).catch(console.error)
 
     return {
       success: true,

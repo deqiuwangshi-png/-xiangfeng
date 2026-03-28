@@ -215,7 +215,7 @@ export function ArticlePaywall({
     <div className="relative">
       {/* 预览内容 */}
       <article
-        className="reading-mode"
+        className="article-content article-content-reader"
         dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
       />
 

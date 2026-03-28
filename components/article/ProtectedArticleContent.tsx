@@ -68,7 +68,7 @@ export function ProtectedArticleContent({
   return (
     <div
       ref={contentRef}
-      className="reading-mode content-protection"
+      className="article-content article-content-reader content-protection"
       data-protection-enabled={protectionEnabled}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />

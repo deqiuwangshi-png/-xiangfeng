@@ -19,6 +19,8 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Paragraph from '@tiptap/extension-paragraph'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
+import { TextStyle } from '@tiptap/extension-text-style'
+import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
 import type { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
@@ -48,27 +50,8 @@ interface UseTipTapEditorOptions {
 
 
 /**
- * TipTap 编辑器 Hook
- *
- * 优化特性：
- * - 延迟初始化避免 SSR 水合错误
- * - 使用 useMemo 缓存编辑器配置
- * - 优化扩展配置，只启用必要功能
- * - 避免扩展重复注册
- * - 延迟挂载减少首屏阻塞
- * - 图片粘贴即时反馈（Blob 预览 + 后台上传）
- *
  * @param options - 编辑器选项
  * @returns 编辑器实例和挂载状态
- *
- * @example
- * ```typescript
- * const { editor, isMounted } = useTipTapEditor({
- *   content: '<p>Hello</p>',
- *   onChange: (html) => console.log(html),
- *   placeholder: '开始书写...'
- * })
- * ```
  */
 export function useTipTapEditor({
   content,
@@ -190,6 +173,10 @@ export function useTipTapEditor({
           showOnlyWhenEditable: true,
           showOnlyCurrent: true,
         }),
+        TextStyle,
+        Color.configure({
+          types: ['textStyle'],
+        }),
       ],
       content,
       editable: true,
@@ -199,7 +186,7 @@ export function useTipTapEditor({
       },
       editorProps: {
         attributes: {
-          class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] leading-relaxed',
+          class: 'article-content article-content-editor max-w-none focus:outline-none',
         },
         /**
          * 处理粘贴事件 - 支持粘贴上传图片（即时反馈版）
