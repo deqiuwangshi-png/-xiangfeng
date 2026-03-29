@@ -20,7 +20,7 @@ import type {
   GetLinkedAccountsResult,
   LinkAccountResult,
   LinkedAccountItem,
-} from '@/types/settings'
+} from '@/types/user/settings'
 
 /**
  * 支持的OAuth提供商配置

@@ -9,7 +9,7 @@ import {
   linkAccount,
   unlinkAccount,
 } from '@/lib/settings/actions/linkedAccounts'
-import type { OAuthProvider, LinkedAccountItem } from '@/types/settings'
+import type { OAuthProvider, LinkedAccountItem } from '@/types/user/settings'
 
 /**
  * 管理关联账号表单组件

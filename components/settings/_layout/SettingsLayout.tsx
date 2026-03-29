@@ -9,7 +9,7 @@ import { NotificationsSection } from '../sections/NotificationsSection'
 import { AppearanceSection } from '../sections/AppearanceSection'
 import { ContentSection } from '../content/ContentSection'
 import { AdvancedSection } from '../sections/AdvancedSection'
-import { UserData, UserSettings } from '@/types/settings'
+import { UserData, UserSettings } from '@/types/user/settings'
 
 /**
  * 设置页面上下文

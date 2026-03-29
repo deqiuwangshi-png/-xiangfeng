@@ -13,13 +13,13 @@ types/
 │   ├── comment.ts      # 评论类型
 │   ├── actions.ts      # 操作返回类型
 │   └── components.ts   # 组件 Props 类型
-├── auth.ts             # 认证相关类型定义
+├── auth/               # 认证相关类型定义目录
+│   ├── auth.ts         # 基础认证类型（登录、注册、密码等）
+│   ├── oauth.ts        # OAuth 第三方认证类型
+│   └── permissions.ts  # 权限相关类型
 ├── drafts.ts           # 草稿相关类型定义
-├── feedback.ts         # 反馈相关类型定义
-├── loginHistory.ts     # 登录历史类型定义
 ├── media.ts            # 媒体相关类型定义
 ├── notification.ts     # 通知相关类型定义
-├── permissions.ts      # 权限相关类型定义
 ├── rewards/            # 福利中心类型定义目录
 │   ├── index.ts        # 统一出口
 │   ├── common.ts       # 枚举和通用类型
@@ -29,10 +29,13 @@ types/
 │   ├── levels.ts       # 等级系统类型
 │   ├── shop.ts         # 商城系统类型
 │   └── views.ts        # 视图/前端展示类型
-├── settings.ts         # 设置相关类型定义
 ├── supabase.ts         # Supabase 数据库类型
-├── updates.ts          # 更新日志类型定义
-└── user.ts             # 用户相关类型定义
+└── user/               # 用户相关类型定义目录
+    ├── user.ts         # 用户基础类型
+    ├── settings.ts     # 用户设置类型
+    ├── feedback.ts     # 用户反馈类型
+    ├── loginHistory.ts # 登录历史类型
+    └── updates.ts      # 更新日志类型
 ```
 
 ## 概述
@@ -41,9 +44,19 @@ types/
 
 ## 类型模块说明
 
-### 1. 认证模块 (auth.ts)
+### 1. 认证模块 (auth/)
 
-定义用户认证相关的类型，包括登录、注册、密码验证等。
+定义用户认证相关的类型，包括登录、注册、密码验证、OAuth 第三方认证和权限管理等。按功能拆分为多个子模块，便于维护。
+
+**目录结构：**
+
+| 文件名 | 说明 | 包含类型 |
+|--------|------|----------|
+| `auth.ts` | 基础认证类型 | `AuthResult`, `LoginFormData`, `RegisterFormData`, `LoginResult`, `LogoutResult` 等 |
+| `oauth.ts` | OAuth 第三方认证类型 | `OAuthProvider`, `OAuthLoginResult`, `OAuthButtonsProps`, `LinkedAccountItem` 等 |
+| `permissions.ts` | 权限相关类型 | `UserRole`, `Permission`, `PermissionCheckResult` 等 |
+
+#### 1.1 基础认证类型 (auth.ts)
 
 **核心类型：**
 
@@ -63,10 +76,45 @@ types/
 | `DeactivateAccountResult` | 停用账户结果 | 账户停用操作 |
 | `RateLimitResult` | 限流结果 | 限流检查返回 |
 
+#### 1.2 OAuth 第三方认证类型 (oauth.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `OAuthProvider` | OAuth 提供商类型 | 'github' \| 'google' |
+| `OAuthProviderConfig` | 提供商配置 | 名称、启用状态、图标等 |
+| `OAuthLoginResult` | OAuth 登录结果 | 第三方登录操作返回 |
+| `OAuthCallbackParams` | OAuth 回调参数 | 回调 URL 参数 |
+| `OAuthCallbackResult` | OAuth 回调结果 | 回调处理返回 |
+| `OAuthButtonsProps` | OAuth 按钮组件属性 | 登录按钮组组件 |
+| `LinkedAccountItem` | 关联账号项 | 已绑定的第三方账号 |
+| `GetLinkedAccountsResult` | 获取关联账号结果 | 账号列表查询 |
+| `LinkAccountResult` | 绑定/解绑账号结果 | 账号绑定操作返回 |
+
+#### 1.3 权限类型 (permissions.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `UserRole` | 用户角色 | 'user' \| 'admin' \| 'moderator' |
+| `Permission` | 权限项 | 具体权限字符串 |
+| `WriteOperation` | 写操作类型 | 'create' \| 'update' \| 'delete' |
+| `PermissionCheckResult` | 权限检查结果 | 权限验证返回 |
+
 **使用示例：**
 
 ```typescript
+// 从统一入口导入（推荐）
 import type { LoginFormData, LoginResult } from '@/types';
+import type { OAuthProvider, OAuthLoginResult } from '@/types';
+import type { UserRole, PermissionCheckResult } from '@/types';
+
+// 或按需从子模块导入
+import type { LoginFormData, LoginResult } from '@/types/auth/auth';
+import type { OAuthProvider, OAuthButtonsProps } from '@/types/auth/oauth';
+import type { UserRole, Permission } from '@/types/auth/permissions';
 
 async function handleLogin(data: LoginFormData): Promise<LoginResult> {
   // 登录逻辑
@@ -148,9 +196,21 @@ const article: ArticleWithAuthor = {
 };
 ```
 
-### 3. 用户模块 (user.ts)
+### 3. 用户模块 (user/)
 
-定义用户资料、统计数据等相关类型。
+定义用户资料、统计数据、设置、反馈、登录历史等相关类型。按功能拆分为多个子模块，便于维护。
+
+**目录结构：**
+
+| 文件名 | 说明 | 包含类型 |
+|--------|------|----------|
+| `user.ts` | 用户基础类型 | `User`, `UserProfile`, `UserStats`, `FollowResult` 等 |
+| `settings.ts` | 用户设置类型 | `UserSettings`, `NotificationSettings`, `PrivacySettings` 等 |
+| `feedback.ts` | 用户反馈类型 | `Feedback`, `FAQ`, `SubmitFeedbackResult` 等 |
+| `loginHistory.ts` | 登录历史类型 | `LoginHistoryItem`, `GetLoginHistoryResult` 等 |
+| `updates.ts` | 更新日志类型 | `UpdateItem`, `VersionInfo` 等 |
+
+#### 3.1 用户基础类型 (user.ts)
 
 **核心类型：**
 
@@ -169,10 +229,66 @@ const article: ArticleWithAuthor = {
 | `CheckFollowResult` | 检查关注结果 | 关注状态查询 |
 | `GetFollowStatsResult` | 获取关注统计 | 粉丝数、关注数 |
 
+#### 3.2 用户设置类型 (settings.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `UserSettings` | 用户设置 | 所有设置项 |
+| `NotificationSettings` | 通知设置 | 通知偏好 |
+| `PrivacySettings` | 隐私设置 | 隐私选项 |
+| `ThemeSettings` | 主题设置 | 外观主题 |
+| `LanguageSettings` | 语言设置 | 语言偏好 |
+| `UpdateSettingsResult` | 更新设置结果 | 设置保存返回 |
+| `SettingCategory` | 设置分类 | 设置页面标签 |
+
+#### 3.3 用户反馈类型 (feedback.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `Feedback` | 反馈数据 | 用户反馈结构 |
+| `FeedbackStatus` | 反馈状态 | 'pending' \| 'processing' \| 'resolved' |
+| `FeedbackType` | 反馈类型 | 'bug' \| 'feature' \| 'other' |
+| `SubmitFeedbackResult` | 提交反馈结果 | 提交操作返回 |
+| `FAQ` | FAQ 数据 | 常见问题 |
+| `FAQCategory` | FAQ 分类 | 问题分类 |
+
+#### 3.4 登录历史类型 (loginHistory.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `LoginHistoryItem` | 登录历史项 | 登录记录结构 |
+| `LoginType` | 登录类型 | 登录方式 |
+| `GetLoginHistoryResult` | 获取历史结果 | 历史记录查询 |
+
+#### 3.5 更新日志类型 (updates.ts)
+
+**核心类型：**
+
+| 类型名 | 描述 | 用途 |
+|--------|------|------|
+| `UpdateItem` | 更新项 | 版本更新信息 |
+| `UpdateType` | 更新类型 | 'feature' \| 'fix' \| 'improvement' |
+| `VersionInfo` | 版本信息 | 版本详情 |
+| `VersionType` | 版本类型 | 版本分类 |
+
 **使用示例：**
 
 ```typescript
+// 从统一入口导入（推荐）
 import type { UserProfile, UserStats } from '@/types';
+import type { UserSettings, NotificationSettings } from '@/types';
+import type { Feedback, FAQ } from '@/types';
+
+// 或按需从子模块导入
+import type { UserProfile, UserStats } from '@/types/user/user';
+import type { UserSettings } from '@/types/user/settings';
+import type { Feedback } from '@/types/user/feedback';
 
 interface ProfilePageProps {
   profile: UserProfile;
@@ -208,40 +324,7 @@ async function saveDraft(data: CreateDraftData): Promise<CreateDraftResult> {
 }
 ```
 
-### 5. 反馈模块 (feedback.ts)
-
-定义用户反馈、FAQ 等相关类型。
-
-**核心类型：**
-
-| 类型名 | 描述 | 用途 |
-|--------|------|------|
-| `Feedback` | 反馈数据 | 用户反馈结构 |
-| `FeedbackStatus` | 反馈状态 | 'pending' \| 'processing' \| 'resolved' |
-| `FeedbackType` | 反馈类型 | 'bug' \| 'feature' \| 'other' |
-| `FeedbackWithReplies` | 带回复的反馈 | 完整反馈数据 |
-| `FeedbackReply` | 反馈回复 | 管理员回复 |
-| `SubmitFeedbackData` | 提交反馈数据 | 创建反馈 |
-| `SubmitFeedbackResult` | 提交反馈结果 | 提交操作返回 |
-| `GetFeedbackResult` | 获取反馈结果 | 反馈列表查询 |
-| `GetFeedbackDetailResult` | 获取反馈详情 | 单个反馈查询 |
-| `FAQ` | FAQ 数据 | 常见问题 |
-| `FAQCategory` | FAQ 分类 | 问题分类 |
-
-**使用示例：**
-
-```typescript
-import type { Feedback, FeedbackStatus } from '@/types';
-
-const feedback: Feedback = {
-  id: 'uuid',
-  type: 'bug',
-  status: 'pending',
-  // ... 其他字段
-};
-```
-
-### 6. 积分奖励模块 (rewards/)
+### 4. 积分奖励模块 (rewards/)
 
 定义积分系统、签到系统、任务系统、等级系统、商城系统的类型。按功能拆分为多个子模块，便于维护。
 
@@ -307,39 +390,7 @@ interface RewardsPageData {
 }
 ```
 
-### 7. 设置模块 (settings.ts)
-
-定义用户设置、偏好等相关类型。
-
-**核心类型：**
-
-| 类型名 | 描述 | 用途 |
-|--------|------|------|
-| `UserSettings` | 用户设置 | 所有设置项 |
-| `NotificationSettings` | 通知设置 | 通知偏好 |
-| `PrivacySettings` | 隐私设置 | 隐私选项 |
-| `ThemeSettings` | 主题设置 | 外观主题 |
-| `LanguageSettings` | 语言设置 | 语言偏好 |
-| `UpdateSettingsData` | 更新设置数据 | 修改设置 |
-| `UpdateSettingsResult` | 更新设置结果 | 设置保存返回 |
-| `GetSettingsResult` | 获取设置结果 | 设置查询 |
-| `SettingTab` | 设置标签页 | 设置页面标签 |
-
-**使用示例：**
-
-```typescript
-import type { UserSettings, NotificationSettings } from '@/types';
-
-const defaultSettings: UserSettings = {
-  notifications: {
-    email: true,
-    push: false,
-  },
-  // ... 其他设置
-};
-```
-
-### 8. 通知模块 (notification.ts)
+### 5. 通知模块 (notification.ts)
 
 定义系统通知、消息等相关类型。
 
@@ -370,7 +421,7 @@ const notification: Notification = {
 };
 ```
 
-### 9. 媒体模块 (media.ts)
+### 6. 媒体模块 (media.ts)
 
 定义文件上传、图片处理等相关类型。
 
@@ -394,91 +445,7 @@ async function uploadImage(file: File): Promise<UploadResult> {
 }
 ```
 
-### 10. 权限模块 (permissions.ts)
-
-定义用户权限、角色等相关类型。
-
-**核心类型：**
-
-| 类型名 | 描述 | 用途 |
-|--------|------|------|
-| `UserRole` | 用户角色 | 'user' \| 'admin' \| 'moderator' |
-| `Permission` | 权限 | 具体权限项 |
-| `RolePermissions` | 角色权限 | 角色权限映射 |
-| `CheckPermissionResult` | 检查权限结果 | 权限检查返回 |
-| `RequirePermissionResult` | 需要权限结果 | 权限要求返回 |
-
-**使用示例：**
-
-```typescript
-import type { UserRole, Permission } from '@/types';
-
-const adminPermissions: Permission[] = [
-  'articles:delete',
-  'users:manage',
-  // ... 其他权限
-];
-```
-
-### 11. 登录历史模块 (loginHistory.ts)
-
-定义登录历史记录相关类型。
-
-**核心类型：**
-
-| 类型名 | 描述 | 用途 |
-|--------|------|------|
-| `LoginHistory` | 登录历史 | 登录记录结构 |
-| `LoginDevice` | 登录设备 | 设备信息 |
-| `LoginLocation` | 登录位置 | 地理位置 |
-| `GetLoginHistoryResult` | 获取历史结果 | 历史记录查询 |
-| `DeleteLoginHistoryResult` | 删除历史结果 | 记录删除操作 |
-
-**使用示例：**
-
-```typescript
-import type { LoginHistory, LoginDevice } from '@/types';
-
-const history: LoginHistory = {
-  id: 'uuid',
-  device: {
-    type: 'desktop',
-    browser: 'Chrome',
-    os: 'Windows',
-  },
-  // ... 其他字段
-};
-```
-
-### 12. 更新日志模块 (updates.ts)
-
-定义版本更新、变更日志等相关类型。
-
-**核心类型：**
-
-| 类型名 | 描述 | 用途 |
-|--------|------|------|
-| `Update` | 更新数据 | 版本更新信息 |
-| `UpdateType` | 更新类型 | 'feature' \| 'fix' \| 'improvement' |
-| `UpdatePriority` | 更新优先级 | 'low' \| 'medium' \| 'high' |
-| `VersionInfo` | 版本信息 | 版本详情 |
-| `GetUpdatesResult` | 获取更新结果 | 更新列表查询 |
-| `GetLatestVersionResult` | 获取最新版本 | 最新版本查询 |
-
-**使用示例：**
-
-```typescript
-import type { Update, UpdateType } from '@/types';
-
-const update: Update = {
-  id: 'uuid',
-  version: '1.2.0',
-  type: 'feature',
-  // ... 其他字段
-};
-```
-
-### 13. Supabase 类型 (supabase.ts)
+### 7. Supabase 类型 (supabase.ts)
 
 定义 Supabase 数据库相关的类型。
 

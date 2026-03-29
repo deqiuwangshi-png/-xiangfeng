@@ -13,6 +13,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import type { OAuthProvider, OAuthButtonsProps } from '@/types/auth/oauth';
 
 /**
  * 获取站点 URL
@@ -39,12 +40,6 @@ const getSiteUrl = (): string => {
 };
 
 /**
- * OAuth 提供商类型（UI 展示用）
- * 仅支持Supabase原生支持的Provider
- */
-type OAuthProvider = 'github' | 'google';
-
-/**
  * Supabase 支持的 Provider 类型
  */
 type SupabaseProvider = 'github' | 'google' | 'azure' | 'bitbucket' | 'discord' | 'facebook' | 'figma' | 'gitlab' | 'keycloak' | 'linkedin' | 'notion' | 'slack' | 'spotify' | 'twitch' | 'twitter' | 'workos' | 'zoom';
@@ -56,19 +51,6 @@ const PROVIDER_CONFIG: Record<OAuthProvider, { name: string; enabled: boolean; s
   github: { name: 'GitHub', enabled: true, supabaseProvider: 'github' },
   google: { name: 'Google', enabled: false, supabaseProvider: 'google' },
 };
-
-/**
- * OAuth 按钮组属性接口
- * @interface OAuthButtonsProps
- */
-interface OAuthButtonsProps {
-  /** 是否禁用按钮 */
-  disabled?: boolean;
-  /** 分隔线文字 */
-  dividerText?: string;
-  /** 登录成功后重定向地址 */
-  redirectTo?: string;
-}
 
 /**
  * 第三方登录按钮组
@@ -135,8 +117,8 @@ export function OAuthButtons({
     }
   };
 
-  const isButtonDisabled = (_provider: OAuthProvider) => {
-    return disabled || isLoading !== null;
+  const isButtonDisabled = (provider: OAuthProvider) => {
+    return disabled || isLoading !== null || !PROVIDER_CONFIG[provider].enabled;
   };
 
   return (

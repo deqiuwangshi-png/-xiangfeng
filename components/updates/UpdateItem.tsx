@@ -8,7 +8,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { UpdateItem } from '@/types/updates'
+import { UpdateItem } from '@/types/user/updates'
 import { UPDATE_TYPE_STYLES } from '@/constants/updates'
 
 /**

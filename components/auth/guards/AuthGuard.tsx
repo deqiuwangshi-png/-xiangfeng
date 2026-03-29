@@ -14,7 +14,7 @@
 import { ReactNode } from 'react';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
-import type { UserProfile } from '@/types/user';
+import type { UserProfile } from '@/types/user/user';
 
 /**
  * 简化用户对象接口

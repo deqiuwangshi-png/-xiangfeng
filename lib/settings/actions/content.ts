@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache'
 import { withAuth } from '../utils/auth'
 import { CONTENT_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
-import type { ContentSettingsResult, UpdateSettingResult } from '@/types/settings'
+import type { ContentSettingsResult, UpdateSettingResult } from '@/types/user/settings'
 
 /**
  * 获取用户内容设置

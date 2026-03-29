@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserProfileSection } from '@/components/user'
 import { useInboxCache } from '@/hooks'
-import type { SimpleUser, UserProfile } from '@/types/user'
+import type { SimpleUser, UserProfile } from '@/types/user/user'
 
 /**
  * 导航项接口

@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { createFeishuFeedback } from '@/lib/feishu/api';
 import { getCurrentUser } from '@/lib/feedback/actions/auth';
 import { generateTrackingId } from '../utils';
-import type { FeedbackInput, FeedbackSubmitResult } from '@/types/feedback';
+import type { FeedbackInput, FeedbackSubmitResult } from '@/types/user/feedback';
 
 /**
  * 反馈数据验证模式

@@ -13,7 +13,7 @@ import FeedbackTabs from '@/components/feedback/FeedbackTabs';
 import Toast from '@/components/feedback/modal/Toast';
 import { getFeedbacksByTrackingIds } from '@/lib/feedback/actions';
 import { getTrackingIds, addTrackingId } from '@/lib/feedback/storage';
-import type { FeedbackItem } from '@/types/feedback';
+import type { FeedbackItem } from '@/types/user/feedback';
 
 /* 懒加载标签页组件，减少初始加载时间 */
 const SubmitFeedback = lazy(() => import('@/components/feedback/SubmitFeedback'));

@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache'
 import { withAuth } from '../utils/auth'
 import { NOTIFICATION_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
-import type { UpdateSettingResult } from '@/types/settings'
+import type { UpdateSettingResult } from '@/types/user/settings'
 
 /**
  * 通知设置结果类型

@@ -16,7 +16,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { FilterType } from '@/types/updates'
+import { FilterType } from '@/types/user/updates'
 
 /**
  * 筛选按钮组件

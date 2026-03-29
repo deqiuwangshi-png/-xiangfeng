@@ -13,7 +13,7 @@
  * 更新时间: 2026-02-20
  */
 
-import { UpdateType, VersionType, MonthlyUpdate } from '@/types/updates'
+import { UpdateType, VersionType, MonthlyUpdate } from '@/types/user/updates'
 
 /**
  * 模拟更新数据（备用数据）

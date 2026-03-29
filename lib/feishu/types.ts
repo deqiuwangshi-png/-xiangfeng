@@ -1,6 +1,6 @@
 'use server';
 
-import type { FeedbackType, FeedbackStatus, Attachment } from '@/types/feedback';
+import type { FeedbackType, FeedbackStatus, Attachment } from '@/types/user/feedback';
 
 /**
  * 飞书反馈数据接口

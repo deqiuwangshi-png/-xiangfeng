@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { submitFeedback, uploadFeedbackFiles } from '@/lib/feedback/actions';
-import type { FeedbackType, UploadedFile } from '@/types/feedback';
+import type { FeedbackType, UploadedFile } from '@/types/user/feedback';
 
 interface UseFeedbackFormOptions {
   onSubmitSuccess: (trackingId: string) => void;

@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { FeedbackItem } from '@/types/feedback';
+import type { FeedbackItem } from '@/types/user/feedback';
 
 interface FeedbackCardActionsProps {
   item: FeedbackItem;

@@ -15,7 +15,7 @@ export {
   updateContentLanguage,
   updateContentSettings,
 } from './content'
-export type { ContentSettingsResult } from '@/types/settings'
+export type { ContentSettingsResult } from '@/types/user/settings'
 
 // 隐私设置
 export {

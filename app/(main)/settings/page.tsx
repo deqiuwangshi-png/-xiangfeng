@@ -7,7 +7,7 @@ import { getContentSettings } from '@/lib/settings/actions/content'
 import { getPrivacySettings } from '@/lib/settings/actions/privacy'
 import { getNotificationSettings } from '@/lib/settings/actions/notifications'
 import { getAppearanceSettings } from '@/lib/settings/actions/appearance'
-import type { UserSettings } from '@/types/settings'
+import type { UserSettings } from '@/types/user/settings'
 
 /**
  * 强制动态渲染

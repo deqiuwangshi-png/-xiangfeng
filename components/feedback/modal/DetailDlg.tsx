@@ -6,7 +6,7 @@ import { Calendar, Tag, User } from 'lucide-react';
 import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';
-import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
+import type { FeedbackItem, FeedbackStatus } from '@/types/user/feedback';
 
 interface DetailDlgProps {
   feedback: FeedbackItem | null;

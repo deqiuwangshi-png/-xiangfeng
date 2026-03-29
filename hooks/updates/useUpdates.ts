@@ -24,7 +24,7 @@
 
 import { useState, useMemo } from 'react'
 import { UpdateService } from '@/lib/updates/updateService'
-import { MonthlyUpdate, FilterType } from '@/types/updates'
+import { MonthlyUpdate, FilterType } from '@/types/user/updates'
 
 /**
  * 更新日志 Hook

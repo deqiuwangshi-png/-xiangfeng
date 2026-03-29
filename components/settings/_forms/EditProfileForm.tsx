@@ -7,7 +7,7 @@ import { updateProfile } from '@/lib/user/updateProfile'
 import { uploadAvatar, deleteOldAvatar, AvatarUploadError } from '@/lib/upload/avatar'
 import { containsXss } from '@/lib/security/inputValidator'
 import { toast } from 'sonner'
-import { UserData, UpdateProfileParams } from '@/types/settings'
+import { UserData, UpdateProfileParams } from '@/types/user/settings'
 
 /**
  * 编辑个人资料表单组件

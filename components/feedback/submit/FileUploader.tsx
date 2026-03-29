@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { toast } from 'sonner';
 import { UploadCloud, AlertCircle } from '@/components/icons';
 import FileList from './FileList';
-import type { UploadedFile } from '@/types/feedback';
+import type { UploadedFile } from '@/types/user/feedback';
 
 interface FileUploaderProps {
   files: UploadedFile[];

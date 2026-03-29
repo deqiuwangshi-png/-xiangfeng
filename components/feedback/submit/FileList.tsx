@@ -1,7 +1,7 @@
 'use client';
 
 import { X, FileText, Image as ImageIcon, File } from '@/components/icons';
-import type { UploadedFile } from '@/types/feedback';
+import type { UploadedFile } from '@/types/user/feedback';
 
 interface FileListProps {
   files: UploadedFile[];

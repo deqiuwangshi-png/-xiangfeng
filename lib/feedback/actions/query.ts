@@ -3,7 +3,7 @@
 import { getCurrentUser } from './auth';
 import { queryFeishuFeedbacks } from '@/lib/feishu/api';
 import { isValidTrackingId } from '@/lib/feedback/utils';
-import type { FeedbackQueryResult } from '@/types/feedback';
+import type { FeedbackQueryResult } from '@/types/user/feedback';
 
 /**
  * 获取当前用户的反馈列表

@@ -19,9 +19,9 @@ import type {
   UserRole,
   WriteOperation,
   PermissionCheckResult,
-} from '@/types/permissions';
+} from '@/types/auth/permissions';
 
-export type { UserRole, WriteOperation, PermissionCheckResult } from '@/types/permissions';
+export type { UserRole, WriteOperation, PermissionCheckResult } from '@/types/auth/permissions';
 
 /**
  * 扩展权限检查结果接口（服务端版本，包含用户对象）

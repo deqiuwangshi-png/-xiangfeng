@@ -26,7 +26,7 @@ export type {
   UploadFileResponse,
 } from './types';
 
-export type { Attachment } from '@/types/feedback';
+export type { Attachment } from '@/types/user/feedback';
 
 {/* 导出配置 */}
 export { FEISHU_CONFIG, FIELD_MAPPING, TYPE_MAPPING, STATUS_MAPPING } from './config';

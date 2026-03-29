@@ -1,7 +1,7 @@
 'use client';
 
 import { Bug, Lightbulb, Palette, HelpCircle } from '@/components/icons';
-import type { FeedbackType } from '@/types/feedback';
+import type { FeedbackType } from '@/types/user/feedback';
 
 interface TypeSelectorProps {
   selectedType: FeedbackType | null;

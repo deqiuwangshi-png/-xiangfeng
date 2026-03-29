@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { getFeedbackReplies, submitReply } from '@/lib/feedback/actions';
-import type { Reply } from '@/types/feedback';
+import type { Reply } from '@/types/user/feedback';
 
 interface UseFeedbackRepliesOptions {
   pageId: string;

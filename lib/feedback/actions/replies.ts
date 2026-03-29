@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import type { ReplyQueryResult, ReplySubmitResult } from '@/types/feedback';
+import type { ReplyQueryResult, ReplySubmitResult } from '@/types/user/feedback';
 
 /**
  * 获取反馈的评论列表

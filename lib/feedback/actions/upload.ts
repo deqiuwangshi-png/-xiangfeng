@@ -1,7 +1,7 @@
 'use server';
 
 import { uploadFileToFeishu } from '@/lib/feishu/api';
-import type { UploadedFile } from '@/types/feedback';
+import type { UploadedFile } from '@/types/user/feedback';
 
 /**
  * 单个文件上传结果

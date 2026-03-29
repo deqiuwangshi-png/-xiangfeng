@@ -38,4 +38,4 @@ export type {
   UserRole,
   WriteOperation,
   PermissionCheckResult,
-} from '@/types/permissions';
+} from '@/types/auth/permissions';
