@@ -8,7 +8,7 @@
 
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
-import { useOptimisticNavigation } from '@/hooks/useOptimisticNavigation'
+import { useOptimisticNavigation } from '@/hooks/navigation/useOptimisticNavigation'
 
 interface SafeLinkProps {
   /** 链接地址 */

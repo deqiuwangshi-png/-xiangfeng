@@ -8,7 +8,7 @@
 import Link from 'next/link'
 import { useState, type ReactNode, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthToast } from '@/hooks/useAuthToast';
+import { useAuthToast } from '@/hooks/auth/useAuthToast';
 
 /**
  * 受保护操作组件属性

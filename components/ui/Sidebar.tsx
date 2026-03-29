@@ -12,7 +12,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserProfileSection } from '@/components/user/UserProfileSection'
-import { useInboxCache } from '@/hooks/useInboxCache'
+import { useInboxCache } from '@/hooks/notification/useInboxCache'
 
 /**
  * 导航项接口

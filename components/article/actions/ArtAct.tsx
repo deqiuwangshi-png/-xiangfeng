@@ -12,10 +12,10 @@ import { Heart, MessageCircle, Sparkles } from '@/components/icons';
 import type { ArtActProps } from '@/types';
 import { toggleArticleLike } from '@/lib/articles/actions/like';
 import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
-import { RwMd } from './rw/RwMd';
-import { AuthorAvatar } from './AuthorAvatar';
+import { RwMd } from '../rw/RwMd';
+import { AuthorAvatar } from '../ui/AuthorAvatar';
 import { MoreActions } from './MoreActions';
-import { useArticleToast } from '@/hooks/useArticleToast';
+import { useArticleToast } from '@/hooks/article/useArticleToast';
 
 /**
  * 文章操作按钮组件

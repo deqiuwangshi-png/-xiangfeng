@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import type { Comment } from '../types'
+import type { Comment } from '@/types'
 import { getArticleComments, deleteArticleComment } from '@/lib/articles/actions/comment'
 import { toggleCommentLike } from '@/lib/articles/actions/like'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 评论数据管理 Hook - 简化版本

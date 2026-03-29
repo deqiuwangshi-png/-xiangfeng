@@ -17,7 +17,7 @@ import { Plus } from 'lucide-react'
 import type { AuthorAvatarProps } from '@/types'
 import { UserAvatar } from '@/components/ui'
 import { toggleFollow, getFollowStatus } from '@/lib/user/actions/follow'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 作者头像组件

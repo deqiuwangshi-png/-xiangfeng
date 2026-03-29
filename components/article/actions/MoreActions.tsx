@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react'
 import { MoreVertical, Share2, Bookmark, Flag, Link as LinkIcon, X, MessageCircle, AtSign } from 'lucide-react'
 import type { MoreActionsProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 更多操作菜单组件

@@ -14,7 +14,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuthToast } from '@/hooks/useAuthToast';
+import { useAuthToast } from '@/hooks/auth/useAuthToast';
 import { checkRateLimit } from '@/lib/security/rateLimit';
 import { login } from '@/lib/auth';
 import { sanitizeRedirect } from '@/lib/auth/redir';

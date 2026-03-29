@@ -2,8 +2,8 @@
 
 import { useRef } from 'react'
 import { Send, Loader2 } from '@/components/icons'
-import type { CommentFormProps } from './types'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import type { CommentFormProps } from '@/types'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 评论表单组件

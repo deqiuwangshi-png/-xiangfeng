@@ -97,6 +97,12 @@ async function handleLogin(data: LoginFormData): Promise<LoginResult> {
 | `CommentFormProps` | 评论表单组件属性 |
 | `ArticlePageProps` | 文章页面组件属性 |
 
+**常量：**
+
+| 常量名 | 值 | 描述 |
+|--------|-----|------|
+| `MAX_COMMENTS_WITHOUT_LOGIN` | 3 | 未登录用户可查看的最大评论数 |
+
 **使用示例：**
 
 ```typescript

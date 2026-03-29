@@ -4,7 +4,7 @@ import { UserAvatar } from '@/components/ui'
 import { escapeHtml } from '@/lib/utils/purify'
 import { CommentCardActions } from './CommentCardActions'
 import { VerifyBadge } from '@/components/user/VerifyBadge'
-import type { CommentCardProps } from './types'
+import type { CommentCardProps } from '@/types'
 
 /**
  * 单条评论卡片组件 - 服务端组件 + 客户端交互

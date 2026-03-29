@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import type { Comment } from '../types'
+import type { Comment } from '@/types'
 import { submitArticleComment } from '@/lib/articles/actions/comment'
 
 /**

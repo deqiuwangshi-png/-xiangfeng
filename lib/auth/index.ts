@@ -18,10 +18,10 @@ export { changePassword } from './actions/change-password';
 // ==================== 类型定义（客户端安全）====================
 export type { AuthResult } from './actions/types';
 export type { LogoutResult } from '@/types';
-export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/useLogout';
+export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/auth/useLogout';
 
 // ==================== Hooks & 客户端工具 ====================
-export { useLogout } from '@/hooks/useLogout';
+export { useLogout } from '@/hooks/auth/useLogout';
 
 // ==================== 错误消息（保持兼容）====================
 export {

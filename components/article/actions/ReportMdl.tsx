@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import { X, Flag } from 'lucide-react'
 import type { ReportMdlProps } from '@/types'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 举报类型配置

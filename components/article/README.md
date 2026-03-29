@@ -17,19 +17,23 @@ app/(content)/article/[id]/
 
 ```
 components/article/
-├── ArticleContent.tsx          # 文章内容展示组件
-├── ArticleHeader.tsx           # 文章头部组件
-├── ArtAct.tsx                  # 文章操作按钮组件
-├── AuthorAvatar.tsx            # 作者头像组件
-├── ReadingProgress.tsx         # 阅读进度组件
-├── ArticlePaywall.tsx          # 文章预览墙组件
-├── ContentProtection.tsx       # 内容保护组件
-├── ProtectedArticleContent.tsx # 受保护的文章内容组件
-├── MoreActions.tsx             # 更多操作菜单组件
-├── ViewTracker.tsx             # 浏览量追踪组件
-├── ReportBtn.tsx               # 举报按钮组件
-├── ReportMdl.tsx               # 举报弹窗组件
-├── _skeletons/                 # 骨架屏组件
+├── content/                    # 内容展示组件
+│   ├── ArticleContent.tsx      # 文章内容展示组件
+│   ├── ArticleHeader.tsx       # 文章头部组件
+│   ├── ProtectedArticleContent.tsx # 受保护的文章内容组件
+│   └── ContentProtection.tsx   # 内容保护组件
+├── actions/                    # 交互操作组件
+│   ├── ArtAct.tsx              # 文章操作按钮组件
+│   ├── MoreActions.tsx         # 更多操作菜单组件
+│   ├── ReportBtn.tsx           # 举报按钮组件
+│   └── ReportMdl.tsx           # 举报弹窗组件
+├── ui/                         # UI 基础组件
+│   ├── AuthorAvatar.tsx        # 作者头像组件
+│   ├── ReadingProgress.tsx     # 阅读进度组件
+│   └── ArticlePaywall.tsx      # 文章预览墙组件
+├── tracking/                   # 追踪统计组件
+│   └── ViewTracker.tsx         # 浏览量追踪组件
+├── skeletons/                  # 骨架屏组件
 │   ├── ArticleSkeleton.tsx     # 文章骨架屏
 │   └── CommentSkeleton.tsx     # 评论骨架屏
 ├── comments/                   # 评论系统组件
@@ -39,16 +43,13 @@ components/article/
 │   ├── CommentCard.tsx         # 评论卡片
 │   ├── CommentCardActions.tsx  # 评论卡片操作
 │   ├── CommentForm.tsx         # 评论表单
-│   ├── LoginPrompt.tsx         # 登录提示
-│   ├── types.ts                # 评论类型定义
-│   └── _hooks/                 # 评论 Hooks
-│       ├── useComments.ts      # 评论管理 Hook
-│       └── useCommentSub.ts    # 评论提交 Hook
+│   └── LoginPrompt.tsx         # 登录提示
 ├── rw/                         # 打赏组件
 │   ├── RwMd.tsx                # 打赏弹窗
 │   ├── PtRw.tsx                # 积分打赏面板
 │   ├── AdRw.tsx                # 广告打赏面板
 │   └── TabBtn.tsx              # 选项卡按钮
+├── index.ts                    # 统一导出入口
 └── README.md                   # 组件文档
 ```
 
@@ -58,7 +59,7 @@ components/article/
 
 #### 1. ArticleContent（文章内容展示组件）
 
-**位置**: `ArticleContent.tsx`
+**位置**: `content/ArticleContent.tsx`
 
 **职责**: 安全渲染文章内容
 
@@ -78,7 +79,7 @@ components/article/
 
 #### 2. ArticleHeader（文章头部组件）
 
-**位置**: `ArticleHeader.tsx`
+**位置**: `content/ArticleHeader.tsx`
 
 **职责**: 显示文章标题、作者、发布时间和浏览量
 
@@ -97,7 +98,7 @@ components/article/
 
 #### 3. ProtectedArticleContent（受保护的文章内容组件）
 
-**位置**: `ProtectedArticleContent.tsx`
+**位置**: `content/ProtectedArticleContent.tsx`
 
 **职责**: 集成内容保护的文章内容展示
 
@@ -116,7 +117,7 @@ components/article/
 
 #### 4. ArtAct（文章操作按钮组件）
 
-**位置**: `ArtAct.tsx`
+**位置**: `actions/ArtAct.tsx`
 
 **职责**: 提供文章点赞、评论、分享、收藏、打赏功能
 
@@ -149,7 +150,7 @@ components/article/
 
 #### 5. AuthorAvatar（作者头像组件）
 
-**位置**: `AuthorAvatar.tsx`
+**位置**: `ui/AuthorAvatar.tsx`
 
 **职责**: 显示作者头像，带关注功能按钮
 
@@ -175,7 +176,7 @@ components/article/
 
 #### 6. MoreActions（更多操作菜单组件）
 
-**位置**: `MoreActions.tsx`
+**位置**: `actions/MoreActions.tsx`
 
 **职责**: 分享、收藏、举报的聚合菜单
 
@@ -200,7 +201,7 @@ components/article/
 
 #### 7. ContentProtection（内容保护组件）
 
-**位置**: `ContentProtection.tsx`
+**位置**: `content/ContentProtection.tsx`
 
 **职责**: 文章内容的防复制保护包装组件
 
@@ -219,7 +220,7 @@ components/article/
 
 #### 8. ArticlePaywall（文章预览墙组件）
 
-**位置**: `ArticlePaywall.tsx`
+**位置**: `ui/ArticlePaywall.tsx`
 
 **职责**: 匿名用户浏览文章时显示部分内容，引导登录
 
@@ -248,7 +249,7 @@ components/article/
 
 #### 9. ReadingProgress（阅读进度组件）
 
-**位置**: `ReadingProgress.tsx`
+**位置**: `ui/ReadingProgress.tsx`
 
 **职责**: 显示文章阅读进度条，检测阅读任务
 
@@ -270,7 +271,7 @@ components/article/
 
 #### 10. ViewTracker（浏览量追踪组件）
 
-**位置**: `ViewTracker.tsx`
+**位置**: `tracking/ViewTracker.tsx`
 
 **职责**: 在文章详情页自动统计浏览量
 
@@ -288,7 +289,7 @@ components/article/
 
 #### 11. ReportBtn（举报按钮组件）
 
-**位置**: `ReportBtn.tsx`
+**位置**: `actions/ReportBtn.tsx`
 
 **职责**: 文章举报功能入口按钮
 
@@ -308,7 +309,7 @@ components/article/
 
 #### 12. ReportMdl（举报弹窗组件）
 
-**位置**: `ReportMdl.tsx`
+**位置**: `actions/ReportMdl.tsx`
 
 **职责**: 文章举报弹窗
 
@@ -469,13 +470,13 @@ components/article/
 
 #### 19. ArticleSkeleton（文章骨架屏）
 
-**位置**: `_skeletons/ArticleSkeleton.tsx`
+**位置**: `skeletons/ArticleSkeleton.tsx`
 
 **职责**: 文章加载状态骨架屏
 
 #### 20. CommentSkeleton（评论骨架屏）
 
-**位置**: `_skeletons/CommentSkeleton.tsx`
+**位置**: `skeletons/CommentSkeleton.tsx`
 
 **职责**: 评论加载状态骨架屏
 
@@ -483,7 +484,7 @@ components/article/
 
 ### useComments（评论管理 Hook）
 
-**位置**: `comments/_hooks/useComments.ts`
+**位置**: `hooks/useComments.ts`
 
 **功能**:
 - 评论列表管理
@@ -494,7 +495,7 @@ components/article/
 
 ### useCommentSubmit（评论提交 Hook）
 
-**位置**: `comments/_hooks/useCommentSub.ts`
+**位置**: `hooks/useCommentSub.ts`
 
 **功能**:
 - 评论提交
@@ -630,6 +631,49 @@ UI 更新
 - 使用项目定义的颜色变量（`--color-xf-*`）
 - 主色调：xf-primary
 - 背景色：xf-light
+
+## 导入方式
+
+### 方式一：统一入口导入（推荐）
+
+```tsx
+import {
+  ArticleContent,
+  ArticleHeader,
+  ArtAct,
+  ReadingProgress,
+  CommentPanel,
+  RwMd,
+} from '@/components/article';
+```
+
+### 方式二：分类路径导入
+
+```tsx
+// Content
+import ArticleContent from '@/components/article/content/ArticleContent';
+import ArticleHeader from '@/components/article/content/ArticleHeader';
+
+// Actions
+import ArtAct from '@/components/article/actions/ArtAct';
+import MoreActions from '@/components/article/actions/MoreActions';
+
+// UI
+import AuthorAvatar from '@/components/article/ui/AuthorAvatar';
+import ReadingProgress from '@/components/article/ui/ReadingProgress';
+
+// Tracking
+import { ViewTracker } from '@/components/article/tracking/ViewTracker';
+
+// Skeletons
+import ArticleSkeleton from '@/components/article/skeletons/ArticleSkeleton';
+
+// Comments
+import { CommentPanel } from '@/components/article/comments';
+
+// RW
+import { RwMd } from '@/components/article/rw/RwMd';
+```
 
 ## 更新时间
 

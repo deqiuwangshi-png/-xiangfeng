@@ -13,7 +13,7 @@
  */
 
 import { useRef } from 'react';
-import { useContentProtection } from '@/hooks/useContentProtection';
+import { useContentProtection } from '@/hooks/article/useContentProtection';
 import { sanitizeRichText } from '@/lib/utils/purify';
 import {
   ENABLE_CONTENT_PROTECTION,

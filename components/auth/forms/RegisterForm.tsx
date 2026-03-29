@@ -8,7 +8,7 @@
  */
 
 import Link from 'next/link';
-import { useRegisterForm } from '@/hooks/useRegisterForm';
+import { useRegisterForm } from '@/hooks/auth/useRegisterForm';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 import { PwdStrength } from '@/components/auth/ui/PwdStrength';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';

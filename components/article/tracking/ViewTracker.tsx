@@ -12,7 +12,7 @@
  * - 延迟 3 秒后触发，确保真实阅读
  */
 
-import { useArticleView } from '@/hooks/useArticleView';
+import { useArticleView } from '@/hooks/article/useArticleView';
 
 /**
  * ViewTracker 组件 Props

@@ -10,7 +10,7 @@ import { Flag } from 'lucide-react'
 import { useState } from 'react'
 import type { ReportBtnProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 举报按钮组件

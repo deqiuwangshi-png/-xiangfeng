@@ -13,7 +13,7 @@
  */
 
 import { useRef, ReactNode } from 'react';
-import { useContentProtection } from '@/hooks/useContentProtection';
+import { useContentProtection } from '@/hooks/article/useContentProtection';
 
 /**
  * 内容保护组件属性

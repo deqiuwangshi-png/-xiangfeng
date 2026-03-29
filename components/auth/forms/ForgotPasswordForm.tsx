@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuthToast } from '@/hooks/useAuthToast';
+import { useAuthToast } from '@/hooks/auth/useAuthToast';
 import { forgotPassword } from '@/lib/auth';
 
 /**

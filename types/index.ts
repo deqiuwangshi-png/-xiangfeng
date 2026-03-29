@@ -33,6 +33,9 @@ export type {
 // ============================================
 // 文章模块
 // ============================================
+export {
+  MAX_COMMENTS_WITHOUT_LOGIN,
+} from './article';
 export type {
   ArticleStatus,
   Article,

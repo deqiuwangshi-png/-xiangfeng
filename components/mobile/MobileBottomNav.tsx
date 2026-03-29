@@ -9,7 +9,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
-import { useInboxCache } from '@/hooks/useInboxCache'
+import { useInboxCache } from '@/hooks/notification/useInboxCache'
 
 /**
  * 导航项配置
