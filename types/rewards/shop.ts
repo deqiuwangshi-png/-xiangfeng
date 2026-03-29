@@ -7,6 +7,9 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ShopItemCategory, ExchangeStatus } from './common'
 
+// 重新导出 ExchangeStatus 供组件使用
+export type { ExchangeStatus }
+
 /**
  * 商城商品
  * @interface ShopItem
@@ -109,7 +112,7 @@ export interface ExchangeRecordItem {
   /** 消耗积分 */
   points: number
   /** 兑换状态 */
-  status: string
+  status: ExchangeStatus
   /** 兑换日期（YYYY-MM-DD） */
   date: string
   /** 图标组件 */
