@@ -2,14 +2,6 @@
 
 /**
  * TipTap 编辑器 Hook - 带图片即时反馈版本
- *
- * 功能特性：
- * - 延迟初始化，避免阻塞主线程
- * - 使用 useMemo 缓存配置
- * - 优化扩展配置，避免重复注册
- * - 图片粘贴即时反馈：立即显示 Blob 预览，后台上传后替换
- * - 自动追踪上传中的图片状态
- *
  * @module useTipTapEditor
  */
 
@@ -101,8 +93,8 @@ export function useTipTapEditor({
       extensions: [
         StarterKit.configure({
           paragraph: false,
-          heading: undefined,
-          blockquote: undefined,
+          heading: false,
+          blockquote: false,
           horizontalRule: {
             HTMLAttributes: {
               class: 'editor-hr',
@@ -112,7 +104,7 @@ export function useTipTapEditor({
             openOnClick: false,
             linkOnPaste: true,
           },
-          underline: undefined,
+          underline: false,
         }),
         Paragraph.extend({
           addNodeView() {
@@ -125,27 +117,6 @@ export function useTipTapEditor({
           },
           addAttributes() {
             return {
-              src: {
-                default: null,
-                parseHTML: element => element.getAttribute('src'),
-                renderHTML: attributes => ({
-                  src: attributes.src,
-                }),
-              },
-              alt: {
-                default: null,
-                parseHTML: element => element.getAttribute('alt'),
-                renderHTML: attributes => ({
-                  alt: attributes.alt,
-                }),
-              },
-              title: {
-                default: null,
-                parseHTML: element => element.getAttribute('title'),
-                renderHTML: attributes => ({
-                  title: attributes.title,
-                }),
-              },
               'data-align': {
                 default: 'center',
                 parseHTML: element => element.getAttribute('data-align'),
@@ -189,9 +160,12 @@ export function useTipTapEditor({
         /**
          * 处理粘贴事件 - 支持粘贴上传图片（即时反馈版）
          */
-        handlePaste(_view: unknown, event: ClipboardEvent) {
+        handlePaste(_view: unknown, event: ClipboardEvent): boolean {
+          // 安全校验：确保事件对象有效
+          if (!event?.clipboardData) return false
+
           const imageFile = getImageFromPaste(event)
-          if (imageFile) {
+          if (imageFile instanceof File) {
             event.preventDefault()
             void handleImageUploadRef.current(imageFile)
             return true
@@ -316,6 +290,9 @@ export function useTipTapEditor({
    * 2. 后台上传
    * 3. 上传成功后替换为真实 URL
    */
+  // 使用 ref 保持最新回调引用，避免 editorConfig 重新创建
+  const handleImageUploadRef = useRef<(file: File) => Promise<void>>(async () => {})
+
   const handleImageUpload = useCallback(
     async (file: File) => {
       const currentEditor = editorRef.current
@@ -370,13 +347,8 @@ export function useTipTapEditor({
     [replaceBlobUrlInEditor]
   )
 
-  // 创建 handleImageUpload ref，用于在 editorConfig 中引用
-  const handleImageUploadRef = useRef<(file: File) => Promise<void>>(handleImageUpload)
-
-  // 确保 handleImageUploadRef 始终更新到最新的 handleImageUpload 函数
-  useEffect(() => {
-    handleImageUploadRef.current = handleImageUpload
-  }, [handleImageUpload])
+  // 同步更新 ref
+  handleImageUploadRef.current = handleImageUpload
 
   /**
    * 同步外部内容变化
