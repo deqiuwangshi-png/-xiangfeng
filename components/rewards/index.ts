@@ -53,7 +53,9 @@ export { PtRecord } from './my/PtRecord'
 
 /**
  * 福利中心 Hooks 统一出口
- * @module components/rewards/hooks
+ * @module hooks/rewards
+ * @description 福利中心 Hooks 已迁移至 hooks/rewards/ 目录
+ * @deprecated 请直接从 @/hooks 导入
  */
 export {
   useSignIn,
@@ -61,4 +63,4 @@ export {
   useTasks,
   useShop,
   useExchangeRecords,
-} from './hooks'
+} from '@/hooks'

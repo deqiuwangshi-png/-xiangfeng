@@ -23,8 +23,8 @@ import {
   getImageFromPaste,
 } from '@/lib/upload/editorImage'
 import { toast } from 'sonner'
-import { ImgNodeView } from '../_blocks/ImgNodeView'
-import { ParaNodeView } from '../_blocks/ParaNodeView'
+import { ImgNodeView } from '@/components/publish/_blocks/ImgNodeView'
+import { ParaNodeView } from '@/components/publish/_blocks/ParaNodeView'
 
 /**
  * 编辑器选项接口

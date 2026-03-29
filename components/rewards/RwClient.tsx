@@ -12,7 +12,7 @@ import { SignCard } from './signin/SignCard'
 import { TaskBoard } from './tasks/TaskBoard'
 import { ShopGrid } from './shop/ShopGrid'
 import { MyRw } from './my/MyRw'
-import { useSignIn, usePoints } from './hooks'
+import { useSignIn, usePoints } from '@/hooks'
 
 /**
  * 签到卡片区域组件
