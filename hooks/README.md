@@ -26,9 +26,14 @@ hooks/
 │   └── useUpdates.ts           # 更新日志管理
 ├── drafts/                     # 草稿管理 Hooks
 │   └── useDrafts.ts            # 草稿管理
-└── feedback/                   # 反馈中心 Hooks
-    ├── useFeedbackForm.ts      # 反馈表单
-    └── useFeedbackReplies.ts   # 反馈回复
+├── feedback/                   # 反馈中心 Hooks
+│   ├── useFeedbackForm.ts      # 反馈表单
+│   └── useFeedbackReplies.ts   # 反馈回复
+└── publish/                    # 文章发布 Hooks
+    ├── useAutoSave.ts          # 自动保存
+    ├── useEditorActions.ts     # 编辑器操作
+    ├── useEditorState.ts       # 编辑器状态
+    └── useTipTapEditor.ts      # TipTap 编辑器
 ```
 
 ## 概述
@@ -69,6 +74,12 @@ import { useDrafts } from '@/hooks/drafts/useDrafts';
 // Feedback
 import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
 import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
+
+// Publish
+import { useAutoSave } from '@/hooks/publish/useAutoSave';
+import { useEditorActions } from '@/hooks/publish/useEditorActions';
+import { useEditorState } from '@/hooks/publish/useEditorState';
+import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
 ```
 
 ## Hooks 分类
@@ -349,6 +360,95 @@ function ReplySection({ pageId }) {
 - 评论列表加载
 - 新评论提交
 - 加载和提交状态管理
+
+### 8. Publish 文章发布
+
+#### useAutoSave
+
+自动保存 Hook，定时自动保存草稿内容。
+
+```typescript
+import { useAutoSave } from '@/hooks/publish/useAutoSave';
+
+function Editor({ editorState, saveDraft }) {
+  useAutoSave(editorState, saveDraft);
+  // ...
+}
+```
+
+**功能：**
+- 定时自动保存（30秒间隔）
+- 静默保存模式
+- 离开页面前保存提示
+
+#### useEditorActions
+
+编辑器操作 Hook，提供保存草稿、发布文章等功能。
+
+```typescript
+import { useEditorActions } from '@/hooks/publish/useEditorActions';
+
+function Editor({ editorState, setEditorState }) {
+  const { saveDraft, publishArticle, titleRef } = useEditorActions(
+    editorState,
+    setEditorState
+  );
+  // ...
+}
+```
+
+**功能：**
+- 保存草稿
+- 发布文章
+- 更新媒体状态
+- 路由导航
+
+#### useEditorState
+
+编辑器状态管理 Hook，管理编辑器所有状态。
+
+```typescript
+import { useEditorState } from '@/hooks/publish/useEditorState';
+
+function Editor({ initialTitle, initialContent, draftId }) {
+  const [editorState, setEditorState] = useEditorState(
+    initialTitle,
+    initialContent,
+    draftId
+  );
+  // ...
+}
+```
+
+**功能：**
+- 标题和内容状态
+- 字数统计
+- 全屏模式
+- 工具栏折叠状态
+- 保存/发布状态
+
+#### useTipTapEditor
+
+TipTap 编辑器 Hook，封装 TipTap 编辑器实例创建。
+
+```typescript
+import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
+
+function Editor({ content, onChange }) {
+  const { editor, isMounted } = useTipTapEditor({
+    content,
+    onChange,
+    placeholder: '开始书写...',
+  });
+  // ...
+}
+```
+
+**功能：**
+- TipTap 编辑器实例创建
+- 图片上传处理
+- 粘贴图片支持
+- 自定义节点视图
 
 ## 使用规范
 

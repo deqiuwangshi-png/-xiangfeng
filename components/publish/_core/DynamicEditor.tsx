@@ -11,9 +11,10 @@
  * @module DynamicEditor
  */
 
-import { useEditorState, useEditorActions } from '../hooks'
-import { useTipTapEditor } from '../hooks/useTipTapEditor'
-import { useAutoSave } from '../hooks/useAutoSave'
+import { useEditorState } from '@/hooks/publish/useEditorState'
+import { useEditorActions } from '@/hooks/publish/useEditorActions'
+import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor'
+import { useAutoSave } from '@/hooks/publish/useAutoSave'
 import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'

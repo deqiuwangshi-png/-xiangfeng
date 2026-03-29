@@ -40,12 +40,16 @@ components/publish/
 ├── _blocks/                    # 节点视图组件目录
 │   ├── ImgNodeView.tsx         # 图片节点视图组件
 │   └── ParaNodeView.tsx        # 段落节点视图组件
-└── hooks/                      # 自定义 Hooks 目录
-    ├── index.ts                # Hooks 索引文件
-    ├── useEditorState.ts       # 编辑器状态管理 Hook
-    ├── useEditorActions.ts     # 编辑器操作 Hook
-    ├── useAutoSave.ts          # 自动保存 Hook
-    └── useTipTapEditor.ts      # TipTap 编辑器 Hook
+```
+
+### 相关 Hooks
+
+```
+hooks/publish/
+├── useEditorState.ts           # 编辑器状态管理 Hook
+├── useEditorActions.ts         # 编辑器操作 Hook
+├── useAutoSave.ts              # 自动保存 Hook
+└── useTipTapEditor.ts          # TipTap 编辑器 Hook
 ```
 
 ### 相关工具文件
@@ -397,9 +401,18 @@ NodeViewRenderer(ParaNodeView)
 
 ### 1. useEditorState
 
-**位置**: `hooks/useEditorState.ts`
+**位置**: `@/hooks/publish/useEditorState.ts`
 
 **职责**: 管理编辑器状态
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useEditorState } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useEditorState } from '@/hooks/publish/useEditorState';
+```
 
 **功能**:
 - 标题和内容状态
@@ -409,9 +422,18 @@ NodeViewRenderer(ParaNodeView)
 
 ### 2. useEditorActions
 
-**位置**: `hooks/useEditorActions.ts`
+**位置**: `@/hooks/publish/useEditorActions.ts`
 
 **职责**: 提供编辑器操作
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useEditorActions } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useEditorActions } from '@/hooks/publish/useEditorActions';
+```
 
 **功能**:
 - 保存草稿
@@ -420,9 +442,18 @@ NodeViewRenderer(ParaNodeView)
 
 ### 3. useAutoSave
 
-**位置**: `hooks/useAutoSave.ts`
+**位置**: `@/hooks/publish/useAutoSave.ts`
 
 **职责**: 自动保存功能
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useAutoSave } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useAutoSave } from '@/hooks/publish/useAutoSave';
+```
 
 **功能**:
 - 每30秒自动保存
@@ -431,7 +462,16 @@ NodeViewRenderer(ParaNodeView)
 
 ### 4. useTipTapEditor
 
-**位置**: `hooks/useTipTapEditor.ts`
+**位置**: `@/hooks/publish/useTipTapEditor.ts`
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useTipTapEditor } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
+```
 
 ## 工具函数
 
