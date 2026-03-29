@@ -62,7 +62,7 @@ lib/auth/
 │   └── oauth.ts                # OAuth 登录处理
 ├── permissions.ts              # 权限控制
 ├── utils.ts                    # 认证工具函数
-├── errorMessages.ts            # 错误消息映射
+├── messages/                   # 消息常量（已迁移到 lib/messages）
 ├── redir.ts                    # 重定向处理
 └── loginHistory.ts             # 登录历史记录
 ```
@@ -434,8 +434,9 @@ lib/auth/
 - Session 验证
 - Token 处理
 
-#### errorMessages.ts
-- 错误消息映射
+#### messages/auth.ts
+- 统一消息常量（已迁移到 lib/messages）
+- 包含错误和成功消息
 - Supabase 错误转换
 
 #### redir.ts

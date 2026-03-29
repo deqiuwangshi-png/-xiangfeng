@@ -9,24 +9,17 @@ import { loadUpdatesFromMarkdown, getLatestVersionFromMarkdown } from '@/lib/upd
 import { MOCK_UPDATES } from '@/constants/updates'
 
 /**
- * 更新日志页面
- * 
- * @function UpdatesPage
- * @returns {JSX.Element} 更新日志页面
- * 
- * @description
+ * 更新日志页面  
  * 服务器组件，负责：
  * - 从Markdown文件系统读取更新日志数据
  * - 将数据传递给客户端组件进行渲染
  * - 支持静态生成（SSG）
  * 
- * @features
  * - 服务器端数据获取
  * - 静态生成支持
  * - SEO友好
  * - 快速加载
  * 
- * @data
  * - 从content/updates目录读取Markdown文件
  * - 按日期倒序排序
  * - 按月份分组

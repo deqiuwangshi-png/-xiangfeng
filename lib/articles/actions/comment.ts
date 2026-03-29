@@ -25,7 +25,7 @@ import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
 import { COMMENT_ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
-import type { Comment } from '@/components/article/comments/types';
+import type { Comment } from '@/types';
 
 export type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
 

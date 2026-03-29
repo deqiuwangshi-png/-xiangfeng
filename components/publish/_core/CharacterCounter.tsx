@@ -26,18 +26,13 @@ interface CharacterCounterProps {
 
 /**
  * 字符计数组件
- * 
- * @function CharacterCounter
- * @param {CharacterCounterProps} props - 组件属性
- * @returns {JSX.Element} 字符计数组件
- * 
- * @description
+ * 组件属性
+字符计数组件
  * 显示文章内容的字符计数，包括：
  * - 当前字符数（标题+内容）
  * - 建议字数提示
  * - 根据字符数显示不同的颜色提示
  * 
- * @props
  * - titleLength: 标题字符数
  * - contentLength: 内容字符数
  */

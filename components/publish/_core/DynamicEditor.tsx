@@ -30,6 +30,8 @@ interface DynamicEditorProps {
   initialContent?: string
   /** 草稿ID（编辑模式） */
   draftId?: string | null
+  /** 是否已发布（编辑已发布文章时使用） */
+  isPublished?: boolean
 }
 
 /**
@@ -46,6 +48,7 @@ export default function DynamicEditor({
   initialTitle = '',
   initialContent = '',
   draftId = null,
+  isPublished = false,
 }: DynamicEditorProps) {
   // 编辑器状态管理（标题和字数统计）
   const {
@@ -54,7 +57,7 @@ export default function DynamicEditor({
     updateContent,
     toggleFullscreen,
     setEditorState,
-  } = useEditorState(initialTitle, initialContent, draftId)
+  } = useEditorState(initialTitle, initialContent, draftId, isPublished)
 
   // 编辑器操作（保存、发布）
   const {

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
-import { REGISTER_ERRORS, register } from '@/lib/auth';
+import { REGISTER_MESSAGES, register } from '@/lib/auth';
 import { useAuthToast } from './useAuthToast';
 import type { RegisterFormData, RegisterFormErrors, UseRegisterFormReturn } from '@/types';
 
@@ -55,7 +55,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
     const newErrors: RegisterFormErrors = {};
 
     if (!formData.terms) {
-      newErrors.terms = REGISTER_ERRORS.TERMS_NOT_ACCEPTED;
+      newErrors.terms = REGISTER_MESSAGES.TERMS_NOT_ACCEPTED;
     }
 
     const passwordCheck = validatePassword(formData.password);
@@ -64,7 +64,7 @@ export function useRegisterForm(): UseRegisterFormReturn {
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = REGISTER_ERRORS.PASSWORD_MISMATCH;
+      newErrors.confirmPassword = REGISTER_MESSAGES.PASSWORD_MISMATCH;
     }
 
     if (!formData.email) {

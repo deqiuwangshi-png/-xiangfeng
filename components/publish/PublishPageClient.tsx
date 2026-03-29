@@ -46,10 +46,12 @@ export default function PublishPageClient() {
     initialTitle: string
     initialContent: string
     draftId: string | null
+    isPublished: boolean
   }>({
     initialTitle: '',
     initialContent: '',
     draftId: null,
+    isPublished: false,
   })
 
   const [isLoading, setIsLoading] = useState(!!editId)
@@ -68,6 +70,7 @@ export default function PublishPageClient() {
             initialTitle: article.title,
             initialContent: article.content,
             draftId: article.id,
+            isPublished: article.status === 'published',
           })
         } else {
           toast.error('草稿不存在或无权访问')
@@ -91,6 +94,7 @@ export default function PublishPageClient() {
       initialTitle={initialData.initialTitle}
       initialContent={initialData.initialContent}
       draftId={initialData.draftId}
+      isPublished={initialData.isPublished}
     />
   )
 }

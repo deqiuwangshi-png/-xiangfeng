@@ -10,8 +10,7 @@
 
 ```
 app/(main)/publish/
-├── page.tsx                    # 发布页面 Server Component
-└── PublishPageClient.tsx       # 发布页面 Client Component
+└── page.tsx                    # 发布页面 Server Component
 ```
 
 ### 组件文件
@@ -20,6 +19,7 @@ app/(main)/publish/
 components/publish/
 ├── index.ts                    # 组件索引文件（统一导出）
 ├── README.md                   # 组件文档
+├── PublishPageClient.tsx       # 发布页面 Client Component
 ├── _header/                    # 头部组件目录
 │   └── EditorHeader.tsx        # 编辑器头部组件
 ├── _core/                      # 核心组件目录
@@ -58,7 +58,8 @@ hooks/publish/
 lib/
 ├── upload/
 │   ├── img.ts                  # 图片上传工具
-│   └── editorImage.ts          # 编辑器图片上传工具（带即时反馈）
+│   ├── editorImage.ts          # 编辑器图片上传工具（带即时反馈）
+│   └── avatar.ts               # 头像上传工具
 ├── articles/
 │   ├── schema.ts               # 文章数据验证 Schema
 │   └── actions/
@@ -94,7 +95,7 @@ lib/
 
 #### 2. PublishPageClient（发布页面 Client Component）
 
-**位置**: `app/(main)/publish/PublishPageClient.tsx`
+**位置**: `components/publish/PublishPageClient.tsx`
 
 **职责**: 发布页面的客户端组件，封装动态导入逻辑
 

@@ -12,6 +12,11 @@ export interface EditorState {
   draftId: string | null
   isSaving: boolean
   isPublishing: boolean
+  /**
+   * 文章是否已发布
+   * @逻辑说明 true = 已发布文章，不再保存草稿；false = 草稿/未发布，可以保存草稿
+   */
+  isPublished: boolean
 }
 
 /** localStorage Key for fullscreen mode */
@@ -46,7 +51,12 @@ const getInitialFullscreen = (): boolean => {
  * @param initialDraftId - 初始草稿ID
  * @returns 编辑器状态和方法
  */
-export const useEditorState = (initialTitle: string = '', initialContent: string = '', initialDraftId: string | null = null) => {
+export const useEditorState = (
+  initialTitle: string = '',
+  initialContent: string = '',
+  initialDraftId: string | null = null,
+  initialIsPublished: boolean = false
+) => {
   const [editorState, setEditorState] = useState<EditorState>({
     title: initialTitle,
     content: initialContent,
@@ -57,6 +67,7 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
     draftId: initialDraftId,
     isSaving: false,
     isPublishing: false,
+    isPublished: initialIsPublished,
   })
 
   /**

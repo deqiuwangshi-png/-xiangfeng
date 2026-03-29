@@ -11,8 +11,9 @@ import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { UserProfileSection } from '@/components/user/UserProfileSection'
-import { useInboxCache } from '@/hooks/notification/useInboxCache'
+import { UserProfileSection } from '@/components/user'
+import { useInboxCache } from '@/hooks'
+import type { SimpleUser, UserProfile } from '@/types/user'
 
 /**
  * 导航项接口
@@ -47,30 +48,6 @@ const navItems: NavItem[] = [
  * - 其他路由通过鼠标悬停按需预加载
  */
 const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
-
-/**
- * 用户资料接口
- * @interface UserProfile
- */
-interface UserProfile {
-  id: string
-  email: string
-  username: string
-  avatar_url: string
-}
-
-/**
- * 简化用户对象接口
- * @interface SimpleUser
- */
-interface SimpleUser {
-  id: string
-  email: string
-  user_metadata?: {
-    username?: string
-    avatar_url?: string
-  }
-}
 
 /**
  * Sidebar Props 接口

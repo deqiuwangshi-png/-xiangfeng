@@ -85,12 +85,6 @@ function generateUniqueFileName(originalName: string): string {
  * @param file - 图片文件
  * @returns 图片的 Public URL
  * @throws {UploadError} 上传失败时抛出错误
- *
- * @example
- * ```typescript
- * const url = await uploadImage(file)
- * editor.chain().focus().setImage({ src: url }).run()
- * ```
  */
 export async function uploadImage(file: File): Promise<string> {
   validateImage(file)

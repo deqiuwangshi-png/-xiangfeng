@@ -23,15 +23,15 @@ export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/auth/useLogout';
 // ==================== Hooks & 客户端工具 ====================
 export { useLogout } from '@/hooks/auth/useLogout';
 
-// ==================== 错误消息（保持兼容）====================
+// ==================== 消息常量（已迁移到 lib/messages）====================
 export {
   COMMON_ERRORS,
-  LOGIN_ERRORS,
-  REGISTER_ERRORS,
-  RESET_PASSWORD_ERRORS,
+  LOGIN_MESSAGES,
+  REGISTER_MESSAGES,
+  RESET_PASSWORD_MESSAGES,
   AUTH_ERRORS,
   mapSupabaseError,
-} from './errorMessages';
+} from '@/lib/messages';
 
 // ==================== 权限类型（客户端安全）====================
 export type {

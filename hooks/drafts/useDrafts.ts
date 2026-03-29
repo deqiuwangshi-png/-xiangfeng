@@ -2,11 +2,11 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import useSWR from 'swr'
 import { DraftService, Article } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
 import { fetchDrafts } from '@/lib/articles/actions/query'
+import { useDraftsToast } from './useDraftsToast'
 import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
 
 /** SWR 缓存 Key */
@@ -56,6 +56,17 @@ export function useDrafts(
   itemsPerPage = 6
 ): UseDraftsReturn {
   const router = useRouter()
+
+  // 使用统一的 toast 提示 hook
+  const {
+    showDeleteSuccess,
+    showDeleteError,
+    showBatchDeletePartialSuccess,
+    showBatchSuccess,
+    showBatchAllFailed,
+    showBatchPartialSuccess,
+    showNoDraftsToClear,
+  } = useDraftsToast()
 
   // 使用 SWR 缓存草稿列表
   const {
@@ -273,7 +284,7 @@ export function useDrafts(
 
           // 显示结果提示
           if (result.failedCount > 0) {
-            toast.warning(`成功删除 ${result.deletedCount} 篇，${result.failedCount} 篇删除失败`)
+            showBatchDeletePartialSuccess(result.deletedCount, result.failedCount)
             setIsLoading(false)
             return
           }
@@ -286,15 +297,15 @@ export function useDrafts(
         {/* 删除后校准分页状态，防止页码越界 */}
         calibratePage(remainingDrafts)
 
-        toast.success('删除成功')
+        showDeleteSuccess()
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : '删除失败')
+        showDeleteError(error instanceof Error ? error : '删除失败')
         throw error
       } finally {
         setIsLoading(false)
       }
     },
-    [router, drafts, mutateDrafts, calibratePage]
+    [router, drafts, mutateDrafts, calibratePage, showBatchDeletePartialSuccess, showDeleteError, showDeleteSuccess]
   )
 
 
@@ -353,19 +364,19 @@ export function useDrafts(
 
         // 显示结果提示
         if (failedIds.length === 0) {
-          toast.success(successMessage)
+          showBatchSuccess(successMessage)
         } else if (successIds.length === 0) {
-          toast.error('所有操作失败，请重试')
+          showBatchAllFailed()
         } else {
-          toast.warning(`成功 ${successIds.length} 篇，失败 ${failedIds.length} 篇`)
+          showBatchPartialSuccess(successIds.length, failedIds.length)
         }
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : '操作失败')
+        showDeleteError(error instanceof Error ? error : '操作失败')
       } finally {
         setIsLoading(false)
       }
     },
-    [selectedIds, mutateDrafts]
+    [selectedIds, mutateDrafts, showBatchAllFailed, showBatchPartialSuccess, showBatchSuccess, showDeleteError]
   )
 
   /**
@@ -397,12 +408,12 @@ export function useDrafts(
   const handleClearAllDrafts = useCallback(async () => {
     const draftArticles = drafts.filter((d) => d.status === 'draft')
     if (draftArticles.length === 0) {
-      toast.info('没有可清空的草稿')
+      showNoDraftsToClear()
       return
     }
 
     await executeDeleteDrafts(draftArticles.map((d) => d.id))
-  }, [drafts, executeDeleteDrafts])
+  }, [drafts, executeDeleteDrafts, showNoDraftsToClear])
 
   return {
     drafts,

@@ -274,7 +274,7 @@ export function useTipTapEditor({
         },
       },
     }),
-    [content, onChange, placeholder]
+    [content, debouncedOnChange, placeholder]
   )
 
   // 创建编辑器实例

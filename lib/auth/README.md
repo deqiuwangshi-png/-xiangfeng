@@ -26,7 +26,7 @@ lib/auth/
 │   ├── forgot-password.ts     # 忘记密码
 │   ├── reset-password.ts      # 重置密码
 │   └── change-password.ts     # 修改密码
-├── errorMessages.ts           # 错误消息常量
+├── messages/                  # 消息常量（已迁移到 lib/messages）
 ├── permissions.ts             # 权限控制系统（服务端专用）
 ├── utils.ts                   # 认证工具函数
 ├── redir.ts                   # 重定向安全工具
@@ -351,27 +351,32 @@ if (result.success) {
 
 ## 错误消息
 
-### 统一错误消息常量
+### 统一消息常量
 
-**位置**: `errorMessages.ts`
+**位置**: `lib/messages/auth.ts`
 
 ```typescript
 import { 
   COMMON_ERRORS,
-  LOGIN_ERRORS,
-  REGISTER_ERRORS,
-  RESET_PASSWORD_ERRORS,
-  CHANGE_PASSWORD_ERRORS
-} from '@/lib/auth/errorMessages'
+  LOGIN_MESSAGES,
+  REGISTER_MESSAGES,
+  RESET_PASSWORD_MESSAGES,
+  CHANGE_PASSWORD_MESSAGES,
+  mapSupabaseError
+} from '@/lib/messages'
 ```
 
-### 错误类型
+### 消息类型
 
 | 常量 | 用途 |
 |------|------|
 | COMMON_ERRORS | 通用错误 |
-| LOGIN_ERRORS | 登录相关 |
-| REGISTER_ERRORS | 注册相关 |
+| LOGIN_MESSAGES | 登录相关（含成功/错误） |
+| REGISTER_MESSAGES | 注册相关（含成功/错误） |
+| RESET_PASSWORD_MESSAGES | 密码重置相关 |
+| CHANGE_PASSWORD_MESSAGES | 修改密码相关 |
+| LOGOUT_MESSAGES | 退出登录相关 |
+| LOGIN_HISTORY_MESSAGES | 登录历史相关 |
 | RESET_PASSWORD_ERRORS | 密码重置 |
 | CHANGE_PASSWORD_ERRORS | 修改密码 |
 | AUTH_ERRORS | 认证通用 |

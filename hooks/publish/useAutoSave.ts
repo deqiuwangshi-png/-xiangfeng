@@ -33,6 +33,17 @@ export const useAutoSave = (
   const hasUnsavedChangesRef = useRef<boolean>(false)
 
   /**
+   * 文章发布状态引用
+   * @关键修复 使用 ref 存储 isPublished，避免清理函数中的闭包问题
+   */
+  const isPublishedRef = useRef<boolean>(editorState.isPublished)
+
+  // 同步 isPublished 到 ref
+  useEffect(() => {
+    isPublishedRef.current = editorState.isPublished
+  }, [editorState.isPublished])
+
+  /**
    * 生成内容哈希 - 使用更可靠的哈希算法
    * @健壮性优化 使用长度+内容组合，避免特殊字符问题
    */
@@ -49,9 +60,15 @@ export const useAutoSave = (
   /**
    * 执行保存
    * @性能优化 只在内容变化时保存
+   * @逻辑说明 已发布文章不保存草稿
    * @returns Promise<void> 保存完成的 Promise
    */
   const doSave = useCallback(async (): Promise<void> => {
+    // 已发布文章，不保存草稿（使用 ref 获取最新状态）
+    if (isPublishedRef.current) {
+      return
+    }
+
     const currentHash = getContentHash()
 
     // 内容未变化，跳过保存
@@ -94,8 +111,14 @@ export const useAutoSave = (
   /**
    * 同步保存 - 用于 beforeunload
    * @健壮性优化 使用 sendBeacon 确保数据发送
+   * @逻辑说明 已发布文章不进行同步保存
    */
   const syncSave = useCallback(() => {
+    // 已发布文章，不进行同步保存（使用 ref 获取最新状态）
+    if (isPublishedRef.current) {
+      return
+    }
+
     const currentHash = getContentHash()
 
     // 内容未变化，无需保存
@@ -134,8 +157,19 @@ export const useAutoSave = (
   /**
    * 监听内容变化，触发防抖保存
    * @性能优化 使用 ref 存储防抖函数，避免重复创建
+   * @逻辑说明 已发布文章停止自动保存
    */
   useEffect(() => {
+    // 已发布文章，停止自动保存
+    if (editorState.isPublished) {
+      // 清除待执行的防抖定时器
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+      }
+      return
+    }
+
     debouncedSave()
 
     // 清理函数：组件卸载时立即保存
@@ -144,12 +178,12 @@ export const useAutoSave = (
         clearTimeout(debounceTimerRef.current)
         debounceTimerRef.current = null
       }
-      // 使用同步保存确保数据不丢失
+      // 使用同步保存确保数据不丢失（已发布文章不会执行保存）
       syncSave()
     }
-    // 注意：只依赖 title 和 content，debouncedSave 使用 ref 稳定引用
+    // 注意：依赖 title、content 和 isPublished，确保发布后停止保存
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorState.title, editorState.content])
+  }, [editorState.title, editorState.content, editorState.isPublished])
 
   /**
    * 离开页面前保存

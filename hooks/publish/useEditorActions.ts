@@ -11,11 +11,15 @@
 
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { mutate } from 'swr'
 import type { EditorState } from './useEditorState'
+import { useEditorToast } from './useEditorToast'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
 import { batchUpdateMediaStatus } from '@/lib/media/actions'
 import { extractImageUrls } from '@/lib/media/utils'
+
+/** SWR 缓存 Key */
+const DRAFTS_CACHE_KEY = 'drafts/list'
 
 /**
  * 编辑器操作 Hook
@@ -30,6 +34,18 @@ export const useEditorActions = (
 ) => {
   const titleRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
+
+  // 使用统一的 toast 提示 hook
+  const {
+    showDraftSaved,
+    showDraftUpdated,
+    showPublished,
+    showTitleRequired,
+    showContentRequired,
+    showSaveError,
+    showPublishError,
+    showStatusError,
+  } = useEditorToast()
 
   /**
    * 更新文章中媒体状态为 published
@@ -68,11 +84,15 @@ export const useEditorActions = (
   const saveDraft = async (options?: { silent?: boolean; skipIfEmpty?: boolean }) => {
     const { silent = false, skipIfEmpty = false } = options || {}
 
+    // @关键修复 已发布文章不保存草稿
+    if (editorState.isPublished) {
+      return
+    }
+
     if (!editorState.title.trim()) {
       if (skipIfEmpty) return
       if (!silent) {
-        toast.error('请输入标题')
-        titleRef.current?.focus()
+        showTitleRequired(() => titleRef.current?.focus())
       }
       return
     }
@@ -89,7 +109,7 @@ export const useEditorActions = (
           content: editorState.content,
         })
         articleId = editorState.draftId
-        if (!silent) toast.success('草稿更新成功')
+        if (!silent) showDraftUpdated()
       } else {
         // 无草稿ID，创建新草稿
         const article = await createArticle({
@@ -100,7 +120,7 @@ export const useEditorActions = (
         articleId = article.id
         // 保存草稿ID到状态
         setEditorState(prev => ({ ...prev, draftId: article.id }))
-        if (!silent) toast.success('草稿保存成功')
+        if (!silent) showDraftSaved()
       }
 
       // 更新媒体状态为 published（草稿也更新，方便后续直接发布）
@@ -112,7 +132,7 @@ export const useEditorActions = (
       }
     } catch (error) {
       if (!silent) {
-        toast.error(error instanceof Error ? error.message : '保存失败')
+        showSaveError(error instanceof Error ? error : '保存失败')
       }
     } finally {
       setEditorState(prev => ({ ...prev, isSaving: false }))
@@ -126,14 +146,13 @@ export const useEditorActions = (
    */
   const publishContent = async () => {
     if (!editorState.title.trim()) {
-      toast.error('请输入文章标题')
-      titleRef.current?.focus()
+      showTitleRequired(() => titleRef.current?.focus())
       return
     }
     // 检查纯文本长度
     const textContent = editorState.content.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim()
     if (!textContent || textContent.length === 0) {
-      toast.error('请输入文章内容')
+      showContentRequired()
       return
     }
 
@@ -144,13 +163,22 @@ export const useEditorActions = (
 
       if (editorState.draftId) {
         // 有草稿ID，先更新内容，再更新状态为已发布
-        await updateArticle(editorState.draftId, {
-          title: editorState.title,
-          content: editorState.content,
-        })
-        await updateArticleStatus(editorState.draftId, 'published')
+        // @关键修复 使用 Promise.all 确保内容和状态同时更新成功
+        const [, statusResult] = await Promise.all([
+          updateArticle(editorState.draftId, {
+            title: editorState.title,
+            content: editorState.content,
+          }),
+          updateArticleStatus(editorState.draftId, 'published'),
+        ])
+
+        // 验证状态更新是否成功
+        if (!statusResult.success) {
+          showStatusError()
+          throw new Error('文章状态更新失败，请重试')
+        }
+
         articleId = editorState.draftId
-        toast.success('文章发布成功')
       } else {
         // 无草稿ID，创建新文章
         const article = await createArticle({
@@ -159,16 +187,23 @@ export const useEditorActions = (
           status: 'published',
         })
         articleId = article.id
-        toast.success('发布成功')
       }
 
       // 更新媒体状态为 published
       await updateMediaStatus(articleId, editorState.content)
 
+      // 标记文章已发布，停止自动保存草稿
+      setEditorState(prev => ({ ...prev, isPublished: true }))
+
+      // @关键修复 清除草稿列表 SWR 缓存，确保返回草稿页时能看到最新状态
+      mutate(DRAFTS_CACHE_KEY, undefined, { revalidate: false })
+
+      showPublished()
+
       // 直接跳转到文章详情页
       router.push(`/article/${articleId}`)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '发布失败，请重试')
+      showPublishError(error instanceof Error ? error : '发布失败，请重试')
     } finally {
       setEditorState(prev => ({ ...prev, isPublishing: false }))
     }
