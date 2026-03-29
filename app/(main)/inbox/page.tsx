@@ -1,5 +1,5 @@
 import { InboxClient } from '@/components/inbox/_client/InboxClient'
-import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 
 /**

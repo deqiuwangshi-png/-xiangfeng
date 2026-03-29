@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import PublishPageClient from './PublishPageClient'
-import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 

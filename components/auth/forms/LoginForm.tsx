@@ -19,8 +19,8 @@ import { checkRateLimit } from '@/lib/security/rateLimit';
 import { login } from '@/lib/auth';
 import { sanitizeRedirect } from '@/lib/auth/redir';
 import { createClient } from '@/lib/supabase/client';
-import { PasswordInput } from '@/components/auth/PasswordInput';
-import { OAuthButtons } from '@/components/auth/OAuthButtons';
+import { PasswordInput } from '@/components/auth/ui/PasswordInput';
+import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
 
 /**
  * 获取客户端标识符

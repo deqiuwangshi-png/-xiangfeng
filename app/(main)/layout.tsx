@@ -1,5 +1,5 @@
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
-import { AuthGuard } from '@/components/auth/AuthGuard'
+import { AuthGuard } from '@/components/auth/guards/AuthGuard'
 import '@/styles/app.css'
 import '@/styles/user.css'
 import '@/styles/feedback.css'

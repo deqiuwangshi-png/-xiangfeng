@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { DraftsClient } from '@/components/drafts/core/DraftsClient'
 import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
-import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { getArticles } from '@/lib/articles/actions/crud'
 import { getCurrentUserWithProfile } from '@/lib/supabase/user'
 import { filterOptions } from '@/constants/drafts'

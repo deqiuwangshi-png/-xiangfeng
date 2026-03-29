@@ -7,7 +7,7 @@ import { useAuthToast } from '@/hooks/useAuthToast';
 import { createClient } from '@/lib/supabase/client';
 import { resetPassword } from '@/lib/auth';
 import { validatePassword } from '@/lib/security/passwordPolicy';
-import { PasswordInput } from '@/components/auth/PasswordInput';
+import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 
 export function ResetPasswordForm() {
   const router = useRouter();

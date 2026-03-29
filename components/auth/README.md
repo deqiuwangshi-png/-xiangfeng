@@ -25,20 +25,25 @@ app/(auth)/
 
 ```
 components/auth/
-├── AuthGuard.tsx               # 认证守卫组件
-├── AuthRequiredContent.tsx     # 需要认证内容组件
-├── BrandSection.tsx            # 品牌区域组件
-├── MobileBrandTitle.tsx        # 移动端品牌标题组件
-├── FormCard.tsx                # 表单卡片组件
-├── LoginForm.tsx               # 登录表单组件
-├── RegisterForm.tsx            # 注册表单组件
-├── ForgotPasswordForm.tsx      # 忘记密码表单组件
-├── ResetPasswordForm.tsx       # 重置密码表单组件
-├── OAuthButtons.tsx            # 第三方登录按钮组组件
-├── PasswordInput.tsx           # 密码输入组件
-├── PwdStrength.tsx             # 密码强度指示器组件
-├── LogoutButton.tsx            # 退出登录按钮组件
-├── ProtectedAction.tsx         # 受保护操作组件
+├── guards/                     # 认证守卫组件
+│   ├── AuthGuard.tsx           # 认证守卫组件
+│   ├── AuthRequiredContent.tsx # 需要认证内容组件
+│   └── ProtectedAction.tsx     # 受保护操作组件
+├── forms/                      # 表单组件
+│   ├── LoginForm.tsx           # 登录表单组件
+│   ├── RegisterForm.tsx        # 注册表单组件
+│   ├── ForgotPasswordForm.tsx  # 忘记密码表单组件
+│   └── ResetPasswordForm.tsx   # 重置密码表单组件
+├── ui/                         # UI 基础组件
+│   ├── BrandSection.tsx        # 品牌区域组件
+│   ├── MobileBrandTitle.tsx    # 移动端品牌标题组件
+│   ├── FormCard.tsx            # 表单卡片组件
+│   ├── PasswordInput.tsx       # 密码输入组件
+│   ├── PwdStrength.tsx         # 密码强度指示器组件
+│   └── OAuthButtons.tsx        # 第三方登录按钮组组件
+├── actions/                    # 操作按钮组件
+│   └── LogoutButton.tsx        # 退出登录按钮组件
+├── index.ts                    # 统一导出入口
 └── README.md                   # 组件文档
 ```
 
@@ -68,7 +73,7 @@ lib/auth/
 
 #### 1. AuthGuard（认证守卫组件）
 
-**位置**: `AuthGuard.tsx`
+**位置**: `guards/AuthGuard.tsx`
 
 **职责**: 统一处理认证状态，控制布局和内容的显示
 
@@ -87,7 +92,7 @@ lib/auth/
 
 #### 2. AuthRequiredContent（需要认证内容组件）
 
-**位置**: `AuthRequiredContent.tsx`
+**位置**: `guards/AuthRequiredContent.tsx`
 
 **职责**: 通用未登录占位组件，居中显示登录引导
 
@@ -109,7 +114,7 @@ lib/auth/
 
 #### 3. BrandSection（品牌区域组件）
 
-**位置**: `BrandSection.tsx`
+**位置**: `ui/BrandSection.tsx`
 
 **职责**: 显示品牌Logo、标题、副标题和引言
 
@@ -125,7 +130,7 @@ lib/auth/
 
 #### 4. MobileBrandTitle（移动端品牌标题组件）
 
-**位置**: `MobileBrandTitle.tsx`
+**位置**: `ui/MobileBrandTitle.tsx`
 
 **职责**: 在移动端显示品牌标题和副标题
 
@@ -140,7 +145,7 @@ lib/auth/
 
 #### 5. FormCard（表单卡片组件）
 
-**位置**: `FormCard.tsx`
+**位置**: `ui/FormCard.tsx`
 
 **职责**: 提供表单卡片的容器和装饰
 
@@ -160,7 +165,7 @@ lib/auth/
 
 #### 6. LoginForm（登录表单组件）
 
-**位置**: `LoginForm.tsx`
+**位置**: `forms/LoginForm.tsx`
 
 **职责**: 登录表单逻辑和交互
 
@@ -183,7 +188,7 @@ lib/auth/
 
 #### 7. RegisterForm（注册表单组件）
 
-**位置**: `RegisterForm.tsx`
+**位置**: `forms/RegisterForm.tsx`
 
 **职责**: 注册表单逻辑和交互
 
@@ -200,7 +205,7 @@ lib/auth/
 
 #### 8. ForgotPasswordForm（忘记密码表单组件）
 
-**位置**: `ForgotPasswordForm.tsx`
+**位置**: `forms/ForgotPasswordForm.tsx`
 
 **职责**: 忘记密码表单逻辑和交互
 
@@ -216,7 +221,7 @@ lib/auth/
 
 #### 9. ResetPasswordForm（重置密码表单组件）
 
-**位置**: `ResetPasswordForm.tsx`
+**位置**: `forms/ResetPasswordForm.tsx`
 
 **职责**: 重置密码表单逻辑和交互
 
@@ -235,7 +240,7 @@ lib/auth/
 
 #### 10. PasswordInput（密码输入组件）
 
-**位置**: `PasswordInput.tsx`
+**位置**: `ui/PasswordInput.tsx`
 
 **职责**: 带可见性切换的密码输入框
 
@@ -257,7 +262,7 @@ lib/auth/
 
 #### 11. PwdStrength（密码强度指示器组件）
 
-**位置**: `PwdStrength.tsx`
+**位置**: `ui/PwdStrength.tsx`
 
 **职责**: 显示密码强度等级和验证提示
 
@@ -279,7 +284,7 @@ lib/auth/
 
 #### 12. OAuthButtons（第三方登录按钮组组件）
 
-**位置**: `OAuthButtons.tsx`
+**位置**: `ui/OAuthButtons.tsx`
 
 **职责**: 展示第三方登录图标按钮
 
@@ -307,7 +312,7 @@ lib/auth/
 
 #### 13. LogoutButton（退出登录按钮组件）
 
-**位置**: `LogoutButton.tsx`
+**位置**: `actions/LogoutButton.tsx`
 
 **职责**: 可复用的退出登录按钮
 
@@ -329,7 +334,7 @@ lib/auth/
 
 #### 14. ProtectedAction（受保护操作组件）
 
-**位置**: `ProtectedAction.tsx`
+**位置**: `guards/ProtectedAction.tsx`
 
 **职责**: 包装需要认证的操作按钮/组件
 
@@ -535,6 +540,39 @@ AuthGuard（布局更新）
 - 使用项目定义的颜色变量（`--color-xf-*`）
 - 主色调：xf-primary
 - 背景色：xf-light
+
+## 导入方式
+
+### 方式一：统一入口导入（推荐）
+
+```tsx
+import { 
+  AuthGuard, 
+  AuthRequiredContent,
+  LoginForm,
+  BrandSection,
+  LogoutButton 
+} from '@/components/auth';
+```
+
+### 方式二：分类路径导入
+
+```tsx
+// Guards
+import { AuthGuard } from '@/components/auth/guards/AuthGuard';
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent';
+
+// Forms
+import { LoginForm } from '@/components/auth/forms/LoginForm';
+import { RegisterForm } from '@/components/auth/forms/RegisterForm';
+
+// UI
+import { BrandSection } from '@/components/auth/ui/BrandSection';
+import { PasswordInput } from '@/components/auth/ui/PasswordInput';
+
+// Actions
+import { LogoutButton } from '@/components/auth/actions/LogoutButton';
+```
 
 ## 更新时间
 
