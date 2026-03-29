@@ -3,12 +3,11 @@
 /**
  * 导航栏组件 - 响应式导航
  * @module components/marketing/Navbar
- * @description 桌面端显示完整导航，移动端使用简化版
+ * @description 桌面端显示完整导航，移动端使用简化版，固定在视口顶部随滚动保持可见
  * @性能优化 P1: 将 router.push 改为 Link 组件，启用自动预加载
  */
 
 import Link from 'next/link'
-import { useEffect } from 'react'
 import { Logo } from '@/components/icons'
 import { MobileNav } from '@/components/mobile/MobileNav'
 
@@ -29,27 +28,9 @@ const navItems = [
  * @returns {JSX.Element} 桌面端导航
  */
 function DesktopNav() {
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const navbar = document.getElementById('navbar')
-      if (navbar) {
-        if (window.scrollY > 10) {
-          navbar.classList.add('shadow-md')
-        } else {
-          navbar.classList.remove('shadow-md')
-        }
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   return (
     <nav
-      id="navbar"
-      className="sticky top-0 z-50 w-full transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-white/20"
+      className="fixed top-0 left-0 right-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-white/20"
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center group">

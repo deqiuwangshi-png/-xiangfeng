@@ -26,7 +26,6 @@ components/marketing/
 ├── CTASection.tsx              # 行动号召区
 ├── Navbar.tsx                  # 导航栏
 ├── Footer.tsx                  # 页脚
-├── RevealOnScroll.tsx          # 滚动显示动画（旧版）
 └── RevealOnScrollClient.tsx    # 滚动显示动画（客户端）
 ```
 
@@ -214,7 +213,7 @@ components/marketing/
 
 ### 动画组件
 
-#### 9. RevealOnScrollClient（滚动显示动画）
+#### 9. RevealOnScrollClient（滚动显示动画客户端组件）
 
 **位置**: `RevealOnScrollClient.tsx`
 
@@ -233,13 +232,7 @@ components/marketing/
 </RevealOnScrollClient>
 ```
 
-#### 10. RevealOnScroll（滚动显示动画 - 旧版）
 
-**位置**: `RevealOnScroll.tsx`
-
-**职责**: 滚动显示动画（旧版实现）
-
-**注意**: 已被 RevealOnScrollClient 替代，保留用于兼容
 
 ## 页面组件
 

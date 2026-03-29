@@ -16,7 +16,7 @@ export default function MarketingLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pt-[72px]">{children}</main>
       <Footer />
     </div>
   )
