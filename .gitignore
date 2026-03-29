@@ -45,7 +45,8 @@ next-env.d.ts
 docs/*
 .next/
 .trae/
-.sql/*
+.sql文件/
+/sql文件/
 lib/supabase/migrations/*
 
 

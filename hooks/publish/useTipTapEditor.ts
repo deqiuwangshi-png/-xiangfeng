@@ -59,6 +59,39 @@ export function useTipTapEditor({
   const pendingUploadsRef = useRef<Map<string, boolean>>(new Map())
 
   /**
+   * 防抖定时器引用
+   * @性能优化 使用防抖避免每次输入都触发状态更新
+   */
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  /**
+   * 防抖处理的内容更新函数
+   * @性能优化 延迟 300ms 触发 onChange，减少重渲染
+   */
+  const debouncedOnChange = useCallback(
+    (htmlContent: string) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+      debounceTimerRef.current = setTimeout(() => {
+        onChange(htmlContent)
+      }, 300)
+    },
+    [onChange]
+  )
+
+  /**
+   * 清理防抖定时器
+   */
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
+  /**
    * 客户端环境初始化编辑器
    * 使用 useLayoutEffect 确保与 React 渲染同步
    * 避免使用 setTimeout，减少初始化延迟
@@ -151,7 +184,7 @@ export function useTipTapEditor({
       editable: true,
       immediatelyRender: false,
       onUpdate: ({ editor }: { editor: Editor }) => {
-        onChange(editor.getHTML())
+        debouncedOnChange(editor.getHTML())
       },
       editorProps: {
         attributes: {

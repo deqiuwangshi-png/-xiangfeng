@@ -59,17 +59,25 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
     isPublishing: false,
   })
 
-  const updateTitle = (title: string) => {
+  /**
+   * 更新标题
+   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
+   */
+  const updateTitle = useCallback((title: string) => {
     setEditorState(prev => ({ ...prev, title, titleLength: title.length }))
-  }
+  }, [])
 
-  const updateContent = (content: string) => {
+  /**
+   * 更新内容
+   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
+   */
+  const updateContent = useCallback((content: string) => {
     setEditorState(prev => ({
       ...prev,
       content,
       contentLength: getTextLength(content),
     }))
-  }
+  }, [])
 
   /**
    * 切换专注模式并持久化到 localStorage
@@ -86,9 +94,13 @@ export const useEditorState = (initialTitle: string = '', initialContent: string
     })
   }, [])
 
-  const toggleToolbar = () => {
+  /**
+   * 切换工具栏折叠状态
+   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
+   */
+  const toggleToolbar = useCallback(() => {
     setEditorState(prev => ({ ...prev, isToolbarCollapsed: !prev.isToolbarCollapsed }))
-  }
+  }, [])
 
   return {
     editorState,

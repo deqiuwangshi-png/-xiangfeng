@@ -10,7 +10,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { TextareaHTMLAttributes, useRef, useEffect } from 'react'
+import { TextareaHTMLAttributes, useRef, useEffect, useCallback } from 'react'
 
 /**
  * 标题输入属性接口
@@ -42,12 +42,12 @@ export function TitleInput({ value, onChange, ...props }: TitleInputProps) {
 
   /**
    * 处理输入变化
-   *
+   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
    * @param e - 输入事件
    */
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value)
-  }
+  }, [onChange])
 
   /**
    * 自动调整 textarea 高度
