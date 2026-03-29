@@ -29,18 +29,20 @@ export { SignCard } from './signin/SignCard'
  * @module components/rewards/tasks
  */
 export { TaskBoard } from './tasks/TaskBoard'
-export { TaskClient } from './tasks/TaskClient'
-export { TaskList } from './tasks/TaskList'
-export { CategoryNav } from './tasks/CategoryNav'
+export { TasksHeader } from './tasks/TasksHeader'
+export { TasksServerList } from './tasks/TasksServerList'
+export { CategoryNavClient } from './tasks/CategoryNavClient'
+export { TaskActionButton } from './tasks/TaskActionButton'
 
 /**
  * 积分商城相关组件
  * @module components/rewards/shop
  */
 export { ShopGrid } from './shop/ShopGrid'
-export { ShopClient } from './shop/ShopClient'
-export { ShopFull } from './shop/ShopFull'
-export { ShopNav } from './shop/ShopNav'
+export { ShopCategoryNav } from './shop/ShopCategoryNav'
+export { ShopServerGrid } from './shop/ShopServerGrid'
+export { ShopHeader } from './shop/ShopHeader'
+export { ShopExchangeButton } from './shop/ShopExchangeButton'
 
 /**
  * 我的福利相关组件

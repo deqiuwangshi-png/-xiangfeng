@@ -6,7 +6,13 @@
 types/
 ├── README.md           # 本文档
 ├── index.ts            # 类型统一导出入口
-├── article.ts          # 文章相关类型定义
+├── article/            # 文章相关类型定义目录
+│   ├── index.ts        # 统一出口
+│   ├── common.ts       # 基础类型和常量
+│   ├── article.ts      # 文章类型
+│   ├── comment.ts      # 评论类型
+│   ├── actions.ts      # 操作返回类型
+│   └── components.ts   # 组件 Props 类型
 ├── auth.ts             # 认证相关类型定义
 ├── drafts.ts           # 草稿相关类型定义
 ├── feedback.ts         # 反馈相关类型定义
@@ -14,7 +20,15 @@ types/
 ├── media.ts            # 媒体相关类型定义
 ├── notification.ts     # 通知相关类型定义
 ├── permissions.ts      # 权限相关类型定义
-├── rewards.ts          # 积分奖励类型定义
+├── rewards/            # 福利中心类型定义目录
+│   ├── index.ts        # 统一出口
+│   ├── common.ts       # 枚举和通用类型
+│   ├── points.ts       # 积分系统类型
+│   ├── signin.ts       # 签到系统类型
+│   ├── tasks.ts        # 任务系统类型
+│   ├── levels.ts       # 等级系统类型
+│   ├── shop.ts         # 商城系统类型
+│   └── views.ts        # 视图/前端展示类型
 ├── settings.ts         # 设置相关类型定义
 ├── supabase.ts         # Supabase 数据库类型
 ├── updates.ts          # 更新日志类型定义
@@ -59,9 +73,19 @@ async function handleLogin(data: LoginFormData): Promise<LoginResult> {
 }
 ```
 
-### 2. 文章模块 (article.ts)
+### 2. 文章模块 (article/)
 
-定义文章、评论、点赞等相关类型。
+定义文章、评论、点赞等相关类型。按功能拆分为多个子模块，便于维护。
+
+**目录结构：**
+
+| 文件名 | 说明 | 包含类型 |
+|--------|------|----------|
+| `common.ts` | 基础类型和常量 | `MAX_COMMENTS_WITHOUT_LOGIN`, `ArticleStatus` |
+| `article.ts` | 文章类型 | `Article`, `ArticleAuthor`, `ArticleWithAuthor`, `ArticleCardData` |
+| `comment.ts` | 评论类型 | `Comment`, `CommentWithAuthor`, `CommentSubmitData` |
+| `actions.ts` | 操作返回类型 | `ToggleLikeResult`, `SubmitCommentResult`, `CreateArticleResult` 等 |
+| `components.ts` | 组件 Props 类型 | `CommentPanelProps`, `ArticleCardProps`, `ArtActProps` 等 |
 
 **核心类型：**
 
@@ -96,6 +120,9 @@ async function handleLogin(data: LoginFormData): Promise<LoginResult> {
 | `ArticleContentProps` | 文章内容组件属性 |
 | `CommentFormProps` | 评论表单组件属性 |
 | `ArticlePageProps` | 文章页面组件属性 |
+| `ArtActProps` | 文章操作按钮组件属性 |
+| `RwMdProps` | 打赏弹窗组件属性 |
+| `PtRwProps` | 积分打赏面板组件属性 |
 
 **常量：**
 
@@ -106,7 +133,12 @@ async function handleLogin(data: LoginFormData): Promise<LoginResult> {
 **使用示例：**
 
 ```typescript
-import type { ArticleWithAuthor, ArticleStatus } from '@/types';
+// 从统一入口导入（推荐）
+import type { ArticleWithAuthor, ArticleStatus, Comment } from '@/types/article';
+
+// 或按需从子模块导入
+import type { ArticleWithAuthor } from '@/types/article/article';
+import type { Comment } from '@/types/article/comment';
 
 const article: ArticleWithAuthor = {
   id: 'uuid',
@@ -209,39 +241,69 @@ const feedback: Feedback = {
 };
 ```
 
-### 6. 积分奖励模块 (rewards.ts)
+### 6. 积分奖励模块 (rewards/)
 
-定义积分系统、任务系统、签到等相关类型。
+定义积分系统、签到系统、任务系统、等级系统、商城系统的类型。按功能拆分为多个子模块，便于维护。
+
+**目录结构：**
+
+| 文件名 | 说明 | 包含类型 |
+|--------|------|----------|
+| `common.ts` | 枚举和通用类型 | `PointTransactionType`, `TaskCategory`, `ExchangeStatus` 等 |
+| `points.ts` | 积分系统 | `UserPoints`, `PointTransaction`, `PointExpiration` |
+| `signin.ts` | 签到系统 | `SignInRecord`, `SignInReward`, `SignInResponse` |
+| `tasks.ts` | 任务系统 | `Task`, `UserTaskRecord`, `TaskProgressResponse` |
+| `levels.ts` | 等级系统 | `PointLevel`, `UserLevelRecord`, `LevelConfig` |
+| `shop.ts` | 商城系统 | `ShopItem`, `ExchangeRecord`, `ExchangeRecordItem` |
+| `views.ts` | 视图类型 | `UserPointsOverview`, `RewardsHomeData`, `TaskCenterData` |
 
 **核心类型：**
 
 | 类型名 | 描述 | 用途 |
 |--------|------|------|
 | `UserPoints` | 用户积分 | 积分余额信息 |
-| `PointsTransaction` | 积分交易 | 积分变动记录 |
-| `PointsTransactionType` | 交易类型 | 'earn' \| 'spend' |
-| `Task` | 任务数据 | 任务定义 |
-| `TaskStatus` | 任务状态 | 'pending' \| 'completed' |
-| `UserTask` | 用户任务 | 用户任务进度 |
+| `PointTransaction` | 积分流水 | 积分变动记录 |
+| `PointTransactionType` | 交易类型 | 'earn' \| 'spend' \| 'expire' \| 'refund' |
 | `SignInRecord` | 签到记录 | 签到历史 |
-| `SignInResult` | 签到结果 | 签到操作返回 |
-| `GetTasksResult` | 获取任务结果 | 任务列表查询 |
-| `CompleteTaskResult` | 完成任务结果 | 任务完成操作 |
-| `PointsHistoryResult` | 积分历史结果 | 积分记录查询 |
-| `Product` | 商品数据 | 积分商城商品 |
-| `ExchangeResult` | 兑换结果 | 商品兑换操作 |
-| `RwMdProps` | 积分弹窗属性 | 积分组件 Props |
-| `PtRwProps` | 积分提示属性 | 积分提示组件 |
+| `SignInResponse` | 签到响应 | 签到操作返回 |
+| `Task` | 任务定义 | 任务基本信息 |
+| `TaskCategory` | 任务分类 | 'daily' \| 'weekly' \| 'monthly' \| 'yearly' \| 'event' |
+| `TaskStatus` | 任务状态 | 'pending' \| 'in_progress' \| 'completed' \| 'reward_claimed' |
+| `UserTaskRecord` | 用户任务记录 | 用户任务进度 |
+| `TaskProgressResponse` | 任务进度响应 | 任务列表展示 |
+| `PointLevel` | 积分等级 | 等级配置信息 |
+| `LevelConfig` | 等级配置项 | 前端展示用 |
+| `ShopItem` | 商城商品 | 商品信息 |
+| `ShopItemCategory` | 商品分类 | 'card' \| 'merch' \| 'physical' \| 'lottery' \| 'skin' |
+| `ExchangeRecord` | 兑换记录 | 积分兑换历史 |
+| `ExchangeStatus` | 兑换状态 | 'pending' \| 'processing' \| 'issued' \| 'used' \| 'expired' \| 'cancelled' |
+| `ExchangeRecordWithItem` | 兑换记录（含商品） | 带商品详情的兑换记录 |
+| `ExchangeRecordItem` | 兑换记录展示项 | 前端组件展示用 |
+| `UserPointsOverview` | 用户积分总览 | 积分概览视图 |
+| `RewardsHomeData` | 福利中心首页数据 | 首页聚合数据 |
+| `TaskCenterData` | 任务中心数据 | 任务页聚合数据 |
+| `ShopData` | 积分商城数据 | 商城页聚合数据 |
 
 **使用示例：**
 
 ```typescript
-import type { UserPoints, Task, SignInRecord } from '@/types';
+// 从统一入口导入（推荐）
+import type { 
+  UserPoints, 
+  Task, 
+  SignInRecord,
+  ExchangeRecordItem 
+} from '@/types/rewards';
+
+// 或按需从子模块导入
+import type { ExchangeRecordItem } from '@/types/rewards/shop';
+import type { TaskProgressResponse } from '@/types/rewards/tasks';
 
 interface RewardsPageData {
   points: UserPoints;
   tasks: Task[];
   signInHistory: SignInRecord[];
+  exchanges: ExchangeRecordItem[];
 }
 ```
 

@@ -35,20 +35,16 @@ components/rewards/
 │   └── SignCard.tsx            # 签到卡片
 ├── tasks/                      # 任务中心组件
 │   ├── TaskBoard.tsx           # 任务中心面板
-│   ├── TaskClient.tsx          # 任务客户端组件
-│   ├── TaskList.tsx            # 任务列表
-│   ├── CategoryNav.tsx         # 分类导航
 │   ├── TasksHeader.tsx         # 任务中心头部
+│   ├── TasksServerList.tsx     # 服务端任务列表
+│   ├── CategoryNavClient.tsx   # 分类导航（URL参数版）
 │   └── TaskActionButton.tsx    # 任务操作按钮
 ├── shop/                       # 积分商城组件
 │   ├── ShopGrid.tsx            # 商城网格（首页）
-│   ├── ShopClient.tsx          # 商城客户端组件
-│   ├── ShopFull.tsx            # 完整商城列表
+│   ├── ShopCategoryNav.tsx     # 分类导航（URL参数版）
+│   ├── ShopServerGrid.tsx      # 服务端商城网格
 │   ├── ShopHeader.tsx          # 商城头部
-│   ├── ShopNav.tsx             # 商城分类导航
-│   ├── ShopCategoryNav.tsx     # 分类导航（旧）
-│   ├── ShopExchangeButton.tsx  # 兑换按钮
-│   └── ShopServerGrid.tsx      # 服务端商城网格
+│   └── ShopExchangeButton.tsx  # 兑换按钮
 ├── my/                         # 我的兑换组件
 │   ├── MyRw.tsx                # 我的兑换（首页预览）
 │   ├── RwCenter.tsx            # 历史记录主组件
@@ -195,44 +191,56 @@ hooks/rewards/
 <TaskBoard />
 ```
 
-#### 6. TaskList（任务列表组件）
+#### 6. TasksHeader（任务中心头部组件）
 
-**位置**: `tasks/TaskList.tsx`
+**位置**: `tasks/TasksHeader.tsx`
 
-**职责**: 展示所有任务卡片，支持分类筛选
+**职责**: 任务中心页面头部，服务端渲染静态内容
 
 **功能**:
-- 任务卡片列表
+- 页面标题
+- 返回链接
+- 当前积分显示
+- 今日状态卡片
+
+**使用示例**:
+```tsx
+<TasksHeader currentPoints={1000} />
+```
+
+#### 7. TasksServerList（服务端任务列表组件）
+
+**位置**: `tasks/TasksServerList.tsx`
+
+**职责**: 服务端渲染任务列表
+
+**功能**:
+- 服务端获取任务数据
 - 分类筛选
-- 任务状态显示
-- 操作按钮
+- 与 TaskActionButton 配合
 
 **使用示例**:
 ```tsx
-<TaskList category="daily" />
+<TasksServerList tasks={tasks} />
 ```
 
-#### 7. CategoryNav（分类导航组件）
+#### 8. CategoryNavClient（分类导航组件）
 
-**位置**: `tasks/CategoryNav.tsx`
+**位置**: `tasks/CategoryNavClient.tsx`
 
-**职责**: 任务分类横向滚动导航
+**职责**: 任务分类导航，使用URL参数进行筛选
 
 **功能**:
-- 分类按钮列表
-- 横向滚动
-- 选中状态
+- 分类筛选
+- URL参数同步
+- 支持浏览器前进/后退
 
 **使用示例**:
 ```tsx
-<CategoryNav
-  activeCategory="daily"
-  onCategoryChange={setCategory}
-  categories={categoryConfig}
-/>
+<CategoryNavClient activeCategory={category} />
 ```
 
-#### 8. TasksHeader（任务中心头部组件）
+#### 9. TaskActionButton（任务操作按钮组件）
 
 **位置**: `tasks/TasksHeader.tsx`
 
@@ -289,37 +297,36 @@ hooks/rewards/
 <ShopGrid userPoints={1000} />
 ```
 
-#### 11. ShopClient（积分商城客户端组件）
+#### 11. ShopCategoryNav（分类导航组件）
 
-**位置**: `shop/ShopClient.tsx`
+**位置**: `shop/ShopCategoryNav.tsx`
 
-**职责**: 积分商城主客户端组件，管理分类筛选和商品展示
+**职责**: 积分商城分类导航，使用URL参数进行筛选
 
 **功能**:
 - 分类筛选
-- 商品展示
-- 积分显示
-- 返回链接
+- URL参数同步
+- 支持浏览器前进/后退
 
 **使用示例**:
 ```tsx
-<ShopClient />
+<ShopCategoryNav activeCategory={category} />
 ```
 
-#### 12. ShopFull（完整商城列表组件）
+#### 12. ShopServerGrid（服务端商城网格组件）
 
-**位置**: `shop/ShopFull.tsx`
+**位置**: `shop/ShopServerGrid.tsx`
 
-**职责**: 显示完整商品列表
+**职责**: 服务端渲染商品列表
 
 **功能**:
-- 商品列表
+- 服务端获取数据
 - 分类筛选
-- 兑换功能
+- 与ShopExchangeButton配合
 
 **使用示例**:
 ```tsx
-<ShopFull category="all" userPoints={1000} />
+<ShopServerGrid category={category} userPoints={currentPoints} />
 ```
 
 #### 13. ShopExchangeButton（商品兑换按钮组件）
@@ -612,17 +619,17 @@ RewardsPage (Server Component)
 
 TasksPage (Server Component)
 ├── TasksHeader (Server)
-└── TaskClient (Client)
-    ├── CategoryNav
-    └── TaskList
-        └── TaskActionButton
+├── CategoryNavClient (Client)
+├── TasksServerList (Server)
+│   └── TaskActionButton (Client)
+└── ...
 
 ShopPage (Server Component)
 ├── ShopHeader (Server)
-└── ShopClient (Client)
-    ├── ShopNav
-    └── ShopFull
-        └── ShopExchangeButton
+├── ShopCategoryNav (Client)
+├── ShopServerGrid (Server)
+│   └── ShopExchangeButton (Client)
+└── ...
 
 MyPage (Server Component)
 └── RwCenter (Client)

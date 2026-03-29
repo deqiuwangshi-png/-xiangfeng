@@ -18,9 +18,9 @@ import {
   Gift,
   Zap,
   Sticker,
+  LucideIcon,
 } from '@/components/icons'
-import type { ExchangeRecordWithItem } from '@/types/rewards'
-import type { LucideIcon } from 'lucide-react'
+import type { ExchangeRecordWithItem, ExchangeRecordItem } from '@/types/rewards'
 
 /**
  * 图标映射配置
@@ -52,25 +52,11 @@ function getDefaultIcon() {
 }
 
 /**
- * 兑换记录展示项接口
- * @interface RwRecordItem
- */
-export interface RwRecordItem {
-  id: string
-  name: string
-  points: number
-  status: string
-  date: string
-  icon: LucideIcon
-  iconColor: string
-}
-
-/**
  * 将兑换记录转换为展示格式
  * @param {ExchangeRecordWithItem} record - 兑换记录
- * @returns {RwRecordItem} 展示用记录项
+ * @returns {ExchangeRecordItem} 展示用记录项
  */
-export function mapExchangeToRecord(record: ExchangeRecordWithItem): RwRecordItem {
+export function mapExchangeToRecord(record: ExchangeRecordWithItem): ExchangeRecordItem {
   const iconName = record.item?.icon_name || 'Gift'
   const iconColor = record.item?.icon_color || ''
   const iconConfig = iconMapping[iconName] || getDefaultIcon()
