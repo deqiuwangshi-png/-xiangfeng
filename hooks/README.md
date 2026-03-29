@@ -24,8 +24,11 @@ hooks/
 │   └── useInboxCache.ts        # 消息通知缓存
 ├── updates/                    # 更新日志 Hooks
 │   └── useUpdates.ts           # 更新日志管理
-└── drafts/                     # 草稿管理 Hooks
-    └── useDrafts.ts            # 草稿管理
+├── drafts/                     # 草稿管理 Hooks
+│   └── useDrafts.ts            # 草稿管理
+└── feedback/                   # 反馈中心 Hooks
+    ├── useFeedbackForm.ts      # 反馈表单
+    └── useFeedbackReplies.ts   # 反馈回复
 ```
 
 ## 概述
@@ -62,6 +65,10 @@ import { useUpdates } from '@/hooks/updates/useUpdates';
 
 // Drafts
 import { useDrafts } from '@/hooks/drafts/useDrafts';
+
+// Feedback
+import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
+import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
 ```
 
 ## Hooks 分类
@@ -286,6 +293,62 @@ function DraftsPage({ initialArticles }) {
 - 分页
 - 批量选择和操作
 - 批量发布/归档/删除
+
+### 7. Feedback 反馈中心
+
+#### useFeedbackForm
+
+反馈表单逻辑 Hook，管理表单状态、验证和提交。
+
+```typescript
+import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
+
+function FeedbackForm({ onSubmitSuccess }) {
+  const {
+    selectedType,
+    setSelectedType,
+    description,
+    setDescription,
+    uploadedFiles,
+    setUploadedFiles,
+    isSubmitting,
+    submitError,
+    handleSubmit,
+  } = useFeedbackForm({ onSubmitSuccess });
+  // ...
+}
+```
+
+**功能：**
+- 表单状态管理（类型、描述、文件）
+- 表单验证
+- 文件上传（延迟到提交时）
+- 提交状态管理
+
+#### useFeedbackReplies
+
+反馈回复管理 Hook，管理评论列表的加载和提交。
+
+```typescript
+import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
+
+function ReplySection({ pageId }) {
+  const {
+    replies,
+    isLoading,
+    isSubmitting,
+    submitError,
+    loadReplies,
+    submitNewReply,
+  } = useFeedbackReplies({ pageId });
+  // ...
+}
+```
+
+**功能：**
+- 评论列表加载
+- 新评论提交
+- 加载和提交状态管理
 
 ## 使用规范
 

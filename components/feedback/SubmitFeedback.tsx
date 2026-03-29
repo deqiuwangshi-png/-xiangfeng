@@ -1,7 +1,7 @@
 'use client';
 
 import { Edit3 } from '@/components/icons';
-import { useFeedbackForm } from '@/components/feedback/hooks/useFeedbackForm';
+import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
 import TypeSelector from './submit/TypeSelector';
 import FileUploader from './submit/FileUploader';
 import SubmitBtn from './submit/SubmitBtn';

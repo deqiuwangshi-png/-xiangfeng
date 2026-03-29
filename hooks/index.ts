@@ -34,3 +34,7 @@ export { useUpdates } from './updates/useUpdates';
 
 // ==================== Drafts Hooks ====================
 export { useDrafts } from './drafts/useDrafts';
+
+// ==================== Feedback Hooks ====================
+export { useFeedbackForm } from './feedback/useFeedbackForm';
+export { useFeedbackReplies } from './feedback/useFeedbackReplies';

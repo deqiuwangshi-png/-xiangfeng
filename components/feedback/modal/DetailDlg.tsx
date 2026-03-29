@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { X } from '@/components/icons';
 import { Calendar, Tag, User } from 'lucide-react';
-import { useFeedbackReplies } from '../hooks/useFeedbackReplies';
+import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
 import ReplyList from '../reply/ReplyList';
 import ReplyForm from '../reply/ReplyForm';
 import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';

@@ -21,9 +21,6 @@ components/feedback/
 ├── FeedbackTabs.tsx            # 标签页切换组件
 ├── FAQ.tsx                     # 常见问题组件
 ├── SubmitFeedback.tsx          # 提交反馈组件
-├── hooks/                      # 自定义 Hooks
-│   ├── useFeedbackForm.ts      # 反馈表单逻辑 Hook
-│   └── useFeedbackReplies.ts   # 反馈回复逻辑 Hook
 ├── list/                       # 列表组件
 │   ├── MyFeedback.tsx          # 我的反馈列表
 │   ├── FeedbackCard.tsx        # 反馈卡片
@@ -41,6 +38,14 @@ components/feedback/
 └── modal/                      # 弹窗组件
     ├── DetailDlg.tsx           # 反馈详情弹窗
     └── Toast.tsx               # Toast 轻提示
+```
+
+### 相关 Hooks
+
+```
+hooks/feedback/
+├── useFeedbackForm.ts          # 反馈表单逻辑 Hook
+└── useFeedbackReplies.ts       # 反馈回复逻辑 Hook
 ```
 
 ## 组件说明
@@ -351,9 +356,18 @@ components/feedback/
 
 ### useFeedbackForm（反馈表单逻辑 Hook）
 
-**位置**: `hooks/useFeedbackForm.ts`
+**位置**: `@/hooks/feedback/useFeedbackForm.ts`
 
 **职责**: 管理反馈表单状态、验证和提交逻辑
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useFeedbackForm } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
+```
 
 **功能**:
 - 表单状态管理（类型、描述、文件）
@@ -380,9 +394,18 @@ const {
 
 ### useFeedbackReplies（反馈回复逻辑 Hook）
 
-**位置**: `hooks/useFeedbackReplies.ts`
+**位置**: `@/hooks/feedback/useFeedbackReplies.ts`
 
 **职责**: 管理反馈回复的加载和提交
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useFeedbackReplies } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
+```
 
 **功能**:
 - 回复列表加载

@@ -34,12 +34,9 @@ components/drafts/
 │   └── SelectAllCheckbox.tsx   # 全选复选框组件
 ├── navigation/                 # 导航分页组件
 │   └── Pagination.tsx          # 分页器组件
-├── actions/                    # 操作相关组件
-│   ├── BatchActionsBar.tsx     # 批量操作栏组件
-│   └── DeleteConfirmModal.tsx  # 删除确认弹窗组件
-└── hooks/                      # 自定义 Hooks
-    ├── index.ts                # Hooks 索引文件
-    └── useDrafts.ts            # 草稿管理 Hook
+└── actions/                    # 操作相关组件
+    ├── BatchActionsBar.tsx     # 批量操作栏组件
+    └── DeleteConfirmModal.tsx  # 删除确认弹窗组件
 ```
 
 ### 相关工具文件
@@ -384,9 +381,18 @@ lib/
 
 ### useDrafts（草稿管理 Hook）
 
-**位置**: `hooks/useDrafts.ts`
+**位置**: `@/hooks/drafts/useDrafts.ts`
 
 **职责**: 提供草稿管理的完整状态和方法
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useDrafts } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useDrafts } from '@/hooks/drafts/useDrafts';
+```
 
 **功能**:
 - 使用 SWR 缓存草稿列表
