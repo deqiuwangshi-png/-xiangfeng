@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { ArrowLeft, Coins } from '@/components/icons'
 import { ShopNav } from './ShopNav'
 import { ShopFull } from './ShopFull'
-import { usePoints } from '../hooks/usePoints'
+import { usePoints } from '@/hooks/rewards/usePoints'
 import type { ShopCategoryType } from '@/types/rewards'
 
 /**

@@ -25,7 +25,7 @@ import {
   Zap,
   type LucideIcon,
 } from '@/components/icons'
-import { useExchangeRecords } from '../hooks'
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords'
 import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
 
 /**

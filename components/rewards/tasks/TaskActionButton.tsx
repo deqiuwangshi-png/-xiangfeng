@@ -9,7 +9,7 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useTasks } from '../hooks'
+import { useTasks } from '@/hooks/rewards/useTasks'
 import type { TaskStatus } from '@/types/rewards'
 
 interface TaskActionButtonProps {

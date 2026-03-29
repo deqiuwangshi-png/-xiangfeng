@@ -20,7 +20,7 @@ import {
   type LucideIcon,
 } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-import { usePoints } from '../hooks'
+import { usePoints } from '@/hooks/rewards/usePoints'
 import type { PointTransaction, PointSourceType } from '@/types/rewards'
 
 /**

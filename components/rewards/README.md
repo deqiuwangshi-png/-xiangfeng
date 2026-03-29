@@ -60,13 +60,17 @@ components/rewards/
 │   ├── RwRecordServer.tsx      # 兑换记录（服务端）
 │   ├── constants.ts            # 常量配置
 │   └── utils.ts                # 工具函数
-└── hooks/                      # 自定义 Hooks
-    ├── index.ts                # Hooks 统一导出
-    ├── usePoints.ts            # 积分管理 Hook
-    ├── useSignIn.ts            # 签到管理 Hook
-    ├── useTasks.ts             # 任务管理 Hook
-    ├── useShop.ts              # 商城管理 Hook
-    └── useExchangeRecords.ts   # 兑换记录 Hook
+```
+
+### 相关 Hooks
+
+```
+hooks/rewards/
+├── usePoints.ts                # 积分管理 Hook
+├── useSignIn.ts                # 签到管理 Hook
+├── useTasks.ts                 # 任务管理 Hook
+├── useShop.ts                  # 商城管理 Hook
+└── useExchangeRecords.ts       # 兑换记录 Hook
 ```
 
 ## 组件说明
@@ -415,9 +419,18 @@ components/rewards/
 
 ### usePoints（积分管理 Hook）
 
-**位置**: `hooks/usePoints.ts`
+**位置**: `@/hooks/rewards/usePoints.ts`
 
 **职责**: 管理用户积分总览和积分流水
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { usePoints } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { usePoints } from '@/hooks/rewards/usePoints';
+```
 
 **功能**:
 - 积分总览获取
@@ -436,9 +449,18 @@ const { overview, transactions, isLoading, refreshPoints } = usePoints()
 
 ### useSignIn（签到管理 Hook）
 
-**位置**: `hooks/useSignIn.ts`
+**位置**: `@/hooks/rewards/useSignIn.ts`
 
 **职责**: 管理签到状态、签到操作和奖励配置
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useSignIn } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useSignIn } from '@/hooks/rewards/useSignIn';
+```
 
 **功能**:
 - 签到状态获取
@@ -453,9 +475,18 @@ const { isSigned, consecutiveDays, handleSignIn } = useSignIn()
 
 ### useTasks（任务管理 Hook）
 
-**位置**: `hooks/useTasks.ts`
+**位置**: `@/hooks/rewards/useTasks.ts`
 
 **职责**: 管理用户任务数据
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useTasks } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useTasks } from '@/hooks/rewards/useTasks';
+```
 
 **功能**:
 - 任务列表获取
@@ -470,9 +501,18 @@ const { tasks, isLoading, claimReward, accept } = useTasks()
 
 ### useShop（商城管理 Hook）
 
-**位置**: `hooks/useShop.ts`
+**位置**: `@/hooks/rewards/useShop.ts`
 
 **职责**: 管理积分商城商品数据
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useShop } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useShop } from '@/hooks/rewards/useShop';
+```
 
 **功能**:
 - 商品列表获取
@@ -486,9 +526,18 @@ const { items, isLoading, exchange } = useShop()
 
 ### useExchangeRecords（兑换记录 Hook）
 
-**位置**: `hooks/useExchangeRecords.ts`
+**位置**: `@/hooks/rewards/useExchangeRecords.ts`
 
 **职责**: 管理用户兑换记录
+
+**导入方式**:
+```typescript
+// 方式一：从统一入口导入
+import { useExchangeRecords } from '@/hooks';
+
+// 方式二：从分类路径导入
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords';
+```
 
 **功能**:
 - 兑换记录获取

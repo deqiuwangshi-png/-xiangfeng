@@ -9,8 +9,8 @@
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import type { ShopCategoryType } from '@/types/rewards'
-import { useShop } from '../hooks'
-import { usePoints } from '../hooks'
+import { useShop } from '@/hooks/rewards/useShop'
+import { usePoints } from '@/hooks/rewards/usePoints'
 import { getIconComponent } from '@/components/icons/rewards'
 import { Loader2 } from '@/components/icons'
 

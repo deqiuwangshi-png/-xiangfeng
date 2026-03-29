@@ -7,7 +7,7 @@
  */
 
 import { toast } from 'sonner'
-import { useTasks } from '../hooks'
+import { useTasks } from '@/hooks/rewards/useTasks'
 import type { TaskCategory, TaskStatus } from '@/types/rewards'
 import {
   Sun,

@@ -29,11 +29,17 @@ hooks/
 ├── feedback/                   # 反馈中心 Hooks
 │   ├── useFeedbackForm.ts      # 反馈表单
 │   └── useFeedbackReplies.ts   # 反馈回复
-└── publish/                    # 文章发布 Hooks
-    ├── useAutoSave.ts          # 自动保存
-    ├── useEditorActions.ts     # 编辑器操作
-    ├── useEditorState.ts       # 编辑器状态
-    └── useTipTapEditor.ts      # TipTap 编辑器
+├── publish/                    # 文章发布 Hooks
+│   ├── useAutoSave.ts          # 自动保存
+│   ├── useEditorActions.ts     # 编辑器操作
+│   ├── useEditorState.ts       # 编辑器状态
+│   └── useTipTapEditor.ts      # TipTap 编辑器
+└── rewards/                    # 福利中心 Hooks
+    ├── useExchangeRecords.ts   # 兑换记录
+    ├── usePoints.ts            # 积分管理
+    ├── useShop.ts              # 商城数据
+    ├── useSignIn.ts            # 签到功能
+    └── useTasks.ts             # 任务数据
 ```
 
 ## 概述
@@ -80,6 +86,13 @@ import { useAutoSave } from '@/hooks/publish/useAutoSave';
 import { useEditorActions } from '@/hooks/publish/useEditorActions';
 import { useEditorState } from '@/hooks/publish/useEditorState';
 import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
+
+// Rewards
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords';
+import { usePoints } from '@/hooks/rewards/usePoints';
+import { useShop } from '@/hooks/rewards/useShop';
+import { useSignIn } from '@/hooks/rewards/useSignIn';
+import { useTasks } from '@/hooks/rewards/useTasks';
 ```
 
 ## Hooks 分类
@@ -449,6 +462,103 @@ function Editor({ content, onChange }) {
 - 图片上传处理
 - 粘贴图片支持
 - 自定义节点视图
+
+### 9. Rewards 福利中心
+
+#### useExchangeRecords
+
+兑换记录 Hook，管理用户兑换记录。
+
+```typescript
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords';
+
+function ExchangeHistory() {
+  const { records, isLoading, refreshRecords } = useExchangeRecords({ limit: 50 });
+  // ...
+}
+```
+
+**功能：**
+- 兑换记录列表获取
+- SWR 缓存优化
+- 分页支持
+- 数据刷新
+
+#### usePoints
+
+积分功能 Hook，管理用户积分总览和积分流水。
+
+```typescript
+import { usePoints } from '@/hooks/rewards/usePoints';
+
+function PointsPage() {
+  const { overview, transactions, isLoading, loadMoreTransactions } = usePoints();
+  // ...
+}
+```
+
+**功能：**
+- 积分总览获取
+- 积分流水查询
+- 加载更多
+- SWR 缓存
+
+#### useShop
+
+商城数据 Hook，管理商城商品数据和兑换操作。
+
+```typescript
+import { useShop } from '@/hooks/rewards/useShop';
+
+function ShopPage({ category }) {
+  const { items, isLoading, exchange, isExchanging } = useShop(category);
+  // ...
+}
+```
+
+**功能：**
+- 商品列表获取
+- 商品兑换
+- 分类筛选
+- 兑换状态管理
+
+#### useSignIn
+
+签到功能 Hook，管理签到状态和奖励。
+
+```typescript
+import { useSignIn } from '@/hooks/rewards/useSignIn';
+
+function SignInCard() {
+  const { isSigned, consecutiveDays, handleSignIn, isSigning } = useSignIn();
+  // ...
+}
+```
+
+**功能：**
+- 签到状态查询
+- 执行签到
+- 连续签到天数
+- 奖励配置获取
+
+#### useTasks
+
+任务数据 Hook，管理用户任务数据。
+
+```typescript
+import { useTasks } from '@/hooks/rewards/useTasks';
+
+function TaskPage({ category }) {
+  const { tasks, isLoading, claimReward, accept } = useTasks(category);
+  // ...
+}
+```
+
+**功能：**
+- 任务列表获取
+- 领取任务奖励
+- 接取任务
+- 任务状态管理
 
 ## 使用规范
 
