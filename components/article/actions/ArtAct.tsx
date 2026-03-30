@@ -180,17 +180,16 @@ export default function ArtAct({
         currentUser={currentUser}
       />
 
-      {/* 鼓励/打赏按钮 - 仅登录用户可见 */}
-      {currentUser && (
-        <div
-          className="douyin-action-btn reward-btn"
-          onClick={() => setShowRewardModal(true)}
-          title="鼓励作者"
-        >
-          <Sparkles className="douyin-icon" />
-          <span className="douyin-count">鼓励</span>
-        </div>
-      )}
+      {/* 鼓励/打赏按钮 - 未登录时禁用 */}
+      <div
+        className={`douyin-action-btn reward-btn ${!currentUser ? 'disabled' : ''}`}
+        onClick={currentUser ? () => setShowRewardModal(true) : undefined}
+        title={currentUser ? '鼓励作者' : '请先登录'}
+        style={!currentUser ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+      >
+        <Sparkles className="douyin-icon" />
+        <span className="douyin-count">鼓励</span>
+      </div>
 
       {/* 点赞按钮 */}
       <div
@@ -211,26 +210,22 @@ export default function ArtAct({
         <span className="douyin-count">{commentCount}</span>
       </div>
 
-      {/* 更多操作（分享、收藏、举报） - 仅登录用户可见 */}
-      {currentUser && (
-        <MoreActions
-          articleId={articleId}
-          authorId={authorId}
-          currentUser={currentUser}
-          initialBookmarked={bookmarked}
-          onBookmark={handleBookmark}
-          isBookmarkLoading={isBookmarkLoading}
-        />
-      )}
+      {/* 更多操作（分享、收藏、举报） */}
+      <MoreActions
+        articleId={articleId}
+        authorId={authorId}
+        currentUser={currentUser}
+        initialBookmarked={bookmarked}
+        onBookmark={handleBookmark}
+        isBookmarkLoading={isBookmarkLoading}
+      />
 
-      {/* 打赏弹窗 - 仅登录用户可显示 */}
-      {showRewardModal && currentUser && (
+      {/* 打赏弹窗 */}
+      {showRewardModal && (
         <RwMd
           articleId={articleId}
           authorId={authorId}
-          onClose={() => setShowRewardModal(false)}
-          currentUser={currentUser}
-        />
+          onClose={() => setShowRewardModal(false)} currentUser={null}        />
       )}
     </div>
   );

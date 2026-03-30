@@ -100,12 +100,14 @@ export function MoreActions({
 
   return (
     <>
-      {/* 更多按钮 */}
+      {/* 更多按钮 - 未登录时禁用 */}
       <div className="more-actions-container" ref={menuRef}>
         <button
-          className={`douyin-action-btn more-btn ${isOpen ? 'active' : ''}`}
-          onClick={() => setIsOpen(!isOpen)}
-          title="更多"
+          className={`douyin-action-btn more-btn ${isOpen ? 'active' : ''} ${!currentUser ? 'disabled' : ''}`}
+          onClick={currentUser ? () => setIsOpen(!isOpen) : undefined}
+          title={currentUser ? '更多' : '请先登录'}
+          disabled={!currentUser}
+          style={!currentUser ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
         >
           <MoreVertical className="douyin-icon" />
           <span className="douyin-count">更多</span>
