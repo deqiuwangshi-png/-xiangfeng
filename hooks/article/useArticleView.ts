@@ -135,7 +135,7 @@ export function useArticleView({
           dispatchViewCountUpdate(articleId, newCount);
         }
       }
-    } catch (err) {
+    } catch {
       {/* 静默处理错误，不影响用户体验 */}
     }
   }, [articleId]);
