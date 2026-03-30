@@ -7,7 +7,7 @@
  */
 
 import useSWR from 'swr'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   getUserPointsOverview,
   getPointTransactions,
@@ -54,6 +54,15 @@ const fetchTransactions = async (): Promise<PointTransaction[]> => {
  * @returns {UsePointsReturn} 积分状态和操作
  */
 export function usePoints(): UsePointsReturn {
+  const isMountedRef = useRef(true)
+
+  // 组件卸载时设置标记
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
   // 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取
   const {
     data: overview,
@@ -90,6 +99,7 @@ export function usePoints(): UsePointsReturn {
    * @returns {Promise<void>}
    */
   const refreshPoints = useCallback(async () => {
+    if (!isMountedRef.current) return
     await Promise.all([
       mutateOverview(),
       mutateTransactions(),
@@ -107,7 +117,7 @@ export function usePoints(): UsePointsReturn {
         offset,
       })
 
-      if (newTransactions.length > 0) {
+      if (newTransactions.length > 0 && isMountedRef.current) {
         await mutateTransactions(
           (currentData) => {
             if (!currentData) return newTransactions
@@ -125,7 +135,9 @@ export function usePoints(): UsePointsReturn {
   // 监听积分更新事件
   useEffect(() => {
     const handlePointsUpdate = () => {
-      refreshPoints()
+      if (isMountedRef.current) {
+        refreshPoints()
+      }
     }
 
     window.addEventListener('points:updated', handlePointsUpdate)

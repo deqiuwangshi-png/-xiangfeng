@@ -98,6 +98,7 @@ export function useArticleView({
 }: UseArticleViewOptions): UseArticleViewResult {
   const hasTrackedRef = useRef(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
 
   /**
    * 增加浏览量
@@ -123,14 +124,16 @@ export function useArticleView({
     try {
       const result = await incrementArticleView(articleId);
 
-      if (result.success) {
+      if (result.success && isMountedRef.current) {
         {/* 标记为已浏览 */}
         sessionStorage.setItem(storageKey, '1');
         hasTrackedRef.current = true;
 
         {/* 获取最新浏览量并触发更新事件 */}
         const newCount = await getArticleViewCount(articleId);
-        dispatchViewCountUpdate(articleId, newCount);
+        if (isMountedRef.current) {
+          dispatchViewCountUpdate(articleId, newCount);
+        }
       }
     } catch (err) {
       {/* 静默处理错误，不影响用户体验 */}
@@ -152,6 +155,7 @@ export function useArticleView({
     }, 3000); // 3秒后统计，避免误刷
 
     return () => {
+      isMountedRef.current = false;
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
