@@ -49,11 +49,12 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
   const supabase = await createClient();
 
-  // 检查用户名是否已存在
+  // 检查用户名是否已存在（优化查询）
   const { data: existingUser, error: checkError } = await supabase
     .from('profiles')
-    .select('username')
+    .select('id') // 只查询必要字段
     .eq('username', username)
+    .limit(1) // 限制结果数量
     .maybeSingle();
 
   if (checkError) {

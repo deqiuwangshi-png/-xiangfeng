@@ -45,12 +45,17 @@ async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProf
       return null
     }
 
-    // 获取用户资料
-    const { data: profileData } = await supabase
+    // 获取用户资料，添加错误处理
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('username, avatar_url')
       .eq('id', user.id)
-      .single()
+      .single();
+
+    if (profileError) {
+      console.error('获取用户资料失败:', profileError);
+      // 继续执行，使用默认值
+    }
 
     const profile: UserProfile = {
       id: user.id,
@@ -372,13 +377,11 @@ export const useAuthStore = create<AuthStore>()(
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       
-      // 只持久化特定字段
+      // 只持久化特定字段，避免存储敏感信息
       partialize: (state) => ({
-        user: state.user,
-        profile: state.profile,
         isAuthenticated: state.isAuthenticated,
         lastUpdated: state.lastUpdated,
-        // 不持久化：status, isLoading, isInitialized, error
+        // 不持久化：user, profile, status, isLoading, isInitialized, error
       }),
       
       // 版本控制（用于数据迁移）

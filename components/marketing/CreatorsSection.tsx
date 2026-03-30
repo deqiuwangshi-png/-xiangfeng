@@ -129,7 +129,7 @@ export default function CreatorsSection() {
                     <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {supportPlans.map((plan) => (
                         <div key={plan.label} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 rounded-lg touch-manipulation">
-                          <div className={`w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-xf-${plan.color}/10 flex items-center justify-center text-xf-${plan.color} flex-shrink-0`}>
+                          <div className={`w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-xf-${plan.color}/10 flex items-center justify-center text-xf-${plan.color} shrink-0`}>
                             <plan.icon className="w-3 sm:w-4 h-3 sm:h-4" />
                           </div>
                           <span className="text-[10px] sm:text-sm text-xf-dark font-medium leading-tight">{plan.label}</span>

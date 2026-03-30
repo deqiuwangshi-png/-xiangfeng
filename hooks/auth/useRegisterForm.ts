@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
 import { REGISTER_MESSAGES, register } from '@/lib/auth';
 import { useAuthToast } from './useAuthToast';
@@ -24,8 +24,20 @@ export function useRegisterForm(): UseRegisterFormReturn {
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
   const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
+  // 使用 useRef 存储防抖的 timeoutId
+  const passwordTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 清理定时器，防止内存泄漏
+  useEffect(() => {
+    return () => {
+      if (passwordTimeoutRef.current) {
+        clearTimeout(passwordTimeoutRef.current);
+      }
+    };
+  }, []);
+
   /**
-   * 验证密码强度
+   * 验证密码强度（防抖处理）
    */
   const validatePasswordStrength = useCallback((password: string) => {
     if (password.length > 0) {
@@ -36,17 +48,35 @@ export function useRegisterForm(): UseRegisterFormReturn {
   }, []);
 
   /**
+   * 防抖处理的密码强度验证
+   * 使用 useRef 存储 timeoutId，避免闭包问题
+   */
+  const debouncedValidatePassword = useCallback(
+    (password: string) => {
+      // 清除之前的定时器
+      if (passwordTimeoutRef.current) {
+        clearTimeout(passwordTimeoutRef.current);
+      }
+      // 设置新的定时器
+      passwordTimeoutRef.current = setTimeout(() => {
+        validatePasswordStrength(password);
+      }, 300);
+    },
+    [validatePasswordStrength]
+  );
+
+  /**
    * 更新表单字段
    */
   const updateField = useCallback((field: keyof RegisterFormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (field === 'password' && typeof value === 'string') {
-      validatePasswordStrength(value);
+      debouncedValidatePassword(value);
     }
 
     setErrors((prev) => ({ ...prev, [field]: undefined }));
-  }, [validatePasswordStrength]);
+  }, [debouncedValidatePassword]);
 
   /**
    * 验证表单
@@ -85,6 +115,11 @@ export function useRegisterForm(): UseRegisterFormReturn {
    * 提交表单
    */
   const submitForm = useCallback(async () => {
+    // 防重复提交检查
+    if (isLoading) {
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -110,12 +145,14 @@ export function useRegisterForm(): UseRegisterFormReturn {
       dismiss(toastId);
       showSuccess('注册成功，验证邮件已发送');
       setIsSuccess(true);
-    } catch {
+    } catch (err) {
+      // 记录错误详情
+      console.error('注册失败:', err);
       dismiss(toastId);
       showError('注册过程中发生错误，请稍后重试');
       setIsLoading(false);
     }
-  }, [formData, validateForm, showError, showSuccess, showLoading, dismiss]);
+  }, [isLoading, formData, validateForm, showError, showSuccess, showLoading, dismiss]);
 
   /**
    * 清空错误

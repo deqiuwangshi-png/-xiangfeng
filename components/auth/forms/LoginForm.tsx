@@ -16,11 +16,10 @@
  * - 自动同步全局认证状态
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuth, useAuthToast } from '@/hooks';
-import { checkRateLimit } from '@/lib/security/rateLimitClient';
 import { sanitizeRedirect } from '@/lib/auth/redir';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
@@ -41,16 +40,11 @@ function getClientId(): string {
 
 /**
  * 登录表单组件
- * @function LoginForm
- * @returns {JSX.Element} 登录表单
- * @description
+
  * 包含表单状态管理、限流控制、提交处理
  * 作为 Client Component 独立出来，使页面主体可 SSR
  */
 export function LoginForm() {
-  const [isRateLimited, setIsRateLimited] = useState(false);
-  const [rateLimitReset, setRateLimitReset] = useState(0);
-  const [remainingTime, setRemainingTime] = useState('');
   const { showError, showLoading, dismiss } = useAuthToast();
 
   {/* 使用全局认证状态管理 */}
@@ -69,41 +63,8 @@ export function LoginForm() {
    */
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  /**
-   * 限流倒计时 - 按分钟粒度更新
-   * @性能优化 P-05: 从每秒更新改为每分钟更新，减少重渲染
-   */
-  useEffect(() => {
-    if (!isRateLimited || rateLimitReset === 0) return;
-
-    const updateRemainingTime = () => {
-      const now = Date.now();
-      const minutes = Math.ceil((rateLimitReset - now) / 60000);
-      setRemainingTime(minutes > 0 ? `${minutes} 分钟` : '稍后');
-
-      if (now >= rateLimitReset) {
-        setIsRateLimited(false);
-        return false;
-      }
-      return true;
-    };
-
-    // 立即更新一次
-    updateRemainingTime();
-
-    /**
-     * @性能优化 P-05: 使用 60 秒间隔替代 1 秒
-     * - 显示粒度是分钟，无需每秒更新
-     * - 减少不必要的重渲染和 CPU 消耗
-     */
-    const interval = setInterval(() => {
-      if (!updateRemainingTime()) {
-        clearInterval(interval);
-      }
-    }, 60000); // 60 秒更新一次
-
-    return () => clearInterval(interval);
-  }, [isRateLimited, rateLimitReset]);
+  // 添加提交锁，防止快速多次点击
+  const isSubmittingRef = useRef(false);
 
   /**
    * 处理表单提交
@@ -120,29 +81,33 @@ export function LoginForm() {
    */
   async function handleSubmit(formData: FormData) {
     {/* 防重复提交检查 */}
-    if (isLoading) {
+    if (isLoading || isSubmittingRef.current) {
       return;
     }
 
     {/* 清除之前的错误 */}
     clearError();
 
-    {/* 客户端限流检查 - 仅在提交时检查 */}
-    const clientLimit = await checkRateLimit(getClientId());
-    if (!clientLimit.allowed) {
-      setIsRateLimited(true);
-      setRateLimitReset(clientLimit.resetTime);
-      showError('尝试次数过多，请稍后再试', 'rateLimit');
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    {/* 前端表单校验 */}
+    if (!email || !email.includes('@')) {
+      showError('请输入有效的邮箱地址');
       return;
     }
+
+    if (!password || password.length < 8) {
+      showError('密码至少需要8位');
+      return;
+    }
+
+    isSubmittingRef.current = true;
 
     {/* 显示加载中 */}
     const toastId = showLoading('登录中...');
 
     try {
-      const email = formData.get('email') as string;
-      const password = formData.get('password') as string;
-
       const success = await login({
         email,
         password,
@@ -164,19 +129,14 @@ export function LoginForm() {
     } catch (err) {
       dismiss(toastId);
       showError(err instanceof Error ? err.message : '登录失败');
+    } finally {
+      isSubmittingRef.current = false;
     }
   }
 
   return (
     <>
-      {isRateLimited && (
-        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl text-orange-700 text-sm">
-          <p className="font-medium">登录尝试次数过多</p>
-          <p>请 {remainingTime} 后再试</p>
-        </div>
-      )}
-
-      <OAuthButtons disabled={isLoading || isRateLimited} dividerText="或使用邮箱登录" />
+      <OAuthButtons disabled={isLoading} dividerText="或使用邮箱登录" />
 
       <form action={handleSubmit} className="space-y-6">
         <div>
@@ -189,7 +149,7 @@ export function LoginForm() {
             className="w-full px-6 py-4 rounded-2xl bg-xf-light border border-xf-bg/60 focus:border-xf-primary focus:bg-white focus:ring-2 focus:ring-xf-primary/20 outline-none transition-all text-xf-dark"
             placeholder="账号"
             required
-            disabled={isLoading || isRateLimited}
+            disabled={isLoading}
           />
         </div>
 
@@ -200,7 +160,7 @@ export function LoginForm() {
           autoComplete="current-password"
           aria-label="密码"
           required
-          disabled={isLoading || isRateLimited}
+          disabled={isLoading}
           minLength={8}
         />
 
@@ -214,7 +174,7 @@ export function LoginForm() {
 
         <button
           type="submit"
-          disabled={isLoading || isRateLimited}
+          disabled={isLoading}
           aria-busy={isLoading}
           aria-label={isLoading ? '登录中，请稍候' : '登录'}
           className="w-full bg-xf-primary hover:bg-xf-accent disabled:bg-xf-primary/50 text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:cursor-not-allowed flex items-center justify-center gap-2"

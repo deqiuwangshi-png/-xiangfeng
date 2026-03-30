@@ -6,8 +6,6 @@ import { LoginForm } from '@/components/auth/forms/LoginForm';
 
 /**
  * 登录页面 - Server Component
- * @function LoginPage
- * @returns {JSX.Element} 登录页面
  */
 export default function LoginPage() {
   return (

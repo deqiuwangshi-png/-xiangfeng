@@ -6,8 +6,6 @@ import { ForgotPasswordForm } from '@/components/auth/forms/ForgotPasswordForm';
 
 /**
  * 忘记密码页面 - Server Component
- * @function ForgotPasswordPage
- * @returns {JSX.Element} 忘记密码页面
  */
 export default function ForgotPasswordPage() {
   return (
