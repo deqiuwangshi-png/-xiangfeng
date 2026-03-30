@@ -1,14 +1,9 @@
 /**
  * 积分商城加载状态
- * @module app/(main)/rewards/shop/loading
+ * @module components/rewards/shop/ShopLoading
  * @description 积分商城页面的加载骨架屏
  */
 
-
-/**
- * 加载状态组件
- * @returns {JSX.Element} 加载骨架屏
- */
 export default function ShopLoading() {
   return (
     <div className="px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-24">

@@ -2,7 +2,7 @@
 
 /**
  * 积分商城错误边界
- * @module app/(main)/rewards/shop/error
+ * @module components/rewards/shop/ShopError
  * @description 捕获积分商城页面的错误，提供友好的错误提示
  */
 

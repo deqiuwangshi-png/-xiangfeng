@@ -18,10 +18,6 @@ import { MyRwSection } from '@/components/rewards/RwClient'
  * - 此页面不再需要单独检查登录状态
  */
 
-/**
- * 福利中心页面
- * @returns {JSX.Element} 福利中心页面
- */
 export default async function RewardsPage() {
   const profile = await getCurrentUserWithProfile()
 

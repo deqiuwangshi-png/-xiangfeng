@@ -11,10 +11,6 @@ import { FeedbackClient } from '@/components/feedback/FeedbackClient';
  * - 此页面不再需要单独检查登录状态
  */
 
-/**
- * 反馈页面
- * @returns {JSX.Element} 反馈页面
- */
 export default async function FeedbackPage() {
 
   return (

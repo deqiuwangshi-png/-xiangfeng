@@ -43,6 +43,8 @@ export { ShopCategoryNav } from './shop/ShopCategoryNav'
 export { ShopServerGrid } from './shop/ShopServerGrid'
 export { ShopHeader } from './shop/ShopHeader'
 export { ShopExchangeButton } from './shop/ShopExchangeButton'
+export { default as ShopLoading } from './shop/ShopLoading'
+export { default as ShopError } from './shop/ShopError'
 
 /**
  * 我的福利相关组件

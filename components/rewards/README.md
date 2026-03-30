@@ -15,8 +15,6 @@ app/(main)/rewards/
 │   └── page.tsx                # 任务中心页面
 ├── shop/
 │   ├── page.tsx                # 积分商城页面
-│   ├── loading.tsx             # 商城加载状态
-│   └── error.tsx               # 商城错误处理
 └── my/
     └── page.tsx                # 我的兑换/历史记录页面
 ```
@@ -45,6 +43,8 @@ components/rewards/
 │   ├── ShopServerGrid.tsx      # 服务端商城网格
 │   ├── ShopHeader.tsx          # 商城头部
 │   └── ShopExchangeButton.tsx  # 兑换按钮
+│   ├── loading.tsx             # 商城加载状态
+│   └── error.tsx               # 商城错误处理
 ├── my/                         # 我的兑换组件
 │   ├── MyRw.tsx                # 我的兑换（首页预览）
 │   ├── RwCenter.tsx            # 历史记录主组件
