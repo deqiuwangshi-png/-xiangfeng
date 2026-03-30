@@ -4,9 +4,13 @@
  * 积分系统 Server Actions
  * @module lib/rewards/actions/points
  * @description 处理积分查询、积分流水等操作
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import type {
   UserPointsOverview,
   PointTransaction,
@@ -16,12 +20,16 @@ import type {
 /**
  * 获取用户积分总览
  * @returns {Promise<UserPointsOverview | null>} 用户积分总览
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function getUserPointsOverview(): Promise<UserPointsOverview | null> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
+
   if (!user) return null
 
   const { data, error } = await supabase
@@ -44,13 +52,17 @@ export async function getUserPointsOverview(): Promise<UserPointsOverview | null
  * @param {number} params.limit - 限制数量
  * @param {number} params.offset - 偏移量
  * @returns {Promise<PointTransaction[]>} 积分流水列表
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function getPointTransactions(
   { limit = 20, offset = 0 }: { limit?: number; offset?: number } = {}
 ): Promise<PointTransaction[]> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return []
 
   const { data, error } = await supabase
@@ -71,11 +83,15 @@ export async function getPointTransactions(
 /**
  * 获取即将过期积分
  * @returns {Promise<number>} 即将过期积分数量
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function getExpiringPoints(): Promise<number> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return 0
 
   const { data, error } = await supabase
@@ -98,65 +114,27 @@ export async function getExpiringPoints(): Promise<number> {
  * 给用户增加积分（内部使用）
  * @param {string} userId - 用户ID
  * @param {number} amount - 积分数量
- * @param {PointSourceType} source - 来源
- * @param {string} description - 描述
- * @param {string} [sourceId] - 关联记录ID
+ * @param {PointSourceType} source - 积分来源
+ * @param {string} [description] - 描述
  * @returns {Promise<boolean>} 是否成功
  */
 export async function addPoints(
   userId: string,
   amount: number,
   source: PointSourceType,
-  description: string,
-  sourceId?: string
+  description?: string
 ): Promise<boolean> {
   const supabase = await createClient()
 
-  // 使用RPC调用数据库函数确保原子性
   const { error } = await supabase.rpc('add_user_points', {
     p_user_id: userId,
     p_amount: amount,
     p_source: source,
-    p_description: description,
-    p_source_id: sourceId,
+    p_description: description || null,
   })
 
   if (error) {
     console.error('[addPoints] 增加积分失败:', error)
-    return false
-  }
-
-  return true
-}
-
-/**
- * 扣除用户积分（内部使用）
- * @param {string} userId - 用户ID
- * @param {number} amount - 积分数量
- * @param {PointSourceType} source - 来源
- * @param {string} description - 描述
- * @param {string} [sourceId] - 关联记录ID
- * @returns {Promise<boolean>} 是否成功
- */
-export async function deductPoints(
-  userId: string,
-  amount: number,
-  source: PointSourceType,
-  description: string,
-  sourceId?: string
-): Promise<boolean> {
-  const supabase = await createClient()
-
-  const { error } = await supabase.rpc('deduct_user_points', {
-    p_user_id: userId,
-    p_amount: amount,
-    p_source: source,
-    p_description: description,
-    p_source_id: sourceId,
-  })
-
-  if (error) {
-    console.error('[deductPoints] 扣除积分失败:', error)
     return false
   }
 

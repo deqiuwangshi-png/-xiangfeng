@@ -4,11 +4,17 @@
  * 移动端底部导航组件
  * @module components/mobile/MobileBottomNav
  * @description 应用主底部导航栏，固定在底部
+ *
+ * @优化说明
+ * - 使用全局认证状态管理（Zustand）
+ * - 通过 useUserId Hook 获取用户 ID
+ * - 无需通过 props 传递用户数据
  */
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
+import { useUserId } from '@/hooks'
 import { useInboxCache } from '@/hooks/notification/useInboxCache'
 
 /**
@@ -24,21 +30,20 @@ const navItems = [
 ]
 
 /**
- * 移动端底部导航组件属性接口
- * @interface MobileBottomNavProps
- */
-interface MobileBottomNavProps {
-  /** 当前用户ID */
-  userId?: string
-}
-
-/**
  * 移动端底部导航组件
- * @param {MobileBottomNavProps} props - 组件属性
  * @returns {JSX.Element} 底部导航栏
+ *
+ * @优化说明
+ * - 使用 useUserId Hook 从全局 Store 获取用户 ID
+ * - 无需通过 props 传递用户数据
+ * - 自动响应登录/登出状态变化
  */
-export function MobileBottomNav({ userId }: MobileBottomNavProps) {
+export function MobileBottomNav() {
   const pathname = usePathname()
+
+  {/* 从全局 Store 获取用户 ID */}
+  const userId = useUserId()
+
   const { unreadCount } = useInboxCache(userId || '')
 
   /**

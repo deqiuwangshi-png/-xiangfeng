@@ -10,6 +10,13 @@
  */
 
 // ==================== Auth Hooks ====================
+export {
+  useAuth,
+  useAuthUser,
+  useAuthStatus,
+  useIsAuthenticated,
+  useUserId,
+} from './auth';
 export { useAuthToast } from './auth/useAuthToast';
 export { useLogout } from './auth/useLogout';
 export { usePermission } from './auth/usePermission';

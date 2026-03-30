@@ -133,6 +133,7 @@ export function usePermission(): UsePermissionReturn {
 
 /**
  * 简化的权限检查Hook（仅返回认证状态）
+ * @description 从全局认证状态获取登录状态，无需额外API请求
  *
  * @returns {boolean} 是否已认证
  *
@@ -147,8 +148,4 @@ export function usePermission(): UsePermissionReturn {
  *   );
  * }
  */
-export function useIsAuthenticated(): boolean {
-  {/* 此Hook需要配合AuthProvider使用，从上下文中获取认证状态 */}
-  {/* 暂时返回false，实际项目中应从AuthContext获取 */}
-  return false;
-}
+export { useIsAuthenticated } from './useAuth';

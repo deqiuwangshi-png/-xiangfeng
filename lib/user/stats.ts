@@ -5,6 +5,9 @@
  * @module lib/user/stats
  * @description 处理用户统计数据获取
  *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
  * @性能优化
  * - 使用 profiles 表缓存字段，单次查询获取所有统计
  * - 同一请求内多次调用会复用缓存结果
@@ -13,6 +16,7 @@
 
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import type { UserStats } from '@/types'
 
 /**
@@ -23,9 +27,10 @@ export const getUserStats = cache(async (): Promise<{ success: boolean; data?: U
   try {
     const supabase = await createClient()
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser()
 
-    if (userError || !user) {
+    if (!user) {
       return { success: false, error: '未登录或登录已过期' }
     }
 

@@ -4,9 +4,13 @@
  * 商城系统 Server Actions
  * @module lib/rewards/actions/shop
  * @description 处理商品查询、积分兑换等操作
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import type {
   ShopItem,
   ExchangeRecord,
@@ -82,7 +86,8 @@ export async function getShopItemDetail(itemId: string): Promise<ShopItem | null
 export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeResponse> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) {
     return {
       success: false,
@@ -150,7 +155,8 @@ export async function getExchangeRecords({
 } = {}): Promise<ExchangeRecordWithItem[]> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return []
 
   {/* P1-3: 使用外键关联查询，避免客户端二次请求 */}
@@ -188,7 +194,8 @@ export async function getExchangeRecords({
 export async function getExchangeDetail(exchangeId: string): Promise<ExchangeRecord | null> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return null
 
   const { data, error } = await supabase
@@ -214,7 +221,8 @@ export async function getExchangeDetail(exchangeId: string): Promise<ExchangeRec
 export async function useCoupon(exchangeId: string): Promise<boolean> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return false
 
   {/* P0-3: 检查实际更新行数，防止"未更新也返回true" */}
@@ -255,7 +263,8 @@ export async function checkCanExchange(
 ): Promise<{ canExchange: boolean; reason?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { canExchange: false, reason: '请先登录' }
 
   // 获取商品信息

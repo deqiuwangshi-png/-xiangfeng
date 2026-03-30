@@ -4,9 +4,13 @@
  * 文章打赏 Server Actions
  * @module lib/rewards/actions/reward
  * @description 处理文章积分打赏功能
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { genNonce, verNonce } from '@/lib/security/nonce'
 
 /**
@@ -23,12 +27,15 @@ interface RewardResult {
 /**
  * 获取打赏令牌（防重放）
  * @returns {Promise<{nonce: string | null}>} 令牌
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function getRewardNonce(): Promise<{ nonce: string | null }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { nonce: null }
-  
+
   const nonce = await genNonce('reward', user.id)
   return { nonce }
 }
@@ -42,6 +49,9 @@ export async function getRewardNonce(): Promise<{ nonce: string | null }> {
  * @param {string} params.nonce - 防重放令牌
  * @param {string} [params.message] - 留言
  * @returns {Promise<RewardResult>} 打赏结果
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function rewardArticle({
   articleId,
@@ -58,7 +68,8 @@ export async function rewardArticle({
 }): Promise<RewardResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) {
     return { success: false, error: '请先登录' }
   }
@@ -93,7 +104,7 @@ export async function rewardArticle({
   }
 
   const result = data as { success: boolean; points?: number; remaining_points?: number; error?: string }
-  
+
   if (!result.success) {
     return { success: false, error: result.error || '打赏失败' }
   }
@@ -103,74 +114,4 @@ export async function rewardArticle({
     points: result.points,
     remainingPoints: result.remaining_points,
   }
-}
-
-/**
- * 获取文章打赏统计
- * @param {string} articleId - 文章ID
- * @returns {Promise<{totalPoints: number; rewardCount: number}>} 打赏统计
- */
-export async function getArticleRewardStats(articleId: string): Promise<{
-  totalPoints: number
-  rewardCount: number
-}> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.rpc('get_article_reward_stats', {
-    p_article_id: articleId,
-  })
-
-  if (error) {
-    console.error('[getArticleRewardStats] 获取失败:', error)
-    return { totalPoints: 0, rewardCount: 0 }
-  }
-
-  return {
-    totalPoints: data?.total_points || 0,
-    rewardCount: data?.reward_count || 0,
-  }
-}
-
-/**
- * 获取文章打赏列表
- * @param {string} articleId - 文章ID
- * @param {Object} params - 分页参数
- * @returns {Promise<Array>} 打赏列表
- */
-export async function getArticleRewards(
-  articleId: string,
-  { limit = 20, offset = 0 }: { limit?: number; offset?: number } = {}
-): Promise<Array<{
-  id: string
-  donorName: string
-  pointsAmount: number
-  message: string | null
-  createdAt: string
-}>> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.rpc('get_article_rewards', {
-    p_article_id: articleId,
-    p_limit: limit,
-    p_offset: offset,
-  })
-
-  if (error) {
-    console.error('[getArticleRewards] 获取失败:', error)
-    return []
-  }
-
-  return (data || []).map((item: {
-    id: string
-    donor_name: string
-    points_amount: number
-    message: string
-    created_at: string
-  }) => ({
-    id: item.id,
-    donorName: item.donor_name || '匿名用户',
-    pointsAmount: item.points_amount,
-    message: item.message,
-    createdAt: item.created_at,
-  }))
 }

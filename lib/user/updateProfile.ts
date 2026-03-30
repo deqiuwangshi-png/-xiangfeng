@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { UpdateProfileParams, UpdateProfileResult } from '@/types/user/settings'
 import { validateProfileInput } from '@/lib/security/inputValidator'
 import { PROFILE_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
@@ -41,14 +42,29 @@ function stringToPostgresArray(str: string | undefined): string | null {
  * 2. 更新 user_metadata（Supabase Auth 用户元数据）
  * 3. 刷新相关页面缓存
  */
+/**
+ * 更新用户资料 Server Action
+ *
+ * @param params - 要更新的资料字段
+ * @returns 更新结果
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
+ * @description
+ * 同时更新 profiles 表和 user_metadata，确保数据一致性：
+ * 1. 更新 profiles 表（应用主要数据源）
+ * 2. 更新 user_metadata（Supabase Auth 用户元数据）
+ * 3. 刷新相关页面缓存
+ */
 export async function updateProfile(params: UpdateProfileParams): Promise<UpdateProfileResult> {
   try {
     const supabase = await createClient()
 
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // 获取当前用户 - 使用统一认证入口
+    const user = await getCurrentUser()
 
-    if (userError || !user) {
+    if (!user) {
       return { success: false, error: COMMON_ERRORS.UNKNOWN_ERROR }
     }
 

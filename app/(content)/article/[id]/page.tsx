@@ -12,7 +12,7 @@ import ReadingProgress from '@/components/article/ui/ReadingProgress';
 import CommentSkeleton from '@/components/article/skeletons/CommentSkeleton';
 import { ViewTracker } from '@/components/article/tracking/ViewTracker';
 import { ArticleStructuredData, BreadcrumbStructuredData } from '@/components/seo';
-import { getCurrentUser } from '@/lib/supabase/user';
+import { getCurrentUser } from '@/lib/auth/user';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
 

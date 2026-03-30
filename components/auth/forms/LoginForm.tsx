@@ -9,16 +9,19 @@
  * @安全修复 S-06: 登录响应篡改防护
  * - 跳转前进行二次 Session 验证
  * - 防止 Burp Suite 等工具篡改响应包绕过登录
+ *
+ * @优化说明
+ * - 使用全局认证状态管理（Zustand）
+ * - 通过 useAuth Hook 处理登录逻辑
+ * - 自动同步全局认证状态
  */
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
+import { useSearchParams } from 'next/navigation';
+import { useAuth, useAuthToast } from '@/hooks';
 import { checkRateLimit } from '@/lib/security/rateLimit';
-import { login } from '@/lib/auth';
 import { sanitizeRedirect } from '@/lib/auth/redir';
-import { createClient } from '@/lib/supabase/client';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
 
@@ -45,13 +48,14 @@ function getClientId(): string {
  * 作为 Client Component 独立出来，使页面主体可 SSR
  */
 export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [rateLimitReset, setRateLimitReset] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const { showError, showLoading, dismiss } = useAuthToast();
 
-  const router = useRouter();
+  {/* 使用全局认证状态管理 */}
+  const { login, isLoading, error, clearError } = useAuth();
+
   const searchParams = useSearchParams();
   const redirectTo = sanitizeRedirect(searchParams.get('redirect'), '/home');
 
@@ -108,6 +112,11 @@ export function LoginForm() {
    * - 使用 isLoading 状态防止重复提交
    * - 客户端限流检查防止暴力破解
    * - 服务端限流在 Server Action 中执行
+   *
+   * @优化说明
+   * - 使用 useAuth Hook 处理登录逻辑
+   * - 自动更新全局认证状态
+   * - 无需手动管理 isLoading 状态
    */
   async function handleSubmit(formData: FormData) {
     {/* 防重复提交检查 */}
@@ -115,7 +124,8 @@ export function LoginForm() {
       return;
     }
 
-    setIsLoading(true);
+    {/* 清除之前的错误 */}
+    clearError();
 
     {/* 客户端限流检查 - 仅在提交时检查 */}
     const clientLimit = checkRateLimit(getClientId());
@@ -123,7 +133,6 @@ export function LoginForm() {
       setIsRateLimited(true);
       setRateLimitReset(clientLimit.resetTime);
       showError('尝试次数过多，请稍后再试', 'rateLimit');
-      setIsLoading(false);
       return;
     }
 
@@ -131,12 +140,18 @@ export function LoginForm() {
     const toastId = showLoading('登录中...');
 
     try {
-      const result = await login(formData);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
 
-      if (!result.success) {
+      const success = await login({
+        email,
+        password,
+        redirectTo,
+      });
+
+      if (!success) {
         dismiss(toastId);
-        showError(result.error || '登录失败');
-        setIsLoading(false);
+        showError(error?.message || '登录失败');
         return;
       }
 
@@ -144,23 +159,11 @@ export function LoginForm() {
       const { resetRateLimit } = await import('@/lib/security/rateLimit');
       resetRateLimit(getClientId());
 
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        dismiss(toastId);
-        showError('登录验证失败，请重试');
-        setIsLoading(false);
-        return;
-      }
-
-      {/* 登录成功 - 登录页无toast，直接跳转 */}
+      {/* 登录成功 - 登录页无toast，直接跳转（由 useAuth 处理） */}
       dismiss(toastId);
-      router.push(result.redirectTo || '/home');
     } catch (err) {
       dismiss(toastId);
       showError(err instanceof Error ? err.message : '登录失败');
-      setIsLoading(false);
     }
   }
 

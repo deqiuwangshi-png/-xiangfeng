@@ -1,6 +1,6 @@
 import { InboxClient } from '@/components/inbox/_client/InboxClient'
 import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
-import { getCurrentUserWithProfile } from '@/lib/supabase/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/user'
 
 /**
  * 消息页

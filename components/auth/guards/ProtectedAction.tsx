@@ -2,13 +2,18 @@
  * 受保护操作组件
  * @module components/auth/ProtectedAction
  * @description 包装需要认证的操作按钮/组件，未登录时显示登录提示
+ *
+ * @优化说明
+ * - 使用全局认证状态管理（Zustand）
+ * - 通过 useIsAuthenticated Hook 检查认证状态
+ * - 无需额外的 API 请求
  */
 
 'use client';
-import Link from 'next/link'
 import { useState, type ReactNode, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
+import { useIsAuthenticated, useAuthToast } from '@/hooks';
+import Link from 'next/link';
 
 /**
  * 受保护操作组件属性
@@ -57,8 +62,15 @@ export function ProtectedAction({
   const router = useRouter();
   const { showLoginRequired } = useAuthToast();
 
+  {/* 使用全局认证状态 */}
+  const isAuthenticated = useIsAuthenticated();
+
   /**
    * 处理点击事件
+   *
+   * @优化说明
+   * - 使用全局 Store 的认证状态，无需额外 API 请求
+   * - 即时响应，无网络延迟
    */
   const handleClick = async (e: MouseEvent) => {
     {/* 阻止默认行为，由我们控制 */}
@@ -73,15 +85,8 @@ export function ProtectedAction({
     setIsLoading(true);
 
     try {
-      {/* 检查认证状态 */}
-      const response = await fetch('/api/auth/check', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-
-      if (!data.authenticated) {
+      {/* 检查认证状态 - 使用全局 Store */}
+      if (!isAuthenticated) {
         {/* 未登录 - 显示提示或跳转 */}
         if (showModal) {
           showLoginRequired(loginMessage || actionName);
@@ -89,13 +94,14 @@ export function ProtectedAction({
           const currentPath = window.location.pathname;
           router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
         }
+        setIsLoading(false);
         return;
       }
 
       {/* 已登录 - 执行操作 */}
       await onAction?.();
     } catch (error) {
-      console.error('[ProtectedAction] 认证检查失败:', error);
+      console.error('[ProtectedAction] 操作执行失败:', error);
       showLoginRequired('操作');
     } finally {
       setIsLoading(false);

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { DeactivateAccountResult } from '@/types'
 
@@ -10,6 +11,9 @@ export type { DeactivateAccountResult } from '@/types'
  * 停用用户账户
  *
  * @returns 停用结果
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  *
  * @description
  * 软删除用户账户：
@@ -24,10 +28,10 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
   try {
     const supabase = await createClient()
 
-    {/* 获取当前用户 */}
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    {/* 获取当前用户 - 使用统一认证入口 */}
+    const user = await getCurrentUser()
 
-    if (userError || !user) {
+    if (!user) {
       return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 

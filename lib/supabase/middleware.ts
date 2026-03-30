@@ -109,7 +109,15 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  {/* 获取当前用户 - 仅对需要验证的路由执行 */}
+  {/*
+    获取当前用户 - 仅对需要验证的路由执行
+
+    @统一认证 2026-03-30
+    注意：中间件中直接使用 supabase.auth.getUser() 是合理的，因为：
+    1. 中间件不能使用 React cache()（服务端组件专用）
+    2. 中间件需要直接操作请求/响应对象
+    3. 这是认证流程的入口点，其他模块通过 lib/auth/user.ts 统一获取
+  */}
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
   // 常见的“本地残留 refresh token”错误：用户未登录/已清库/切换项目后会出现。

@@ -3,6 +3,9 @@
  * @module lib/admin/actions
  * @description 提供管理员相关的服务端操作
  * @security 所有操作都需要管理员权限验证
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 'use server'
@@ -10,12 +13,12 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCurrentUser } from '@/lib/supabase/user'
-import { 
-  isSuperAdmin, 
-  isAdmin, 
+import { getCurrentUser } from '@/lib/auth/user'
+import {
+  isSuperAdmin,
+  isAdmin,
   canChangeRole,
-  getRoleDisplayName 
+  getRoleDisplayName
 } from './utils'
 import type { UserRole } from '@/types/supabase'
 

@@ -6,13 +6,15 @@
  * @module lib/articles/actions/query
  * @description 处理文章相关的查询操作
  *
- * @安全说明
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  * - 所有函数进行输入验证
  * - 错误处理统一，不泄露数据库细节
  * - 认证和授权检查完整
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth/user';
 import { isValidUUID, handleQueryError } from '../helpers/utils';
 import type { DraftData } from '@/types/drafts';
 
@@ -47,7 +49,8 @@ function isValidStatus(status: string): status is ArticleStatus {
 export async function fetchDrafts(): Promise<DraftData[]> {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser();
   if (!user) throw new Error('用户未登录');
 
   try {
@@ -93,7 +96,8 @@ export async function fetchDrafts(): Promise<DraftData[]> {
 export async function getArticles(status?: string) {
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser();
   if (!user) throw new Error('用户未登录');
 
   // 安全：验证 status 参数
@@ -278,7 +282,8 @@ export async function getArticleById(id: string) {
 
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser();
   if (!user) throw new Error('用户未登录');
 
   try {

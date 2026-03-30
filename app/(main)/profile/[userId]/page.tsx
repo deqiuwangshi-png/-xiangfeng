@@ -36,7 +36,7 @@ import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
 import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser } from '@/lib/auth/user'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
 /**

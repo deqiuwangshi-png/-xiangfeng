@@ -1,6 +1,16 @@
 'use server'
 
+/**
+ * 通知模块 Server Actions
+ * @module lib/notifications/actions
+ * @description 处理通知相关的查询和操作
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ */
+
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 
 export type NotificationRow = {
   id: string
@@ -82,12 +92,17 @@ export async function markAllAsRead(args: { userId: string }) {
   if (error) throw error
 }
 
+/**
+ * 标记通知为已读
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ */
 export async function markAsRead(args: { id: string }) {
   const supabase = await createClient()
   const { id } = args
 
-  // P2-1: 获取当前用户并校验归属
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) throw new Error('未登录')
 
   const { error } = await supabase
@@ -99,12 +114,17 @@ export async function markAsRead(args: { id: string }) {
   if (error) throw error
 }
 
+/**
+ * 删除通知
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ */
 export async function deleteNotification(args: { id: string }) {
   const supabase = await createClient()
   const { id } = args
 
-  // P2-1: 获取当前用户并校验归属
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) throw new Error('未登录')
 
   const { error } = await supabase
@@ -115,13 +135,18 @@ export async function deleteNotification(args: { id: string }) {
   if (error) throw error
 }
 
+/**
+ * 批量删除通知
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ */
 export async function batchDeleteNotifications(args: { ids: string[] }) {
   const supabase = await createClient()
   const { ids } = args
   if (ids.length === 0) return
 
-  // P2-1: 获取当前用户并校验归属
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) throw new Error('未登录')
 
   const { error } = await supabase
@@ -183,4 +208,3 @@ export async function fetchNewNotifications(args: {
   if (error) throw error
   return (data ?? []) as unknown as NotificationRow[]
 }
-

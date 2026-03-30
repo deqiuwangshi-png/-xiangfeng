@@ -5,7 +5,7 @@ import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
 import { SearchBox } from '@/components/app/SearchBox'
 import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/crud'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser } from '@/lib/auth/user'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

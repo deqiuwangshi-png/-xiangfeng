@@ -1,5 +1,5 @@
 import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
-import { getCurrentUserWithProfile } from '@/lib/supabase/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { getUserPointsOverview } from '@/lib/rewards/points'
 import { PtOverview } from '@/components/rewards/overview/PtOverview'
 import { PtLevel } from '@/components/rewards/overview/PtLevel'

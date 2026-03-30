@@ -4,9 +4,13 @@
  * 任务系统 Server Actions
  * @module lib/rewards/actions/tasks
  * @description 处理任务查询、进度更新、任务完成检测
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type {
   Task,
@@ -36,7 +40,7 @@ function isTaskExpired(record: UserTaskRecord): boolean {
  */
 async function resetExpiredTask(userId: string, recordId: string): Promise<boolean> {
   const supabase = await createClient()
-  
+
   const { error } = await supabase
     .from('user_task_records')
     .update({
@@ -46,7 +50,7 @@ async function resetExpiredTask(userId: string, recordId: string): Promise<boole
     })
     .eq('id', recordId)
     .eq('user_id', userId)
-  
+
   if (error) {
     console.error('重置过期任务失败:', error)
     return false
@@ -110,8 +114,8 @@ export async function getUserTaskProgress(
       return []
     }
 
-    // 获取当前用户
-    const { data: { user } } = await supabase.auth.getUser()
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser()
 
     // 如果用户未登录，返回默认状态的任务列表
     if (!user) {
@@ -219,7 +223,8 @@ export async function updateTaskProgress(
 ): Promise<boolean> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return false
 
   // 验证 increment 参数
@@ -291,7 +296,8 @@ export async function claimTaskReward(
 ): Promise<{ success: boolean; points?: number; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { success: false, error: '请先登录' }
 
   // 验证 taskId 参数
@@ -346,7 +352,8 @@ export async function getTaskCenterData(): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) {
     return { completedToday: 0, totalToday: 0, inspirationPoints: 0, tasks: [] }
   }
@@ -452,7 +459,8 @@ export async function acceptTask(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { success: false, error: '请先登录' }
 
   // 获取任务信息

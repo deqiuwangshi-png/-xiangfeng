@@ -29,9 +29,9 @@ import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
 import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
+import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
@@ -83,12 +83,17 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * 4. 避免级联数据获取阻塞
  */
 export default async function ProfilePage() {
-  // 获取当前登录用户 - 使用缓存函数（与布局共享）
+  // 获取当前登录用户 - 使用统一入口（与布局共享）
   const user = await getCurrentUser()
 
-  // 未登录则重定向到登录页
+  // 未登录状态：显示登录引导（与其他页面保持一致）
   if (!user) {
-    redirect('/login')
+    return (
+      <AuthRequiredContent
+        title="个人主页"
+        description="登录后查看你的个人主页"
+      />
+    )
   }
 
   return (

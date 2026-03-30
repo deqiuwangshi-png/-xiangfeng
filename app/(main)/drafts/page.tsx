@@ -3,7 +3,7 @@ import { DraftsClient } from '@/components/drafts/core/DraftsClient'
 import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
 import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { getArticles } from '@/lib/articles/actions/crud'
-import { getCurrentUserWithProfile } from '@/lib/supabase/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { filterOptions } from '@/constants/drafts'
 
 /**

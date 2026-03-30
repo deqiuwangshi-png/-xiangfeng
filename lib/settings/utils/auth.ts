@@ -4,9 +4,14 @@
  * 设置模块认证工具函数
  * @module lib/settings/utils/auth
  * @description 提供设置模块统一的认证逻辑，避免重复代码
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ * - 此文件保留用于向后兼容，新代码应直接使用 lib/auth/user.ts
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { LOGIN_MESSAGES } from '@/lib/messages'
 import type { User } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -32,16 +37,18 @@ export type AuthCallback<T> = (
 /**
  * 验证用户认证状态
  * @returns 认证结果，包含user和supabase客户端
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 export async function verifyAuth(): Promise<AuthResult> {
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
 
-    if (error || !user) {
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser()
+
+    if (!user) {
       return {
         success: false,
         error: LOGIN_MESSAGES.NOT_AUTHENTICATED,

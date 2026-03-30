@@ -10,10 +10,15 @@
  *
  * @注意 此模块只能在服务端使用（Server Components / Server Actions）
  * 因为它依赖 next/headers 和 @/lib/supabase/server
+ *
+ * @统一认证 2026-03-30
+ * - 统一使用 lib/auth/user.ts 作为用户获取唯一入口
+ * - 避免重复定义 getCurrentUser 和 isAuthenticated
+ * - 使用 React cache() 确保同一请求内共享用户数据
  */
 
-import { createClient } from '@/lib/supabase/server';
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
+import { getCurrentUser } from '@/lib/auth/user';
 import type { User } from '@supabase/supabase-js';
 import type {
   UserRole,
@@ -38,16 +43,23 @@ interface ServerPermissionCheckResult extends PermissionCheckResult {
  * @returns {Promise<{user: User | null, role: UserRole}>} 用户信息和角色
  *
  * @example
-
+ * const { user, role } = await getCurrentUserWithRole()
+ * if (role === 'admin') {
+ *   // 管理员操作
+ * }
+ *
+ * @优化说明
+ * - 使用 lib/supabase/user.ts 中的 getCurrentUser() 获取用户
+ * - 自动享受 React cache() 的缓存 benefits
  */
 export async function getCurrentUserWithRole(): Promise<{
   user: User | null;
   role: UserRole;
 }> {
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
+  // 使用统一的用户获取入口（带缓存）
+  const user = await getCurrentUser();
 
-  if (error || !user) {
+  if (!user) {
     return { user: null, role: 'anonymous' };
   }
 
@@ -65,6 +77,9 @@ export async function getCurrentUserWithRole(): Promise<{
  * 检查是否为认证用户
  *
  * @returns {Promise<boolean>} 是否已认证
+ *
+ * @注意 此函数保留用于向后兼容，内部使用 getCurrentUserWithRole()
+ * 推荐使用 lib/supabase/user.ts 中的 isAuthenticated() 进行简单的登录检查
  */
 export async function isAuthenticated(): Promise<boolean> {
   const { role } = await getCurrentUserWithRole();
@@ -75,6 +90,8 @@ export async function isAuthenticated(): Promise<boolean> {
  * 检查是否为管理员
  *
  * @returns {Promise<boolean>} 是否为管理员
+ *
+ * @注意 此函数保留用于向后兼容，内部使用 getCurrentUserWithRole()
  */
 export async function isAdmin(): Promise<boolean> {
   const { role } = await getCurrentUserWithRole();

@@ -1,7 +1,8 @@
 import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
 import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
+import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import '@/styles/settings.css'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
 import { getContentSettings } from '@/lib/settings/actions/content'
 import { getPrivacySettings } from '@/lib/settings/actions/privacy'
@@ -87,33 +88,39 @@ const DEFAULT_USER_SETTINGS: UserSettings = {
 }
 
 export default async function SettingsPage() {
-  // 初始化默认值，防止异常导致页面崩溃
-  let user = null
+  // 获取当前登录用户 - 使用统一入口
+  const user = await getCurrentUser()
+
+  // 未登录状态：显示登录引导（与其他页面保持一致）
+  if (!user) {
+    return (
+      <AuthRequiredContent
+        title="用户设置"
+        description="登录后管理你的账户设置"
+      />
+    )
+  }
+
+  // 用户已登录，获取设置数据
   let profile: UserProfileData | null = null
   let userSettings: UserSettings = DEFAULT_USER_SETTINGS
 
   try {
     // 并行获取所有数据，减少总等待时间
     const [
-      currentUser,
       privacyResult,
       notificationsResult,
       appearanceResult,
       contentResult,
     ] = await Promise.all([
-      getCurrentUser(),
       getPrivacySettings(),
       getNotificationSettings(),
       getAppearanceSettings(),
       getContentSettings(),
     ])
 
-    user = currentUser
-
-    // 如果用户已登录，获取用户资料
-    if (user) {
-      profile = await getUserProfile(user.id)
-    }
+    // 获取用户资料
+    profile = await getUserProfile(user.id)
 
     // 组装所有设置数据
     userSettings = {
@@ -151,16 +158,14 @@ export default async function SettingsPage() {
    * 头像逻辑：只使用 profile.avatar_url，不再动态生成
    * 如果 avatar_url 为空，AvatarPlaceholder 组件会显示首字母占位符
    */
-  const userData = user
-    ? {
-        id: user.id,
-        email: user.email || '',
-        username: profile?.username || user.email?.split('@')[0] || '用户',
-        avatar_url: profile?.avatar_url || '',
-        bio: profile?.bio || '',
-        location: profile?.location || '',
-      }
-    : null
+  const userData = {
+    id: user.id,
+    email: user.email || '',
+    username: profile?.username || user.email?.split('@')[0] || '用户',
+    avatar_url: profile?.avatar_url || '',
+    bio: profile?.bio || '',
+    location: profile?.location || '',
+  }
 
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
