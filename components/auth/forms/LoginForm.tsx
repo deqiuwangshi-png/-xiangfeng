@@ -20,7 +20,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuth, useAuthToast } from '@/hooks';
-import { checkRateLimit } from '@/lib/security/rateLimit';
+import { checkRateLimit } from '@/lib/security/rateLimitClient';
 import { sanitizeRedirect } from '@/lib/auth/redir';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
@@ -128,7 +128,7 @@ export function LoginForm() {
     clearError();
 
     {/* 客户端限流检查 - 仅在提交时检查 */}
-    const clientLimit = checkRateLimit(getClientId());
+    const clientLimit = await checkRateLimit(getClientId());
     if (!clientLimit.allowed) {
       setIsRateLimited(true);
       setRateLimitReset(clientLimit.resetTime);
@@ -156,7 +156,7 @@ export function LoginForm() {
       }
 
       {/* 登录成功，重置客户端限流 */}
-      const { resetRateLimit } = await import('@/lib/security/rateLimit');
+      const { resetRateLimit } = await import('@/lib/security/rateLimitClient');
       resetRateLimit(getClientId());
 
       {/* 登录成功 - 登录页无toast，直接跳转（由 useAuth 处理） */}

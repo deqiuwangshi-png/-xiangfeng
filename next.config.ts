@@ -31,6 +31,21 @@ const prodCspHeader = `
   form-action 'self';
 `.replace(/\s+/g, ' ').trim();
 
+const devCspHeader = `
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live;
+  style-src 'self' 'unsafe-inline' https://www.gstatic.com;
+  img-src 'self' https://*.supabase.co https://api.dicebear.com https://*.supabase.in data: blob:;
+  font-src 'self' data:;
+  connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://vercel.live;
+  media-src 'self';
+  object-src 'none';
+  frame-src 'self' https://vercel.live;
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+`.replace(/\s+/g, ' ').trim();
+
 /**
  * Next.js 配置 - SEO与性能优化
  * @description 全面优化网站性能和搜索引擎友好度
@@ -44,6 +59,37 @@ const nextConfig: NextConfig = {
   
   //  poweredByHeader - 隐藏X-Powered-By头
   poweredByHeader: false,
+  
+  // 安全响应头配置
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: process.env.NODE_ENV === 'production' ? prodCspHeader : devCspHeader,
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+        ],
+      },
+    ]
+  },
   
   // 生成Etags
   generateEtags: true,
@@ -142,41 +188,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // 安全响应头配置 - 只在生产环境启用
-  async headers() {
-    // 开发环境不添加 CSP，避免样式问题
-    if (process.env.NODE_ENV === 'development') {
-      return [];
-    }
 
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: prodCspHeader,
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-        ],
-      },
-    ];
-  },
 };
 
 export default nextConfig;

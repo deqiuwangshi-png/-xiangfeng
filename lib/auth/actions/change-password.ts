@@ -35,7 +35,7 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
       return { success: false, error: CHANGE_PASSWORD_MESSAGES.NOT_AUTHENTICATED };
     }
 
-    const rateLimit = checkServerRateLimit(`change:${user.id}`, {
+    const rateLimit = await checkServerRateLimit(`change:${user.id}`, {
       maxAttempts: 5,
       windowMs: 15 * 60 * 1000,
     });

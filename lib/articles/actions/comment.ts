@@ -98,7 +98,7 @@ export const submitArticleComment = withAuth(
 
     try {
       {/* 速率限制检查：每用户每分钟最多 10 条评论 */}
-      const rateLimit = checkServerRateLimit(`comment:${user.id}`, {
+      const rateLimit = await checkServerRateLimit(`comment:${user.id}`, {
         maxAttempts: 10,
         windowMs: 60 * 1000, // 1分钟
       });

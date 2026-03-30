@@ -11,7 +11,6 @@ import '@/styles/publish.css'
 
 /**
  * 需要登录才能访问的路由列表
- * @constant REQUIRE_AUTH_ROUTES
  */
 const REQUIRE_AUTH_ROUTES = [
   '/publish',
@@ -21,14 +20,11 @@ const REQUIRE_AUTH_ROUTES = [
   '/feedback',
   '/updates',
   '/rewards',
-  '/profile', // 仅 /profile（当前用户），不包括 /profile/[userId]（他人主页）
+  '/profile',
 ]
 
 /**
  * 检查路径是否需要登录
- *
- * @param pathname - 当前路径
- * @returns 是否需要登录
  */
 function requiresAuth(pathname: string): boolean {
   return REQUIRE_AUTH_ROUTES.some(route =>
@@ -44,10 +40,9 @@ function requiresAuth(pathname: string): boolean {
  * 使用统一入口 getCurrentUserWithProfile() 获取用户信息
  *
  * @统一认证 2026-03-30
- * - Layout层统一拦截：所有需要登录的路由在此统一检查
- * - 未登录用户访问受保护路由时显示 AuthRequiredContent
+ * - 恢复Layout层权限拦截机制，确保未登录用户无法访问受保护路由
+ * - 未登录用户访问受保护路由时显示登录提示
  * - 已登录用户正常显示布局和内容
- * - 不再需要每个页面单独检查登录状态
  * - 中间件仅保持会话同步，不做路由拦截
  */
 export default async function MainLayout({

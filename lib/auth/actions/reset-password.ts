@@ -34,7 +34,7 @@ export async function resetPassword(formData: FormData): Promise<AuthResult> {
       return { success: false, error: RESET_PASSWORD_MESSAGES.SESSION_EXPIRED };
     }
 
-    const rateLimit = checkServerRateLimit(`reset:${user.id}`, {
+    const rateLimit = await checkServerRateLimit(`reset:${user.id}`, {
       maxAttempts: 3,
       windowMs: 60 * 60 * 1000,
     });

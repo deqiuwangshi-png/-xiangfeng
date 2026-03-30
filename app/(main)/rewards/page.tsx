@@ -6,6 +6,8 @@ import { SignCardSection } from '@/components/rewards/RwClient'
 import { TaskBoardSection } from '@/components/rewards/RwClient'
 import { ShopGridSection } from '@/components/rewards/RwClient'
 import { MyRwSection } from '@/components/rewards/RwClient'
+import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import { Gift } from 'lucide-react'
 
 /**
  * 福利中心页面
@@ -14,16 +16,23 @@ import { MyRwSection } from '@/components/rewards/RwClient'
  * @优化说明 PtOverview和PtLevel改为Server Component，减少客户端JS体积
  *
  * @统一认证 2026-03-30
- * - 认证检查已移至 (main)/layout.tsx
- * - 此页面不再需要单独检查登录状态
+ * - 页面自行处理未登录状态，显示友好的登录引导
+ * - 使用 UnauthenticatedPrompt 组件展示洞察图标和登录按钮
  */
 
 export default async function RewardsPage() {
   const profile = await getCurrentUserWithProfile()
 
-  // Layout 层已拦截未登录用户，此处 profile 理论上不会为 null
+  // 未登录用户：显示登录引导
   if (!profile) {
-    throw new Error('用户未登录')
+    return (
+      <UnauthenticatedPrompt
+        title="福利中心"
+        description="签到领积分、完成任务、兑换好礼"
+        icon={<Gift className="w-8 h-8 sm:w-10 sm:h-10 text-xf-primary" />}
+        promptText="登录后领取你的专属福利"
+      />
+    )
   }
 
   // 服务端获取积分数据

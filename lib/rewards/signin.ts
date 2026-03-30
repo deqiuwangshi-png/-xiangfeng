@@ -108,7 +108,7 @@ export async function performSignIn(nonce: string): Promise<SignInResponse> {
   }
 
   // 签到频率限制：每小时最多签到1次
-  const rateLimit = checkServerRateLimit(`signin:${user.id}`, {
+  const rateLimit = await checkServerRateLimit(`signin:${user.id}`, {
     maxAttempts: 1,
     windowMs: 60 * 60 * 1000, // 1小时
   });

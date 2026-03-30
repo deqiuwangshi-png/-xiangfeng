@@ -176,6 +176,8 @@ export interface LinkAccountResult {
   message?: string;
   /** 关联的账号信息 */
   account?: LinkedAccountItem;
+  /** 授权URL（绑定流程需要跳转） */
+  url?: string;
 }
 
 // ============================================

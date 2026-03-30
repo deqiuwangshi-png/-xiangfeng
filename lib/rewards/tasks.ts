@@ -255,7 +255,7 @@ export async function updateTaskProgress(
   }
 
   // 任务进度更新频率限制：每分钟最多更新5次
-  const rateLimit = checkServerRateLimit(`task:${user.id}:update`, {
+  const rateLimit = await checkServerRateLimit(`task:${user.id}:update`, {
     maxAttempts: 5,
     windowMs: 60 * 1000, // 1分钟
   });
@@ -306,7 +306,7 @@ export async function claimTaskReward(
   }
 
   // 任务奖励领取频率限制：每分钟最多领取3次
-  const rateLimit = checkServerRateLimit(`task:${user.id}:claim`, {
+  const rateLimit = await checkServerRateLimit(`task:${user.id}:claim`, {
     maxAttempts: 3,
     windowMs: 60 * 1000, // 1分钟
   });

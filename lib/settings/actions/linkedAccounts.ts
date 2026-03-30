@@ -87,10 +87,11 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
         dbIdentity?.email || authIdentity?.identity_data?.email
 
       return {
-        id: provider,
-        name: config.name,
-        connected: isConnected,
+        provider: provider,
+        providerName: config.name,
         email: email,
+        isPrimary: false,
+        isConnected: isConnected,
       }
     })
 

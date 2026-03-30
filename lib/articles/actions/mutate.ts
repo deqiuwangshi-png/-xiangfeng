@@ -56,12 +56,12 @@ export async function createArticle(data: {
   const user = await requireAuth();
 
   // 速率限制检查：每用户每小时最多创建 10 篇文章，每分钟最多 2 篇
-  const hourlyRateLimit = checkServerRateLimit(`create:${user.id}:hourly`, {
+  const hourlyRateLimit = await checkServerRateLimit(`create:${user.id}:hourly`, {
     maxAttempts: 10,
     windowMs: 60 * 60 * 1000, // 1小时
   });
 
-  const minuteRateLimit = checkServerRateLimit(`create:${user.id}:minute`, {
+  const minuteRateLimit = await checkServerRateLimit(`create:${user.id}:minute`, {
     maxAttempts: 2,
     windowMs: 60 * 1000, // 1分钟
   });
@@ -421,7 +421,7 @@ export async function updateArticle(
   }
 
   // 速率限制检查
-  const rateLimit = checkServerRateLimit(`update:${user.id}`, {
+  const rateLimit = await checkServerRateLimit(`update:${user.id}`, {
     maxAttempts: 30,
     windowMs: 60 * 60 * 1000, // 1小时
   });

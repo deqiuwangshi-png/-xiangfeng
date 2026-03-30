@@ -63,7 +63,10 @@ export async function updateSession(request: NextRequest) {
         {/* 批量设置Cookie，减少响应对象重建 */}
         const secureOptions: CookieOptions = {
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
+          sameSite: 'strict' as const,
+          httpOnly: true,
+          path: '/',
+          maxAge: 60 * 60 * 24 * 7, // 7天
         }
 
         cookiesToSet.forEach(({ name, value, options }) => {

@@ -1,14 +1,20 @@
 /**
- * 退出登录 Hook 模块
+ * 退出登录 Hook 模块（兼容层）
  * @module hooks/useLogout
  * @description 为React组件提供退出登录的状态管理和便捷接口
  *
  * @优化说明
+ * - 此文件为兼容层，所有功能从 useAuth 重新导出
  * - 使用全局认证状态管理（Zustand）
  * - 通过 useAuth Hook 处理登出逻辑
  * - 自动同步全局认证状态
  * - 统一默认跳转路径为 /login
  * - 使用 sanitizeRedirect 防止开放重定向
+ *
+ * @统一认证 2026-03-30
+ * - 此文件保留用于向后兼容，避免破坏现有导入
+ * - 新代码应直接使用 import { useAuth } from '@/hooks/auth/useAuth'
+ * - 实际实现已迁移到 useAuth.ts
  */
 
 import { useCallback } from 'react'
@@ -21,11 +27,14 @@ export type { UseLogoutOptions, UseLogoutReturn } from '@/types'
 const DEFAULT_REDIRECT = '/login'
 
 /**
- * 退出登录 Hook
+ * 退出登录 Hook（兼容层）
  *
  * @description 封装退出登录的状态管理和执行逻辑，提供加载状态和回调支持
  * @param {UseLogoutOptions} [options={}] - 配置选项
  * @returns {UseLogoutReturn} 退出状态和执行函数
+ *
+ * @统一认证 2026-03-30
+ * - 从 useAuth.ts 重新导出，避免重复定义
  *
  * @优化说明
  * - 使用 useAuth Hook 处理登出逻辑
@@ -35,7 +44,7 @@ const DEFAULT_REDIRECT = '/login'
 export function useLogout(options: UseLogoutOptions = {}): UseLogoutReturn {
   const { redirectTo = DEFAULT_REDIRECT, onSuccess, onError } = options
 
-  {/* 使用全局认证状态管理 */}
+  // 使用全局认证状态管理
   const { logout, isLoading, error } = useAuth()
 
   /**

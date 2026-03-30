@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
 import type { LoginParams, AuthStatus, AuthError } from '@/stores/auth'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
+import type { UseLogoutOptions, LogoutResult } from '@/types/auth/auth'
 
 /**
  * useAuth Hook 返回值接口
@@ -41,6 +42,10 @@ interface UseAuthReturn {
   login: (params: LoginParams & { redirectTo?: string }) => Promise<boolean>
   /** 登出方法 */
   logout: (options?: { redirectTo?: string; skipRedirect?: boolean }) => Promise<boolean>
+  /** 带选项的登出方法 */
+  logoutWithOptions: (options?: UseLogoutOptions) => Promise<void>
+  /** 带自定义跳转路径的登出方法 */
+  logoutWithRedirect: (redirectTo?: string) => Promise<LogoutResult>
   /** 刷新用户信息 */
   refreshUser: () => Promise<void>
   /** 清除错误 */
@@ -126,6 +131,47 @@ export function useAuth(): UseAuthReturn {
     return result.success
   }, [storeLogout, router])
 
+  /**
+   * 带选项的登出方法
+   * @param options - 登出选项
+   */
+  const logoutWithOptions = useCallback(async (
+    options: UseLogoutOptions = {}
+  ): Promise<void> => {
+    const { redirectTo = '/login', onSuccess, onError } = options
+
+    if (isLoading) return
+
+    const success = await logout({ redirectTo })
+
+    if (success) {
+      onSuccess?.()
+    } else {
+      onError?.(error?.message || '退出失败')
+    }
+  }, [isLoading, logout, error])
+
+  /**
+   * 带自定义跳转路径的登出方法
+   * @param redirectTo - 自定义跳转路径
+   * @returns 登出结果
+   */
+  const logoutWithRedirect = useCallback(async (
+    redirectTo?: string
+  ): Promise<LogoutResult> => {
+    if (isLoading) {
+      return { success: false, error: '正在退出中' }
+    }
+
+    const success = await logout({ redirectTo: redirectTo || '/login' })
+
+    return {
+      success,
+      error: error?.message,
+      redirectTo: redirectTo || '/login'
+    }
+  }, [isLoading, logout, error])
+
   return {
     // 状态
     user,
@@ -138,6 +184,8 @@ export function useAuth(): UseAuthReturn {
     // 操作
     login,
     logout,
+    logoutWithOptions,
+    logoutWithRedirect,
     refreshUser,
     clearError,
     updateProfile,

@@ -24,11 +24,6 @@ interface ViewTrackerProps {
 
 /**
  * 浏览量追踪组件
- *
- * @param {ViewTrackerProps} props - 组件属性
- * @returns {null} 不渲染任何 UI
- *
- * @description
  * 这是一个逻辑组件，只负责在后台统计浏览量，不渲染任何可见元素。
  * 在文章详情页挂载此组件即可自动启用浏览量统计。
  */

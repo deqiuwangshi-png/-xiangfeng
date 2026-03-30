@@ -223,17 +223,9 @@ export type { GetLinkedAccountsResult } from '../auth/oauth'
 
 /**
  * 绑定/解绑账号结果
+ * @deprecated 请从 @/types/auth/oauth 导入 LinkAccountResult
  */
-export interface LinkAccountResult {
-  /** 是否成功 */
-  success: boolean
-  /** 授权URL（绑定流程需要跳转） */
-  url?: string
-  /** 成功消息 */
-  message?: string
-  /** 错误信息 */
-  error?: string
-}
+export type { LinkAccountResult } from '../auth/oauth'
 
 /**
  * 支持的语言选项

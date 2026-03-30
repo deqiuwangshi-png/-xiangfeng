@@ -57,7 +57,7 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
    * - 同一 IP 对不同邮箱有独立的限流计数
    */
   const rateLimitKey = `${clientIp}:${email}`;
-  const rateLimit = checkServerRateLimit(rateLimitKey);
+  const rateLimit = await checkServerRateLimit(rateLimitKey);
   if (!rateLimit.allowed) {
     const minutes = Math.ceil((rateLimit.resetTime - Date.now()) / 60000);
     return { success: false, error: LOGIN_MESSAGES.RATE_LIMITED.replace('{minutes}', String(minutes)) };
@@ -83,7 +83,7 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
     }
 
     // 登录成功，重置限流
-    resetServerRateLimit(rateLimitKey);
+    await resetServerRateLimit(rateLimitKey);
     revalidatePath('/', 'layout');
 
     return { success: true, redirectTo };

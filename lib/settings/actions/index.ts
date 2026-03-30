@@ -40,7 +40,7 @@ export type { AppearanceSettingsResult } from './appearance'
 
 // 工具函数
 export { withAuth, verifyAuth } from '../utils/auth'
-export type { AuthResult, AuthCallback } from '../utils/auth'
+export type { AuthResultWithSupabase as AuthResult, AuthCallback } from '../utils/auth'
 
 // 常量
 export {

@@ -93,12 +93,25 @@ export async function fetchDrafts(): Promise<DraftData[]> {
  * - 验证 status 参数白名单
  * - 错误处理不暴露数据库细节
  */
+/**
+ * 获取当前用户的文章列表
+ *
+ * @统一认证 2026-03-30
+ * - Layout层已拦截未登录用户，此函数理论上不会接收到未登录请求
+ * - 但为类型安全和防御性编程，保留空值检查
+ * - 未登录时返回空数组而非抛出错误
+ */
 export async function getArticles(status?: string) {
   const supabase = await createClient();
 
   // 使用统一认证入口获取当前用户
   const user = await getCurrentUser();
-  if (!user) throw new Error('用户未登录');
+
+  // Layout层已拦截未登录用户，此处 user 理论上不会为 null
+  // 但为类型安全，返回空数组而非抛出错误
+  if (!user) {
+    return [];
+  }
 
   // 安全：验证 status 参数
   const safeStatus = status && isValidStatus(status) ? status : 'all';

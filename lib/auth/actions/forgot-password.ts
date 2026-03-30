@@ -47,7 +47,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
    * - 防止攻击者使用大量不同邮箱进行轰炸
    * - 窗口期 1 小时，最多 5 次请求
    */
-  const ipRateLimit = checkServerRateLimit(`forgot:ip:${clientIp}`, {
+  const ipRateLimit = await checkServerRateLimit(`forgot:ip:${clientIp}`, {
     maxAttempts: 5,
     windowMs: 60 * 60 * 1000, // 1 小时
   });
@@ -64,7 +64,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
    * - 防止对特定用户的骚扰
    * - 窗口期 1 小时，最多 3 次请求
    */
-  const emailRateLimit = checkServerRateLimit(`forgot:email:${email}`, {
+  const emailRateLimit = await checkServerRateLimit(`forgot:email:${email}`, {
     maxAttempts: 3,
     windowMs: 60 * 60 * 1000, // 1 小时
   });
@@ -78,7 +78,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
    * - 防止攻击者轮换邮箱时仍针对同一 IP 限流
    * - 作为额外的安全层
    */
-  const comboRateLimit = checkServerRateLimit(`forgot:combo:${clientIp}:${email}`, {
+  const comboRateLimit = await checkServerRateLimit(`forgot:combo:${clientIp}:${email}`, {
     maxAttempts: 3,
     windowMs: 60 * 60 * 1000, // 1 小时
   });

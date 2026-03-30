@@ -9,7 +9,6 @@ export {
   getPointTransactions,
   getExpiringPoints,
   addPoints,
-  deductPoints,
 } from './points'
 
 // 签到系统
@@ -55,6 +54,4 @@ export {
 export {
   rewardArticle,
   getRewardNonce,
-  getArticleRewardStats,
-  getArticleRewards,
 } from './reward'

@@ -66,9 +66,9 @@ export function DraftCard({
         }
       case 'archived':
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-600',
-          label: '已归档',
+          bg: 'bg-amber-100',
+          text: 'text-amber-700',
+          label: '待审核',
         }
     }
   }
