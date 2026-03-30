@@ -25,6 +25,7 @@ type RwType = 'points' | 'ad'
  * @returns {JSX.Element} 打赏弹窗
  */
 export function RwMd({ articleId, authorId, onClose, onSuccess }: RwMdProps) {
+  // currentUser 由父组件控制显示逻辑，此处仅接收以确保类型正确
   const [activeTab, setActiveTab] = useState<RwType>('points')
   const { showInfo } = useArticleToast()
 

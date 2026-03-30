@@ -54,7 +54,7 @@ export function UnauthenticatedPrompt({
   const redirectUrl = encodeURIComponent(pathname);
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 text-center">
         {/* 洞察图标 */}
         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-xf-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">

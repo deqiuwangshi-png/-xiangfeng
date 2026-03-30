@@ -7,7 +7,7 @@
  */
 
 import useSWR from 'swr'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { getShopItems, exchangeItem } from '@/lib/rewards/shop'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 
@@ -52,6 +52,14 @@ const fetchItems = async (category?: ShopItemCategory): Promise<ShopItem[]> => {
 export function useShop(category?: ShopItemCategory): UseShopReturn {
   const cacheKey = category ? `shop-${category}` : 'shop-all'
   const [isExchanging, setIsExchanging] = useState(false)
+  const isMountedRef = useRef(true)
+
+  // 组件卸载时设置标记
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // 使用 SWR 获取商品数据 - 5分钟缓存
   const {
@@ -72,6 +80,7 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
    * @returns {Promise<void>}
    */
   const refreshItems = useCallback(async () => {
+    if (!isMountedRef.current) return
     await mutate()
   }, [mutate])
 
@@ -83,10 +92,14 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
    */
   const exchange = useCallback(
     async (itemId: string, quantity: number = 1) => {
+      if (!isMountedRef.current) {
+        return { success: false, error: '组件已卸载' }
+      }
+      
       setIsExchanging(true)
       try {
         const result = await exchangeItem({ item_id: itemId, quantity })
-        if (result.success) {
+        if (result.success && isMountedRef.current) {
           // 兑换成功后刷新商品列表（库存变化）
           await mutate()
           return {
@@ -100,7 +113,9 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
         const msg = err instanceof Error ? err.message : '兑换失败'
         return { success: false, error: msg }
       } finally {
-        setIsExchanging(false)
+        if (isMountedRef.current) {
+          setIsExchanging(false)
+        }
       }
     },
     [mutate]

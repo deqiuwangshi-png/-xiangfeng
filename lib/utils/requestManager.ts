@@ -73,3 +73,44 @@ export function cancelRequest(url: string, params?: object): void {
     pendingRequests.delete(key)
   }
 }
+
+/**
+ * 安全执行异步请求
+ * @param {Function} asyncFn - 异步函数
+ * @param {AbortSignal} signal - 中止信号
+ * @returns {Promise<any>} 请求结果
+ */
+export async function safeAsyncRequest<T>(asyncFn: () => Promise<T>, signal?: AbortSignal): Promise<T> {
+  try {
+    // 检查信号是否已中止
+    if (signal && signal.aborted) {
+      throw new Error('Request aborted')
+    }
+    
+    // 执行异步请求
+    const result = await asyncFn()
+    
+    // 再次检查信号是否已中止
+    if (signal && signal.aborted) {
+      throw new Error('Request aborted')
+    }
+    
+    return result
+  } catch (error) {
+    // 处理中止错误
+    if (error instanceof Error && error.name === 'AbortError') {
+      // 静默处理中止错误，因为这通常是用户主动取消或组件卸载导致的
+      throw new Error('Request cancelled')
+    }
+    throw error
+  }
+}
+
+/**
+ * 检查请求是否已取消
+ * @param {AbortSignal} signal - 中止信号
+ * @returns {boolean} 是否已取消
+ */
+export function isRequestCancelled(signal?: AbortSignal): boolean {
+  return signal ? signal.aborted : false
+}

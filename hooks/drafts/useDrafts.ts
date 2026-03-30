@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { DraftService, Article } from '@/lib/drafts/draftService'
@@ -56,6 +56,7 @@ export function useDrafts(
   itemsPerPage = 6
 ): UseDraftsReturn {
   const router = useRouter()
+  const isMountedRef = useRef(true)
 
   // 使用统一的 toast 提示 hook
   const {
@@ -67,6 +68,13 @@ export function useDrafts(
     showBatchPartialSuccess,
     showNoDraftsToClear,
   } = useDraftsToast()
+
+  // 组件卸载时设置标记
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // 使用 SWR 缓存草稿列表
   const {
@@ -260,12 +268,14 @@ export function useDrafts(
           // 单条删除：使用原有方法
           await deleteArticle(ids[0])
 
-          mutateDrafts(remainingDrafts, { revalidate: false })
-          setSelectedIds((prev) => {
-            const newSet = new Set(prev)
-            ids.forEach((id) => newSet.delete(id))
-            return newSet
-          })
+          if (isMountedRef.current) {
+            mutateDrafts(remainingDrafts, { revalidate: false })
+            setSelectedIds((prev) => {
+              const newSet = new Set(prev)
+              ids.forEach((id) => newSet.delete(id))
+              return newSet
+            })
+          }
         } else {
           // 批量删除：使用安全增强版，批量验证所有权
           const result = await batchDeleteArticles(ids)
@@ -275,34 +285,41 @@ export function useDrafts(
 
           // 批量删除接口不返回具体ID列表，需要重新获取数据
           // 使用乐观更新：假设传入的ID都成功删除
-          mutateDrafts(remainingDrafts, { revalidate: true })
-          setSelectedIds((prev) => {
-            const newSet = new Set(prev)
-            ids.forEach((id) => newSet.delete(id))
-            return newSet
-          })
+          if (isMountedRef.current) {
+            mutateDrafts(remainingDrafts, { revalidate: true })
+            setSelectedIds((prev) => {
+              const newSet = new Set(prev)
+              ids.forEach((id) => newSet.delete(id))
+              return newSet
+            })
+          }
 
           // 显示结果提示
-          if (result.failedCount > 0) {
+          if (result.failedCount > 0 && isMountedRef.current) {
             showBatchDeletePartialSuccess(result.deletedCount, result.failedCount)
             setIsLoading(false)
             return
           }
         }
 
-        if (shouldRefresh) {
+        if (shouldRefresh && isMountedRef.current) {
           router.refresh()
         }
 
         {/* 删除后校准分页状态，防止页码越界 */}
-        calibratePage(remainingDrafts)
-
-        showDeleteSuccess()
+        if (isMountedRef.current) {
+          calibratePage(remainingDrafts)
+          showDeleteSuccess()
+        }
       } catch (error) {
-        showDeleteError(error instanceof Error ? error : '删除失败')
+        if (isMountedRef.current) {
+          showDeleteError(error instanceof Error ? error : '删除失败')
+        }
         throw error
       } finally {
-        setIsLoading(false)
+        if (isMountedRef.current) {
+          setIsLoading(false)
+        }
       }
     },
     [router, drafts, mutateDrafts, calibratePage, showBatchDeletePartialSuccess, showDeleteError, showDeleteSuccess]
@@ -348,32 +365,36 @@ export function useDrafts(
         })
 
         // 更新本地状态（只更新成功的）
-        if (successIds.length > 0) {
+        if (successIds.length > 0 && isMountedRef.current) {
           mutateDrafts(
             (prev) => DraftService.updateDraftsStatus(prev || [], new Set(successIds), status),
             { revalidate: false }
           )
+          setSelectedIds((prev) => {
+            const newSet = new Set(prev)
+            successIds.forEach((id) => newSet.delete(id))
+            return newSet
+          })
         }
-
-        // 从选中列表中移除已成功的
-        setSelectedIds((prev) => {
-          const newSet = new Set(prev)
-          successIds.forEach((id) => newSet.delete(id))
-          return newSet
-        })
 
         // 显示结果提示
-        if (failedIds.length === 0) {
-          showBatchSuccess(successMessage)
-        } else if (successIds.length === 0) {
-          showBatchAllFailed()
-        } else {
-          showBatchPartialSuccess(successIds.length, failedIds.length)
+        if (isMountedRef.current) {
+          if (failedIds.length === 0) {
+            showBatchSuccess(successMessage)
+          } else if (successIds.length === 0) {
+            showBatchAllFailed()
+          } else {
+            showBatchPartialSuccess(successIds.length, failedIds.length)
+          }
         }
       } catch (error) {
-        showDeleteError(error instanceof Error ? error : '操作失败')
+        if (isMountedRef.current) {
+          showDeleteError(error instanceof Error ? error : '操作失败')
+        }
       } finally {
-        setIsLoading(false)
+        if (isMountedRef.current) {
+          setIsLoading(false)
+        }
       }
     },
     [selectedIds, mutateDrafts, showBatchAllFailed, showBatchPartialSuccess, showBatchSuccess, showDeleteError]
@@ -407,7 +428,7 @@ export function useDrafts(
    */
   const handleClearAllDrafts = useCallback(async () => {
     const draftArticles = drafts.filter((d) => d.status === 'draft')
-    if (draftArticles.length === 0) {
+    if (draftArticles.length === 0 && isMountedRef.current) {
       showNoDraftsToClear()
       return
     }
