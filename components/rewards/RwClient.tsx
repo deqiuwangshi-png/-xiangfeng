@@ -9,8 +9,6 @@
 
 import { useEffect } from 'react'
 import { SignCard } from './signin/SignCard'
-import { TaskBoard } from './tasks/TaskBoard'
-import { ShopGrid } from './shop/ShopGrid'
 import { MyRw } from './my/MyRw'
 import { useSignIn } from '@/hooks'
 import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords'
@@ -56,9 +54,10 @@ export function SignCardSection() {
  * @param {Object} props - 组件属性
  * @param {number} props.userPoints - 用户当前积分
  * @returns {JSX.Element} 任务中心区域
+ * @deprecated 使用服务端组件 TaskBoardServer 代替
  */
 export function TaskBoardSection({ }: { userPoints: number }) {
-  return <TaskBoard />
+  return null
 }
 
 /**
@@ -66,9 +65,10 @@ export function TaskBoardSection({ }: { userPoints: number }) {
  * @param {Object} props - 组件属性
  * @param {number} props.userPoints - 用户当前积分
  * @returns {JSX.Element} 兑换商城区域
+ * @deprecated 使用服务端组件 ShopGridServer 代替
  */
 export function ShopGridSection({ userPoints }: { userPoints: number }) {
-  return <ShopGrid userPoints={userPoints} />
+  return null
 }
 
 /**

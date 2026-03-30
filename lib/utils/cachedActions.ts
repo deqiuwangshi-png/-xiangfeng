@@ -7,8 +7,10 @@
 import { cache } from 'react'
 import { getShopItems as originalGetShopItems } from '@/lib/rewards/shop'
 import { getUserPointsOverview as originalGetUserPointsOverview } from '@/lib/rewards/points'
+import { getUserTaskProgress as originalGetUserTaskProgress } from '@/lib/rewards/tasks'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 import type { UserPointsOverview } from '@/types/rewards'
+import type { TaskProgressResponse, TaskCategory } from '@/types/rewards'
 
 /**
  * 缓存的商品列表获取
@@ -27,6 +29,16 @@ export const getCachedShopItems = cache(
 export const getCachedUserPoints = cache(
   async (): Promise<UserPointsOverview | null> => {
     return originalGetUserPointsOverview()
+  }
+)
+
+/**
+ * 缓存的任务数据获取
+ * @description 在单个请求周期内缓存结果，避免重复查询
+ */
+export const getCachedUserTaskProgress = cache(
+  async (category?: TaskCategory): Promise<TaskProgressResponse[]> => {
+    return originalGetUserTaskProgress(category)
   }
 )
 
