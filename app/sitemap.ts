@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createSitemapClient } from '@/lib/supabase/sitemap-client'
+import { PAGE_SEO_STRATEGIES } from '@/lib/seo'
 
 /**
  * 站点地图生成
@@ -7,12 +8,17 @@ import { createSitemapClient } from '@/lib/supabase/sitemap-client'
  * @returns {Promise<MetadataRoute.Sitemap>} 站点地图
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  *
+ * @SEO规范说明
+ * - 仅包含 indexable = true 的页面类型
+ * - 根据页面类型设置不同的优先级和更新频率
+ * - 动态获取文章列表，确保搜索引擎能索引所有公开文章
+ * - 动态获取活跃用户资料，提升用户主页收录率
+ *
  * @安全说明
  * - 不在 sitemap 中包含认证入口页面（/login, /register 等）
  * - 不在 sitemap 中包含需要登录的私有路径
  * - 仅包含公开的、需要 SEO 的页面
  * - 认证页面通过 noindex 标签控制索引，而非 sitemap
- * @性能优化 动态获取文章列表，确保搜索引擎能索引所有公开文章
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 验证环境变量，确保使用生产域名
@@ -34,47 +40,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('[Sitemap] 检测到非标准域名:', siteUrl)
   }
 
-  // 基础页面
+  // 基础页面 - 根据 SEO 策略配置
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
+      changeFrequency: PAGE_SEO_STRATEGIES.home.changeFrequency,
+      priority: PAGE_SEO_STRATEGIES.home.priority,
     },
     {
       url: `${siteUrl}/home`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
+      changeFrequency: PAGE_SEO_STRATEGIES.list.changeFrequency,
+      priority: PAGE_SEO_STRATEGIES.list.priority,
     },
     {
       url: `${siteUrl}/about`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
+      changeFrequency: PAGE_SEO_STRATEGIES.marketing.changeFrequency,
+      priority: PAGE_SEO_STRATEGIES.marketing.priority,
     },
     {
       url: `${siteUrl}/partners`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: PAGE_SEO_STRATEGIES.marketing.changeFrequency,
       priority: 0.5,
     },
     {
       url: `${siteUrl}/privacy`,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
+      changeFrequency: PAGE_SEO_STRATEGIES.legal.changeFrequency,
+      priority: PAGE_SEO_STRATEGIES.legal.priority,
     },
     {
       url: `${siteUrl}/terms`,
       lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
+      changeFrequency: PAGE_SEO_STRATEGIES.legal.changeFrequency,
+      priority: PAGE_SEO_STRATEGIES.legal.priority,
     },
   ]
 
-  // 动态获取已发布文章
+  // 动态获取已发布文章 - 使用 SEO 策略配置
   let articlePages: MetadataRoute.Sitemap = []
   try {
     const supabase = createSitemapClient()
@@ -91,15 +97,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       articlePages = articles.map((article) => ({
         url: `${siteUrl}/article/${article.id}`,
         lastModified: new Date(article.updated_at),
-        changeFrequency: 'weekly',
-        priority: 0.8,
+        changeFrequency: PAGE_SEO_STRATEGIES.article.changeFrequency,
+        priority: PAGE_SEO_STRATEGIES.article.priority,
       }))
     }
   } catch (error) {
     console.error('[Sitemap] 获取文章列表异常:', error)
   }
 
-  // 动态获取活跃用户资料
+  // 动态获取活跃用户资料 - 使用 SEO 策略配置
   let profilePages: MetadataRoute.Sitemap = []
   try {
     const supabase = createSitemapClient()
@@ -115,8 +121,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       profilePages = profiles.map((profile) => ({
         url: `${siteUrl}/profile/${profile.id}`,
         lastModified: new Date(profile.updated_at),
-        changeFrequency: 'weekly',
-        priority: 0.6,
+        changeFrequency: PAGE_SEO_STRATEGIES.profile.changeFrequency,
+        priority: PAGE_SEO_STRATEGIES.profile.priority,
       }))
     }
   } catch (error) {

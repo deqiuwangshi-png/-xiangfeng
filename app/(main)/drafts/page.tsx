@@ -1,11 +1,19 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import { DraftsClient } from '@/components/drafts/core/DraftsClient'
 import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
 import { getArticles } from '@/lib/articles/actions/crud'
 import { filterOptions } from '@/constants/drafts'
 import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import { generateAdminMetadata } from '@/lib/seo'
 import { FileText } from 'lucide-react'
+
+/**
+ * 草稿箱页面 Metadata 配置
+ * 设置 noindex，防止搜索引擎收录
+ */
+export const metadata: Metadata = generateAdminMetadata('草稿箱')
 
 /**
  * 草稿列表数据获取组件

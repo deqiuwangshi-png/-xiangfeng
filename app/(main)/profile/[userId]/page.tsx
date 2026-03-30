@@ -19,6 +19,11 @@
  * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
  * @性能优化 P2: ProfileContent 和 HeatMap 使用流式传输，不阻塞首屏渲染
  *
+ * @SEO优化
+ *   - 动态生成页面标题和描述
+ *   - 包含 ProfilePage Schema 结构化数据
+ *   - 优化社交分享卡片
+ *
  * @隐私安全
  *   - 检查用户资料可见性设置
  *   - private: 仅自己可见
@@ -28,6 +33,7 @@
 
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
@@ -37,6 +43,8 @@ import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleto
 import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/user'
+import { generateProfileMetadata } from '@/lib/seo'
+import { ProfileStructuredData } from '@/components/seo'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
 /**
@@ -46,6 +54,55 @@ interface UserProfilePageProps {
   params: Promise<{
     userId: string
   }>
+}
+
+/**
+ * 获取用户资料信息（用于 SEO）
+ * @param userId - 用户ID
+ * @returns 用户资料信息
+ */
+async function getUserProfileForSeo(userId: string) {
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, bio, avatar_url, articles_count, domain')
+    .eq('id', userId)
+    .single()
+
+  return profile
+}
+
+/**
+ * 生成页面元数据（SEO）
+ * @param params - 页面参数
+ * @returns 页面元数据
+ */
+export async function generateMetadata({
+  params,
+}: UserProfilePageProps): Promise<Metadata> {
+  const { userId } = await params
+  const profile = await getUserProfileForSeo(userId)
+
+  if (!profile) {
+    return {
+      title: '用户未找到 | 相逢',
+      description: '抱歉，您访问的用户不存在。',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }
+  }
+
+  return generateProfileMetadata({
+    title: profile.username || '用户',
+    description: profile.bio || undefined,
+    path: `/profile/${userId}`,
+    avatar: profile.avatar_url || undefined,
+    articleCount: profile.articles_count || 0,
+    keywords: profile.domain ? [profile.domain] : undefined,
+  })
 }
 
 /**
@@ -221,13 +278,29 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
     }
   }
 
+  // 获取用户资料用于结构化数据
+  const profileForSchema = await getUserProfileForSeo(userId)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
+
   return (
-    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
-      <div className="max-w-4xl mx-auto fade-in-up">
-        {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
-        <Suspense fallback={<ProfileHeaderSkeleton />}>
-          <ProfileHeaderData userId={userId} />
-        </Suspense>
+    <>
+      {/* ProfilePage 结构化数据 */}
+      {profileForSchema && (
+        <ProfileStructuredData
+          name={profileForSchema.username || '用户'}
+          url={`${siteUrl}/profile/${userId}`}
+          description={profileForSchema.bio || undefined}
+          image={profileForSchema.avatar_url || undefined}
+          articleCount={profileForSchema.articles_count || 0}
+        />
+      )}
+
+      <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
+        <div className="max-w-4xl mx-auto fade-in-up">
+          {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
+          <Suspense fallback={<ProfileHeaderSkeleton />}>
+            <ProfileHeaderData userId={userId} />
+          </Suspense>
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">
@@ -251,5 +324,6 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
         </ProfileTabsProvider>
       </div>
     </main>
+    </>
   )
 }
