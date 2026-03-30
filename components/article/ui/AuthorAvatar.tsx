@@ -15,7 +15,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import type { AuthorAvatarProps } from '@/types'
-import { UserAvatar } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import { toggleFollow, getFollowStatus } from '@/lib/user/actions/follow'
 import { useArticleToast } from '@/hooks/article/useArticleToast'
 
@@ -127,7 +127,7 @@ export function AuthorAvatar({
         onClick={handleAvatarClick}
       >
         <div className="author-avatar-image">
-          <UserAvatar
+          <UserAvt
             name={authorName}
             userId={authorId}
             avatarUrl={authorAvatar}

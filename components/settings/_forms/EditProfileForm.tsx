@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
-import { UserAvatar, FormActions } from '@/components/ui'
+import { UserAvt, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
 import { uploadAvatar, deleteOldAvatar, AvatarUploadError } from '@/lib/upload/avatar'
 import { containsXss } from '@/lib/security/inputValidator'
@@ -263,7 +263,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
                 disabled={isUploading}
                 className="relative group disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <UserAvatar
+                <UserAvt
                   name={formData.username}
                   userId={initialData?.id}
                   avatarUrl={tempAvatarUrl || formData.avatar_url}

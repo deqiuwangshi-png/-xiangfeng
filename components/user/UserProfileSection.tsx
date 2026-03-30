@@ -9,7 +9,7 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { UserAvatar } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
 import type { SimpleUser, SimpleUserProfile } from '@/types'
 
@@ -91,7 +91,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
           aria-label="用户菜单"
           aria-expanded={isDropdownOpen}
         >
-          <UserAvatar
+          <UserAvt
             name={userName}
             userId={userId}
             avatarUrl={avatarUrl}

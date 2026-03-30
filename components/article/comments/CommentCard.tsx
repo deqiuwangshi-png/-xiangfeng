@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { formatDistanceToNow } from '@/lib/utils/date'
-import { UserAvatar } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import { escapeHtml } from '@/lib/utils/purify'
 import { CommentCardActions } from './CommentCardActions'
 import { VerifyBadge } from '@/components/user/VerifyBadge'
@@ -38,7 +38,7 @@ export function CommentCard({ comment, onLike, onDelete, currentUser }: CommentC
             href={`/profile/${comment.author.id}`}
             className="block hover:opacity-80 transition-opacity"
           >
-            <UserAvatar
+            <UserAvt
               name={comment.author.name}
               userId={comment.author.id}
               avatarUrl={comment.author.avatar}
