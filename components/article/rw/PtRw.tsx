@@ -9,9 +9,9 @@
 import { useState, useCallback } from 'react'
 import { Loader2, Wallet } from '@/components/icons'
 import type { PtRwProps } from '@/types'
-import { usePoints } from '@/components/rewards/hooks'
+import { usePoints } from '@/hooks/rewards/usePoints'
 import { rewardArticle, getRewardNonce } from '@/lib/rewards'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 积分打赏面板

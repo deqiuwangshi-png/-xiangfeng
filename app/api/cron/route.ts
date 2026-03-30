@@ -1,11 +1,15 @@
 /**
  * 媒体资源清理定时任务 API
  * @module app/api/cron/cleanup-media
- * @description 清理超过24小时的临时媒体文件
+ * @description 清理超过1小时的临时媒体文件（默认）
  *
  * 调用方式：
- * - Vercel Cron: 配置 vercel.json 定时触发
- * - 手动调用: GET /api/cron/cleanup-media?secret=YOUR_SECRET
+ * - Vercel Cron: 配置 vercel.json 定时触发（建议每30分钟执行一次）
+ * - 手动调用: GET /api/cron?secret=YOUR_SECRET&olderThan=3600000
+ *
+ * 参数：
+ * - olderThan: 清理多久之前的temp媒体（毫秒），默认1小时
+ * - unassociatedOnly: 是否只清理未关联文章的媒体，默认true
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -32,7 +36,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await cleanupTempMedia()
+    // 解析可选参数
+    const olderThanParam = searchParams.get('olderThan')
+    const unassociatedOnlyParam = searchParams.get('unassociatedOnly')
+
+    const options: { olderThan?: number; unassociatedOnly?: boolean } = {}
+
+    if (olderThanParam) {
+      options.olderThan = parseInt(olderThanParam, 10)
+    }
+
+    if (unassociatedOnlyParam !== null) {
+      options.unassociatedOnly = unassociatedOnlyParam === 'true'
+    }
+
+    const result = await cleanupTempMedia(options)
 
     if (!result.success) {
       return NextResponse.json(

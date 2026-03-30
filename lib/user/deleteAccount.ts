@@ -1,17 +1,27 @@
 'use server'
 
+/**
+ * 删除账户模块
+ * @module lib/user/deleteAccount
+ * @description 处理用户账户的硬删除操作
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ */
+
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getCurrentUser } from '@/lib/auth/user'
 import type { DeleteAccountResult } from '@/types'
 
 export type { DeleteAccountResult } from '@/types'
 
 /**
  * 硬删除用户账户
- * 
+ *
  * @param password - 用户密码（二次验证）
  * @returns 删除结果
- * 
+ *
  * @description
  * 彻底删除用户账户及关联数据（方案：1A, 2B, 4A）：
  * 1. 验证密码（二次确认）
@@ -20,7 +30,7 @@ export type { DeleteAccountResult } from '@/types'
  * 4. 删除 profiles 表数据
  * 5. 使用 Admin API 彻底删除 Auth 用户
  * 6. 退出登录
- * 
+ *
  * ⚠️ 此操作不可逆，立即生效
  */
 export async function deleteAccount(password: string): Promise<DeleteAccountResult> {
@@ -30,11 +40,11 @@ export async function deleteAccount(password: string): Promise<DeleteAccountResu
   }
   try {
     const supabase = await createClient()
-    
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    if (userError || !user) {
+
+    // 获取当前用户 - 使用统一认证入口
+    const user = await getCurrentUser()
+
+    if (!user) {
       return { success: false, error: '未登录或登录已过期' }
     }
 
@@ -107,31 +117,24 @@ export async function deleteAccount(password: string): Promise<DeleteAccountResu
 
     if (profileError) {
       console.error('删除用户资料失败:', profileError)
-      // 继续执行，尝试删除 Auth 用户
+      // 继续执行，Auth 用户必须删除
     }
 
-    // 6. 【硬删除】使用 Admin API 彻底删除 Auth 用户
+    // 6. 使用 Admin API 彻底删除 Auth 用户（方案 4A）
     const adminClient = createAdminClient()
-    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(userId)
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
 
-    if (deleteAuthError) {
-      console.error('删除 Auth 用户失败:', deleteAuthError)
-      return { success: false, error: '删除账户失败：' + deleteAuthError.message }
+    if (deleteError) {
+      console.error('删除 Auth 用户失败:', deleteError)
+      return { success: false, error: '删除账户失败，请稍后重试' }
     }
 
-    // 7. 尝试退出当前会话（用户已删除，会话可能已失效，忽略错误）
-    try {
-      await supabase.auth.signOut()
-    } catch {
-      // 忽略退出错误，用户已被删除
-    }
+    // 7. 退出登录（清除会话）
+    await supabase.auth.signOut()
 
-    return {
-      success: true,
-    }
-
+    return { success: true }
   } catch (error) {
     console.error('删除账户时出错:', error)
-    return { success: false, error: '删除账户失败，请稍后重试' }
+    return { success: false, error: '删除账户时发生错误，请稍后重试' }
   }
 }

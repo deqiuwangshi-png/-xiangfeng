@@ -1,6 +1,6 @@
 import { getCachedShopItems } from '@/lib/utils/cachedActions'
 import { ShopExchangeButton } from './ShopExchangeButton'
-import type { ShopItem, ShopItemCategory } from '@/types/rewards'
+import type { ShopItemCategory } from '@/types/rewards'
 
 /**
  * 积分商城商品网格服务端组件

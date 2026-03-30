@@ -90,7 +90,7 @@ export function EditorCard({
         ) : (
           <EditorContent
             editor={editor}
-            className={`text-lg leading-relaxed text-gray-900 py-4 min-h-[300px] sm:min-h-[400px] prose prose-lg max-w-none outline-none ${
+            className={`article-content article-content-editor py-4 min-h-[300px] sm:min-h-[400px] max-w-none outline-none ${
               isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
             }`}
           />

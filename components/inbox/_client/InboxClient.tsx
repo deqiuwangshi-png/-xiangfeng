@@ -13,7 +13,7 @@ import { NotifList } from '../_list/NotifList'
 import { EmptyState } from '../_list/EmptyState'
 import { CardSkeleton } from '../_list/CardSkeleton'
 import { DeleteConfirmDialog } from '../_dialog/DelConfirmDlg'
-import { useInboxCache, useInboxRealtime } from '@/hooks/useInboxCache'
+import { useInboxCache, useInboxRealtime } from '@/hooks/notification/useInboxCache'
 
 /**
  * 消息页客户端组件属性接口

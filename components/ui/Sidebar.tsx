@@ -4,15 +4,19 @@
  * 侧边栏组件
  * @module components/ui/Sidebar
  * @description 应用主导航侧边栏，只负责导航和布局
+ *
+ * @优化说明
+ * - 使用全局认证状态管理（Zustand）
+ * - 从 Store 获取用户信息，无需 props 传递
+ * - 支持服务端状态水合
  */
 
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { User as SupabaseUser } from '@supabase/supabase-js'
-import { UserProfileSection } from '@/components/user/UserProfileSection'
-import { useInboxCache } from '@/hooks/useInboxCache'
+import { UserProfileSection } from '@/components/user'
+import { useInboxCache, useAuthUser } from '@/hooks'
 
 /**
  * 导航项接口
@@ -49,59 +53,31 @@ const navItems: NavItem[] = [
 const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
 
 /**
- * 用户资料接口
- * @interface UserProfile
- */
-interface UserProfile {
-  id: string
-  email: string
-  username: string
-  avatar_url: string
-}
-
-/**
- * 简化用户对象接口
- * @interface SimpleUser
- */
-interface SimpleUser {
-  id: string
-  email: string
-  user_metadata?: {
-    username?: string
-    avatar_url?: string
-  }
-}
-
-/**
- * Sidebar Props 接口
- * @interface SidebarProps
- */
-interface SidebarProps {
-  /** 当前用户（支持SupabaseUser或简化用户对象） */
-  user?: SupabaseUser | SimpleUser | null
-  /** 用户资料（从profiles表获取，用于显示头像） */
-  profile?: UserProfile | null
-}
-
-/**
  * 侧边栏组件
  * @function Sidebar
- * @param {SidebarProps} props - 组件属性
  * @returns {JSX.Element} 侧边栏组件
- * 
+ *
  * @description
  * 职责：
  * - 显示用户资料区域（头像、下拉菜单）
  * - 显示主导航菜单
  * - 显示版权信息
  * - 路由预加载优化
- * 
+ *
+ * @优化说明
+ * - 使用 useAuthUser Hook 从全局 Store 获取用户信息
+ * - 无需通过 props 传递用户数据
+ * - 自动响应登录/登出状态变化
+ *
  * @example
- * <Sidebar user={currentUser} />
+ * <Sidebar />
  */
-export function Sidebar({ user, profile }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+
+  {/* 从全局 Store 获取用户信息 */}
+  const { user, profile } = useAuthUser()
 
   {/* 使用客户端缓存获取未读消息数量 */}
   const { unreadCount } = useInboxCache(user?.id || '')

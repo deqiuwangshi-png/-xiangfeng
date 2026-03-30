@@ -12,7 +12,7 @@ import type { RwMdProps } from '@/types'
 import { TabBtn } from './TabBtn'
 import { PtRw } from './PtRw'
 import { AdRw } from './AdRw'
-import { useArticleToast } from '@/hooks/useArticleToast'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 打赏方式类型

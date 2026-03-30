@@ -15,7 +15,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import { UpdateType, VersionType, MonthlyUpdate, VersionInfo, UpdateItem } from '@/types/updates'
+import { UpdateType, VersionType, MonthlyUpdate, VersionInfo, UpdateItem } from '@/types/user/updates'
 
 /**
  * Markdown文件front matter元数据接口

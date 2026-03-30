@@ -1,5 +1,5 @@
 import { MessageSquare, CheckCircle, Clock, Paperclip } from '@/components/icons';
-import type { FeedbackItem, FeedbackStatus } from '@/types/feedback';
+import type { FeedbackItem, FeedbackStatus } from '@/types/user/feedback';
 import { FeedbackCardActions } from './FeedbackCardActions';
 
 interface FeedbackCardProps {

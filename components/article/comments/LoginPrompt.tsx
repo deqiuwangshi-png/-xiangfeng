@@ -1,5 +1,5 @@
 import { MessageCircle } from '@/components/icons'
-import type { LoginPromptProps } from './types'
+import type { LoginPromptProps } from '@/types'
 
 /**
  * 登录提示组件 - 服务端组件

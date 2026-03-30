@@ -7,26 +7,18 @@
  * - 查询当前用户点赞状态
  * - 减少不必要的数据传输
  *
- * @安全说明
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  * - currentUserId 由服务端从认证信息获取，不依赖客户端传入
  * - 不返回 comment_likes 原始数据，仅返回当前用户是否点赞的布尔值
  * - 防止用户ID泄露和身份伪造
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserId } from '@/lib/auth/user';
 import type { CommentWithAuthor } from '@/types';
 
 export type { CommentWithAuthor } from '@/types';
-
-/**
- * 获取当前登录用户ID
- * @security 服务端内部使用，不暴露给客户端
- */
-async function getCurrentUserId(): Promise<string | null> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id ?? null;
-}
 
 /**
  * 获取文章评论列表（安全优化版）

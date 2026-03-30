@@ -28,11 +28,32 @@ export type {
   DeleteAccountResult,
   DeactivateAccountResult,
   RateLimitResult,
-} from './auth';
+} from './auth/auth';
+
+// ============================================
+// OAuth 第三方认证模块
+// ============================================
+export type {
+  OAuthProvider,
+  OAuthProviderConfig,
+  OAuthProviderConfigMap,
+  OAuthLoginResult,
+  OAuthCallbackParams,
+  OAuthCallbackResult,
+  UserIdentity,
+  LinkedAccountItem,
+  GetLinkedAccountsResult,
+  LinkAccountResult,
+  OAuthButtonsProps,
+  OAuthButtonProps,
+} from './auth/oauth';
 
 // ============================================
 // 文章模块
 // ============================================
+export {
+  MAX_COMMENTS_WITHOUT_LOGIN,
+} from './article';
 export type {
   ArticleStatus,
   Article,
@@ -101,7 +122,7 @@ export type {
   ReplySubmitResult,
   FileUploadStatus,
   UploadedFile,
-} from './feedback';
+} from './user/feedback';
 
 // ============================================
 // 通知模块
@@ -165,25 +186,25 @@ export type {
   UpdateProfileParams,
   UpdateProfileResult,
   AccountViewMode,
-  LinkedAccountItem,
+  // LinkedAccountItem 已从 @/types/auth/oauth 导出
   LanguageOption,
   ThemeColorOption,
   ThemeModeOption,
   PrivacyOption,
   PrivacyVisibility,
   MessagePermission,
-} from './settings';
+} from './user/settings';
 
 // ============================================
 // 更新日志模块
 // ============================================
-export { UpdateType, VersionType } from './updates';
+export { UpdateType, VersionType } from './user/updates';
 export type {
   UpdateItem,
   VersionInfo,
   MonthlyUpdate,
   FilterType as UpdatesFilterType,
-} from './updates';
+} from './user/updates';
 
 // ============================================
 // 登录历史模块
@@ -192,7 +213,7 @@ export type {
   LoginType,
   LoginHistoryItem,
   GetLoginHistoryResult,
-} from './loginHistory';
+} from './user/loginHistory';
 
 // ============================================
 // 用户模块
@@ -206,7 +227,7 @@ export type {
   DropdownItem,
   UserDisplayInfo,
   UserStats,
-} from './user';
+} from './user/user';
 
 // ============================================
 // Supabase 数据库类型

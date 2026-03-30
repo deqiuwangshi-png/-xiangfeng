@@ -26,13 +26,13 @@ export type {
   UploadFileResponse,
 } from './types';
 
-export type { Attachment } from '@/types/feedback';
+export type { Attachment } from '@/types/user/feedback';
 
 {/* 导出配置 */}
 export { FEISHU_CONFIG, FIELD_MAPPING, TYPE_MAPPING, STATUS_MAPPING } from './config';
 
 {/* 导出工具函数（按需使用） */}
-export { getAccessToken, clearTokenCache } from './auth';
+export { getAccessToken } from './auth';
 export { feishuRequest, feishuRequestWithFormData } from './client';
 export {
   extractFieldValue,

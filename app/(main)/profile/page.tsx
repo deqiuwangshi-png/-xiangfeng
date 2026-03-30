@@ -18,6 +18,10 @@
  * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
  * @性能优化 P2: ProfileContent 使用流式传输，不阻塞首屏渲染
  *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
+ *
  * 更新时间: 2026-03-23
  */
 
@@ -29,9 +33,8 @@ import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
 import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
 import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
 import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'
 
@@ -83,12 +86,13 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * 4. 避免级联数据获取阻塞
  */
 export default async function ProfilePage() {
-  // 获取当前登录用户 - 使用缓存函数（与布局共享）
+  // 获取当前登录用户 - 使用统一入口（与布局共享）
   const user = await getCurrentUser()
 
-  // 未登录则重定向到登录页
+  // 未登录状态：显示登录引导（与其他页面保持一致）
+  // Layout 层已拦截未登录用户，此处 user 理论上不会为 null
   if (!user) {
-    redirect('/login')
+    throw new Error('用户未登录')
   }
 
   return (

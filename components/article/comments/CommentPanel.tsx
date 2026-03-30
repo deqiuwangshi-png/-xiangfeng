@@ -10,13 +10,13 @@
 
 import { useRef, useState, useEffect } from 'react'
 import { X } from '@/components/icons'
-import { useComments } from './_hooks/useComments'
-import { useCommentSubmit } from './_hooks/useCommentSub'
+import { useComments } from '@/hooks/article/useComments'
+import { useCommentSubmit } from '@/hooks/article/useCommentSub'
 import { CommentList } from './CommentList'
 import { LoginPrompt } from './LoginPrompt'
 import { CommentForm } from './CommentForm'
-import { MAX_COMMENTS_WITHOUT_LOGIN } from './types'
-import type { CommentPanelProps } from './types'
+import { MAX_COMMENTS_WITHOUT_LOGIN } from '@/types'
+import type { CommentPanelProps } from '@/types'
 
 /**
  * 评论面板容器组件

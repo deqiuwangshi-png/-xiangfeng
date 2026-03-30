@@ -17,7 +17,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { UpdateType, MonthlyUpdate, VersionInfo, FilterType } from '@/types/updates'
+import { UpdateType, MonthlyUpdate, VersionInfo, FilterType } from '@/types/user/updates'
 
 /**
  * 更新日志服务类

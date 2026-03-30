@@ -9,7 +9,7 @@
  * import { DraftsClient, DraftCard, DraftsHeader } from '@/components/drafts'
  *
  * // 使用 Hook
- * import { useDrafts } from '@/components/drafts/hooks/useDrafts'
+ * import { useDrafts } from '@/hooks/drafts/useDrafts'
  */
 
 // Core - 核心容器组件
@@ -37,6 +37,6 @@ export { Pagination } from './navigation/Pagination'
 export { BatchActionsBar } from './actions/BatchActionsBar'
 export { DeleteConfirmModal } from './actions/DeleteConfirmModal'
 
-// Hooks - 自定义 Hooks
-export { useDrafts } from './hooks/useDrafts'
-export type { UseDraftsReturn } from './hooks/useDrafts'
+// Hooks - 从 @/hooks 统一导出
+export { useDrafts } from '@/hooks/drafts/useDrafts'
+export type { UseDraftsReturn } from '@/hooks/drafts/useDrafts'

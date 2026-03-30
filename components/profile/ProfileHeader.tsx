@@ -13,7 +13,7 @@
 import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { UserAvatar } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import { VerifyBadge } from '@/components/user/VerifyBadge'
 import { UserBadges } from '@/components/user/UserBadges'
 import { escapeHtml } from '@/lib/utils/purify'
@@ -91,7 +91,7 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
           {/* 头像区域 - 带认证边框 */}
           <div className="relative shrink-0">
             <VerifyBadge role={user.role || 'user'}>
-              <UserAvatar
+              <UserAvt
                 name={user.username}
                 userId={user.id}
                 avatarUrl={user.avatarUrl}

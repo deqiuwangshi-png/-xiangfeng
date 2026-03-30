@@ -9,8 +9,8 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { useShop } from '../hooks'
-import { usePoints } from '../hooks'
+import { useShop } from '@/hooks/rewards/useShop'
+import { usePoints } from '@/hooks/rewards/usePoints'
 
 interface ShopExchangeButtonProps {
   /** 商品ID */

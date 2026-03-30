@@ -6,13 +6,15 @@
  * @module lib/articles/helpers/profile
  * @description 处理用户资料的检查和创建
  *
- * @安全说明
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  * - 强制验证当前用户只能创建自己的资料
  * - 输入参数进行格式校验
  * - 错误日志脱敏处理
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth/user';
 
 /**
  * 验证UUID格式
@@ -70,10 +72,10 @@ export async function ensureUserProfile(userId: string, email?: string): Promise
 
   const supabase = await createClient();
 
-  // 安全：获取当前登录用户，确保只能创建自己的资料
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  // 安全：获取当前登录用户，确保只能创建自己的资料 - 使用统一认证入口
+  const user = await getCurrentUser();
 
-  if (authError || !user) {
+  if (!user) {
     console.error('[ensureUserProfile] 用户未登录');
     return false;
   }

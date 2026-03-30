@@ -8,7 +8,7 @@
  * 更新时间: 2026-02-19
  */
 
-import { VersionInfo } from '@/types/updates'
+import { VersionInfo } from '@/types/user/updates'
 import { VERSION_TAG_COLORS } from '@/constants/updates'
 import { UpdateItemComponent } from './UpdateItem'
 

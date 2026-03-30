@@ -9,7 +9,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { Calendar, Gift } from '@/components/icons'
 import { Pagination } from '@/components/drafts/navigation/Pagination'
-import { useExchangeRecords } from '../hooks'
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords'
 import { mapExchangeToRecord } from './utils'
 import { statusConfig } from './constants'
 import type { ExchangeStatus } from '@/types/rewards'

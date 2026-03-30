@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Clock, Eye } from '@/components/icons'
-import { UserAvatar } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import type { ArticleCardProps } from '@/types'
 
 export type { ArticleCardProps } from '@/types'
@@ -80,7 +80,7 @@ export function ArticleCard({
         {/* 底部信息栏：作者 + 阅读数据 */}
         <div className="flex items-center justify-between mt-auto">
           <div className="flex items-center gap-2">
-            <UserAvatar
+            <UserAvt
               name={author.name}
               userId={author.id}
               avatarUrl={author.avatar}

@@ -5,7 +5,7 @@ import { feishuRequest } from './client';
 import { getBaseId } from './base';
 import { convertFeishuRecordToFeedbackItem, getFeishuTypeOption, getFeishuStatusOption } from './transform';
 
-import type { FeedbackStatus } from '@/types/feedback';
+import type { FeedbackStatus } from '@/types/user/feedback';
 import type { FeishuFeedbackData, FeedbackItem, CreateRecordResponse, QueryRecordsResponse, TableInfoResponse } from './types';
 
 /**

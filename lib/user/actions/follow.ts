@@ -6,6 +6,9 @@
  * @module lib/user/actions/follow
  * @description 处理用户关注和取消关注
  *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
  * @优化说明
  * - 使用插入-冲突模式减少数据库查询次数
  * - 触发器自动维护 followers_count/following_count
@@ -18,6 +21,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth/user';
 import { requireAuth } from '@/lib/auth/permissions';
 import { withAuth } from '@/lib/auth/withPermission';
 import { checkFollowUserTask } from '@/lib/rewards/tasks';
@@ -130,7 +134,8 @@ export async function getFollowStatus(targetUserId: string): Promise<FollowStatu
   const supabase = await createClient();
 
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser();
 
     {/* 获取目标用户的粉丝数和关注数 */}
     const { data: profile } = await supabase

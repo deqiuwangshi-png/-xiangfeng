@@ -27,6 +27,7 @@ import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizeRichText, sanitizePlainText, generateExcerpt } from '@/lib/utils/purify';
 import { validateArticleContent } from '@/lib/security/contentFilter';
 import { revalidatePathsAsync } from './utils';
+import { extractImageUrls } from '@/lib/media/utils';
 
 /**
  * 创建文章/草稿
@@ -55,12 +56,12 @@ export async function createArticle(data: {
   const user = await requireAuth();
 
   // 速率限制检查：每用户每小时最多创建 10 篇文章，每分钟最多 2 篇
-  const hourlyRateLimit = checkServerRateLimit(`create:${user.id}:hourly`, {
+  const hourlyRateLimit = await checkServerRateLimit(`create:${user.id}:hourly`, {
     maxAttempts: 10,
     windowMs: 60 * 60 * 1000, // 1小时
   });
 
-  const minuteRateLimit = checkServerRateLimit(`create:${user.id}:minute`, {
+  const minuteRateLimit = await checkServerRateLimit(`create:${user.id}:minute`, {
     maxAttempts: 2,
     windowMs: 60 * 1000, // 1分钟
   });
@@ -164,6 +165,68 @@ export async function createArticle(data: {
 }
 
 /**
+ * 删除文章关联的媒体资源
+ *
+ * @param supabase - Supabase客户端
+ * @param articleId - 文章ID
+ * @returns 删除结果
+ *
+ * @安全说明
+ * - 只删除与指定文章关联的媒体
+ * - 同时删除Storage中的文件
+ * - 错误不影响主流程，记录日志
+ */
+async function deleteArticleMedia(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleId: string
+): Promise<{ success: boolean; deletedCount: number; error?: string }> {
+  try {
+    // 1. 查询关联的媒体记录
+    const { data: mediaRecords, error: fetchError } = await supabase
+      .from('media')
+      .select('id, storage_path')
+      .eq('article_id', articleId);
+
+    if (fetchError) {
+      console.error('查询文章媒体失败:', fetchError);
+      return { success: false, deletedCount: 0, error: fetchError.message };
+    }
+
+    if (!mediaRecords || mediaRecords.length === 0) {
+      return { success: true, deletedCount: 0 };
+    }
+
+    // 2. 从Storage删除文件
+    const storagePaths = mediaRecords.map((m) => m.storage_path);
+    const { error: storageError } = await supabase.storage
+      .from('wenjian')
+      .remove(storagePaths);
+
+    if (storageError) {
+      console.error('删除Storage文件失败:', storageError);
+      // 继续删除数据库记录，不中断流程
+    }
+
+    // 3. 删除数据库记录
+    const { error: deleteError } = await supabase
+      .from('media')
+      .delete()
+      .eq('article_id', articleId);
+
+    if (deleteError) {
+      console.error('删除媒体记录失败:', deleteError);
+      return { success: false, deletedCount: 0, error: deleteError.message };
+    }
+
+    return { success: true, deletedCount: mediaRecords.length };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    console.error('删除文章媒体异常:', message);
+    return { success: false, deletedCount: 0, error: message };
+  }
+}
+
+/**
  * 删除文章
  *
  * @param id - 文章ID
@@ -172,6 +235,7 @@ export async function createArticle(data: {
  * @安全说明
  * - 验证文章ID格式
  * - 验证用户是否为文章作者
+ * - 级联删除关联的媒体资源
  */
 export async function deleteArticle(id: string) {
   const supabase = await createClient();
@@ -189,6 +253,14 @@ export async function deleteArticle(id: string) {
     throw new Error('无权删除此文章');
   }
 
+  // 1. 先删除关联的媒体资源（级联删除）
+  const mediaResult = await deleteArticleMedia(supabase, id);
+  if (!mediaResult.success) {
+    console.warn(`文章 ${id} 的媒体资源删除失败:`, mediaResult.error);
+    // 继续删除文章，不中断流程
+  }
+
+  // 2. 删除文章
   const { error } = await supabase
     .from('articles')
     .delete()
@@ -199,7 +271,10 @@ export async function deleteArticle(id: string) {
 
   revalidatePathsAsync(['/drafts', '/home']);
 
-  return { success: true };
+  return {
+    success: true,
+    mediaDeleted: mediaResult.deletedCount,
+  };
 }
 
 /**
@@ -253,6 +328,62 @@ export async function updateArticleStatus(
 }
 
 /**
+ * 清理文章中不再使用的旧图片
+ *
+ * @param supabase - Supabase客户端
+ * @param articleId - 文章ID
+ * @param oldContent - 旧内容
+ * @param newContent - 新内容
+ * @returns 清理结果
+ *
+ * @说明
+ * - 对比新旧内容中的图片URL
+ * - 被移除的图片标记为 temp 状态
+ * - 错误不影响主流程
+ */
+async function cleanupUnusedImages(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleId: string,
+  oldContent: string,
+  newContent: string
+): Promise<{ success: boolean; cleanedCount: number; error?: string }> {
+  try {
+    const oldUrls = extractImageUrls(oldContent);
+    const newUrls = extractImageUrls(newContent);
+
+    // 找出被移除的图片
+    const removedUrls = oldUrls.filter(url => !newUrls.includes(url));
+
+    if (removedUrls.length === 0) {
+      return { success: true, cleanedCount: 0 };
+    }
+
+    // 将被移除的图片标记为 temp 状态，解除与文章的关联
+    const { data, error } = await supabase
+      .from('media')
+      .update({
+        status: 'temp',
+        article_id: null,
+        updated_at: new Date().toISOString(),
+      })
+      .in('url', removedUrls)
+      .eq('article_id', articleId)
+      .select('id');
+
+    if (error) {
+      console.error('清理旧图片失败:', error);
+      return { success: false, cleanedCount: 0, error: error.message };
+    }
+
+    return { success: true, cleanedCount: data?.length || 0 };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误';
+    console.error('清理旧图片异常:', message);
+    return { success: false, cleanedCount: 0, error: message };
+  }
+}
+
+/**
  * 更新文章内容
  *
  * @param id - 文章ID
@@ -263,6 +394,7 @@ export async function updateArticleStatus(
  * - 验证文章ID格式
  * - 验证用户是否为文章作者
  * - 净化 HTML 内容防止 XSS
+ * - 自动清理不再使用的旧图片
  */
 export async function updateArticle(
   id: string,
@@ -289,13 +421,24 @@ export async function updateArticle(
   }
 
   // 速率限制检查
-  const rateLimit = checkServerRateLimit(`update:${user.id}`, {
+  const rateLimit = await checkServerRateLimit(`update:${user.id}`, {
     maxAttempts: 30,
     windowMs: 60 * 60 * 1000, // 1小时
   });
 
   if (!rateLimit.allowed) {
     throw new Error('操作过于频繁，请稍后再试');
+  }
+
+  // 如果需要更新内容，先获取旧内容用于对比
+  let oldContent = '';
+  if (data.content !== undefined) {
+    const { data: oldArticle } = await supabase
+      .from('articles')
+      .select('content')
+      .eq('id', id)
+      .single();
+    oldContent = oldArticle?.content || '';
   }
 
   const updateData: {
@@ -330,13 +473,13 @@ export async function updateArticle(
       '技术', '生活', '学习', '工作', '娱乐', '健康', '科技', '教育', '旅游', '美食',
       '体育', '艺术', '音乐', '电影', '读书', '编程', '设计', '创业', '投资', '职场'
     ];
-    
+
     // 验证标签是否在白名单中
     const validTags = data.tags.filter(tag => allowedTags.includes(tag));
     if (validTags.length !== data.tags.length) {
       throw new Error('包含不允许的标签');
     }
-    
+
     updateData.tags = validTags;
   }
 
@@ -349,6 +492,15 @@ export async function updateArticle(
     .single();
 
   if (error) throw new Error(`更新失败: ${error.message}`);
+
+  // 清理不再使用的旧图片（在文章更新成功后执行）
+  if (data.content !== undefined && oldContent) {
+    const cleanupResult = await cleanupUnusedImages(supabase, id, oldContent, data.content);
+    if (!cleanupResult.success) {
+      console.warn(`文章 ${id} 的旧图片清理失败:`, cleanupResult.error);
+      // 不影响主流程，继续执行
+    }
+  }
 
   revalidatePathsAsync(['/drafts', '/home', `/article/${id}`]);
 

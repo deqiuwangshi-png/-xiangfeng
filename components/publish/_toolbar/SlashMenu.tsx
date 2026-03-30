@@ -16,7 +16,7 @@ import {
   List, ListOrdered, Minus, Image
 } from '@/components/icons'
 import { selectImageFile, uploadImage } from '@/lib/upload/img'
-import { toast } from 'sonner'
+import { useEditorToast } from '@/hooks/publish/useEditorToast'
 
 interface SlashMenuProps {
   editor: Editor | null
@@ -45,6 +45,9 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   const [query, setQuery] = useState('')
   const [showAbove, setShowAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // 使用统一的 toast 提示 hook
+  const { showImageUploadSuccess, showImageUploadError } = useEditorToast()
 
   /**
    * 获取命令列表
@@ -146,10 +149,9 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
               },
             }).run()
 
-            toast.success('图片上传成功')
+            showImageUploadSuccess()
           } catch (error) {
-            const message = error instanceof Error ? error.message : '图片上传失败'
-            toast.error(message)
+            showImageUploadError(error instanceof Error ? error : '图片上传失败')
             console.error('SlashMenu image upload error:', error)
           } finally {
             onUploadEnd?.()
@@ -164,41 +166,41 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.id.toLowerCase().includes(query.toLowerCase())
     )
-  }, [editor, query, onUploadStart, onUploadEnd])
+  }, [editor, query, onUploadStart, onUploadEnd, showImageUploadSuccess, showImageUploadError])
 
   const commands = getCommands()
 
   /**
    * 显示菜单
    * 自动检测屏幕边界，避免菜单被遮挡
+   * @修复 使用相对于视口的坐标，确保定位准确
    */
   const showMenu = useCallback(() => {
     if (!editor) return
 
     const { from } = editor.state.selection
+    // coordsAtPos 返回相对于视口的坐标
     const coords = editor.view.coordsAtPos(from)
-
-    // 获取编辑器容器的边界
-    const editorContainer = editor.view.dom.closest('.editor-container, .prose, .publish-content') || document.body
-    const containerRect = editorContainer.getBoundingClientRect()
 
     // 估算菜单高度（基于命令数量）
     const commandCount = getCommands().length
-    const estimatedMenuHeight = Math.min(400, 40 + commandCount * 40) // 40px 标题 + 40px 每条命令
+    const estimatedMenuHeight = Math.min(400, 40 + commandCount * 40)
 
-    // 计算容器内的可用空间
-    const spaceBelow = containerRect.bottom - coords.bottom
-    const spaceAbove = coords.top - containerRect.top
+    // 计算视口内的可用空间
+    const viewportHeight = window.innerHeight
+    const spaceBelow = viewportHeight - coords.bottom
+    const spaceAbove = coords.top
 
     // 如果下方空间不足，菜单向上弹出
     const shouldShowAbove = spaceBelow < estimatedMenuHeight && spaceAbove > estimatedMenuHeight
     setShowAbove(shouldShowAbove)
 
+    // 使用相对于视口的坐标定位菜单
     setPosition({
       x: coords.left,
       y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
-      containerTop: containerRect.top,
-      containerBottom: containerRect.bottom,
+      containerTop: 0,
+      containerBottom: viewportHeight,
     })
     setIsVisible(true)
     setSelectedIndex(0)

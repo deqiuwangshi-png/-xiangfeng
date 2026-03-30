@@ -5,7 +5,7 @@ import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
 import { SearchBox } from '@/components/app/SearchBox'
 import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/crud'
-import { getCurrentUser } from '@/lib/supabase/user'
+import { getCurrentUser } from '@/lib/auth/user'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -13,6 +13,19 @@ export const metadata: Metadata = {
   description: '浏览相逢社区最新发布的深度文章，发现优质内容创作者。探索深度思考、独立观点、知识分享，加入深度阅读体验。',
   keywords: ['深度文章', '优质内容', '知识分享', '深度阅读', '创作者', '最新文章', '思维碰撞'],
 }
+
+/**
+ * 页面重新验证时间
+ * @description 每30秒重新验证一次，确保文章列表及时更新
+ * @性能优化 平衡实时性和性能
+ */
+export const revalidate = 30
+
+/**
+ * 动态渲染配置
+ * @description 强制动态渲染，确保数据实时性
+ */
+export const dynamic = 'force-dynamic'
 
 /**
  * 文章列表组件 - 独立获取数据，支持Suspense

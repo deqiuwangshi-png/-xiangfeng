@@ -46,14 +46,14 @@ export default function HeroSection() {
 
             {/* 副标题 - LCP关键元素 */}
             <p className="text-sm sm:text-lg text-xf-medium mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0 lcp-text">
-              拒绝碎片化的噪音。这是一个专为长文爱好者打造的聚合平台，为深阅读而生，为长文创作者喝彩。
+              把碎片化笔记、知识与经验，整理成属于你的完整逻辑体系，享受平台带来的长期红利，为深度阅读而生，为思考者而来。
             </p>
 
             {/* CTA按钮 - LCP关键元素 */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-4 sm:px-0">
               <Link href="/login">
                 <button className="px-6 sm:px-8 py-3 sm:py-4 bg-xf-dark hover:bg-xf-accent text-white rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 touch-manipulation">
-                  开启深度之旅 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
+                  开启深度思考之旅 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
                 </button>
               </Link>
             </div>

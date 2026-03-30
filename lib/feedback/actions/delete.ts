@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from './auth';
 
 /**
  * 从 Supabase Storage 删除文件
@@ -9,7 +10,8 @@ import { createClient } from '@/lib/supabase/server';
  * @param feedbackId 关联的反馈ID（用于权限校验）
  * @returns 删除结果
  *
- * @安全说明
+ * @统一认证 2026-03-30
+ * - 使用统一认证入口 getCurrentUser
  * - 验证当前用户是否登录
  * - 验证文件是否属于当前用户的反馈
  * - 防止越权删除他人文件
@@ -24,10 +26,10 @@ export async function deleteFeedbackAttachment(
   try {
     const supabase = await createClient();
 
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // 获取当前用户 - 使用统一认证入口
+    const { userId } = await getCurrentUser();
 
-    if (userError || !user) {
+    if (!userId) {
       return {
         success: false,
         error: '用户未登录',
@@ -49,7 +51,7 @@ export async function deleteFeedbackAttachment(
     }
 
     // 验证当前用户是否为反馈所有者
-    if (feedbackData.user_id !== user.id) {
+    if (feedbackData.user_id !== userId) {
       return {
         success: false,
         error: '无权删除此附件',

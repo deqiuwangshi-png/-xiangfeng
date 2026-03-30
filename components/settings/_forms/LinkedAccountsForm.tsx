@@ -9,7 +9,7 @@ import {
   linkAccount,
   unlinkAccount,
 } from '@/lib/settings/actions/linkedAccounts'
-import type { OAuthProvider, LinkedAccountItem } from '@/types/settings'
+import type { OAuthProvider, LinkedAccountItem } from '@/types/user/settings'
 
 /**
  * 管理关联账号表单组件
@@ -97,7 +97,7 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
         const accountsWithIcons: AccountItem[] = result.accounts.map(
           (account) => ({
             ...account,
-            icon: getProviderIcon(account.id),
+            icon: getProviderIcon(account.provider),
           })
         )
         setAccounts(accountsWithIcons)
@@ -161,8 +161,8 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
         // 更新本地状态
         setAccounts((prev) =>
           prev.map((account) =>
-            account.id === provider
-              ? { ...account, connected: false, email: undefined }
+            account.provider === provider
+              ? { ...account, isConnected: false, email: undefined }
               : account
           )
         )
@@ -184,7 +184,7 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
     onSave()
   }
 
-  const connectedCount = accounts.filter((a) => a.connected).length
+  const connectedCount = accounts.filter((a) => a.isConnected).length
 
   /**
    * 加载状态
@@ -276,9 +276,9 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
         </h2>
 
         <div className="space-y-4">
-          {accounts.map((account) => (
+          {accounts.map((account, index) => (
             <div
-              key={account.id}
+              key={`${account.provider}-${index}`}
               className="flex items-center justify-between p-4 bg-white rounded-xl border border-xf-bg/60"
             >
               <div className="flex items-center gap-4">
@@ -286,25 +286,25 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
                   {account.icon}
                 </div>
                 <div>
-                  <p className="font-medium text-xf-dark">{account.name}</p>
-                  {account.connected && account.email && (
+                  <p className="font-medium text-xf-dark">{account.providerName}</p>
+                  {account.isConnected && account.email && (
                     <p className="text-sm text-xf-medium">{account.email}</p>
                   )}
-                  {!account.connected && (
+                  {!account.isConnected && (
                     <p className="text-sm text-xf-medium">未绑定</p>
                   )}
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                {account.connected ? (
+                {account.isConnected ? (
                   <>
                     <span className="flex items-center gap-1 text-sm text-green-600">
                       <CheckCircle2 className="w-4 h-4" />
                       已绑定
                     </span>
                     <button
-                      onClick={() => handleUnlinkAccount(account.id)}
+                      onClick={() => handleUnlinkAccount(account.provider)}
                       disabled={isLoading}
                       className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                     >
@@ -318,7 +318,7 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
                       未绑定
                     </span>
                     <PrimaryButton
-                      onClick={() => handleLinkAccount(account.id)}
+                      onClick={() => handleLinkAccount(account.provider)}
                       disabled={isLoading}
                       className="px-4! py-2! text-sm! rounded-lg! shadow-sm!"
                     >

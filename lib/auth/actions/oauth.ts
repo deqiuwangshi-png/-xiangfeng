@@ -9,12 +9,7 @@
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
-
-/**
- * OAuth 提供商类型
- * 仅支持Supabase原生支持的Provider
- */
-export type OAuthProvider = 'github' | 'google';
+import type { OAuthProvider, OAuthLoginResult } from '@/types/auth/oauth';
 
 /**
  * 支持的 OAuth 提供商配置
@@ -23,15 +18,6 @@ const PROVIDER_CONFIG: Record<OAuthProvider, { name: string; enabled: boolean }>
   github: { name: 'GitHub', enabled: true },
   google: { name: 'Google', enabled: false },
 };
-
-/**
- * OAuth 登录结果
- */
-export interface OAuthLoginResult {
-  success: boolean;
-  error?: string;
-  url?: string;
-}
 
 /**
  * 使用 OAuth 登录

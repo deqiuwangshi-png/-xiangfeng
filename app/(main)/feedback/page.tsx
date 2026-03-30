@@ -4,15 +4,15 @@ import { FeedbackClient } from '@/components/feedback/FeedbackClient';
 /**
  * 反馈页面 (Server Component)
  * @module app/(main)/feedback/page
- * @description 产品反馈页面，服务端渲染静态内容
- * @优化说明 改为Server Component，提取客户端逻辑到FeedbackClient
+ * @description 产品反馈页面，需要登录才能访问
+ *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
  */
 
-/**
- * 反馈页面
- * @returns {JSX.Element} 反馈页面
- */
-export default function FeedbackPage() {
+export default async function FeedbackPage() {
+
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-8 pt-4 sm:pt-6 pb-20">
       {/* 页面标题 - Server Component渲染 */}

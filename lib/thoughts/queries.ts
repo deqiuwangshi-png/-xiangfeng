@@ -6,11 +6,15 @@
  * @数据源
  * - articles 表：发布文章（深度3）
  * - comments 表：发表评论（深度1）
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth/user';
 
 /**
  * 热力图数据项
@@ -44,6 +48,9 @@ export interface HeatMapData {
  * @权限检查
  * - 查询他人数据时，检查用户资料可见性
  * - private 用户不返回数据
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取当前用户
  */
 export async function fetchThoughtHeatMap(
   userId?: string,
@@ -54,7 +61,8 @@ export async function fetchThoughtHeatMap(
   // 确定目标用户ID
   let targetUserId = userId;
   if (!targetUserId) {
-    const { data: { user } } = await supabase.auth.getUser();
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser();
     if (!user) return [];
     targetUserId = user.id;
   } else {

@@ -1,7 +1,7 @@
 'use server';
 
 import { FIELD_MAPPING, TYPE_MAPPING, STATUS_MAPPING } from './config';
-import type { FeedbackStatus } from '@/types/feedback';
+import type { FeedbackStatus } from '@/types/user/feedback';
 import type { FeishuRecord, FeedbackItem, Attachment } from './types';
 
 /**

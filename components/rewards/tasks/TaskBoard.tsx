@@ -8,7 +8,7 @@
 
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { useTasks } from '../hooks'
+import { useTasks } from '@/hooks/rewards/useTasks'
 import { ListTodo, ArrowRight, Target, BookOpen, Trophy, Users, PenTool, Heart, MessageCircle } from '@/components/icons'
 import type { TaskStatus } from '@/types/rewards'
 

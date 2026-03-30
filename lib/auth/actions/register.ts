@@ -66,7 +66,7 @@ export async function register(formData: FormData): Promise<AuthResult> {
   }
 
   // 注册限流（更严格）
-  const rateLimit = checkServerRateLimit(`register:${email}`, { maxAttempts: 3, windowMs: 60 * 60 * 1000 });
+  const rateLimit = await checkServerRateLimit(`register:${email}`, { maxAttempts: 3, windowMs: 60 * 60 * 1000 });
   if (!rateLimit.allowed) {
     return { success: false, error: REGISTER_MESSAGES.RATE_LIMITED };
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { MessageSquare, User, Loader2 } from '@/components/icons';
-import type { Reply } from '@/types/feedback';
+import type { Reply } from '@/types/user/feedback';
 
 interface FeedbackReplyListProps {
   replies: Reply[];

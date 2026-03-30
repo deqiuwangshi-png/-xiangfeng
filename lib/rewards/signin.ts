@@ -4,9 +4,13 @@
  * 签到系统 Server Actions
  * @module lib/rewards/actions/signin
  * @description 处理每日签到、连续签到奖励
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { genNonce, verNonce } from '@/lib/security/nonce'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type { SignInResponse, SignInRecord } from '@/types/rewards'
@@ -21,7 +25,8 @@ export async function getTodaySignInStatus(): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { hasSigned: false, consecutiveDays: 0 }
 
   const today = new Date().toISOString().split('T')[0]
@@ -61,9 +66,10 @@ export async function getTodaySignInStatus(): Promise<{
  */
 export async function getSignInNonce(): Promise<{ nonce: string | null }> {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return { nonce: null }
-  
+
   const nonce = await genNonce('signin', user.id)
   return { nonce }
 }
@@ -76,7 +82,8 @@ export async function getSignInNonce(): Promise<{ nonce: string | null }> {
 export async function performSignIn(nonce: string): Promise<SignInResponse> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) {
     return {
       success: false,
@@ -86,7 +93,7 @@ export async function performSignIn(nonce: string): Promise<SignInResponse> {
       current_points: 0,
     }
   }
-  
+
   // 验证令牌
   const valid = await verNonce(nonce)
   if (!valid) {
@@ -101,7 +108,7 @@ export async function performSignIn(nonce: string): Promise<SignInResponse> {
   }
 
   // 签到频率限制：每小时最多签到1次
-  const rateLimit = checkServerRateLimit(`signin:${user.id}`, {
+  const rateLimit = await checkServerRateLimit(`signin:${user.id}`, {
     maxAttempts: 1,
     windowMs: 60 * 60 * 1000, // 1小时
   });
@@ -144,7 +151,8 @@ export async function performSignIn(nonce: string): Promise<SignInResponse> {
 export async function getSignInHistory(days: number = 30): Promise<SignInRecord[]> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 使用统一认证入口获取当前用户
+  const user = await getCurrentUser()
   if (!user) return []
 
   const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)

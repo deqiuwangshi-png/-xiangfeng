@@ -1,7 +1,8 @@
 'use server';
 
 import { uploadFileToFeishu } from '@/lib/feishu/api';
-import type { UploadedFile } from '@/types/feedback';
+import { requireAuth } from '@/lib/auth/permissions';
+import type { UploadedFile } from '@/types/user/feedback';
 
 /**
  * 单个文件上传结果
@@ -22,6 +23,9 @@ interface UploadResult {
  */
 export async function uploadFeedbackAttachment(formData: FormData) {
   try {
+    // 验证用户身份
+    await requireAuth();
+    
     const file = formData.get('file') as File;
 
     if (!file) {

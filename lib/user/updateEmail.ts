@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/user'
 import { isAllowedEmail } from '@/lib/auth/utils'
 import { LOGIN_MESSAGES, REGISTER_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateEmailResult } from '@/types'
@@ -10,10 +11,13 @@ export type { UpdateEmailResult } from '@/types'
 
 /**
  * 发起邮箱更换请求
- * 
+ *
  * @param newEmail - 新邮箱地址
  * @returns 更新结果
- * 
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
  * @description
  * 使用 Supabase Auth 的默认邮件验证流程：
  * 1. 检查新邮箱是否已被使用
@@ -25,11 +29,11 @@ export type { UpdateEmailResult } from '@/types'
 export async function initiateEmailChange(newEmail: string): Promise<UpdateEmailResult> {
   try {
     const supabase = await createClient()
-    
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
-    if (userError || !user) {
+
+    // 获取当前用户 - 使用统一认证入口
+    const user = await getCurrentUser()
+
+    if (!user) {
       return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED }
     }
 
@@ -90,7 +94,10 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
 
 /**
  * 确认邮箱更换（用户点击邮件链接后）
- * 
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
  * @description
  * 当用户点击邮件中的确认链接后，Supabase 会自动处理验证。
  * 这个方法用于检查当前用户的邮箱是否已更新。
@@ -101,11 +108,10 @@ export async function checkEmailUpdateStatus(): Promise<{
   hasChanged?: boolean
 }> {
   try {
-    const supabase = await createClient()
-    
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error || !user) {
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser()
+
+    if (!user) {
       return { success: false }
     }
 

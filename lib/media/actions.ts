@@ -103,11 +103,17 @@ export async function batchUpdateMediaStatus(
 
 /**
  * 清理未使用的临时媒体
- * 删除超过24小时的temp状态记录及其Storage文件
+ * 删除超过指定时间的temp状态记录及其Storage文件
  *
+ * @param options - 清理选项
+ * @param options.olderThan - 清理多久之前创建的temp媒体（毫秒），默认1小时
+ * @param options.unassociatedOnly - 是否只清理未关联文章的媒体，默认true
  * @returns 清理结果
  */
-export async function cleanupTempMedia(): Promise<{
+export async function cleanupTempMedia(options?: {
+  olderThan?: number
+  unassociatedOnly?: boolean
+}): Promise<{
   success: boolean
   deleted?: number
   error?: string
@@ -116,14 +122,22 @@ export async function cleanupTempMedia(): Promise<{
     const supabase = await createClient()
     await requireAuth()
 
-    // 获取24小时前的temp状态记录
-    const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    // 默认清理1小时前的temp媒体（缩短时间，更积极清理）
+    const olderThanMs = options?.olderThan ?? 60 * 60 * 1000 // 1小时
+    const cutoffTime = new Date(Date.now() - olderThanMs).toISOString()
 
-    const { data: tempMedia, error: fetchError } = await supabase
+    let query = supabase
       .from('media')
       .select('id, storage_path')
       .eq('status', 'temp')
       .lt('created_at', cutoffTime)
+
+    // 默认只清理未关联文章的temp媒体（更安全的策略）
+    if (options?.unassociatedOnly !== false) {
+      query = query.is('article_id', null)
+    }
+
+    const { data: tempMedia, error: fetchError } = await query
 
     if (fetchError) {
       console.error('获取临时媒体失败:', fetchError)
@@ -160,6 +174,67 @@ export async function cleanupTempMedia(): Promise<{
   } catch (error) {
     const message = error instanceof Error ? error.message : '未知错误'
     console.error('清理临时媒体异常:', message)
+    return { success: false, error: message }
+  }
+}
+
+/**
+ * 清理当前用户的临时媒体
+ * 用于发布页离开时的清理
+ *
+ * @returns 清理结果
+ */
+export async function cleanupUserTempMedia(): Promise<{
+  success: boolean
+  deleted?: number
+  error?: string
+}> {
+  try {
+    const supabase = await createClient()
+    const user = await requireAuth()
+
+    // 只清理当前用户、未关联文章的temp媒体
+    const { data: tempMedia, error: fetchError } = await supabase
+      .from('media')
+      .select('id, storage_path')
+      .eq('status', 'temp')
+      .eq('user_id', user.id)
+      .is('article_id', null)
+
+    if (fetchError) {
+      console.error('获取用户临时媒体失败:', fetchError)
+      return { success: false, error: fetchError.message }
+    }
+
+    if (!tempMedia || tempMedia.length === 0) {
+      return { success: true, deleted: 0 }
+    }
+
+    // 从Storage删除文件
+    const storagePaths = tempMedia.map(m => m.storage_path)
+    const { error: storageError } = await supabase.storage
+      .from('wenjian')
+      .remove(storagePaths)
+
+    if (storageError) {
+      console.error('删除Storage文件失败:', storageError)
+    }
+
+    // 删除数据库记录
+    const { error: deleteError } = await supabase
+      .from('media')
+      .delete()
+      .in('id', tempMedia.map(m => m.id))
+
+    if (deleteError) {
+      console.error('删除媒体记录失败:', deleteError)
+      return { success: false, error: deleteError.message }
+    }
+
+    return { success: true, deleted: tempMedia.length }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误'
+    console.error('清理用户临时媒体异常:', message)
     return { success: false, error: message }
   }
 }

@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { UpdateProfileParams, UpdateProfileResult } from '@/types/settings'
+import { getCurrentUser } from '@/lib/auth/user'
+import { UpdateProfileParams, UpdateProfileResult } from '@/types/user/settings'
 import { validateProfileInput } from '@/lib/security/inputValidator'
 import { PROFILE_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 
@@ -41,14 +42,29 @@ function stringToPostgresArray(str: string | undefined): string | null {
  * 2. 更新 user_metadata（Supabase Auth 用户元数据）
  * 3. 刷新相关页面缓存
  */
+/**
+ * 更新用户资料 Server Action
+ *
+ * @param params - 要更新的资料字段
+ * @returns 更新结果
+ *
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
+ *
+ * @description
+ * 同时更新 profiles 表和 user_metadata，确保数据一致性：
+ * 1. 更新 profiles 表（应用主要数据源）
+ * 2. 更新 user_metadata（Supabase Auth 用户元数据）
+ * 3. 刷新相关页面缓存
+ */
 export async function updateProfile(params: UpdateProfileParams): Promise<UpdateProfileResult> {
   try {
     const supabase = await createClient()
 
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // 获取当前用户 - 使用统一认证入口
+    const user = await getCurrentUser()
 
-    if (userError || !user) {
+    if (!user) {
       return { success: false, error: COMMON_ERRORS.UNKNOWN_ERROR }
     }
 
@@ -75,7 +91,7 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     // 将 domain 字符串转换为 PostgreSQL 数组格式
     const domainArray = stringToPostgresArray(safeParams.domain)
 
-    // 1. 更新 profiles 表（使用验证后的安全数据）
+    // 1. 更新 profiles 表（使用验证后的安全数据）- 关键路径，必须成功
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
@@ -95,26 +111,31 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
       return { success: false, error: PROFILE_MESSAGES.UPDATE_ERROR }
     }
 
-    // 2. 更新 user_metadata（用于 Sidebar 等组件，使用安全数据）
-    const { error: metadataError } = await supabase.auth.updateUser({
-      data: {
-        username: safeParams.username,
-        bio: safeParams.bio,
-        location: safeParams.location,
-        avatar_url: safeParams.avatar_url,
-        domain: safeParams.domain,
+    // 2. 并行执行非关键操作（不阻塞主流程）
+    // 这些操作失败不影响核心功能
+    Promise.allSettled([
+      // 更新 user_metadata（用于 Sidebar 等组件）
+      supabase.auth.updateUser({
+        data: {
+          username: safeParams.username,
+          bio: safeParams.bio,
+          location: safeParams.location,
+          avatar_url: safeParams.avatar_url,
+          domain: safeParams.domain,
+        }
+      }),
+      // 刷新相关页面缓存
+      Promise.resolve().then(() => {
+        revalidatePath('/profile')
+        revalidatePath('/settings')
+        revalidatePath('/home')
+      })
+    ]).then((results) => {
+      const [metadataResult] = results
+      if (metadataResult.status === 'rejected') {
+        console.error('更新 user_metadata 失败:', metadataResult.reason)
       }
-    })
-
-    if (metadataError) {
-      console.error('更新 user_metadata 失败:', metadataError)
-      // 不影响主流程，因为 profiles 表已更新成功
-    }
-
-    // 3. 刷新相关页面缓存
-    revalidatePath('/profile')
-    revalidatePath('/settings')
-    revalidatePath('/home')
+    }).catch(console.error)
 
     return {
       success: true,

@@ -10,10 +10,10 @@
 'use client'
 
 import { GitMerge } from '@/components/icons'
-import { useUpdates } from '@/hooks/useUpdates'
+import { useUpdates } from '@/hooks/updates/useUpdates'
 import { FilterButton, VersionCard, MonthHeader } from '@/components/updates'
-import { UpdateType } from '@/types/updates'
-import { MonthlyUpdate } from '@/types/updates'
+import { UpdateType } from '@/types/user/updates'
+import { MonthlyUpdate } from '@/types/user/updates'
 
 /**
  * 更新日志客户端组件

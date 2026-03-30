@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useDrafts } from '../hooks/useDrafts'
+import { useDrafts } from '@/hooks/drafts/useDrafts'
 import { DraftsHeader } from '../header/DraftsHeader'
 import { DraftsContent } from './DraftsContent'
 import { BatchActionsBar } from '../actions/BatchActionsBar'

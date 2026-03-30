@@ -29,18 +29,22 @@ export { SignCard } from './signin/SignCard'
  * @module components/rewards/tasks
  */
 export { TaskBoard } from './tasks/TaskBoard'
-export { TaskClient } from './tasks/TaskClient'
-export { TaskList } from './tasks/TaskList'
-export { CategoryNav } from './tasks/CategoryNav'
+export { TasksHeader } from './tasks/TasksHeader'
+export { TasksServerList } from './tasks/TasksServerList'
+export { CategoryNavClient } from './tasks/CategoryNavClient'
+export { TaskActionButton } from './tasks/TaskActionButton'
 
 /**
  * 积分商城相关组件
  * @module components/rewards/shop
  */
 export { ShopGrid } from './shop/ShopGrid'
-export { ShopClient } from './shop/ShopClient'
-export { ShopFull } from './shop/ShopFull'
-export { ShopNav } from './shop/ShopNav'
+export { ShopCategoryNav } from './shop/ShopCategoryNav'
+export { ShopServerGrid } from './shop/ShopServerGrid'
+export { ShopHeader } from './shop/ShopHeader'
+export { ShopExchangeButton } from './shop/ShopExchangeButton'
+export { default as ShopLoading } from './shop/ShopLoading'
+export { default as ShopError } from './shop/ShopError'
 
 /**
  * 我的福利相关组件
@@ -53,7 +57,9 @@ export { PtRecord } from './my/PtRecord'
 
 /**
  * 福利中心 Hooks 统一出口
- * @module components/rewards/hooks
+ * @module hooks/rewards
+ * @description 福利中心 Hooks 已迁移至 hooks/rewards/ 目录
+ * @deprecated 请直接从 @/hooks 导入
  */
 export {
   useSignIn,
@@ -61,4 +67,4 @@ export {
   useTasks,
   useShop,
   useExchangeRecords,
-} from './hooks'
+} from '@/hooks'

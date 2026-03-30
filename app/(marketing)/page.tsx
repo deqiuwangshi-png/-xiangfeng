@@ -16,7 +16,7 @@ const siteName = '相逢'
  */
 export const metadata: Metadata = {
   title: `${siteName} - 深度思考者社区 | 长文创作与知识分享平台`,
-  description: '相逢是一个连接深度思考者的知识社区，专注于长文创作与深度阅读。打破认知边界，构建思维网络与知识经济生态。在这里发现高质量深度内容，结识志同道合的创作者，参与有价值的深度讨论。',
+  description: '把碎片化笔记、知识与经验，整理成属于你的完整逻辑体系，享受平台带来的长期红利，为深度阅读与长期成长而生。。',
   keywords: [
     '知识社区', '深度思考', '长文创作', '深度阅读', '内容创作',
     '创作者经济', '认知网络', 'Web3社交', '知识分享平台',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
    */
   openGraph: {
     title: `${siteName} - 深度思考者社区 | 长文创作与知识分享平台`,
-    description: '连接深度思考者，打破认知边界，构建属于你的思维网络与知识经济生态。发现深度内容，结识志同道合的创作者。',
+    description: '把碎片知识整理成体系，让每一份思考都产生长期红利，为深度阅读与长期成长而生。。',
     url: siteUrl,
     siteName: siteName,
     locale: 'zh_CN',

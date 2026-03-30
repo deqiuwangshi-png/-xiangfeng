@@ -20,7 +20,7 @@ import type {
   GetLinkedAccountsResult,
   LinkAccountResult,
   LinkedAccountItem,
-} from '@/types/settings'
+} from '@/types/user/settings'
 
 /**
  * 支持的OAuth提供商配置
@@ -87,10 +87,11 @@ export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
         dbIdentity?.email || authIdentity?.identity_data?.email
 
       return {
-        id: provider,
-        name: config.name,
-        connected: isConnected,
+        provider: provider,
+        providerName: config.name,
         email: email,
+        isPrimary: false,
+        isConnected: isConnected,
       }
     })
 

@@ -7,69 +7,10 @@
  */
 
 import { useMemo } from 'react'
-import {
-  Archive,
-  ArrowRight,
-  BookOpen,
-  Crown,
-  Coffee,
-  Sticker,
-  Gift,
-  ShoppingBag,
-  Film,
-  Music,
-  Smartphone,
-  CupSoda,
-  Palette,
-  Sparkles,
-  Zap,
-  type LucideIcon,
-} from '@/components/icons'
-import { useExchangeRecords } from '../hooks'
-import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
-
-/**
- * 兑换项展示接口
- * @interface RwItem
- */
-interface RwItem {
-  id: string
-  name: string
-  date: string
-  points: number
-  status: ExchangeStatus
-  icon: LucideIcon
-  iconColor: string
-}
-
-/**
- * 图标映射配置
- * @constant iconMapping
- */
-const iconMapping: Record<string, { icon: LucideIcon; color: string }> = {
-  Coffee: { icon: Coffee, color: 'text-xf-primary' },
-  Film: { icon: Film, color: 'text-xf-accent' },
-  Music: { icon: Music, color: 'text-xf-accent' },
-  Crown: { icon: Crown, color: 'text-amber-600' },
-  ShoppingBag: { icon: ShoppingBag, color: 'text-xf-primary' },
-  Bookmark: { icon: BookOpen, color: 'text-xf-primary' },
-  Smartphone: { icon: Smartphone, color: 'text-xf-primary' },
-  CupSoda: { icon: CupSoda, color: 'text-xf-info' },
-  BookOpen: { icon: BookOpen, color: 'text-xf-accent' },
-  Palette: { icon: Palette, color: 'text-purple-600' },
-  Sparkles: { icon: Sparkles, color: 'text-rose-500' },
-  Gift: { icon: Gift, color: 'text-rose-500' },
-  Zap: { icon: Zap, color: 'text-amber-600' },
-  Sticker: { icon: Sticker, color: 'text-xf-primary' },
-}
-
-/**
- * 获取默认图标配置
- * @returns {Object} 默认图标和颜色
- */
-function getDefaultIcon() {
-  return { icon: Gift, color: 'text-xf-accent' }
-}
+import { Archive, ArrowRight } from '@/components/icons'
+import { getIconConfig } from '@/components/icons/rewards'
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords'
+import type { ExchangeRecordWithItem, ExchangeRecordItem, ExchangeStatus } from '@/types/rewards'
 
 /**
  * 状态配置
@@ -101,10 +42,10 @@ function getStatusConfig(status: ExchangeStatus) {
 /**
  * 将兑换记录转换为展示格式
  * @param {ExchangeRecordWithItem} record - 兑换记录
- * @returns {RwItem} 展示用记录项
+ * @returns {ExchangeRecordItem} 展示用记录项
  */
-function mapExchangeToItem(record: ExchangeRecordWithItem): RwItem {
-  const iconConfig = iconMapping[record.item?.icon_name || ''] || getDefaultIcon()
+function mapExchangeToItem(record: ExchangeRecordWithItem): ExchangeRecordItem {
+  const iconConfig = getIconConfig(record.item?.icon_name || '')
 
   return {
     id: record.id,

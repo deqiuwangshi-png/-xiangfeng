@@ -22,10 +22,10 @@ const features = [
   },
   {
     icon: MessageCircle,
-    title: '兴趣社群与互动',
-    description: '围绕作者与话题形成高质量讨论圈，评论、笔记、私信，深度社交不浮躁。',
-    tag: '深度社交',
-    color: 'primary',
+    title: '体系化沉淀',
+    description: '整理零散知识，构建逻辑体系，让输入成为可成长的个人资产。',
+    tag: '体系化',
+    color: 'primary'
   },
   {
     icon: Sprout,
@@ -48,7 +48,7 @@ export default function FeaturesSection() {
         <RevealOnScrollClient>
           <div className="text-center mb-10 sm:mb-20 max-w-6xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-xf-dark mb-3 sm:mb-4">重新定义深度连接</h2>
-            <p className="text-sm sm:text-lg text-xf-medium px-2 sm:px-0">相逢不仅是平台，更是思想碰撞与认知升级的催化剂</p>
+            <p className="text-sm sm:text-lg text-xf-medium px-2 sm:px-0">相逢从不是单纯的平台，而是链接碎片知识、碰撞思想火花、助力认知迭代的长期成长伙伴</p>
           </div>
         </RevealOnScrollClient>
 

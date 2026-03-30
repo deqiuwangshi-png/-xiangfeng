@@ -1,8 +1,9 @@
 import { Suspense } from 'react'
-import PublishPageClient from './PublishPageClient'
-import { AuthRequiredContent } from '@/components/auth/AuthRequiredContent'
+import PublishPageClient from '@/components/publish/PublishPageClient'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
-import { getCurrentUserWithProfile } from '@/lib/supabase/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import { FileEdit } from 'lucide-react'
 
 /**
  * 发布页
@@ -12,19 +13,24 @@ import { getCurrentUserWithProfile } from '@/lib/supabase/user'
  * 2. 客户端组件封装动态导入逻辑
  * 3. 骨架屏优化感知性能
  * 4. 支持编辑模式：通过URL参数edit获取草稿ID
- * 5. 未登录状态显示登录引导
+ *
+ * @统一认证 2026-03-30
+ * - 页面自行处理未登录状态，显示友好的登录引导
+ * - 使用 UnauthenticatedPrompt 组件展示洞察图标和登录按钮
  *
  * @returns 发布页JSX
  */
 export default async function PublishPage() {
   const profile = await getCurrentUserWithProfile()
 
-  {/* 未登录状态：显示登录引导 */}
+  // 未登录用户：显示登录引导
   if (!profile) {
     return (
-      <AuthRequiredContent
+      <UnauthenticatedPrompt
         title="发布文章"
-        description="登录后即可发布你的文章"
+        description="在这里书写你的故事，分享你的见解"
+        icon={<FileEdit className="w-8 h-8 sm:w-10 sm:h-10 text-xf-primary" />}
+        promptText="登录后开始创作你的文章"
       />
     )
   }

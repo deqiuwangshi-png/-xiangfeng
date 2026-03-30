@@ -17,7 +17,90 @@ import {
   Heading3
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
-import { Heading4, Heading5 } from 'lucide-react'
+import { Heading4, Heading5, Type } from 'lucide-react'
+
+/**
+ * 预设颜色列表
+ */
+const PRESET_COLORS = [
+  { name: '默认', value: '' },
+  { name: '红色', value: '#ef4444' },
+  { name: '橙色', value: '#f97316' },
+  { name: '黄色', value: '#eab308' },
+  { name: '绿色', value: '#22c55e' },
+  { name: '青色', value: '#06b6d4' },
+  { name: '蓝色', value: '#3b82f6' },
+  { name: '紫色', value: '#8b5cf6' },
+  { name: '粉色', value: '#ec4899' },
+  { name: '灰色', value: '#6b7280' },
+]
+
+/**
+ * 颜色选择器组件
+ */
+function ColorPicker({ editor }: { editor: Editor | null }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const pickerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  if (!editor) return null
+
+  const currentColor = editor.getAttributes('textStyle').color || ''
+
+  const handleColorSelect = (color: string) => {
+    if (color) {
+      editor.chain().focus().setColor(color).run()
+    } else {
+      editor.chain().focus().unsetColor().run()
+    }
+    setIsOpen(false)
+  }
+
+  return (
+    <div ref={pickerRef} className="relative">
+      <ToolbarButton
+        icon={Type}
+        tooltip="文字颜色"
+        onClick={() => setIsOpen(!isOpen)}
+        title="文字颜色"
+        isActive={!!currentColor}
+        size="sm"
+        style={currentColor ? { color: currentColor } : undefined}
+      />
+      {isOpen && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white rounded-lg shadow-xl border border-xf-light/50 p-2 flex flex-wrap gap-1 w-[140px] animate-in fade-in zoom-in-95 duration-150">
+          {PRESET_COLORS.map((color) => (
+            <button
+              key={color.value || 'default'}
+              onClick={() => handleColorSelect(color.value)}
+              className={`w-6 h-6 rounded-md border transition-all hover:scale-110 ${
+                currentColor === color.value
+                  ? 'border-xf-primary ring-2 ring-xf-primary/30'
+                  : 'border-gray-200 hover:border-xf-primary/50'
+              }`}
+              style={{
+                backgroundColor: color.value || '#1f2937',
+                backgroundImage: color.value
+                  ? 'none'
+                  : 'linear-gradient(45deg, transparent 45%, #ef4444 45%, #ef4444 55%, transparent 55%)',
+              }}
+              title={color.name}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface BubbleMenuProps {
   editor: Editor | null
@@ -303,6 +386,12 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
         isActive={editor.isActive('code')}
         size="sm"
       />
+
+      {/* 分隔线 */}
+      <div className="w-px h-5 bg-xf-light/80 mx-1" />
+
+      {/* 文字颜色 */}
+      <ColorPicker editor={editor} />
 
       {/* 分隔线 */}
       <div className="w-px h-5 bg-xf-light/80 mx-1" />

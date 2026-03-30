@@ -66,9 +66,9 @@ export function DraftCard({
         }
       case 'archived':
         return {
-          bg: 'bg-gray-100',
-          text: 'text-gray-600',
-          label: '已归档',
+          bg: 'bg-amber-100',
+          text: 'text-amber-700',
+          label: '待审核',
         }
     }
   }
@@ -190,21 +190,21 @@ export function DraftCard({
         {/* 内容区域 */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            {/* 标题 - Swiss Style：加粗 */}
-            <h3 className="text-base font-semibold text-gray-900 truncate">
+            {/* 标题 - Swiss Style：加粗，flex-1占据剩余空间 */}
+            <h3 className="flex-1 text-base font-semibold text-gray-900 truncate min-w-0">
               {draft.title || '无标题'}
             </h3>
 
-            {/* 状态标签 - Swiss Style：浅灰背景 */}
+            {/* 状态标签 - Swiss Style：浅灰背景，固定在右侧 */}
             <span className={`
-              status-badge inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+              status-badge inline-flex items-center shrink-0 px-2 py-0.5 rounded text-xs font-medium
               ${statusStyles.bg} ${statusStyles.text}
             `}>
               {statusStyles.label}
             </span>
 
             {/* 悬浮操作按钮组 */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-auto">
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
               <button
                 onClick={handleEditClick}
                 className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"

@@ -4,29 +4,21 @@
  *
  * 注意：所有查询使用 author_id，user_id 由触发器自动同步
  *
- * @安全说明
+ * @统一认证 2026-03-30
+ * - 使用 lib/auth/user.ts 的统一入口获取用户信息
  * - userId 由服务端从认证信息获取，不依赖客户端传入
  * - 所有查询过滤已禁用作者的文章
  * - 限制参数范围防止性能问题
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserId } from '@/lib/auth/user';
 import type { ArticleWithAuthor } from '@/types';
 
 export type { ArticleWithAuthor } from '@/types';
 
 /** 相关文章最大返回数量 */
 const MAX_RELATED_ARTICLES = 20;
-
-/**
- * 获取当前登录用户ID
- * @security 服务端内部使用，不暴露给客户端
- */
-async function getCurrentUserId(): Promise<string | null> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id ?? null;
-}
 
 /**
  * 获取文章完整详情（安全优化版）
@@ -91,7 +83,7 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
       avatar: data.author?.avatar_url || undefined,
       bio: data.author?.bio || undefined,
     },
-    publishedAt: data.created_at,
+    publishedAt: data.published_at || data.created_at,
     readTime: Math.ceil(data.content.length / 500),
     likesCount: data.like_count || 0,
     commentsCount: data.comment_count || 0,

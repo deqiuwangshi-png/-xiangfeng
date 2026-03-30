@@ -1,21 +1,25 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import type { ReplyQueryResult, ReplySubmitResult } from '@/types/feedback';
+import { getCurrentUser } from './auth';
+import type { ReplyQueryResult, ReplySubmitResult } from '@/types/user/feedback';
 
 /**
  * 获取反馈的评论列表
  *
  * @param recordId 飞书记录ID
  * @returns 评论列表
+ *
+ * @统一认证 2026-03-30
+ * - 使用统一认证入口 getCurrentUser
  */
 export async function getFeedbackReplies(recordId: string): Promise<ReplyQueryResult> {
   try {
     const supabase = await createClient();
 
-    // 获取当前用户
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    // 获取当前用户 - 使用统一认证入口
+    const { userId } = await getCurrentUser();
+    if (!userId) {
       return {
         success: false,
         error: '用户未登录',
@@ -68,6 +72,9 @@ export async function getFeedbackReplies(recordId: string): Promise<ReplyQueryRe
  * @param recordId 飞书记录ID
  * @param content 评论内容
  * @returns 提交结果
+ *
+ * @统一认证 2026-03-30
+ * - 使用统一认证入口 getCurrentUser
  */
 export async function submitReply(recordId: string, content: string): Promise<ReplySubmitResult> {
   try {
@@ -88,9 +95,9 @@ export async function submitReply(recordId: string, content: string): Promise<Re
 
     const supabase = await createClient();
 
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
+    // 获取当前用户 - 使用统一认证入口
+    const { userId } = await getCurrentUser();
+    if (!userId) {
       return {
         success: false,
         error: '用户未登录',
@@ -101,7 +108,7 @@ export async function submitReply(recordId: string, content: string): Promise<Re
     const { data: profile } = await supabase
       .from('profiles')
       .select('username')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     // 插入评论到数据库（使用飞书记录ID关联）
@@ -109,7 +116,7 @@ export async function submitReply(recordId: string, content: string): Promise<Re
       .from('feedback_replies')
       .insert({
         record_id: recordId,
-        user_id: user.id,
+        user_id: userId,
         author_name: profile?.username || '匿名用户',
         content: content.trim(),
         is_official: false,

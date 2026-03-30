@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from 'react'
-import { AccountViewMode } from '@/types/settings'
+import { AccountViewMode } from '@/types/user/settings'
 
 /**
  * 账户设置视图状态管理
