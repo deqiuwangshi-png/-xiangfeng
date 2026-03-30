@@ -12,6 +12,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/user'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
+import { isValidUUID } from '@/lib/utils/validation'
 import type {
   Task,
   TaskProgressResponse,
@@ -254,9 +255,11 @@ export async function updateTaskProgress(
     }
   }
 
-  // 任务进度更新频率限制：每分钟最多更新5次
-  const rateLimit = await checkServerRateLimit(`task:${user.id}:update`, {
-    maxAttempts: 5,
+  // 高频任务（如点赞、关注）：每分钟最多2次；其他任务：每分钟最多5次
+  const highFrequencyTasks = ['like_article', 'follow_user', 'collect_article']
+  const isHighFrequency = highFrequencyTasks.includes(taskType)
+  const rateLimit = await checkServerRateLimit(`task:${user.id}:update:${taskType}`, {
+    maxAttempts: isHighFrequency ? 2 : 5,
     windowMs: 60 * 1000, // 1分钟
   });
 
@@ -301,7 +304,7 @@ export async function claimTaskReward(
   if (!user) return { success: false, error: '请先登录' }
 
   // 验证 taskId 参数
-  if (!taskId || taskId.length !== 36) {
+  if (!isValidUUID(taskId)) {
     return { success: false, error: '无效的任务ID' }
   }
 

@@ -12,7 +12,8 @@ import { SignCard } from './signin/SignCard'
 import { TaskBoard } from './tasks/TaskBoard'
 import { ShopGrid } from './shop/ShopGrid'
 import { MyRw } from './my/MyRw'
-import { useSignIn, usePoints } from '@/hooks'
+import { useSignIn } from '@/hooks'
+import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords'
 
 /**
  * 签到卡片区域组件
@@ -24,20 +25,20 @@ export function SignCardSection() {
     consecutiveDays,
     rewardsConfig,
     isSigning,
-    signResult,
     handleSignIn,
+    signResult,
   } = useSignIn()
 
-  const { refreshPoints } = usePoints()
+  const { refreshRecords } = useExchangeRecords()
 
   /**
-   * 处理签到成功后的积分刷新
+   * 监听签到结果，成功后刷新兑换记录
    */
   useEffect(() => {
     if (signResult?.success) {
-      refreshPoints()
+      refreshRecords()
     }
-  }, [signResult, refreshPoints])
+  }, [signResult, refreshRecords])
 
   return (
     <SignCard

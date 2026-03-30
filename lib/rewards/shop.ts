@@ -11,6 +11,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/user'
+import { isValidUUID } from '@/lib/utils/validation'
 import type {
   ShopItem,
   ExchangeRecord,
@@ -98,7 +99,7 @@ export async function exchangeItem(request: ExchangeRequest): Promise<ExchangeRe
   }
 
   {/* P0-1: 服务端输入校验 - 验证 item_id 和 quantity */}
-  if (!request.item_id || typeof request.item_id !== 'string' || request.item_id.length < 1) {
+  if (!isValidUUID(request.item_id)) {
     console.error('兑换失败: 无效的商品ID')
     return {
       success: false,

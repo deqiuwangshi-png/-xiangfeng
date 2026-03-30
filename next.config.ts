@@ -18,7 +18,7 @@ import type { NextConfig } from "next";
  */
 const prodCspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' https://vercel.live;
+  script-src 'self' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline' https://www.gstatic.com;
   img-src 'self' https://*.supabase.co https://api.dicebear.com https://*.supabase.in data: blob:;
   font-src 'self' data:;
@@ -33,7 +33,7 @@ const prodCspHeader = `
 
 const devCspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline' https://www.gstatic.com;
   img-src 'self' https://*.supabase.co https://api.dicebear.com https://*.supabase.in data: blob:;
   font-src 'self' data:;

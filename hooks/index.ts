@@ -53,8 +53,11 @@ export { useEditorState } from './publish/useEditorState';
 export { useTipTapEditor } from './publish/useTipTapEditor';
 
 // ==================== Rewards Hooks ====================
-export { useExchangeRecords } from './rewards/useExchangeRecords';
-export { usePoints } from './rewards/usePoints';
-export { useShop } from './rewards/useShop';
-export { useSignIn } from './rewards/useSignIn';
-export { useTasks } from './rewards/useTasks';
+export { useExchangeRecords } from './rewards/useExchangeRecords'
+export { usePoints } from './rewards/usePoints'
+export { useShop } from './rewards/useShop'
+export { useSignIn } from './rewards/useSignIn'
+export { useTasks } from './rewards/useTasks'
+
+// ==================== Common Hooks ====================
+export { useDebounce } from './useDebounce';

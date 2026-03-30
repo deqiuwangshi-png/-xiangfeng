@@ -6,7 +6,7 @@
  * @description 管理商城商品数据和兑换操作
  */
 
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 import { useCallback, useState, useRef, useEffect } from 'react'
 import { getShopItems, exchangeItem } from '@/lib/rewards/shop'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
@@ -53,6 +53,7 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
   const cacheKey = category ? `shop-${category}` : 'shop-all'
   const [isExchanging, setIsExchanging] = useState(false)
   const isMountedRef = useRef(true)
+  const { mutate: globalMutate } = useSWRConfig()
 
   // 组件卸载时设置标记
   useEffect(() => {
@@ -102,6 +103,8 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
         if (result.success && isMountedRef.current) {
           // 兑换成功后刷新商品列表（库存变化）
           await mutate()
+          // 刷新兑换记录
+          await globalMutate('user-exchange-records')
           return {
             success: true,
             pointsSpent: result.points_spent,
@@ -118,7 +121,7 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
         }
       }
     },
-    [mutate]
+    [globalMutate, mutate]
   )
 
   return {

@@ -6,10 +6,10 @@
  * @description 显示每日、每周、成就任务列表，使用真实数据
  */
 
-import { toast } from 'sonner'
 import Link from 'next/link'
 import { useTasks } from '@/hooks/rewards/useTasks'
 import { ListTodo, ArrowRight, Target, BookOpen, Trophy, Users, PenTool, Heart, MessageCircle } from '@/components/icons'
+import { TaskActionButton } from './TaskActionButton'
 import type { TaskStatus } from '@/types/rewards'
 
 /**
@@ -42,7 +42,7 @@ const typeConfig: Record<string, { label: string; bgColor: string; textColor: st
  * @returns {JSX.Element} 任务中心面板
  */
 export function TaskBoard() {
-  const { tasks, isLoading, claimReward, accept } = useTasks()
+  const { tasks, isLoading } = useTasks()
 
   /**
    * 计算进度百分比
@@ -63,45 +63,12 @@ export function TaskBoard() {
   }
 
   /**
-   * 判断是否已完成
-   * @param {TaskStatus} status - 任务状态
-   * @returns {boolean} 是否已完成
-   */
-  const isCompleted = (status: TaskStatus): boolean => {
-    return status === 'completed' || status === 'reward_claimed'
-  }
-
-  /**
    * 判断是否可领取奖励
    * @param {TaskStatus} status - 任务状态
    * @returns {boolean} 是否可领取
    */
   const canClaimReward = (status: TaskStatus): boolean => {
     return status === 'completed'
-  }
-
-  /**
-   * 处理领取奖励
-   * @param {string} taskId - 任务ID
-   */
-  const handleClaimReward = async (taskId: string) => {
-    const result = await claimReward(taskId)
-    if (result.success) {
-      toast.success(`领取成功，获得灵感币: ${result.points}`)
-    }
-  }
-
-  /**
-   * 处理接取任务
-   * @param {string} taskId - 任务ID
-   */
-  const handleAccept = async (taskId: string) => {
-    const result = await accept(taskId)
-    if (result.success) {
-      toast.success('接取任务成功')
-    } else {
-      toast.error(result.error || '接取失败')
-    }
   }
 
   /**
@@ -192,9 +159,6 @@ export function TaskBoard() {
   const renderTaskItem = (task: typeof tasks[0], showProgress: boolean, isLast: boolean) => {
     const config = typeConfig[task.category] || typeConfig['daily']
     const percent = calcPercent(task.current_progress, task.target_progress)
-    const completed = isCompleted(task.status)
-    const claimable = canClaimReward(task.status)
-    const pending = isPending(task.status)
     const inProgress = isInProgress(task.status)
     const Icon = getIcon(task.icon_name || 'Target')
 
@@ -229,36 +193,12 @@ export function TaskBoard() {
           )}
         </div>
         <span className="text-xf-accent font-bold mx-3">+{task.reward_points}</span>
-        {/* 已完成 */}
-        {completed && (
-          <span className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full whitespace-nowrap">
-            已完成
-          </span>
-        )}
-        {/* 可领取 */}
-        {claimable && (
-          <button
-            onClick={() => handleClaimReward(task.task_id)}
-            className="text-xs bg-xf-accent hover:bg-xf-accent/90 text-white px-3 py-1.5 rounded-full transition whitespace-nowrap"
-          >
-            领取
-          </button>
-        )}
-        {/* 进行中 */}
-        {inProgress && (
-          <span className="text-xs bg-xf-info/20 text-xf-info px-3 py-1.5 rounded-full whitespace-nowrap">
-            进行中
-          </span>
-        )}
-        {/* 未接取 */}
-        {pending && (
-          <button
-            onClick={() => handleAccept(task.task_id)}
-            className="text-xs bg-xf-primary/10 hover:bg-xf-primary/20 text-xf-primary px-3 py-1.5 rounded-full transition whitespace-nowrap"
-          >
-            接取任务
-          </button>
-        )}
+        {/* 使用 TaskActionButton 替代原有按钮逻辑 */}
+        <TaskActionButton
+          taskId={task.task_id}
+          status={task.status}
+          rewardPoints={task.reward_points}
+        />
       </div>
     )
   }

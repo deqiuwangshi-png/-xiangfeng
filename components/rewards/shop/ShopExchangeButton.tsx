@@ -9,6 +9,7 @@
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { useDebounce } from '@/hooks/useDebounce'
 import { useShop } from '@/hooks/rewards/useShop'
 import { usePoints } from '@/hooks/rewards/usePoints'
 
@@ -41,9 +42,9 @@ export function ShopExchangeButton({
   const [isExchanging, setIsExchanging] = useState(false)
 
   /**
-   * 处理兑换
+   * 处理兑换（内部实现）
    */
-  const handleExchange = useCallback(async () => {
+  const exchangeImpl = useCallback(async () => {
     if (!canAfford) {
       toast.error('积分不足')
       return
@@ -69,6 +70,9 @@ export function ShopExchangeButton({
       setIsExchanging(false)
     }
   }, [itemId, itemName, pointsCost, canAfford, exchange, refreshPoints])
+
+  // 防抖处理
+  const handleExchange = useDebounce(exchangeImpl, 300)
 
   return (
     <button

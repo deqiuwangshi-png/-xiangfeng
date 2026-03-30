@@ -55,9 +55,9 @@ const fetchExchangeRecords = async (
 export function useExchangeRecords(
   params: ExchangeRecordsParams = {}
 ): UseExchangeRecordsReturn {
-  const { limit = 50, offset = 0 } = params
+  const { limit = 4, offset = 0 } = params
 
-  // 使用 SWR 获取兑换记录 - 30秒去重，挂载时自动获取
+  // 使用 SWR 获取兑换记录 - 1分钟去重，挂载时自动获取
   const {
     data: records = [],
     isLoading,
@@ -67,7 +67,7 @@ export function useExchangeRecords(
     ['user-exchange-records', limit, offset],
     () => fetchExchangeRecords({ limit, offset }),
     {
-      dedupingInterval: 30000,
+      dedupingInterval: 60000,
       keepPreviousData: true,
       revalidateOnFocus: false,
       revalidateOnReconnect: true,

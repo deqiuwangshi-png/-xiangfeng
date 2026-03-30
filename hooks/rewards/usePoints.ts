@@ -7,7 +7,8 @@
  */
 
 import useSWR from 'swr'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { toast } from 'sonner'
 import {
   getUserPointsOverview,
   getPointTransactions,
@@ -129,22 +130,9 @@ export function usePoints(): UsePointsReturn {
       }
     } catch {
       // 加载失败时保持现有数据
+      toast.error('加载更多记录失败')
     }
   }, [offset, mutateTransactions])
-
-  // 监听积分更新事件
-  useEffect(() => {
-    const handlePointsUpdate = () => {
-      if (isMountedRef.current) {
-        refreshPoints()
-      }
-    }
-
-    window.addEventListener('points:updated', handlePointsUpdate)
-    return () => {
-      window.removeEventListener('points:updated', handlePointsUpdate)
-    }
-  }, [refreshPoints])
 
   // 错误处理：已在SWR配置中处理
 
