@@ -27,7 +27,7 @@
  */
 
 import { Suspense } from 'react'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
@@ -185,27 +185,29 @@ async function ProfileHeaderData({ userId }: { userId: string }) {
  * 用户个人主页页面组件
  *
  * @安全说明
- * - 必须登录才能访问他人主页
- * - 匿名用户会被重定向到登录页
  * - 检查用户资料可见性设置
+ * - private: 仅自己可见
+ * - followers: 仅粉丝可见（未登录用户无法查看）
+ * - public/community: 所有人可见
  *
  * @性能优化 关键改进:
  * 1. 使用 Suspense 分离 ProfileHeader 和 ProfileContent
  * 2. ProfileHeader 优先渲染（关键路径）
  * 3. ProfileContent 和 HeatMap 流式传输（非关键）
  * 4. 避免级联数据获取阻塞
+ *
+ * @统一认证 2026-03-30
+ * - /profile（当前用户主页）认证检查在 layout.tsx
+ * - /profile/[userId]（他人主页）可以匿名访问公开资料
  */
 export default async function UserProfilePage({ params }: UserProfilePageProps) {
-  // 检查用户是否登录 - 未登录则重定向
+  // 获取当前用户（可能为 null，匿名访问）
   const currentUser = await getCurrentUser()
-  if (!currentUser) {
-    redirect('/login')
-  }
 
   const { userId } = await params
 
   // 检查资料可见性权限
-  const { allowed, visibility } = await checkProfileVisibility(userId, currentUser.id)
+  const { allowed, visibility } = await checkProfileVisibility(userId, currentUser?.id || null)
 
   if (!allowed) {
     // 根据可见性返回不同的提示

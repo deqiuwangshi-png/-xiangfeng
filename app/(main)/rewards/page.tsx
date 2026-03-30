@@ -1,4 +1,3 @@
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { getUserPointsOverview } from '@/lib/rewards/points'
 import { PtOverview } from '@/components/rewards/overview/PtOverview'
@@ -11,8 +10,12 @@ import { MyRwSection } from '@/components/rewards/RwClient'
 /**
  * 福利中心页面
  * @module app/(main)/rewards/page
- * @description 福利中心主页面，支持未登录状态显示登录引导
+ * @description 福利中心主页面
  * @优化说明 PtOverview和PtLevel改为Server Component，减少客户端JS体积
+ *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
  */
 
 /**
@@ -22,14 +25,9 @@ import { MyRwSection } from '@/components/rewards/RwClient'
 export default async function RewardsPage() {
   const profile = await getCurrentUserWithProfile()
 
-  {/* 未登录状态：显示登录引导 */}
+  // Layout 层已拦截未登录用户，此处 profile 理论上不会为 null
   if (!profile) {
-    return (
-      <AuthRequiredContent
-        title="福利中心"
-        description="登录后领取专属福利"
-      />
-    )
+    throw new Error('用户未登录')
   }
 
   // 服务端获取积分数据

@@ -1,6 +1,5 @@
 import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
 import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import '@/styles/settings.css'
 import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
@@ -87,18 +86,21 @@ const DEFAULT_USER_SETTINGS: UserSettings = {
   content: { content_language: 'zh-CN' },
 }
 
+/**
+ * 设置页面
+ *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
+ */
 export default async function SettingsPage() {
   // 获取当前登录用户 - 使用统一入口
   const user = await getCurrentUser()
 
-  // 未登录状态：显示登录引导（与其他页面保持一致）
+  // Layout 层已拦截未登录用户，此处 user 理论上不会为 null
+  // 但为类型安全，保留空值检查
   if (!user) {
-    return (
-      <AuthRequiredContent
-        title="用户设置"
-        description="登录后管理你的账户设置"
-      />
-    )
+    throw new Error('用户未登录')
   }
 
   // 用户已登录，获取设置数据

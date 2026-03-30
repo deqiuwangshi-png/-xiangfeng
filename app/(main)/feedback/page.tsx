@@ -1,13 +1,14 @@
 import { HelpCircle } from '@/components/icons';
 import { FeedbackClient } from '@/components/feedback/FeedbackClient';
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent';
-import { getCurrentUser } from '@/lib/auth/user';
 
 /**
  * 反馈页面 (Server Component)
  * @module app/(main)/feedback/page
  * @description 产品反馈页面，需要登录才能访问
- * @统一认证 添加认证检查，与其他页面保持一致
+ *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
  */
 
 /**
@@ -15,18 +16,6 @@ import { getCurrentUser } from '@/lib/auth/user';
  * @returns {JSX.Element} 反馈页面
  */
 export default async function FeedbackPage() {
-  // 获取当前登录用户 - 使用统一入口
-  const user = await getCurrentUser()
-
-  // 未登录状态：显示登录引导
-  if (!user) {
-    return (
-      <AuthRequiredContent
-        title="产品反馈"
-        description="登录后提交反馈，帮助我们改进产品"
-      />
-    )
-  }
 
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-8 pt-4 sm:pt-6 pb-20">

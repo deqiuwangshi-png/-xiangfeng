@@ -1,9 +1,7 @@
 import { Suspense } from 'react'
 import { DraftsClient } from '@/components/drafts/core/DraftsClient'
 import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import { getArticles } from '@/lib/articles/actions/crud'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { filterOptions } from '@/constants/drafts'
 
 /**
@@ -61,21 +59,13 @@ function DraftsSkeleton() {
 
 /**
  * 草稿页
- * @description 使用Suspense优化LCP，优先渲染骨架屏，支持未登录状态
+ * @description 使用Suspense优化LCP，优先渲染骨架屏
+ *
+ * @统一认证 2026-03-30
+ * - 认证检查已移至 (main)/layout.tsx
+ * - 此页面不再需要单独检查登录状态
  */
 export default async function DraftsPage() {
-  const profile = await getCurrentUserWithProfile()
-
-  {/* 未登录状态：显示登录引导 */}
-  if (!profile) {
-    return (
-      <AuthRequiredContent
-        title="文章管理"
-        description="登录后管理你的文章和草稿"
-      />
-    )
-  }
-
   return (
     <div className="flex-1 h-full overflow-y-auto no-scrollbar relative">
       {/* 优先渲染骨架屏，减少LCP感知时间 */}
