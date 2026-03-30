@@ -2,9 +2,13 @@
  * 防重放令牌服务
  * @module lib/security/nonce
  * @description 基于内存的一次性令牌，防止重复提交
+ * 
+ * @简化说明 2026-03-30
+ * - 使用内存存储，适合早期项目单实例部署
+ * - 如需分布式部署，后续可迁移到 Supabase
  */
 
-// 简单内存存储（生产环境建议用 Redis）
+// 简单内存存储
 const nonceStore = new Map<string, { used: boolean; expires: number }>();
 
 /**

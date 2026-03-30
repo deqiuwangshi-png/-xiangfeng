@@ -18,36 +18,6 @@ import {
 import { OpenGraph } from 'next/dist/lib/metadata/types/opengraph-types';
 import { Twitter } from 'next/dist/lib/metadata/types/twitter-types';
 
-// 本地类型定义
-interface OpenGraphConfig {
-  type: string;
-  locale: string;
-  url: string;
-  siteName: string;
-  title: string;
-  description: string;
-  images: Array<{
-    url: string;
-    width: number;
-    height: number;
-    alt: string;
-  }>;
-  authors?: string[];
-  publishedTime?: string;
-  modifiedTime?: string;
-  section?: string;
-  tags?: string[];
-}
-
-interface TwitterConfig {
-  card: string;
-  site: string;
-  creator: string;
-  title: string;
-  description: string;
-  images: string[];
-}
-
 /**
  * 基础 Metadata 配置选项
  */
