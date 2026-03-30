@@ -91,7 +91,7 @@ export async function TaskBoardServer() {
   const completedTasks = tasks.filter((t) => t.status === 'reward_claimed').slice(0, 2)
 
   // 分区：可接取（静态展示）
-  const availableTasks = tasks.filter((t) => isPending(t.status)).slice(0, 4)
+  const availableTasks = tasks.filter((t) => isPending(t.status)).slice(0, 6)
 
   /**
    * 渲染任务项
@@ -149,16 +149,18 @@ export async function TaskBoardServer() {
 
   return (
     <div className="card-bg rounded-2xl p-6 flex flex-col min-h-[400px]">
-      <h2 className="text-xl font-serif font-bold text-xf-dark mb-4 flex items-center gap-2">
-        <ListTodo className="w-5 h-5 text-xf-primary" />
-        任务中心
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-serif font-bold text-xf-dark flex items-center gap-2">
+          <ListTodo className="w-5 h-5 text-xf-primary" />
+          任务中心
+        </h2>
 
-      {/* 任务分类标签 - 静态 */}
-      <div className="flex gap-2 mb-4 text-xs">
-        <span className="bg-xf-primary/10 text-xf-primary px-3 py-1 rounded-full">每日任务</span>
-        <span className="bg-xf-info/10 text-xf-info px-3 py-1 rounded-full">每周任务</span>
-        <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full">成就</span>
+        {/* 任务分类标签 - 静态 */}
+        <div className="flex gap-2 text-xs">
+          <span className="bg-xf-primary/10 text-xf-primary px-3 py-1 rounded-full">每日任务</span>
+          <span className="bg-xf-info/10 text-xf-info px-3 py-1 rounded-full">每周任务</span>
+          <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full">成就</span>
+        </div>
       </div>
 
       {/* 任务列表区域 - 可滚动，链接固定在底部 */}

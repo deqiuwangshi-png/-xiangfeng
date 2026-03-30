@@ -11,9 +11,13 @@
  * - 屏蔽复制/剪切/粘贴快捷键
  * - 可配置开关
  * - 支持排除特定元素
+ *
+ * @性能优化 P1: 优化事件监听策略
+ * - selectstart、contextmenu 绑定到 document（需要在 capture 阶段阻止）
+ * - keydown、copy、cut、dragstart 绑定到元素本身（减少全局监听）
  */
 
-import { useEffect, useCallback, RefObject } from 'react';
+import { useEffect, useCallback, useRef, RefObject } from 'react';
 
 /**
  * 内容保护配置选项
@@ -230,30 +234,33 @@ export function useContentProtection(
     const element = contentRef.current;
     if (!element) return;
 
-    // 添加CSS样式防止选择
     element.style.userSelect = 'none';
     (element.style as CSSStyleDeclaration & { webkitUserSelect: string }).webkitUserSelect = 'none';
 
-    // 添加事件监听器
+    /**
+     * @性能优化: 将事件监听器分类绑定
+     * - document 级别：selectstart、contextmenu（需要在 capture 阶段阻止默认行为）
+     * - 元素级别：keydown、copy、cut、dragstart（减少全局监听开销）
+     */
     document.addEventListener('selectstart', handleSelectStart, true);
     document.addEventListener('contextmenu', handleContextMenu, true);
-    document.addEventListener('keydown', handleKeyDown, true);
-    document.addEventListener('copy', handleCopy, true);
-    document.addEventListener('cut', handleCut, true);
-    document.addEventListener('dragstart', handleDragStart, true);
+    
+    element.addEventListener('keydown', handleKeyDown, true);
+    element.addEventListener('copy', handleCopy, true);
+    element.addEventListener('cut', handleCut, true);
+    element.addEventListener('dragstart', handleDragStart, true);
 
     return () => {
-      // 恢复CSS样式
       element.style.userSelect = '';
       (element.style as CSSStyleDeclaration & { webkitUserSelect: string }).webkitUserSelect = '';
 
-      // 移除事件监听器
       document.removeEventListener('selectstart', handleSelectStart, true);
       document.removeEventListener('contextmenu', handleContextMenu, true);
-      document.removeEventListener('keydown', handleKeyDown, true);
-      document.removeEventListener('copy', handleCopy, true);
-      document.removeEventListener('cut', handleCut, true);
-      document.removeEventListener('dragstart', handleDragStart, true);
+      
+      element.removeEventListener('keydown', handleKeyDown, true);
+      element.removeEventListener('copy', handleCopy, true);
+      element.removeEventListener('cut', handleCut, true);
+      element.removeEventListener('dragstart', handleDragStart, true);
     };
   }, [
     enabled,

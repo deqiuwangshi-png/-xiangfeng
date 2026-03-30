@@ -155,12 +155,6 @@ export function MyRw() {
         <div className="text-center py-8 text-xf-primary">
           <div className="text-3xl mb-2">🎁</div>
           <div className="text-sm">暂无兑换记录</div>
-          <a
-            href="/rewards/shop"
-            className="text-xs text-xf-primary hover:text-xf-accent mt-2 inline-block"
-          >
-            去商城看看 →
-          </a>
         </div>
       )}
     </div>

@@ -10,9 +10,13 @@
  * - 应用防复制保护
  * - 支持配置开关
  * - 可通过环境变量控制
+ *
+ * @性能优化 P1: 使用 useMemo 缓存 sanitizeRichText 结果
+ * - 避免父组件状态更新时重复净化相同内容
+ * - 减少长文章的重复正则处理开销
  */
 
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useContentProtection } from '@/hooks/article/useContentProtection';
 import { sanitizeRichText } from '@/lib/utils/purify';
 import {
@@ -55,15 +59,19 @@ export function ProtectedArticleContent({
 }: ProtectedArticleContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 应用内容保护
   useContentProtection(contentRef, {
     enabled: protectionEnabled,
     excludeSelectors: [...CONTENT_PROTECTION_CONFIG.excludeSelectors],
     message: protectionMessage,
   });
 
-  // 净化HTML内容
-  const sanitizedContent = sanitizeRichText(content);
+  /**
+   * 缓存净化后的 HTML 内容
+   * @依赖 content - 只在内容变化时重新净化
+   */
+  const sanitizedContent = useMemo(() => {
+    return sanitizeRichText(content);
+  }, [content]);
 
   return (
     <div

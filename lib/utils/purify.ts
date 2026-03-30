@@ -74,28 +74,41 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
       }
     }
 
-    // 额外处理：确保 img 标签的 src 属性不包含危险协议
+    /**
+     * 额外处理：确保 img 标签的 src 属性不包含危险协议
+     * @性能优化 P1: 添加 loading="lazy" 属性实现图片懒加载
+     */
     if (config?.ALLOWED_TAGS?.includes('img')) {
+      // 处理双引号 src
       sanitized = sanitized.replace(/<img\s+([^>]*)src="([^"]*)"([^>]*)>/gi, (match, before, src, after) => {
         const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
         if (dangerousProtocols.test(src)) {
-          return `<img ${before}src="#" alt="" ${after}>`;
+          return `<img ${before}src="#" alt="" loading="lazy" ${after}>`;
         }
-        return match;
+        // 检查是否已有 loading 属性
+        const hasLoading = /loading\s*=/i.test(match);
+        const loadingAttr = hasLoading ? '' : ' loading="lazy"';
+        return `<img ${before}src="${src}"${loadingAttr} ${after}>`;
       });
+      // 处理单引号 src
       sanitized = sanitized.replace(/<img\s+([^>]*)src='([^']*)'([^>]*)>/gi, (match, before, src, after) => {
         const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
         if (dangerousProtocols.test(src)) {
-          return `<img ${before}src="#" alt="" ${after}>`;
+          return `<img ${before}src="#" alt="" loading="lazy" ${after}>`;
         }
-        return match;
+        const hasLoading = /loading\s*=/i.test(match);
+        const loadingAttr = hasLoading ? '' : ' loading="lazy"';
+        return `<img ${before}src='${src}'${loadingAttr} ${after}>`;
       });
+      // 处理无引号 src
       sanitized = sanitized.replace(/<img\s+([^>]*)src=([^\s>]+)\s*([^>]*)>/gi, (match, before, src, after) => {
         const dangerousProtocols = /^(javascript|data|vbscript|file):/i;
         if (dangerousProtocols.test(src)) {
-          return `<img ${before}src="#" alt="" ${after}>`;
+          return `<img ${before}src="#" alt="" loading="lazy" ${after}>`;
         }
-        return match;
+        const hasLoading = /loading\s*=/i.test(match);
+        const loadingAttr = hasLoading ? '' : ' loading="lazy"';
+        return `<img ${before}src="${src}"${loadingAttr} ${after}>`;
       });
     }
 

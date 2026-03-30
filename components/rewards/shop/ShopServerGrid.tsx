@@ -1,3 +1,4 @@
+import { ArrowRight } from '@/components/icons'
 import { getCachedShopItems } from '@/lib/utils/cachedActions'
 import { ShopExchangeButton } from './ShopExchangeButton'
 import type { ShopItemCategory } from '@/types/rewards'
@@ -51,9 +52,20 @@ export async function ShopServerGrid({ category = 'all', userPoints = 0 }: ShopS
   // 空状态
   if (items.length === 0) {
     return (
-      <div className="text-center py-12 text-xf-primary">
-        <div className="text-4xl mb-2">🛍️</div>
-        <div className="text-sm">暂无商品</div>
+      <div className="card-bg rounded-2xl p-6 flex flex-col min-h-[380px]">
+        <div className="flex-1 flex flex-col items-center justify-center text-xf-primary">
+          <div className="text-4xl mb-2">🛍️</div>
+          <div className="text-sm">暂无商品</div>
+        </div>
+        <div className="mt-4 text-right">
+          <a
+            href="/rewards/shop"
+            className="text-xs text-xf-primary hover:text-xf-accent flex items-center justify-end gap-1"
+          >
+            浏览商品
+            <ArrowRight className="w-3 h-3" />
+          </a>
+        </div>
       </div>
     )
   }

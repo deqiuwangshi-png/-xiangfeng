@@ -5,7 +5,7 @@ import { PtLevel } from '@/components/rewards/overview/PtLevel'
 import { SignCardSection } from '@/components/rewards/RwClient'
 import { MyRwSection } from '@/components/rewards/RwClient'
 import { TaskBoardServer } from '@/components/rewards/tasks/TaskBoardServer'
-import { ShopGridServer } from '@/components/rewards/shop/ShopGridServer'
+import { ShopServerGrid } from '@/components/rewards/shop/ShopServerGrid'
 import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
 import { Gift } from 'lucide-react'
 
@@ -69,7 +69,7 @@ export default async function RewardsPage() {
       {/* 任务中心 & 兑换商城 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <TaskBoardServer />
-        <ShopGridServer userPoints={pointsData.current} />
+        <ShopServerGrid userPoints={pointsData.current} />
       </div>
 
       {/* 我的兑换 */}

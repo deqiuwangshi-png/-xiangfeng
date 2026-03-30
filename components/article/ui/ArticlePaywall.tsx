@@ -10,8 +10,13 @@
  * - 渐变过渡自然引导
  * - 文案结合文章主题，提供具体价值主张
  * - 服务于内容而非强制拦截
+ *
+ * @性能优化 P1: 使用 useMemo 缓存计算结果
+ * - 缓存 truncateHtml 计算结果，避免重复解析
+ * - 缓存 generateThemeCopy 结果
  */
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sparkles, ArrowRight, Users } from 'lucide-react';
@@ -201,15 +206,26 @@ export function ArticlePaywall({
   const pathname = usePathname();
   const redirectUrl = encodeURIComponent(pathname);
 
-  // 生成主题文案
-  const themeCopy = generateThemeCopy(articleTitle, tags);
+  /**
+   * 缓存主题文案计算结果
+   */
+  const themeCopy = useMemo(() => {
+    return generateThemeCopy(articleTitle, tags);
+  }, [articleTitle, tags]);
+
   const finalHeadline = headline || themeCopy.headline;
   const finalValueProp = valueProposition || themeCopy.valueProposition;
   const finalCtaText = themeCopy.ctaText;
 
-  const previewLength = calculatePreviewLength(content, previewRatio);
-  const previewHtml = truncateHtml(content, previewLength);
-  const sanitizedPreview = sanitizeRichText(previewHtml);
+  /**
+   * 缓存预览内容计算结果
+   * 避免每次渲染重新解析 HTML
+   */
+  const sanitizedPreview = useMemo(() => {
+    const previewLength = calculatePreviewLength(content, previewRatio);
+    const previewHtml = truncateHtml(content, previewLength);
+    return sanitizeRichText(previewHtml);
+  }, [content, previewRatio]);
 
   return (
     <div className="relative">
