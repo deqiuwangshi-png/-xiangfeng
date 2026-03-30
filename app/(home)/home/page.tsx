@@ -10,8 +10,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: '首页 - 发现深度文章 | 相逢',
-  description: '浏览相逢社区最新发布的深度文章，发现优质内容创作者。探索深度思考、独立观点、知识分享，加入深度阅读体验。',
-  keywords: ['深度文章', '优质内容', '知识分享', '深度阅读', '创作者', '最新文章', '思维碰撞'],
+  description: '浏览相逢社区最新发布的深度文章，探索深度思考、独立观点、知识分享。',
 }
 
 /**
@@ -41,12 +40,9 @@ async function ArticleList({ isAuthenticated }: { isAuthenticated: boolean }) {
       <div className="text-center py-12 text-xf-medium bg-white rounded-2xl">
         <p>还没有文章，快来发布第一篇吧！</p>
         {isAuthenticated && (
-          <Link
-            href="/publish"
-            className="inline-block mt-4 px-6 py-2 bg-xf-primary text-white rounded-xl hover:bg-xf-accent transition-colors"
-          >
+          <div className="inline-block mt-4 px-6 py-2 bg-xf-primary/50 text-white rounded-xl cursor-not-allowed">
             去发布
-          </Link>
+          </div>
         )}
       </div>
     )

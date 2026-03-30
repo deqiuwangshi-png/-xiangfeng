@@ -8,10 +8,6 @@ import Link from 'next/link';
 import { ArrowRight, TrendingUp, Users, Bookmark, Sparkles, Brain } from 'lucide-react'
 import { RevealOnScrollClient } from './RevealOnScrollClient'
 
-/**
- * Hero区域组件
- * @returns {JSX.Element} Hero区域
- */
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-6 sm:pt-12 pb-12 sm:pb-20">

@@ -1,13 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import {  Github, Mail, Sparkles, Code2 } from 'lucide-react'
+import { Github, Mail, Sparkles, Code2 } from 'lucide-react'
 import Link from 'next/link'
-import type { Metadata } from 'next'
 import '@/styles/about.css'
-
-export const metadata: Metadata = {
-  title: '关于 · 相逢 | 独立开发者独白',
-  description: '相逢 · 独立开发者故事——始于一个人，成于一群人的深度思考生态。',
-}
 
 export default function AboutPage() {
   return (
