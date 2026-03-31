@@ -214,7 +214,7 @@ export function useInboxCache(userId: string): UseInboxCacheReturn {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      dedupingInterval: Infinity, // 页面级别缓存，不重复获取
+      dedupingInterval: POLLING_INTERVAL, // 使用轮询间隔作为去重时间，避免数据过时
       keepPreviousData: true,
       // P1-1: 根据第一页返回数据量设置 hasMore
       onSuccess: (data) => {

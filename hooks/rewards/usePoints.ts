@@ -64,7 +64,7 @@ export function usePoints(): UsePointsReturn {
     }
   }, [])
 
-  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取
+  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时不自动重新验证
   const {
     data: overview,
     isLoading: isOverviewLoading,
@@ -75,10 +75,10 @@ export function usePoints(): UsePointsReturn {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
-  // 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新
+  // 使用 SWR 获取积分流水 - 30秒去重，挂载时不自动重新验证
   const {
     data: transactions = [],
     isLoading: isTransactionsLoading,
@@ -89,7 +89,7 @@ export function usePoints(): UsePointsReturn {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
   // 加载更多流水的偏移量

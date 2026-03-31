@@ -30,54 +30,87 @@ import type { SimpleUser, UserProfile } from '@/types/user/user'
  * @description 使用浏览器客户端获取当前用户和资料
  * 避免在客户端调用服务端 API (cookies)
  *
+ * @性能优化 P1: 添加请求锁防止重复请求
+ * - 同一时间只有一个请求在执行
+ * - 其他调用者等待当前请求完成并共享结果
+ *
  * @returns 用户信息和资料，未登录返回 null
  */
+
+// 请求锁和缓存
+let fetchPromise: Promise<{ user: SimpleUser; profile: UserProfile } | null> | null = null
+let lastFetchTime = 0
+const CACHE_DURATION = 5000 // 5秒内不重复请求
+
 async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProfile } | null> {
-  try {
-    // 动态导入客户端（避免服务端渲染问题）
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
+  const now = Date.now()
 
-    // 获取当前用户
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      return null
-    }
-
-    // 获取用户资料，添加错误处理
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('username, avatar_url')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError) {
-      console.error('获取用户资料失败:', profileError);
-      // 继续执行，使用默认值
-    }
-
-    const profile: UserProfile = {
-      id: user.id,
-      email: user.email || '',
-      username: profileData?.username || user.email?.split('@')[0] || '用户',
-      avatar_url: profileData?.avatar_url || '',
-    }
-
-    const simpleUser: SimpleUser = {
-      id: user.id,
-      email: user.email || '',
-      user_metadata: {
-        username: profile.username,
-        avatar_url: profile.avatar_url,
-      },
-    }
-
-    return { user: simpleUser, profile }
-  } catch (err) {
-    console.error('获取用户信息失败:', err)
-    return null
+  // 如果缓存未过期且已有结果，直接返回
+  if (fetchPromise && now - lastFetchTime < CACHE_DURATION) {
+    return fetchPromise
   }
+
+  // 如果已有请求在进行中，等待它完成
+  if (fetchPromise) {
+    return fetchPromise
+  }
+
+  // 创建新的请求
+  fetchPromise = (async () => {
+    try {
+      // 动态导入客户端（避免服务端渲染问题）
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+
+      // 获取当前用户
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        return null
+      }
+
+      // 获取用户资料，添加错误处理
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('获取用户资料失败:', profileError);
+        // 继续执行，使用默认值
+      }
+
+      const profile: UserProfile = {
+        id: user.id,
+        email: user.email || '',
+        username: profileData?.username || user.email?.split('@')[0] || '用户',
+        avatar_url: profileData?.avatar_url || '',
+      }
+
+      const simpleUser: SimpleUser = {
+        id: user.id,
+        email: user.email || '',
+        user_metadata: {
+          username: profile.username,
+          avatar_url: profile.avatar_url,
+        },
+      }
+
+      return { user: simpleUser, profile }
+    } catch (err) {
+      console.error('获取用户信息失败:', err)
+      return null
+    } finally {
+      lastFetchTime = Date.now()
+      // 延迟清理请求锁，让其他等待的调用者能获取结果
+      setTimeout(() => {
+        fetchPromise = null
+      }, 100)
+    }
+  })()
+
+  return fetchPromise
 }
 
 // ============================================
@@ -283,8 +316,25 @@ export const useAuthStore = create<AuthStore>()(
 
       /**
        * 清除用户信息
+       * @description 彻底清除所有前端认证状态，包括 store 状态和缓存
        */
       clearUser: () => {
+        // 只在客户端执行 localStorage 操作
+        if (typeof window !== 'undefined') {
+          // 清除 localStorage 中的认证相关数据
+          try {
+            localStorage.removeItem('auth-storage')
+            // 清除可能的其他认证相关缓存
+            const supabaseProjectId = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID || ''
+            if (supabaseProjectId) {
+              localStorage.removeItem('sb-' + supabaseProjectId + '-auth-token')
+            }
+          } catch (err) {
+            console.error('清除本地存储失败:', err)
+          }
+        }
+
+        // 清除 store 状态
         set({
           ...initialAuthState,
           status: 'unauthenticated',

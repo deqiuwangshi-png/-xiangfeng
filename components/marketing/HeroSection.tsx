@@ -31,7 +31,7 @@ export default function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-xf-info opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-xf-info"></span>
               </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-xf-accent tracking-wide uppercase">深度思考者的精神家园</span>
+              <span className="text-[10px] sm:text-xs font-semibold text-xf-accent tracking-wide uppercase">面向全球80亿人，致敬全球思考者</span>
             </div>
 
             {/* 主标题 - LCP关键元素 */}

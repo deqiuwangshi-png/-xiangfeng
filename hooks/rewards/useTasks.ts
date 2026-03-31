@@ -67,7 +67,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
   const [claimingTaskIds, setClaimingTaskIds] = useState<Set<string>>(new Set())
   const [acceptingTaskIds, setAcceptingTaskIds] = useState<Set<string>>(new Set())
 
-  // 使用 SWR 获取任务数据 - 1分钟去重，挂载时自动获取
+  // 使用 SWR 获取任务数据 - 1分钟去重，挂载时不自动重新验证
   const {
     data: tasks = [],
     error,
@@ -79,7 +79,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
   /**

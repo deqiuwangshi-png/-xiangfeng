@@ -1,8 +1,8 @@
 import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { AuthGuard } from '@/components/auth/guards/AuthGuard'
 import { AuthProvider } from '@/components/providers'
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent'
 import '@/styles/app.css'
 import '@/styles/user.css'
 import '@/styles/feedback.css'
@@ -60,18 +60,9 @@ export default async function MainLayout({
   {/* 检查当前路径是否需要登录 */}
   const isAuthRequired = requiresAuth(pathname)
 
-  {/* 未登录且需要登录的路由：显示登录引导 */}
+  {/* 未登录且需要登录的路由：重定向到首页 */}
   if (isAuthRequired && !profile) {
-    return (
-      <AuthProvider initialUser={null} initialProfile={null}>
-        <AuthGuard>
-          <AuthRequiredContent
-            title="需要登录"
-            description="登录后即可访问此页面"
-          />
-        </AuthGuard>
-      </AuthProvider>
-    )
+    redirect('/')
   }
 
   {/* 构建用户对象 */}
