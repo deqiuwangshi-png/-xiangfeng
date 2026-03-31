@@ -126,7 +126,6 @@ export function useTipTapEditor({
       extensions: [
         StarterKit.configure({
           paragraph: false,
-          heading: false,
           blockquote: false,
           horizontalRule: {
             HTMLAttributes: {

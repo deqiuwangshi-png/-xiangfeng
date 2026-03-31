@@ -63,10 +63,9 @@ export default function DynamicEditor({
   const {
     saveDraft,
     publishContent,
+    isSaving,
+    isPublishing,
   } = useEditorActions(editorState, setEditorState)
-
-  // 从状态中解构出loading状态
-  const { isSaving, isPublishing } = editorState
 
   // 接入自动保存功能（每30秒自动保存 + 离开页面前保存）
   useAutoSave(editorState, saveDraft)
