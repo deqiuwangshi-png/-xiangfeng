@@ -20,8 +20,21 @@ import { FileEdit } from 'lucide-react'
  *
  * @returns 发布页JSX
  */
+/**
+ * 获取用户资料，处理可能的错误
+ * @returns 用户资料或null（未登录），或抛出错误
+ */
+async function fetchUserProfile() {
+  try {
+    return await getCurrentUserWithProfile()
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    return null
+  }
+}
+
 export default async function PublishPage() {
-  const profile = await getCurrentUserWithProfile()
+  const profile = await fetchUserProfile()
 
   // 未登录用户：显示登录引导
   if (!profile) {
