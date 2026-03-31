@@ -36,7 +36,7 @@ interface UseAuthReturn {
   status: AuthStatus
   /** 错误信息 */
   error: AuthError | null
-  
+
   // === 操作 ===
   /** 登录方法 */
   login: (params: LoginParams & { redirectTo?: string }) => Promise<boolean>
@@ -81,7 +81,7 @@ export function useAuth(): UseAuthReturn {
   const status = useAuthStore((state) => state.status)
   const isLoading = useAuthStore((state) => state.isLoading)
   const error = useAuthStore((state) => state.error)
-  
+
   // 获取 Actions
   const storeLogin = useAuthStore((state) => state.login)
   const storeLogout = useAuthStore((state) => state.logout)
@@ -98,14 +98,14 @@ export function useAuth(): UseAuthReturn {
     params: LoginParams & { redirectTo?: string }
   ): Promise<boolean> => {
     const { redirectTo, ...loginParams } = params
-    
+
     const result = await storeLogin(loginParams)
-    
+
     if (result.success && result.redirectTo) {
       router.push(redirectTo || result.redirectTo)
       return true
     }
-    
+
     return result.success
   }, [storeLogin, router])
 
@@ -122,10 +122,8 @@ export function useAuth(): UseAuthReturn {
     const result = await storeLogout()
 
     if (result.success && !skipRedirect) {
-      router.replace(redirectTo) // 使用 replace 防止浏览器返回
-      router.refresh() // 刷新页面以清除服务端状态
-    }
-
+  router.replace(redirectTo);  // 替换当前历史，防止返回
+}
     return result.success
   }, [storeLogout, router])
 
@@ -157,7 +155,7 @@ export function useAuth(): UseAuthReturn {
     isLoading,
     status,
     error,
-    
+
     // 操作
     login,
     logout,
