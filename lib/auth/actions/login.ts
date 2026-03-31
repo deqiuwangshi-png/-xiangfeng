@@ -72,14 +72,13 @@ export async function login(formData: FormData): Promise<AuthResult & { redirect
       return { success: false, error: friendlyError || LOGIN_MESSAGES.INVALID_CREDENTIALS };
     }
 
-    {/* 登录成功，自动激活账户（如果之前被停用） */}
+    {/* 登录成功，异步处理非关键操作 */}
     if (signInData.user) {
-      await activateAccount(signInData.user.id)
-    }
-
-    {/* 记录登录历史 */}
-    if (signInData.user) {
-      await recordLoginHistory(signInData.user.id, 'password', true, false)
+      // 异步激活账户（如果之前被停用）
+      activateAccount(signInData.user.id).catch(err => console.error('激活账户失败:', err));
+      
+      // 异步记录登录历史
+      recordLoginHistory(signInData.user.id, 'password', true, false).catch(err => console.error('记录登录历史失败:', err));
     }
 
     // 登录成功，重置限流

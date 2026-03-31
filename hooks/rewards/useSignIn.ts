@@ -8,6 +8,7 @@
 
 import useSWR, { useSWRConfig } from 'swr'
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import {
   getTodaySignInStatus,
   performSignIn,
@@ -109,16 +110,16 @@ export function useSignIn(): UseSignInReturn {
   // 获取 SWR 配置用于刷新其他缓存
   const { mutate: globalMutate } = useSWRConfig()
 
-  // 使用 SWR 获取签到状态 - 10秒去重，挂载时自动获取
+  // 使用 SWR 获取签到状态 - 30秒去重，挂载时自动获取
   const {
     data: signInStatus,
     isLoading: isStatusLoading,
     isValidating: isStatusValidating,
     mutate: mutateStatus,
   } = useSWR('signin-status', fetchSignInStatus, {
-    dedupingInterval: 10000,
+    dedupingInterval: 30000,
     keepPreviousData: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: true,
     revalidateOnMount: true,
   })
@@ -169,7 +170,8 @@ export function useSignIn(): UseSignInReturn {
         await mutateStatus()
       }
     } catch {
-      // 签到失败时状态已由mutateStatus处理
+      // 签到失败时显示错误提示
+      toast.error('签到失败，请稍后重试')
     } finally {
       setIsSigning(false)
     }

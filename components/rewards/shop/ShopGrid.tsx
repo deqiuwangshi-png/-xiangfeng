@@ -6,8 +6,6 @@
  * @description 福利中心首页的兑换商城卡片组件，使用真实数据
  */
 
-import { useCallback } from 'react'
-import { toast } from 'sonner'
 import Link from 'next/link'
 import { ShoppingBag, ArrowRight } from '@/components/icons'
 import { useShop } from '@/hooks/rewards/useShop'
@@ -27,30 +25,11 @@ interface ShopGridProps {
  * @param {ShopGridProps} props - 组件属性
  * @returns {JSX.Element} 兑换商城面板
  */
-export function ShopGrid({ userPoints }: ShopGridProps) {
+export function ShopGrid({ userPoints: _userPoints }: ShopGridProps) {
   const { items, isLoading } = useShop()
 
   // 只展示前6个商品
   const displayItems = items.slice(0, 6)
-
-  /**
-   * 处理兑换商品
-   * 当前阶段仅提示「敬请期待」，不实际发起兑换请求
-   * @param {string} itemId - 商品ID
-   * @param {number} points - 所需积分
-   */
-  const handleExchange = useCallback(
-    async (itemId: string, points: number) => {
-      // 兑换功能暂未开放，仅做提示，避免调用未对接的后端流程
-      if (userPoints < points) {
-        toast.error('灵感币不足')
-        return
-      }
-
-      toast.info('兑换功能即将上线，当前暂不可用')
-    },
-    [userPoints]
-  )
 
   // 加载状态
   if (isLoading) {
@@ -115,7 +94,6 @@ export function ShopGrid({ userPoints }: ShopGridProps) {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
         {displayItems.map((item) => {
           const Icon = getIconComponent(item.icon_name)
-          const canAfford = userPoints >= item.points_price
 
           return (
             <div
@@ -138,17 +116,10 @@ export function ShopGrid({ userPoints }: ShopGridProps) {
                 {item.points_price}
               </div>
               <button
-                className={`
-                  mt-2 w-full text-xs py-1.5 rounded-full transition flex items-center justify-center gap-1
-                  ${canAfford
-                    ? 'bg-white border border-xf-primary/30 text-xf-primary hover:bg-xf-primary hover:text-white'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-                  }
-                `}
-                disabled={!canAfford}
-                onClick={() => handleExchange(item.id, item.points_price)}
+                className="mt-2 w-full text-xs py-1.5 rounded-full transition flex items-center justify-center gap-1 bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+                disabled
               >
-                兑换
+                即将上线
               </button>
             </div>
           )

@@ -8,6 +8,7 @@
 
 import useSWR from 'swr'
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import {
   getUserTaskProgress,
   claimTaskReward,
@@ -49,6 +50,7 @@ const fetchTasks = async (category?: TaskCategory): Promise<TaskProgressResponse
   try {
     return await getUserTaskProgress(category)
   } catch {
+    toast.error('获取任务列表失败，请稍后重试')
     return []
   }
 }
@@ -65,7 +67,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
   const [claimingTaskIds, setClaimingTaskIds] = useState<Set<string>>(new Set())
   const [acceptingTaskIds, setAcceptingTaskIds] = useState<Set<string>>(new Set())
 
-  // 使用 SWR 获取任务数据 - 5分钟去重，挂载时自动获取
+  // 使用 SWR 获取任务数据 - 1分钟去重，挂载时不自动重新验证
   const {
     data: tasks = [],
     error,
@@ -73,11 +75,11 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
     isValidating,
     mutate,
   } = useSWR(cacheKey, () => fetchTasks(category), {
-    dedupingInterval: 300000,
+    dedupingInterval: 60000,
     keepPreviousData: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
   /**

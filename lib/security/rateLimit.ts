@@ -1,17 +1,15 @@
 /**
  * 速率限制模块
+ * @module lib/security/rateLimit
+ * @description 基于内存的速率限制实现，适合早期项目使用
  * 
- * 用于防止暴力破解攻击
- * 基于 Redis 的分布式实现（适合多实例部署）
- * 当 Redis 不可用时回退到内存存储
+ * @简化说明 2026-03-30
+ * - 移除 Redis 依赖，使用内存存储
+ * - 单实例部署足够早期使用
+ * - 如需分布式部署，后续可迁移到 Supabase 或重新引入 Redis
  */
 
-import Redis from 'ioredis';
-
-// Redis 客户端实例
-let redisClient: Redis | null = null;
-
-// 简单的内存存储（作为 Redis 不可用时的回退）
+// 简单的内存存储
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 interface RateLimitOptions {
@@ -23,30 +21,6 @@ const DEFAULT_OPTIONS: RateLimitOptions = {
   maxAttempts: 5,           // 5次尝试
   windowMs: 15 * 60 * 1000, // 15分钟窗口
 };
-
-// 初始化 Redis 客户端
-function initRedis() {
-  if (!redisClient) {
-    try {
-      redisClient = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-        maxRetriesPerRequest: 2,
-        retryStrategy: (times: number) => Math.min(times * 50, 2000),
-      });
-
-      redisClient.on('error', (err: Error) => {
-        console.error('Redis connection error:', err);
-        redisClient = null;
-      });
-    } catch (error) {
-      console.error('Failed to initialize Redis:', error);
-      redisClient = null;
-    }
-  }
-  return redisClient;
-}
 
 /**
  * 检查速率限制
@@ -67,46 +41,7 @@ export async function checkRateLimit(
   const now = Date.now();
   const key = `ratelimit:${identifier}`;
   
-  // 尝试使用 Redis
-  const redis = initRedis();
-  if (redis) {
-    try {
-      const pipeline = redis.pipeline();
-      const ttl = Math.ceil(opts.windowMs / 1000);
-      
-      // 获取当前计数
-      pipeline.get(key);
-      // 设置过期时间（如果不存在）
-      pipeline.expire(key, ttl);
-      
-      const pipelineResult = await pipeline.exec();
-      const count = pipelineResult && pipelineResult[0] && pipelineResult[0][1] ? pipelineResult[0][1] : null;
-      const currentCount = count ? parseInt(count.toString()) : 0;
-      
-      if (currentCount >= opts.maxAttempts) {
-        return {
-          allowed: false,
-          remaining: 0,
-          resetTime: now + opts.windowMs,
-        };
-      }
-      
-      // 增加计数
-      await redis.incr(key);
-      
-      return {
-        allowed: true,
-        remaining: opts.maxAttempts - (currentCount + 1),
-        resetTime: now + opts.windowMs,
-      };
-    } catch (error) {
-      console.error('Redis rate limit error:', error);
-      redisClient = null;
-      // 回退到内存存储
-    }
-  }
-  
-  // 内存存储实现（回退方案）
+  // 内存存储实现
   const record = rateLimitStore.get(key);
   
   // 如果没有记录或已过期，创建新记录
@@ -147,20 +82,6 @@ export async function checkRateLimit(
  */
 export async function resetRateLimit(identifier: string): Promise<void> {
   const key = `ratelimit:${identifier}`;
-  
-  // 尝试使用 Redis
-  const redis = initRedis();
-  if (redis) {
-    try {
-      await redis.del(key);
-      return;
-    } catch (error) {
-      console.error('Redis reset error:', error);
-      redisClient = null;
-    }
-  }
-  
-  // 回退到内存存储
   rateLimitStore.delete(key);
 }
 

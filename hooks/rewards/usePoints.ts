@@ -7,7 +7,8 @@
  */
 
 import useSWR from 'swr'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { toast } from 'sonner'
 import {
   getUserPointsOverview,
   getPointTransactions,
@@ -63,7 +64,7 @@ export function usePoints(): UsePointsReturn {
     }
   }, [])
 
-  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时自动获取
+  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时不自动重新验证
   const {
     data: overview,
     isLoading: isOverviewLoading,
@@ -74,10 +75,10 @@ export function usePoints(): UsePointsReturn {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
-  // 使用 SWR 获取积分流水 - 30秒去重，窗口聚焦时自动刷新
+  // 使用 SWR 获取积分流水 - 30秒去重，挂载时不自动重新验证
   const {
     data: transactions = [],
     isLoading: isTransactionsLoading,
@@ -88,7 +89,7 @@ export function usePoints(): UsePointsReturn {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
-    revalidateOnMount: true,
+    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
   })
 
   // 加载更多流水的偏移量
@@ -129,22 +130,9 @@ export function usePoints(): UsePointsReturn {
       }
     } catch {
       // 加载失败时保持现有数据
+      toast.error('加载更多记录失败')
     }
   }, [offset, mutateTransactions])
-
-  // 监听积分更新事件
-  useEffect(() => {
-    const handlePointsUpdate = () => {
-      if (isMountedRef.current) {
-        refreshPoints()
-      }
-    }
-
-    window.addEventListener('points:updated', handlePointsUpdate)
-    return () => {
-      window.removeEventListener('points:updated', handlePointsUpdate)
-    }
-  }, [refreshPoints])
 
   // 错误处理：已在SWR配置中处理
 

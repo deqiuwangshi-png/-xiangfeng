@@ -27,7 +27,7 @@ export default async function PublishPage() {
   if (!profile) {
     return (
       <UnauthenticatedPrompt
-        title="发布文章"
+        title="你的思想值得被看见"
         description="在这里书写你的故事，分享你的见解"
         icon={<FileEdit className="w-8 h-8 sm:w-10 sm:h-10 text-xf-primary" />}
         promptText="登录后开始创作你的文章"

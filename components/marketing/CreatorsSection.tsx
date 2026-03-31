@@ -6,7 +6,7 @@
  */
 
 import Image from 'next/image'
-import { Star, Award, TrendingUp, Users } from 'lucide-react'
+import { Star, Award, TrendingUp, Users, BookOpen, FolderKanban, Lightbulb } from 'lucide-react'
 import { RevealOnScrollClient } from './RevealOnScrollClient'
 
 /**
@@ -48,14 +48,16 @@ const stats = [
  * @constant supportPlans
  */
 const supportPlans = [
-  { icon: Award, label: '创作基金支持', color: 'info' },
+  { icon: Award, label: '平台长期支持', color: 'info' },
   { icon: TrendingUp, label: '内容推广资源', color: 'primary' },
   { icon: Users, label: '生态协作网络', color: 'accent' },
+  { icon: FolderKanban, label: '知识体系整理', color: 'success' },
+  { icon: BookOpen, label: '深度阅读专属', color: 'warning' },
+  { icon: Lightbulb, label: '思考经验沉淀', color: 'danger' },
 ]
 
 /**
  * 创作者区组件
- * @returns {JSX.Element} 创作者区
  */
 export default function CreatorsSection() {
   return (
@@ -123,14 +125,14 @@ export default function CreatorsSection() {
                       ))}
                     </div>
 
-                    {/* 支持计划 */}
-                    <div className="space-y-2 sm:space-y-3">
+                    {/* 支持计划 - 三行两列布局 */}
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       {supportPlans.map((plan) => (
-                        <div key={plan.label} className="flex items-center gap-3 p-2.5 sm:p-3 bg-white/50 rounded-lg touch-manipulation">
-                          <div className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full bg-xf-${plan.color}/10 flex items-center justify-center text-xf-${plan.color}`}>
-                            <plan.icon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                        <div key={plan.label} className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white/50 rounded-lg touch-manipulation">
+                          <div className={`w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-xf-${plan.color}/10 flex items-center justify-center text-xf-${plan.color} shrink-0`}>
+                            <plan.icon className="w-3 sm:w-4 h-3 sm:h-4" />
                           </div>
-                          <span className="text-xs sm:text-sm text-xf-dark font-medium">{plan.label}</span>
+                          <span className="text-[10px] sm:text-sm text-xf-dark font-medium leading-tight">{plan.label}</span>
                         </div>
                       ))}
                     </div>

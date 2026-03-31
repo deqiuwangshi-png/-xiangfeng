@@ -19,6 +19,11 @@
  * @性能优化 P1: 使用 Suspense 分离关键/非关键数据，减少LCP时间
  * @性能优化 P2: ProfileContent 和 HeatMap 使用流式传输，不阻塞首屏渲染
  *
+ * @SEO优化
+ *   - 动态生成页面标题和描述
+ *   - 包含 ProfilePage Schema 结构化数据
+ *   - 优化社交分享卡片
+ *
  * @隐私安全
  *   - 检查用户资料可见性设置
  *   - private: 仅自己可见
@@ -222,12 +227,13 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
   }
 
   return (
-    <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
-      <div className="max-w-4xl mx-auto fade-in-up">
-        {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
-        <Suspense fallback={<ProfileHeaderSkeleton />}>
-          <ProfileHeaderData userId={userId} />
-        </Suspense>
+    <>
+      <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
+        <div className="max-w-4xl mx-auto fade-in-up">
+          {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
+          <Suspense fallback={<ProfileHeaderSkeleton />}>
+            <ProfileHeaderData userId={userId} />
+          </Suspense>
 
         {/* 标签页状态管理Provider */}
         <ProfileTabsProvider defaultTab="content">
@@ -251,5 +257,6 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
         </ProfileTabsProvider>
       </div>
     </main>
+    </>
   )
 }

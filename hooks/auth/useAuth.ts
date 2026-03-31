@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
 import type { LoginParams, AuthStatus, AuthError } from '@/stores/auth'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
-import type { UseLogoutOptions, LogoutResult } from '@/types/auth/auth'
+import type { UseLogoutOptions } from '@/types/auth/auth'
 
 /**
  * useAuth Hook 返回值接口
@@ -36,7 +36,7 @@ interface UseAuthReturn {
   status: AuthStatus
   /** 错误信息 */
   error: AuthError | null
-  
+
   // === 操作 ===
   /** 登录方法 */
   login: (params: LoginParams & { redirectTo?: string }) => Promise<boolean>
@@ -44,8 +44,6 @@ interface UseAuthReturn {
   logout: (options?: { redirectTo?: string; skipRedirect?: boolean }) => Promise<boolean>
   /** 带选项的登出方法 */
   logoutWithOptions: (options?: UseLogoutOptions) => Promise<void>
-  /** 带自定义跳转路径的登出方法 */
-  logoutWithRedirect: (redirectTo?: string) => Promise<LogoutResult>
   /** 刷新用户信息 */
   refreshUser: () => Promise<void>
   /** 清除错误 */
@@ -83,7 +81,7 @@ export function useAuth(): UseAuthReturn {
   const status = useAuthStore((state) => state.status)
   const isLoading = useAuthStore((state) => state.isLoading)
   const error = useAuthStore((state) => state.error)
-  
+
   // 获取 Actions
   const storeLogin = useAuthStore((state) => state.login)
   const storeLogout = useAuthStore((state) => state.logout)
@@ -100,14 +98,14 @@ export function useAuth(): UseAuthReturn {
     params: LoginParams & { redirectTo?: string }
   ): Promise<boolean> => {
     const { redirectTo, ...loginParams } = params
-    
+
     const result = await storeLogin(loginParams)
-    
+
     if (result.success && result.redirectTo) {
       router.push(redirectTo || result.redirectTo)
       return true
     }
-    
+
     return result.success
   }, [storeLogin, router])
 
@@ -119,15 +117,13 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(async (
     options: { redirectTo?: string; skipRedirect?: boolean } = {}
   ): Promise<boolean> => {
-    const { redirectTo = '/login', skipRedirect = false } = options
+    const { redirectTo = '/', skipRedirect = false } = options
 
     const result = await storeLogout()
 
     if (result.success && !skipRedirect) {
-      router.push(redirectTo)
-      router.refresh() // 刷新页面以清除服务端状态
-    }
-
+  router.replace(redirectTo);  // 替换当前历史，防止返回
+}
     return result.success
   }, [storeLogout, router])
 
@@ -138,7 +134,7 @@ export function useAuth(): UseAuthReturn {
   const logoutWithOptions = useCallback(async (
     options: UseLogoutOptions = {}
   ): Promise<void> => {
-    const { redirectTo = '/login', onSuccess, onError } = options
+    const { redirectTo = '/', onSuccess, onError } = options
 
     if (isLoading) return
 
@@ -151,27 +147,6 @@ export function useAuth(): UseAuthReturn {
     }
   }, [isLoading, logout, error])
 
-  /**
-   * 带自定义跳转路径的登出方法
-   * @param redirectTo - 自定义跳转路径
-   * @returns 登出结果
-   */
-  const logoutWithRedirect = useCallback(async (
-    redirectTo?: string
-  ): Promise<LogoutResult> => {
-    if (isLoading) {
-      return { success: false, error: '正在退出中' }
-    }
-
-    const success = await logout({ redirectTo: redirectTo || '/login' })
-
-    return {
-      success,
-      error: error?.message,
-      redirectTo: redirectTo || '/login'
-    }
-  }, [isLoading, logout, error])
-
   return {
     // 状态
     user,
@@ -180,12 +155,11 @@ export function useAuth(): UseAuthReturn {
     isLoading,
     status,
     error,
-    
+
     // 操作
     login,
     logout,
     logoutWithOptions,
-    logoutWithRedirect,
     refreshUser,
     clearError,
     updateProfile,

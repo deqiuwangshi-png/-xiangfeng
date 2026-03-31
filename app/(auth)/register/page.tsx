@@ -6,8 +6,6 @@ import { RegisterForm } from '@/components/auth/forms/RegisterForm';
 
 /**
  * 注册页面 - Server Component
- * @function RegisterPage
- * @returns {JSX.Element} 注册页面
  */
 export default function RegisterPage() {
   return (

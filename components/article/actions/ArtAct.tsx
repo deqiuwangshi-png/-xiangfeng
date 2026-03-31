@@ -34,12 +34,8 @@ export default function ArtAct({
   initialLiked = false,
   initialBookmarked = false,
 }: ArtActProps) {
-  console.log('[点赞] ArtAct 渲染:', { articleId, initialLikeCount, initialLiked, currentUser: !!currentUser });
-
-  {/* 使用 ref 标记是否已经用初始值初始化过 */}
   const isFirstRenderRef = useRef(true);
 
-  {/* 状态 */}
   const [liked, setLiked] = useState(() => initialLiked);
   const [likeCount, setLikeCount] = useState(() => initialLikeCount);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
@@ -49,17 +45,15 @@ export default function ArtAct({
   const [commentCount] = useState(() => initialCommentCount);
   const { showSuccess, showError, showNetworkError, showAuthRequired } = useArticleToast();
 
-  {/* 只在真正的首次渲染时初始化，后续 props 变化不重置状态（除非文章ID变化） */}
   useEffect(() => {
     if (isFirstRenderRef.current) {
-      console.log('[点赞] 首次渲染，初始化状态');
       setLiked(initialLiked);
       setLikeCount(initialLikeCount);
       setBookmarked(initialBookmarked);
       isFirstRenderRef.current = false;
     }
     {/* eslint-disable-next-line react-hooks/exhaustive-deps */}
-  }, [articleId]); // 只有文章ID变化时才重新初始化
+  }, [articleId]);
 
   /**
    * 检查用户是否登录
@@ -83,8 +77,6 @@ export default function ArtAct({
    * 5. 失败时回滚
    */
   const handleLike = async () => {
-    console.log('[点赞] handleLike 被调用，当前状态:', { liked, likeCount });
-
     if (!checkAuth()) return;
 
     const previousLiked = liked;
@@ -93,40 +85,26 @@ export default function ArtAct({
     const newLiked = !previousLiked;
     const newLikeCount = newLiked ? previousLikeCount + 1 : Math.max(0, previousLikeCount - 1);
 
-    console.log('[点赞] 乐观更新:', { previousLiked, previousLikeCount, newLiked, newLikeCount });
-
-    {/* 乐观更新：立即更新UI */}
     setLiked(newLiked);
     setLikeCount(newLikeCount);
     setIsLikeLoading(true);
 
     try {
-      console.log('[点赞] 调用 Server Action:', articleId);
       const result = await toggleArticleLike(articleId);
-      console.log('[点赞] Server Action 返回:', result);
 
       if (result.success) {
-        console.log('[点赞] 操作成功，同步状态:', result.liked, '服务器点赞数:', result.likes);
-        {/* 只同步状态，确保红心状态正确 */}
         setLiked(result.liked);
-        {/* 打印服务器返回的点赞数用于验证数据库是否更新 */}
-        console.log('[点赞] 数据库实际点赞数量:', result.likes);
       } else {
-        console.log('[点赞] 操作失败，回滚状态:', result.error);
-        {/* 失败时回滚 */}
         setLiked(previousLiked);
         setLikeCount(previousLikeCount);
         showError(result.error || '操作失败', '请稍后重试');
       }
-    } catch (err) {
-      console.error('[点赞] 发生异常:', err);
-      {/* 异常时回滚 */}
+    } catch {
       setLiked(previousLiked);
       setLikeCount(previousLikeCount);
       showNetworkError();
     } finally {
       setIsLikeLoading(false);
-      console.log('[点赞] 操作完成，loading 状态重置');
     }
   };
 
@@ -180,17 +158,16 @@ export default function ArtAct({
         currentUser={currentUser}
       />
 
-      {/* 鼓励/打赏按钮 - 仅登录用户可见 */}
-      {currentUser && (
-        <div
-          className="douyin-action-btn reward-btn"
-          onClick={() => setShowRewardModal(true)}
-          title="鼓励作者"
-        >
-          <Sparkles className="douyin-icon" />
-          <span className="douyin-count">鼓励</span>
-        </div>
-      )}
+      {/* 鼓励/打赏按钮 - 未登录时禁用 */}
+      <div
+        className={`douyin-action-btn reward-btn ${!currentUser ? 'disabled' : ''}`}
+        onClick={currentUser ? () => setShowRewardModal(true) : undefined}
+        title={currentUser ? '鼓励作者' : '请先登录'}
+        style={!currentUser ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+      >
+        <Sparkles className="douyin-icon" />
+        <span className="douyin-count">鼓励</span>
+      </div>
 
       {/* 点赞按钮 */}
       <div
@@ -211,26 +188,22 @@ export default function ArtAct({
         <span className="douyin-count">{commentCount}</span>
       </div>
 
-      {/* 更多操作（分享、收藏、举报） - 仅登录用户可见 */}
-      {currentUser && (
-        <MoreActions
-          articleId={articleId}
-          authorId={authorId}
-          currentUser={currentUser}
-          initialBookmarked={bookmarked}
-          onBookmark={handleBookmark}
-          isBookmarkLoading={isBookmarkLoading}
-        />
-      )}
+      {/* 更多操作（分享、收藏、举报） */}
+      <MoreActions
+        articleId={articleId}
+        authorId={authorId}
+        currentUser={currentUser}
+        initialBookmarked={bookmarked}
+        onBookmark={handleBookmark}
+        isBookmarkLoading={isBookmarkLoading}
+      />
 
-      {/* 打赏弹窗 - 仅登录用户可显示 */}
-      {showRewardModal && currentUser && (
+      {/* 打赏弹窗 */}
+      {showRewardModal && (
         <RwMd
           articleId={articleId}
           authorId={authorId}
-          onClose={() => setShowRewardModal(false)}
-          currentUser={currentUser}
-        />
+          onClose={() => setShowRewardModal(false)} currentUser={null}        />
       )}
     </div>
   );

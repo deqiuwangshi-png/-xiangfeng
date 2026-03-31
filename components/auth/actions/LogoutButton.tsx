@@ -7,7 +7,8 @@
 'use client'
 
 import { LogOut } from 'lucide-react'
-import { useLogout, type UseLogoutOptions } from '@/lib/auth'
+import { useAuth } from '@/hooks/auth/useAuth'
+import type { UseLogoutOptions } from '@/types/auth/auth'
 
 /**
  * LogoutButton 组件属性接口
@@ -48,13 +49,18 @@ export function LogoutButton({
   onError,
   className = '',
   size = 'md',
-  redirectTo = '/login',
+  redirectTo = '/',
 }: LogoutButtonProps) {
-  const { isLoggingOut, handleLogout } = useLogout({
-    redirectTo,
-    onSuccess,
-    onError,
-  })
+  const { isLoading, logout } = useAuth()
+
+  const handleLogout = async () => {
+    const success = await logout({ redirectTo })
+    if (success) {
+      onSuccess?.()
+    } else {
+      onError?.('退出失败')
+    }
+  }
 
   // 基础样式
   const baseStyles = 'flex items-center gap-2 rounded-lg transition-all duration-200 font-medium'
@@ -83,24 +89,24 @@ export function LogoutButton({
   return (
     <button
       onClick={handleLogout}
-      disabled={isLoggingOut}
+      disabled={isLoading}
       className={`
         ${baseStyles}
         ${sizeStyles[size]}
         ${variantStyles[variant]}
         ${className}
-        ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
-      aria-label={isLoggingOut ? '正在退出登录' : label}
+      aria-label={isLoading ? '正在退出登录' : label}
       type="button"
     >
       {showIcon && (
         <LogOut 
-          className={`${iconSizes[size]} ${isLoggingOut ? 'animate-pulse' : ''}`} 
+          className={`${iconSizes[size]} ${isLoading ? 'animate-pulse' : ''}`} 
           aria-hidden="true"
         />
       )}
-      <span>{isLoggingOut ? '退出中...' : label}</span>
+      <span>{isLoading ? '退出中...' : label}</span>
     </button>
   )
 }
@@ -116,11 +122,16 @@ export function LogoutIconButton({
   size = 'md',
   redirectTo = '/',
 }: Omit<LogoutButtonProps, 'variant' | 'showIcon' | 'label'>) {
-  const { isLoggingOut, handleLogout } = useLogout({
-    redirectTo,
-    onSuccess,
-    onError,
-  })
+  const { isLoading, logout } = useAuth()
+
+  const handleLogout = async () => {
+    const success = await logout({ redirectTo })
+    if (success) {
+      onSuccess?.()
+    } else {
+      onError?.('退出失败')
+    }
+  }
 
   const sizeStyles = {
     sm: 'p-1.5',
@@ -137,20 +148,20 @@ export function LogoutIconButton({
   return (
     <button
       onClick={handleLogout}
-      disabled={isLoggingOut}
+      disabled={isLoading}
       className={`
         rounded-lg transition-all duration-200
         text-gray-500 hover:text-red-500 hover:bg-red-50
         ${sizeStyles[size]}
         ${className}
-        ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
       aria-label="退出登录"
       title="退出登录"
       type="button"
     >
       <LogOut 
-        className={`${iconSizes[size]} ${isLoggingOut ? 'animate-pulse' : ''}`}
+        className={`${iconSizes[size]} ${isLoading ? 'animate-pulse' : ''}`}
         aria-hidden="true"
       />
     </button>

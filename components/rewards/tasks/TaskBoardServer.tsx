@@ -1,16 +1,7 @@
-'use client'
-
-/**
- * 任务中心组件
- * @module components/rewards/TaskBoard
- * @description 显示每日、每周、成就任务列表，使用真实数据
- */
-
-import Link from 'next/link'
-import { useTasks } from '@/hooks/rewards/useTasks'
 import { ListTodo, ArrowRight, Target, BookOpen, Trophy, Users, PenTool, Heart, MessageCircle } from '@/components/icons'
 import { TaskActionButton } from './TaskActionButton'
-import type { TaskStatus } from '@/types/rewards'
+import { getCachedUserTaskProgress } from '@/lib/utils/cachedActions'
+import type { TaskStatus, TaskProgressResponse } from '@/types/rewards'
 
 /**
  * 图标映射表
@@ -38,78 +29,57 @@ const typeConfig: Record<string, { label: string; bgColor: string; textColor: st
 }
 
 /**
- * 任务中心组件
+ * 计算进度百分比
+ * @param {number} progress - 当前进度
+ * @param {number} total - 总任务量
+ * @returns {number} 百分比
+ */
+const calcPercent = (progress: number, total: number) =>
+  Math.min(Math.round((progress / total) * 100), 100)
+
+/**
+ * 获取图标组件
+ * @param {string} iconName - 图标名称
+ * @returns {React.ElementType} 图标组件
+ */
+const getIcon = (iconName: string): React.ElementType => {
+  return iconMap[iconName] || Target
+}
+
+/**
+ * 判断是否可领取奖励
+ * @param {TaskStatus} status - 任务状态
+ * @returns {boolean} 是否可领取
+ */
+const canClaimReward = (status: TaskStatus): boolean => {
+  return status === 'completed'
+}
+
+/**
+ * 判断是否已接取（进行中）
+ * @param {TaskStatus} status - 任务状态
+ * @returns {boolean} 是否进行中
+ */
+const isInProgress = (status: TaskStatus): boolean => {
+  return status === 'in_progress'
+}
+
+/**
+ * 判断是否未接取
+ * @param {TaskStatus} status - 任务状态
+ * @returns {boolean} 是否未接取
+ */
+const isPending = (status: TaskStatus): boolean => {
+  return status === 'pending'
+}
+
+/**
+ * 任务中心服务端组件
  * @returns {JSX.Element} 任务中心面板
  */
-export function TaskBoard() {
-  const { tasks, isLoading } = useTasks()
-
-  /**
-   * 计算进度百分比
-   * @param {number} progress - 当前进度
-   * @param {number} total - 总任务量
-   * @returns {number} 百分比
-   */
-  const calcPercent = (progress: number, total: number) =>
-    Math.min(Math.round((progress / total) * 100), 100)
-
-  /**
-   * 获取图标组件
-   * @param {string} iconName - 图标名称
-   * @returns {React.ElementType} 图标组件
-   */
-  const getIcon = (iconName: string): React.ElementType => {
-    return iconMap[iconName] || Target
-  }
-
-  /**
-   * 判断是否可领取奖励
-   * @param {TaskStatus} status - 任务状态
-   * @returns {boolean} 是否可领取
-   */
-  const canClaimReward = (status: TaskStatus): boolean => {
-    return status === 'completed'
-  }
-
-  /**
-   * 判断是否已接取（进行中）
-   * @param {TaskStatus} status - 任务状态
-   * @returns {boolean} 是否进行中
-   */
-  const isInProgress = (status: TaskStatus): boolean => {
-    return status === 'in_progress'
-  }
-
-  /**
-   * 判断是否未接取
-   * @param {TaskStatus} status - 任务状态
-   * @returns {boolean} 是否未接取
-   */
-  const isPending = (status: TaskStatus): boolean => {
-    return status === 'pending'
-  }
-
-  // 加载状态
-  if (isLoading) {
-    return (
-      <div className="card-bg rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-5 h-5 bg-gray-200 rounded" />
-          <div className="h-5 bg-gray-200 rounded w-20" />
-        </div>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center justify-between animate-pulse">
-              <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/4" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
+export async function TaskBoardServer() {
+  // 服务端获取任务数据，使用缓存避免重复请求
+  const tasks = await getCachedUserTaskProgress()
 
   // 分区：进行中（动态渲染进度）
   const inProgressTasks = tasks.filter((t) => isInProgress(t.status)).slice(0, 2)
@@ -121,33 +91,7 @@ export function TaskBoard() {
   const completedTasks = tasks.filter((t) => t.status === 'reward_claimed').slice(0, 2)
 
   // 分区：可接取（静态展示）
-  const availableTasks = tasks.filter((t) => isPending(t.status)).slice(0, 4)
-
-  // 空状态处理
-  if (tasks.length === 0) {
-    return (
-      <div className="card-bg rounded-2xl p-6">
-        <h2 className="text-xl font-serif font-bold text-xf-dark mb-4 flex items-center gap-2">
-          <ListTodo className="w-5 h-5 text-xf-primary" />
-          任务中心
-        </h2>
-        <div className="text-center py-8 text-xf-primary">
-          <Target className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="text-sm">暂无任务</p>
-          <p className="text-xs mt-1 opacity-60">任务将在不久后上线</p>
-        </div>
-        <div className="mt-5 text-right">
-          <Link
-            href="/rewards/tasks"
-            className="text-xs text-xf-primary hover:text-xf-accent flex items-center justify-end gap-1"
-          >
-            所有任务
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const availableTasks = tasks.filter((t) => isPending(t.status)).slice(0, 6)
 
   /**
    * 渲染任务项
@@ -156,7 +100,7 @@ export function TaskBoard() {
    * @param {boolean} isLast - 是否为最后一个（添加分隔线）
    * @returns {JSX.Element} 任务项
    */
-  const renderTaskItem = (task: typeof tasks[0], showProgress: boolean, isLast: boolean) => {
+  const renderTaskItem = (task: TaskProgressResponse, showProgress: boolean, isLast: boolean) => {
     const config = typeConfig[task.category] || typeConfig['daily']
     const percent = calcPercent(task.current_progress, task.target_progress)
     const inProgress = isInProgress(task.status)
@@ -205,16 +149,18 @@ export function TaskBoard() {
 
   return (
     <div className="card-bg rounded-2xl p-6 flex flex-col min-h-[400px]">
-      <h2 className="text-xl font-serif font-bold text-xf-dark mb-4 flex items-center gap-2">
-        <ListTodo className="w-5 h-5 text-xf-primary" />
-        任务中心
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-serif font-bold text-xf-dark flex items-center gap-2">
+          <ListTodo className="w-5 h-5 text-xf-primary" />
+          任务中心
+        </h2>
 
-      {/* 任务分类标签 - 静态 */}
-      <div className="flex gap-2 mb-4 text-xs">
-        <span className="bg-xf-primary/10 text-xf-primary px-3 py-1 rounded-full">每日任务</span>
-        <span className="bg-xf-info/10 text-xf-info px-3 py-1 rounded-full">每周任务</span>
-        <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full">成就</span>
+        {/* 任务分类标签 - 静态 */}
+        <div className="flex gap-2 text-xs">
+          <span className="bg-xf-primary/10 text-xf-primary px-3 py-1 rounded-full">每日任务</span>
+          <span className="bg-xf-info/10 text-xf-info px-3 py-1 rounded-full">每周任务</span>
+          <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full">成就</span>
+        </div>
       </div>
 
       {/* 任务列表区域 - 可滚动，链接固定在底部 */}

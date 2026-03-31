@@ -7,9 +7,10 @@
  * @优化说明 从TaskList提取为独立Client Component，支持任务列表改为Server Component
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { useTasks } from '@/hooks/rewards/useTasks'
+import { useDebounce } from '@/hooks/useDebounce'
 import type { TaskStatus } from '@/types/rewards'
 
 interface TaskActionButtonProps {
@@ -30,6 +31,10 @@ export function TaskActionButton({ taskId, status }: TaskActionButtonProps) {
   const { claimReward, accept } = useTasks()
   const [isClaiming, setIsClaiming] = useState(false)
   const [isAccepting, setIsAccepting] = useState(false)
+
+  // 防抖处理
+  const debouncedClaimReward = useDebounce(claimReward, 300)
+  const debouncedAccept = useDebounce(accept, 300)
 
   /**
    * 判断是否已完成
@@ -54,25 +59,25 @@ export function TaskActionButton({ taskId, status }: TaskActionButtonProps) {
   /**
    * 处理领取奖励
    */
-  const handleClaimReward = async () => {
+  const handleClaimReward = useCallback(async () => {
     setIsClaiming(true)
     try {
-      const result = await claimReward(taskId)
+      const result = await debouncedClaimReward(taskId)
       if (result.success) {
         toast.success(`领取成功，获得灵感币: ${result.points}`)
       }
     } finally {
       setIsClaiming(false)
     }
-  }
+  }, [taskId, debouncedClaimReward])
 
   /**
    * 处理接取任务
    */
-  const handleAccept = async () => {
+  const handleAccept = useCallback(async () => {
     setIsAccepting(true)
     try {
-      const result = await accept(taskId)
+      const result = await debouncedAccept(taskId)
       if (result.success) {
         toast.success('接取任务成功')
       } else {
@@ -81,7 +86,7 @@ export function TaskActionButton({ taskId, status }: TaskActionButtonProps) {
     } finally {
       setIsAccepting(false)
     }
-  }
+  }, [taskId, debouncedAccept])
 
   // 已完成
   if (isCompleted) {
