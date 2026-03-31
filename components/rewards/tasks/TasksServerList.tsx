@@ -19,7 +19,6 @@ import {
   Heart,
 } from '@/components/icons'
 import { TaskActionButton } from './TaskActionButton'
-import { getUserTaskProgress } from '@/lib/rewards/tasks'
 import type { TaskCategory, TaskStatus, TaskProgressResponse } from '@/types/rewards'
 
 /**
@@ -121,13 +120,20 @@ function getCategoryStyle(taskCategory: TaskCategory) {
 }
 
 /**
+ * 任务列表服务端组件Props
+ * @interface TasksServerListProps
+ */
+interface TasksServerListProps {
+  /** 任务列表数据 */
+  tasks: TaskProgressResponse[]
+}
+
+/**
  * 任务列表服务端组件
+ * @param {TasksServerListProps} props - 组件属性
  * @returns {JSX.Element} 任务列表
  */
-export async function TasksServerList() {
-  // 服务端获取任务数据
-  const tasks = await getUserTaskProgress()
-
+export function TasksServerList({ tasks }: TasksServerListProps) {
   // 空状态
   if (tasks.length === 0) {
     return (

@@ -27,52 +27,9 @@ import { useCallback, useRef, useEffect } from 'react'
  * @param {T} fn - 需要防抖的原始函数
  * @param {number} delay - 防抖延迟时间（毫秒）
  * @returns {T} 防抖处理后的函数
- *
- * @example
- * ```tsx
- * function SearchComponent() {
- *   const [query, setQuery] = useState('');
- *   
- *   const searchApi = async (searchQuery: string) => {
- *     const results = await fetchSearchResults(searchQuery);
- *     console.log(results);
- *   };
- *   
- *   // 防抖 500ms，用户停止输入后才执行搜索
- *   const debouncedSearch = useDebounce(searchApi, 500);
- *   
- *   return (
- *     <input
- *       type="text"
- *       value={query}
- *       onChange={(e) => {
- *         setQuery(e.target.value);
- *         debouncedSearch(e.target.value);
- *       }}
- *       placeholder="搜索..."
- *     />
- *   );
- * }
- * ```
- *
- * @example
- * ```tsx
- * // 处理窗口 resize 事件
- * function ResizeComponent() {
- *   const handleResize = useDebounce(() => {
- *     console.log('Window size:', window.innerWidth, window.innerHeight);
- *   }, 200);
- *   
- *   useEffect(() => {
- *     window.addEventListener('resize', handleResize);
- *     return () => window.removeEventListener('resize', handleResize);
- *   }, [handleResize]);
- *   
- *   return <div>Resize the window to see debounced logs</div>;
- * }
- * ```
  */
-export function useDebounce<T extends (...args: unknown[]) => unknown>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useDebounce<T extends (...args: any[]) => any>(
   fn: T,
   delay: number
 ): T {
