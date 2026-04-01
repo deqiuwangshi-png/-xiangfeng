@@ -80,7 +80,7 @@ export async function register(formData: FormData): Promise<AuthResult> {
       password,
       options: {
         data: { username },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/login`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'}/login`,
       },
     });
 
