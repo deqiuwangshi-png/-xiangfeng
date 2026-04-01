@@ -177,7 +177,7 @@ const nextConfig: NextConfig = {
             value: 'http',
           },
         ],
-        destination: 'https://www.xiangfeng.site/:path*',
+        destination: 'https://xiangfeng.site/:path*',
         permanent: true,
       },
       // 移除尾部斜杠

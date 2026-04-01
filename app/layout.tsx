@@ -5,7 +5,7 @@ import { SWRProvider } from "@/components/providers/SWRProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xiangfeng.site';
 const siteName = '相逢 Xiangfeng';
 
 export const viewport: Viewport = {

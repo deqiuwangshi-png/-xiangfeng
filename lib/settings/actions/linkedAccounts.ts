@@ -145,7 +145,8 @@ export async function linkAccount(
 
     // 获取当前origin用于回调
     const headersList = await headers()
-    const origin = headersList.get('origin') || 'http://localhost:3000'
+    const fallbackOrigin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://xiangfeng.site'
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || headersList.get('origin') || fallbackOrigin
 
     // 调用Supabase linkIdentity
     const { data, error } = await supabase.auth.linkIdentity({

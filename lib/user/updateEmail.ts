@@ -68,7 +68,7 @@ export async function initiateEmailChange(newEmail: string): Promise<UpdateEmail
       email: newEmail,
     }, {
       // 邮件确认后需要重新登录
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://xiangfeng.site')}/login`,
     })
 
     if (updateError) {

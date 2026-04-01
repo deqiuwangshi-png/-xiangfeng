@@ -6,7 +6,7 @@ import { createSitemapClient } from '@/lib/supabase/sitemap-client'
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-  const siteUrl = baseUrl || 'https://www.xiangfeng.site'
+  const siteUrl = baseUrl || 'https://xiangfeng.site'
 
   // 基础页面
   const staticPages: MetadataRoute.Sitemap = [

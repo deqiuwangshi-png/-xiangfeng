@@ -89,7 +89,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://xiangfeng.site')}/reset-password`,
     });
 
     if (error) {

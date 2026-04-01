@@ -20,7 +20,7 @@ import { MetadataRoute } from 'next'
  * - 保持配置简洁，避免暴露网站结构信息
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://xiangfeng.site'
 
   return {
     rules: {
