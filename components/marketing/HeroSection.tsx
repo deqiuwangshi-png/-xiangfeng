@@ -42,7 +42,7 @@ export default function HeroSection() {
 
             {/* 副标题 - LCP关键元素 */}
             <p className="text-sm sm:text-lg text-xf-medium mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0 lcp-text">
-              把碎片化笔记、知识与经验，整理成属于你的完整逻辑体系，享受平台带来的长期红利，为深度阅读而生，为思考者而来。
+              把碎片化笔记、知识、领域甚至经验，整理成属于你的完整逻辑体系，享受平台带来的长期红利，为深度阅读而生，为思考者而来。
             </p>
 
             {/* CTA按钮 - LCP关键元素 */}

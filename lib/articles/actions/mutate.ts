@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { generateSummary } from '@/lib/utils/html';
 
 /**
  * 创建文章/草稿
@@ -23,7 +24,7 @@ export async function createArticle(data: {
   const insertData = {
     title: data.title,
     content: data.content,
-    excerpt: data.content.slice(0, 100),
+    excerpt: generateSummary(data.content, 100),
     status: data.status || 'draft',
     author_id: user.id,
     tags: [],
@@ -71,7 +72,7 @@ export async function updateArticle(
 
   const updateData: Record<string, unknown> = { ...data };
   if (data.content) {
-    updateData.excerpt = data.content.slice(0, 100);
+    updateData.excerpt = generateSummary(data.content, 100);
   }
 
   const { data: article, error } = await supabase
