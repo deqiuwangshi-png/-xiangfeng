@@ -67,7 +67,7 @@ export default function DynamicEditor({
     isPublishing,
   } = useEditorActions(editorState, setEditorState)
 
-  // 接入自动保存功能（每30秒自动保存 + 离开页面前保存）
+  // 接入自动保存功能（内容变化后防抖自动保存）
   useAutoSave(editorState, saveDraft)
 
   // TipTap 编辑器实例 - 作为内容唯一数据源
