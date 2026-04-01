@@ -1,5 +1,6 @@
 import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
 import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
+import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
 import '@/styles/settings.css'
 import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
@@ -7,6 +8,7 @@ import { getContentSettings } from '@/lib/settings/actions/content'
 import { getPrivacySettings } from '@/lib/settings/actions/privacy'
 import { getNotificationSettings } from '@/lib/settings/actions/notifications'
 import { getAppearanceSettings } from '@/lib/settings/actions/appearance'
+import { Settings as SettingsIcon } from 'lucide-react'
 import type { UserSettings } from '@/types/user/settings'
 
 /**
@@ -97,10 +99,15 @@ export default async function SettingsPage() {
   // 获取当前登录用户 - 使用统一入口
   const user = await getCurrentUser()
 
-  // Layout 层已拦截未登录用户，此处 user 理论上不会为 null
-  // 但为类型安全，保留空值检查
   if (!user) {
-    throw new Error('用户未登录')
+    return (
+      <UnauthenticatedPrompt
+        title="账户设置"
+        description="管理你的隐私、通知与外观偏好"
+        icon={<SettingsIcon className="w-8 h-8 sm:w-10 sm:h-10 text-xf-primary" />}
+        promptText="登录后管理你的账户设置"
+      />
+    )
   }
 
   // 用户已登录，获取设置数据
