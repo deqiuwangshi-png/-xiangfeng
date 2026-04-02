@@ -5,9 +5,10 @@
  * 只保留防重复点击，其他逻辑交给 Supabase
  */
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { toast } from 'sonner'
 
 /**
  * 编辑器操作 Hook
@@ -19,12 +20,15 @@ export function useEditorActions<T extends { title: string; content: string; dra
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const saveLockRef = useRef(false)
+  const publishLockRef = useRef(false)
 
   /**
    * 保存草稿
    */
-  const saveDraft = async () => {
-    if (isSaving) return
+  const saveDraft = async (options?: { silent?: boolean }) => {
+    if (saveLockRef.current || isSaving) return
+    saveLockRef.current = true
     setIsSaving(true)
 
     try {
@@ -41,9 +45,18 @@ export function useEditorActions<T extends { title: string; content: string; dra
         })
         setEditorState(prev => ({ ...prev, draftId: article.id }))
       }
-      router.push('/drafts')
+      if (!options?.silent) {
+        router.push('/drafts')
+      }
+    } catch (error) {
+      if (!options?.silent) {
+        const message = error instanceof Error ? error.message : '保存失败，请重试'
+        toast.error(message)
+      }
+      throw error
     } finally {
       setIsSaving(false)
+      saveLockRef.current = false
     }
   }
 
@@ -51,7 +64,8 @@ export function useEditorActions<T extends { title: string; content: string; dra
    * 发布文章
    */
   const publishContent = async () => {
-    if (isPublishing) return
+    if (publishLockRef.current || isPublishing) return
+    publishLockRef.current = true
     setIsPublishing(true)
 
     try {
@@ -75,8 +89,13 @@ export function useEditorActions<T extends { title: string; content: string; dra
 
       setEditorState(prev => ({ ...prev, isPublished: true }))
       router.push(`/article/${articleId}`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '发布失败，请重试'
+      toast.error(message)
+      throw error
     } finally {
       setIsPublishing(false)
+      publishLockRef.current = false
     }
   }
 
