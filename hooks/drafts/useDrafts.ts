@@ -86,6 +86,8 @@ export function useDrafts(
     fetchDrafts,
     {
       fallbackData: initialArticles.map(DraftService.convertToDraftData),
+      revalidateOnMount: false,
+      revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: Infinity, // 页面级别缓存，不重复获取

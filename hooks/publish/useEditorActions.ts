@@ -5,9 +5,10 @@
  * 只保留防重复点击，其他逻辑交给 Supabase
  */
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { createClient } from '@/lib/supabase/client'
+import { generateSummary } from '@/lib/utils/html'
 import { toast } from 'sonner'
 
 /**
@@ -22,6 +23,79 @@ export function useEditorActions<T extends { title: string; content: string; dra
   const [isPublishing, setIsPublishing] = useState(false)
   const saveLockRef = useRef(false)
   const publishLockRef = useRef(false)
+  const draftIdRef = useRef<string | null>(editorState.draftId)
+
+  useEffect(() => {
+    draftIdRef.current = editorState.draftId
+  }, [editorState.draftId])
+
+  const getCurrentUserId = async (): Promise<string> => {
+    const supabase = createClient()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+    if (error || !user) {
+      throw new Error('未登录')
+    }
+    return user.id
+  }
+
+  const createDraftWithSupabase = async (
+    title: string,
+    content: string,
+    status: 'draft' | 'published'
+  ) => {
+    const supabase = createClient()
+    const userId = await getCurrentUserId()
+
+    const { data, error } = await supabase
+      .from('articles')
+      .insert({
+        title,
+        content,
+        excerpt: generateSummary(content, 100),
+        status,
+        author_id: userId,
+        tags: [],
+        like_count: 0,
+        comment_count: 0,
+        view_count: 0,
+        ...(status === 'published' ? { published_at: new Date().toISOString() } : {}),
+      })
+      .select('id')
+      .single()
+
+    if (error || !data) {
+      throw new Error(error?.message || '创建失败')
+    }
+
+    return data.id as string
+  }
+
+  const updateDraftWithSupabase = async (
+    id: string,
+    payload: { title?: string; content?: string; status?: 'draft' | 'published' }
+  ) => {
+    const supabase = createClient()
+    const updatePayload: Record<string, unknown> = { ...payload }
+
+    if (payload.content !== undefined) {
+      updatePayload.excerpt = generateSummary(payload.content, 100)
+    }
+    if (payload.status === 'published') {
+      updatePayload.published_at = new Date().toISOString()
+    }
+
+    const { error } = await supabase
+      .from('articles')
+      .update(updatePayload)
+      .eq('id', id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+  }
 
   /**
    * 保存草稿
@@ -32,18 +106,19 @@ export function useEditorActions<T extends { title: string; content: string; dra
     setIsSaving(true)
 
     try {
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
+      if (draftIdRef.current) {
+        await updateDraftWithSupabase(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
         })
       } else {
-        const article = await createArticle({
-          title: editorState.title,
-          content: editorState.content,
-          status: 'draft',
-        })
-        setEditorState(prev => ({ ...prev, draftId: article.id }))
+        const articleId = await createDraftWithSupabase(
+          editorState.title,
+          editorState.content,
+          'draft'
+        )
+        draftIdRef.current = articleId
+        setEditorState(prev => ({ ...prev, draftId: articleId }))
       }
       if (!options?.silent) {
         router.push('/drafts')
@@ -71,20 +146,19 @@ export function useEditorActions<T extends { title: string; content: string; dra
     try {
       let articleId: string
 
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
-          title: editorState.title,
-          content: editorState.content,
-        })
-        await updateArticleStatus(editorState.draftId, 'published')
-        articleId = editorState.draftId
-      } else {
-        const article = await createArticle({
+      if (draftIdRef.current) {
+        await updateDraftWithSupabase(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
           status: 'published',
         })
-        articleId = article.id
+        articleId = draftIdRef.current
+      } else {
+        articleId = await createDraftWithSupabase(
+          editorState.title,
+          editorState.content,
+          'published'
+        )
       }
 
       setEditorState(prev => ({ ...prev, isPublished: true }))
