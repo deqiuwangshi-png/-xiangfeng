@@ -14,6 +14,7 @@
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
+import { useShallow } from 'zustand/react/shallow'
 import type { LoginParams, AuthStatus, AuthError } from '@/stores/auth'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
 import type { UseLogoutOptions } from '@/types/auth/auth'
@@ -75,12 +76,16 @@ export function useAuth(): UseAuthReturn {
   const router = useRouter()
 
   // 分别订阅原始值，避免对象比较导致的重渲染
-  const user = useAuthStore((state) => state.user)
-  const profile = useAuthStore((state) => state.profile)
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const status = useAuthStore((state) => state.status)
-  const isLoading = useAuthStore((state) => state.isLoading)
-  const error = useAuthStore((state) => state.error)
+  const { user, profile, isAuthenticated, status, isLoading, error } = useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      profile: state.profile,
+      isAuthenticated: state.isAuthenticated,
+      status: state.status,
+      isLoading: state.isLoading,
+      error: state.error,
+    }))
+  )
 
   // 获取 Actions
   const storeLogin = useAuthStore((state) => state.login)
@@ -175,11 +180,13 @@ export function useAuth(): UseAuthReturn {
  * - 使用原始值比较而非对象比较
  */
 export function useAuthUser() {
-  const user = useAuthStore((state) => state.user)
-  const profile = useAuthStore((state) => state.profile)
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-
-  return { user, profile, isAuthenticated }
+  return useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      profile: state.profile,
+      isAuthenticated: state.isAuthenticated,
+    }))
+  )
 }
 
 /**
@@ -190,12 +197,14 @@ export function useAuthUser() {
  * - 分别订阅每个字段，避免对象比较导致的重渲染
  */
 export function useAuthStatus() {
-  const status = useAuthStore((state) => state.status)
-  const isLoading = useAuthStore((state) => state.isLoading)
-  const isInitialized = useAuthStore((state) => state.isInitialized)
-  const error = useAuthStore((state) => state.error)
-
-  return { status, isLoading, isInitialized, error }
+  return useAuthStore(
+    useShallow((state) => ({
+      status: state.status,
+      isLoading: state.isLoading,
+      isInitialized: state.isInitialized,
+      error: state.error,
+    }))
+  )
 }
 
 /**

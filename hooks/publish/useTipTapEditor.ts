@@ -10,6 +10,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Paragraph from '@tiptap/extension-paragraph'
+import Underline from '@tiptap/extension-underline'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
@@ -63,6 +64,7 @@ export function useTipTapEditor({
    * @性能优化 使用防抖避免每次输入都触发状态更新
    */
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingContentRef = useRef<string>(content)
 
   /**
    * 防抖处理的内容更新函数
@@ -70,6 +72,7 @@ export function useTipTapEditor({
    */
   const debouncedOnChange = useCallback(
     (htmlContent: string) => {
+      pendingContentRef.current = htmlContent
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
       }
@@ -136,8 +139,8 @@ export function useTipTapEditor({
             openOnClick: false,
             linkOnPaste: true,
           },
-          underline: false,
         }),
+        Underline,
         Paragraph.extend({
           addNodeView() {
             return ReactNodeViewRenderer(ParaNodeView)
@@ -279,6 +282,14 @@ export function useTipTapEditor({
   // 创建编辑器实例
   const editor = useEditor(editorConfig, [isMounted])
 
+  const flushPendingContent = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+    onChange(pendingContentRef.current)
+  }, [onChange])
+
   // 确保 editorRef 始终更新到最新的 editor 实例
   const editorRef = useRef<Editor | null>(null)
   useEffect(() => {
@@ -389,8 +400,9 @@ export function useTipTapEditor({
     if (editor) {
       try {
         const currentContent = editor.getHTML()
-        if (currentContent !== content && content) {
-          editor.commands.setContent(content)
+        if (currentContent !== content) {
+          pendingContentRef.current = content
+          editor.commands.setContent(content || '')
         }
       } catch (error) {
         console.error('Error syncing content:', error)
@@ -398,5 +410,5 @@ export function useTipTapEditor({
     }
   }, [editor, content])
 
-  return { editor, isMounted, isUploading, handleImageUpload }
+  return { editor, isMounted, isUploading, handleImageUpload, flushPendingContent }
 }

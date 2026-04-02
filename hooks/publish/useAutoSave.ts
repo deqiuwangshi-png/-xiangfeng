@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useCallback, useRef } from 'react'
-import { useAuthStore, selectIsAuthenticated, selectStatus } from '@/stores/auth'
+import { useAuthStore, selectIsAuthenticated } from '@/stores/auth'
 
 interface EditorState {
   title: string
@@ -32,16 +32,22 @@ export const useAutoSave = (
   saveDraft: (options?: { silent?: boolean }) => Promise<void>
 ) => {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
-  const { isInitialized } = useAuthStore(selectStatus)
+  const isInitialized = useAuthStore((state) => state.isInitialized)
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastSavedHashRef = useRef<string>('')
   const isPublishedRef = useRef<boolean>(editorState.isPublished)
   const authErrorLockedUntilRef = useRef<number>(0)
+  const saveDraftRef = useRef(saveDraft)
+  const isSavingRef = useRef(false)
 
   useEffect(() => {
     isPublishedRef.current = editorState.isPublished
   }, [editorState.isPublished])
+
+  useEffect(() => {
+    saveDraftRef.current = saveDraft
+  }, [saveDraft])
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -63,7 +69,9 @@ export const useAutoSave = (
     if (!editorState.title && !editorState.content) return
 
     try {
-      await saveDraft({ silent: true })
+      if (isSavingRef.current) return
+      isSavingRef.current = true
+      await saveDraftRef.current({ silent: true })
       lastSavedHashRef.current = currentHash
       authErrorLockedUntilRef.current = 0
     } catch (error) {
@@ -71,8 +79,10 @@ export const useAutoSave = (
         authErrorLockedUntilRef.current = Date.now() + AUTH_RETRY_COOLDOWN_MS
       }
       // 保存失败，下次继续尝试
+    } finally {
+      isSavingRef.current = false
     }
-  }, [editorState, getContentHash, isAuthenticated, isInitialized, saveDraft])
+  }, [editorState, getContentHash, isAuthenticated, isInitialized])
 
   useEffect(() => {
     if (!isInitialized || !isAuthenticated || editorState.isPublished || Date.now() < authErrorLockedUntilRef.current) {
