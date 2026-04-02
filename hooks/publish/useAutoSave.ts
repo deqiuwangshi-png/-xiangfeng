@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useCallback, useRef } from 'react'
-import { useAuthStore, selectIsAuthenticated, selectStatus } from '@/stores/auth'
+import { useAuthStore, selectIsAuthenticated } from '@/stores/auth'
 
 interface EditorState {
   title: string
@@ -32,7 +32,7 @@ export const useAutoSave = (
   saveDraft: (options?: { silent?: boolean }) => Promise<void>
 ) => {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
-  const { isInitialized } = useAuthStore(selectStatus)
+  const isInitialized = useAuthStore((state) => state.isInitialized)
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastSavedHashRef = useRef<string>('')
