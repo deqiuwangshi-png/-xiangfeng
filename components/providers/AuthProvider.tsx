@@ -14,6 +14,7 @@
 import { useEffect, useRef } from 'react'
 import { useAuthStore } from '@/stores/auth'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
+import { createClient } from '@/lib/supabase/client'
 
 /**
  * AuthProvider Props 接口
@@ -52,6 +53,8 @@ export function AuthProvider({
   initialProfile = null 
 }: AuthProviderProps) {
   const initialize = useAuthStore((state) => state.initialize)
+  const refreshUser = useAuthStore((state) => state.refreshUser)
+  const clearUser = useAuthStore((state) => state.clearUser)
   const isInitialized = useAuthStore((state) => state.isInitialized)
   const hasInitialized = useRef(false)
 
@@ -62,6 +65,24 @@ export function AuthProvider({
       hasInitialized.current = true
     }
   }, [initialize, initialUser, initialProfile, isInitialized])
+
+  useEffect(() => {
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_OUT') {
+        clearUser()
+        return
+      }
+
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        await refreshUser()
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [clearUser, refreshUser])
 
   return <>{children}</>
 }

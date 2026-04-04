@@ -5,7 +5,7 @@
  * 只保留防重复点击，其他逻辑交给 Supabase
  */
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { toast } from 'sonner'
@@ -22,6 +22,11 @@ export function useEditorActions<T extends { title: string; content: string; dra
   const [isPublishing, setIsPublishing] = useState(false)
   const saveLockRef = useRef(false)
   const publishLockRef = useRef(false)
+  const draftIdRef = useRef<string | null>(editorState.draftId)
+
+  useEffect(() => {
+    draftIdRef.current = editorState.draftId
+  }, [editorState.draftId])
 
   /**
    * 保存草稿
@@ -32,8 +37,8 @@ export function useEditorActions<T extends { title: string; content: string; dra
     setIsSaving(true)
 
     try {
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
+      if (draftIdRef.current) {
+        await updateArticle(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
         })
@@ -43,6 +48,7 @@ export function useEditorActions<T extends { title: string; content: string; dra
           content: editorState.content,
           status: 'draft',
         })
+        draftIdRef.current = article.id
         setEditorState(prev => ({ ...prev, draftId: article.id }))
       }
       if (!options?.silent) {
@@ -72,13 +78,13 @@ export function useEditorActions<T extends { title: string; content: string; dra
     try {
       let articleId: string
 
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
+      if (draftIdRef.current) {
+        await updateArticle(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
         })
-        await updateArticleStatus(editorState.draftId, 'published')
-        articleId = editorState.draftId
+        await updateArticleStatus(draftIdRef.current, 'published')
+        articleId = draftIdRef.current
       } else {
         const article = await createArticle({
           title: editorState.title,
