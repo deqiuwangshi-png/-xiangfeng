@@ -67,21 +67,31 @@ export default function DynamicEditor({
     isPublishing,
   } = useEditorActions(editorState, setEditorState)
 
-  // 接入自动保存功能（每30秒自动保存 + 离开页面前保存）
+  // 接入自动保存功能（内容变化后防抖自动保存）
   useAutoSave(editorState, saveDraft)
 
   // TipTap 编辑器实例 - 作为内容唯一数据源
-  const { editor, isMounted, isUploading } = useTipTapEditor({
+  const { editor, isMounted, isUploading, flushPendingContent } = useTipTapEditor({
     content: initialContent,
     onChange: updateContent,
     placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
   })
 
+  const handleSaveDraft = async () => {
+    flushPendingContent()
+    await saveDraft()
+  }
+
+  const handlePublish = async () => {
+    flushPendingContent()
+    await publishContent()
+  }
+
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden">
       <EditorHeader
-        onSaveDraft={saveDraft}
-        onPublish={publishContent}
+        onSaveDraft={handleSaveDraft}
+        onPublish={handlePublish}
         isSaving={isSaving}
         isPublishing={isPublishing}
         isFullscreen={editorState.isFullscreen}

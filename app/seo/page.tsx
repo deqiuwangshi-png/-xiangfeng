@@ -58,10 +58,10 @@ const structuredData = {
   '@type': 'WebSite',
   name: '相逢',
   description: '深度思考者的知识社区',
-  url: 'https://xiangfeng.site',
+  url: 'https://www.xiangfeng.site',
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://xiangfeng.site/search?q={search_term_string}',
+    target: 'https://www.xiangfeng.site/search?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 }
@@ -74,7 +74,7 @@ const organizationData = {
   '@type': 'Organization',
   name: '相逢',
   description: '面向全球思考者的深度知识社区平台',
-  url: 'https://xiangfeng.site',
+  url: 'https://www.xiangfeng.site',
   sameAs: [],
 }
 

@@ -4,7 +4,7 @@ import { ArticleCard } from '@/components/app/ArticleCard'
 import { ArticleCardSkeleton } from '@/components/app/ArticleCardSkeleton'
 import { SearchBox } from '@/components/app/SearchBox'
 import { RefreshCw } from '@/components/icons'
-import { getPublishedArticles } from '@/lib/articles/actions/crud'
+import { getPublishedArticles } from '@/lib/articles/actions/query'
 import { getCurrentUser } from '@/lib/auth/user'
 import Link from 'next/link'
 

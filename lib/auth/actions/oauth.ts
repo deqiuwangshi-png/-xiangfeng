@@ -6,7 +6,6 @@
  * @description GitHub、Google 等第三方登录认证
  */
 
-import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { OAuthProvider, OAuthLoginResult } from '@/types/auth/oauth';
@@ -48,13 +47,18 @@ export async function oauthLogin(
 
   try {
     const supabase = await createClient();
-    const headersList = await headers();
-    const origin = headersList.get('origin') || 'http://localhost:3000';
+    /**
+     * 获取站点 URL
+     * @安全说明
+     * - 优先使用环境变量 NEXT_PUBLIC_SITE_URL（硬编码）
+     * - 回退到生产域名，避免使用 headers().get('origin') 防止 X-Forwarded-Host 伪造攻击
+     */
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+        redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
       },
     });
 

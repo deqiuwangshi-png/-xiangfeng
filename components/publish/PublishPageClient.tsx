@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
-import { getArticleById } from '@/lib/articles/actions/crud'
+import { getArticleById } from '@/lib/articles/actions/query'
 import { toast } from 'sonner'
 
 /**
@@ -75,7 +75,8 @@ export default function PublishPageClient() {
         } else {
           toast.error('草稿不存在或无权访问')
         }
-      } catch {
+      } catch (error) {
+        console.error('加载草稿失败:', error)
         toast.error('加载草稿失败')
       } finally {
         setIsLoading(false)

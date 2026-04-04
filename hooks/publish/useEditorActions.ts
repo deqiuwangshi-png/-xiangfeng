@@ -5,9 +5,10 @@
  * 只保留防重复点击，其他逻辑交给 Supabase
  */
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
+import { toast } from 'sonner'
 
 /**
  * 编辑器操作 Hook
@@ -19,17 +20,25 @@ export function useEditorActions<T extends { title: string; content: string; dra
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const saveLockRef = useRef(false)
+  const publishLockRef = useRef(false)
+  const draftIdRef = useRef<string | null>(editorState.draftId)
+
+  useEffect(() => {
+    draftIdRef.current = editorState.draftId
+  }, [editorState.draftId])
 
   /**
    * 保存草稿
    */
-  const saveDraft = async () => {
-    if (isSaving) return
+  const saveDraft = async (options?: { silent?: boolean }) => {
+    if (saveLockRef.current || isSaving) return
+    saveLockRef.current = true
     setIsSaving(true)
 
     try {
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
+      if (draftIdRef.current) {
+        await updateArticle(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
         })
@@ -39,11 +48,22 @@ export function useEditorActions<T extends { title: string; content: string; dra
           content: editorState.content,
           status: 'draft',
         })
+        draftIdRef.current = article.id
         setEditorState(prev => ({ ...prev, draftId: article.id }))
       }
-      router.push('/drafts')
+      if (!options?.silent) {
+        router.push('/drafts')
+      }
+    } catch (error) {
+      console.error('保存草稿失败:', error)
+      if (!options?.silent) {
+        const message = error instanceof Error ? error.message : '保存失败，请重试'
+        toast.error(message)
+      }
+      throw error
     } finally {
       setIsSaving(false)
+      saveLockRef.current = false
     }
   }
 
@@ -51,19 +71,20 @@ export function useEditorActions<T extends { title: string; content: string; dra
    * 发布文章
    */
   const publishContent = async () => {
-    if (isPublishing) return
+    if (publishLockRef.current || isPublishing) return
+    publishLockRef.current = true
     setIsPublishing(true)
 
     try {
       let articleId: string
 
-      if (editorState.draftId) {
-        await updateArticle(editorState.draftId, {
+      if (draftIdRef.current) {
+        await updateArticle(draftIdRef.current, {
           title: editorState.title,
           content: editorState.content,
         })
-        await updateArticleStatus(editorState.draftId, 'published')
-        articleId = editorState.draftId
+        await updateArticleStatus(draftIdRef.current, 'published')
+        articleId = draftIdRef.current
       } else {
         const article = await createArticle({
           title: editorState.title,
@@ -75,8 +96,14 @@ export function useEditorActions<T extends { title: string; content: string; dra
 
       setEditorState(prev => ({ ...prev, isPublished: true }))
       router.push(`/article/${articleId}`)
+    } catch (error) {
+      console.error('发布文章失败:', error)
+      const message = error instanceof Error ? error.message : '发布失败，请重试'
+      toast.error(message)
+      throw error
     } finally {
       setIsPublishing(false)
+      publishLockRef.current = false
     }
   }
 
