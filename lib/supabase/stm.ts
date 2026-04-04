@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getAuthCookieConfig } from '@/lib/auth/cookieConfig'
 
 /**
  * 创建带 STM 的 Supabase 客户端
@@ -27,9 +28,7 @@ export async function createSTMClient() {
             cookieStore.set(name, value, {
               ...options,
               // SMTP 会话设置
-              httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax',
+              ...getAuthCookieConfig(),
             })
           )
         } catch {

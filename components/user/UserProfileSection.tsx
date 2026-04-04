@@ -74,7 +74,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
     ? (profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户')
     : '访客'
   const avatarUrl = isAuthenticated
-    ? (profile?.avatar_url || user?.user_metadata?.avatar_url)
+    ? (profile?.avatar_url ?? user?.user_metadata?.avatar_url)
     : undefined
 
   return (

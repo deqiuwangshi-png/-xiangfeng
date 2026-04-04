@@ -85,7 +85,7 @@ async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProf
         id: user.id,
         email: user.email || '',
         username: profileData?.username || user.email?.split('@')[0] || '用户',
-        avatar_url: profileData?.avatar_url || '',
+        avatar_url: profileData?.avatar_url,
       }
 
       const simpleUser: SimpleUser = {
@@ -93,7 +93,7 @@ async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProf
         email: user.email || '',
         user_metadata: {
           username: profile.username,
-          avatar_url: profile.avatar_url,
+          avatar_url: profile.avatar_url || user.user_metadata?.avatar_url,
         },
       }
 

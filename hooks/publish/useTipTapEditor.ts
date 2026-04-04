@@ -10,7 +10,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Paragraph from '@tiptap/extension-paragraph'
-import Underline from '@tiptap/extension-underline'
+
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
@@ -140,7 +140,7 @@ export function useTipTapEditor({
             linkOnPaste: true,
           },
         }),
-        Underline,
+
         Paragraph.extend({
           addNodeView() {
             return ReactNodeViewRenderer(ParaNodeView)

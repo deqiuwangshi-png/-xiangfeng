@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/redir'
+import { getAuthCookieConfig } from '@/lib/auth/cookieConfig'
 
 /**
  * 认证相关路由列表 - 已登录用户访问时重定向
@@ -61,13 +62,7 @@ export async function updateSession(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         {/* 批量设置Cookie，减少响应对象重建 */}
-        const secureOptions: CookieOptions = {
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict' as const,
-          httpOnly: true,
-          path: '/',
-          maxAge: 60 * 60 * 24 * 7, // 7天
-        }
+        const secureOptions: CookieOptions = getAuthCookieConfig()
 
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set({
