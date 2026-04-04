@@ -32,7 +32,7 @@ export const useAutoSave = (
   saveDraft: (options?: { silent?: boolean }) => Promise<void>
 ) => {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
-  const { isInitialized } = useAuthStore(selectStatus)
+  const isInitialized = useAuthStore(state => state.isInitialized)
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastSavedHashRef = useRef<string>('')
@@ -67,6 +67,7 @@ export const useAutoSave = (
       lastSavedHashRef.current = currentHash
       authErrorLockedUntilRef.current = 0
     } catch (error) {
+      console.error('自动保存失败:', error)
       if (isAuthRelatedError(error)) {
         authErrorLockedUntilRef.current = Date.now() + AUTH_RETRY_COOLDOWN_MS
       }

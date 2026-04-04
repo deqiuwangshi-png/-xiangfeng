@@ -143,6 +143,11 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
     }
   }
 
+  // 计算当前筛选条件下的总文章数（用于头部显示）
+  const totalArticleCount = filteredDrafts.length
+  // 计算草稿数量（仅用于清空草稿按钮的禁用状态判断）
+  const draftCount = filteredDrafts.filter((d) => d.status === 'draft').length
+
   /**
    * 获取删除数量
    */
@@ -158,11 +163,6 @@ export function DraftsClient({ initialArticles, filterOptions }: DraftsClientPro
         return 0
     }
   }
-
-  // 计算当前筛选条件下的总文章数（用于头部显示）
-  const totalArticleCount = filteredDrafts.length
-  // 计算草稿数量（仅用于清空草稿按钮的禁用状态判断）
-  const draftCount = filteredDrafts.filter((d) => d.status === 'draft').length
 
   return (
     <>

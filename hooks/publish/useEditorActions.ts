@@ -7,7 +7,7 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/crud'
+import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { toast } from 'sonner'
 
 /**
@@ -49,6 +49,7 @@ export function useEditorActions<T extends { title: string; content: string; dra
         router.push('/drafts')
       }
     } catch (error) {
+      console.error('保存草稿失败:', error)
       if (!options?.silent) {
         const message = error instanceof Error ? error.message : '保存失败，请重试'
         toast.error(message)
@@ -90,6 +91,7 @@ export function useEditorActions<T extends { title: string; content: string; dra
       setEditorState(prev => ({ ...prev, isPublished: true }))
       router.push(`/article/${articleId}`)
     } catch (error) {
+      console.error('发布文章失败:', error)
       const message = error instanceof Error ? error.message : '发布失败，请重试'
       toast.error(message)
       throw error

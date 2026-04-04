@@ -293,13 +293,16 @@ export async function getArticleById(id: string) {
     return null;
   }
 
-  const supabase = await createClient();
-
-  // 使用统一认证入口获取当前用户
-  const user = await getCurrentUser();
-  if (!user) throw new Error('用户未登录');
-
   try {
+    const supabase = await createClient();
+
+    // 使用统一认证入口获取当前用户
+    const user = await getCurrentUser();
+    if (!user) {
+      console.error('[getArticleById] 用户未登录');
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('articles')
       .select('*')
@@ -307,7 +310,15 @@ export async function getArticleById(id: string) {
       .eq('author_id', user.id)
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      console.error('[getArticleById] 查询失败:', error);
+      return null;
+    }
+
+    if (!data) {
+      console.error('[getArticleById] 文章不存在');
+      return null;
+    }
 
     return {
       id: data.id,
@@ -317,8 +328,8 @@ export async function getArticleById(id: string) {
       createdAt: data.created_at,
       updatedAt: data.updated_at,
     };
-  } catch {
-    console.error('[getArticleById] 查询失败');
+  } catch (error) {
+    console.error('[getArticleById] 查询失败:', error);
     return null;
   }
 }

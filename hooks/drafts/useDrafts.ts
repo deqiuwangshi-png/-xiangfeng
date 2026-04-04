@@ -4,7 +4,8 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { DraftService, Article } from '@/lib/drafts/draftService'
-import { deleteArticle, updateArticleStatus, batchDeleteArticles } from '@/lib/articles/actions/crud'
+import { deleteArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
+import { batchDeleteArticles } from '@/lib/articles/actions/batch'
 import { fetchDrafts } from '@/lib/articles/actions/query'
 import { useDraftsToast } from './useDraftsToast'
 import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
@@ -306,7 +307,7 @@ export function useDrafts(
           router.refresh()
         }
 
-        {/* 删除后校准分页状态，防止页码越界 */}
+        // 删除后校准分页状态，防止页码越界
         if (isMountedRef.current) {
           calibratePage(remainingDrafts)
           showDeleteSuccess()
