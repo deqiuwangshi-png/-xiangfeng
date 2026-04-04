@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getAuthCookieConfig } from '@/lib/auth/cookieConfig'
 
 /**
  * 创建 Supabase 服务端客户端
@@ -27,8 +28,7 @@ export async function createClient() {
             cookieStore.set(name, value, {
               ...options,
               // 允许客户端获取会话（用于 Realtime 等能力），不强行覆盖 httpOnly
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax',
+              ...getAuthCookieConfig(),
             })
           })
         } catch {

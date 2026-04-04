@@ -6,6 +6,12 @@ import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedP
 import { FileEdit } from 'lucide-react'
 
 /**
+ * 强制动态渲染
+ * @description 发布页需要读取 cookies 进行认证检查，无法静态生成
+ */
+export const dynamic = 'force-dynamic'
+
+/**
  * 发布页
  *
  * 性能优化亮点：
