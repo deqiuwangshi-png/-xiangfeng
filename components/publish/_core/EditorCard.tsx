@@ -78,23 +78,21 @@ export function EditorCard({
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 rounded opacity-40" />
         )}
 
-        {!isMounted ? (
-          // SSR 占位，避免水合错误 - 与装饰线严格对齐
-          <div
-            className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-gray-900 cursor-text ${
-              isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
-            }`}
-          >
+        <div
+          className={`min-h-[300px] sm:min-h-[400px] py-4 text-lg leading-relaxed text-gray-900 cursor-text ${
+            isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
+          }`}
+        >
+          {!isMounted ? (
+            // SSR 占位，避免水合错误 - 与装饰线严格对齐
             <span className="opacity-30 italic">输入 / 唤起命令菜单，或开始书写...</span>
-          </div>
-        ) : (
-          <EditorContent
-            editor={editor}
-            className={`article-content article-content-editor py-4 min-h-[300px] sm:min-h-[400px] max-w-none outline-none ${
-              isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
-            }`}
-          />
-        )}
+          ) : (
+            <EditorContent
+              editor={editor}
+              className={`article-content article-content-editor max-w-none outline-none`}
+            />
+          )}
+        </div>
       </div>
 
       {/* 字符计数 - 专注模式下隐藏 */}
