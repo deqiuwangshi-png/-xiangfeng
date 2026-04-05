@@ -260,6 +260,18 @@
   outline: none;
 }
 
+/* 编辑器中列表样式重置 - 移除默认 margin */
+.article-content-editor ul,
+.article-content-editor ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.article-content-editor ul li,
+.article-content-editor ol li {
+  margin-bottom: 0.25rem;
+}
+
 /* ====== 详情页专用样式 ====== */
 .article-content-reader {
   padding: 0;
