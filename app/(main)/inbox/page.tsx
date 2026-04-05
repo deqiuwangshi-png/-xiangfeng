@@ -1,5 +1,5 @@
 import { InboxClient } from '@/components/inbox/_client/InboxClient'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
 import { Bell } from 'lucide-react'
 

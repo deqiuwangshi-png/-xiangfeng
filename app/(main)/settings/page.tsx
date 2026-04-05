@@ -1,15 +1,17 @@
-import { SettingsLayout } from '@/components/settings/_layout/SettingsLayout'
-import { MobileHamburgerMenu } from '@/components/mobile/MobileHamburgerMenu'
-import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
-import '@/styles/settings.css'
-import { getCurrentUser } from '@/lib/auth/user'
+import { SettingsLayout } from '@/components/settings'
+import { UnauthenticatedPrompt } from '@/components/auth'
+import { MobileHamburgerMenu } from '@/components/mobile'
+import { getCurrentUser } from '@/lib/auth/server'
+import {
+  getContentSettings,
+  getPrivacySettings,
+  getNotificationSettings,
+  getAppearanceSettings,
+} from '@/lib/settings/actions'
 import { createClient } from '@/lib/supabase/server'
-import { getContentSettings } from '@/lib/settings/actions/content'
-import { getPrivacySettings } from '@/lib/settings/actions/privacy'
-import { getNotificationSettings } from '@/lib/settings/actions/notifications'
-import { getAppearanceSettings } from '@/lib/settings/actions/appearance'
 import { Settings as SettingsIcon } from 'lucide-react'
 import type { UserSettings } from '@/types/user/settings'
+import '@/styles/settings.css'
 
 /**
  * 强制动态渲染

@@ -8,7 +8,7 @@ import {
 } from '@/components/auth'
 import { getArticles } from '@/lib/articles/actions/query'
 import { filterOptions } from '@/constants/drafts'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { FileText } from 'lucide-react'
 
 /**

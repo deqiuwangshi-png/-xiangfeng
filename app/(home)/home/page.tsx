@@ -7,7 +7,7 @@ import {
 } from '@/components/app'
 import { RefreshCw } from '@/components/icons'
 import { getPublishedArticles } from '@/lib/articles/actions/query'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import Link from 'next/link'
 
 export const metadata: Metadata = {

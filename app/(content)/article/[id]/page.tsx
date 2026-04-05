@@ -13,7 +13,7 @@ import {
   CommentSkeleton,
   ViewTracker,
 } from '@/components/article';
-import { getCurrentUser } from '@/lib/auth/user';
+import { getCurrentUser } from '@/lib/auth/server';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
 

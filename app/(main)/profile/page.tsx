@@ -37,7 +37,7 @@ import {
   HeatMap,
   HeatMapSkeleton,
 } from '@/components/profile'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'

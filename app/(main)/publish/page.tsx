@@ -6,7 +6,7 @@ import {
 import {
   UnauthenticatedPrompt,
 } from '@/components/auth'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { FileEdit } from 'lucide-react'
 
 /**

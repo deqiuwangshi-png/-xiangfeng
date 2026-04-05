@@ -1,41 +1,40 @@
 /**
- * 认证模块统一入口（客户端安全）
+ * 认证模块统一入口
  * @module lib/auth
- * @description 统一导出所有认证相关的功能、类型和Hooks
+ * @description 认证模块的统一导出入口
  *
- * @注意 此模块导出的内容可在客户端和服务端安全使用
- * 服务端专用的权限控制函数请从 './permissions' 直接导入
+ * @重要提示
+ * 此文件已弃用，请根据使用场景选择正确的导入路径：
+ *
+ * @客户端使用（Client Components）
+ * ```typescript
+ * import { useLogout, login, logout } from '@/lib/auth/client';
+ * ```
+ *
+ * @服务端使用（Server Components / Server Actions）
+ * ```typescript
+ * import { getCurrentUser, login, logout } from '@/lib/auth/server';
+ * ```
+ *
+ * @错误示例（会导致客户端引用服务端 API 错误）
+ * ```typescript
+ * // ❌ 不要在 Client Component 中这样导入
+ * import { getCurrentUser } from '@/lib/auth';
+ * ```
+ *
+ * @迁移说明
+ * - 原 `@/lib/auth` 的客户端功能已迁移到 `@/lib/auth/client`
+ * - 原 `@/lib/auth` 的服务端功能已迁移到 `@/lib/auth/server`
+ * - 请根据组件类型选择合适的导入路径
  */
 
-// ==================== Server Actions ====================
-export { login } from './actions/login';
-export { register } from './actions/register';
-export { logout } from './actions/logout';
-export { forgotPassword } from './actions/forgot-password';
-export { resetPassword } from './actions/reset-password';
-export { changePassword } from './actions/change-password';
+// 为了保持向后兼容性，默认导出客户端版本
+// 但强烈建议显式使用 client 或 server 路径
+export * from './client';
 
-// ==================== 类型定义（客户端安全）====================
-export type { AuthResult } from './actions/types';
-export type { LogoutResult } from '@/types';
-export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/auth/useLogout';
-
-// ==================== Hooks & 客户端工具 ====================
-export { useLogout } from '@/hooks/auth/useLogout';
-
-// ==================== 消息常量（已迁移到 lib/messages）====================
-export {
-  COMMON_ERRORS,
-  LOGIN_MESSAGES,
-  REGISTER_MESSAGES,
-  RESET_PASSWORD_MESSAGES,
-  AUTH_ERRORS,
-  mapSupabaseError,
-} from '@/lib/messages';
-
-// ==================== 权限类型（客户端安全）====================
-export type {
-  UserRole,
-  WriteOperation,
-  PermissionCheckResult,
-} from '@/types/auth/permissions';
+// 添加控制台警告（仅在开发环境）
+if (process.env.NODE_ENV === 'development') {
+  console.warn(
+    '[@/lib/auth] 警告: 请使用 @/lib/auth/client 或 @/lib/auth/server 替代 @/lib/auth'
+  );
+}

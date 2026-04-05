@@ -1,4 +1,4 @@
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { getUserPointsOverview } from '@/lib/rewards/points'
 import {
   PtOverview,

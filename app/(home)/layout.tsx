@@ -1,6 +1,6 @@
 import { AuthGuard } from '@/components/auth/guards/AuthGuard'
 import { AuthProvider } from '@/components/providers'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import '@/styles/app.css'
 import '@/styles/user.css'
 
