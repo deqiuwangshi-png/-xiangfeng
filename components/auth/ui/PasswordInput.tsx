@@ -41,7 +41,6 @@ interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEle
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ label, error, helper, className = '', disabled, autoComplete = 'current-password', ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
-    const [isClient] = useState(() => typeof window !== 'undefined');
 
     /**
      * 切换密码可见性
@@ -64,35 +63,33 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             autoComplete={autoComplete}
             disabled={disabled}
             className={`
-              w-full px-6 py-4 ${isClient ? 'pr-12' : 'pr-6'} rounded-2xl bg-xf-light border 
+              w-full px-6 py-4 pr-12 rounded-2xl bg-xf-light border 
               ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-xf-bg/60 focus:border-xf-primary focus:ring-xf-primary/20'}
               focus:bg-white focus:ring-2 outline-none transition-all text-xf-dark
               disabled:opacity-50 disabled:cursor-not-allowed
             `}
             {...props}
           />
-          {isClient && (
-            <button
-              type="button"
-              onClick={togglePasswordVisibility}
-              disabled={disabled}
-              className="
-                absolute right-4 top-1/2 -translate-y-1/2 
-                text-xf-primary hover:text-xf-accent 
-                transition-colors p-1 rounded
-                disabled:opacity-50 disabled:cursor-not-allowed
-                focus:outline-none focus:ring-2 focus:ring-xf-primary/30
-              "
-              aria-label={showPassword ? '隐藏密码' : '显示密码'}
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeOff className="w-5 h-5" aria-hidden="true" />
-              ) : (
-                <Eye className="w-5 h-5" aria-hidden="true" />
-              )}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            disabled={disabled}
+            className="
+              absolute right-4 top-1/2 -translate-y-1/2 
+              text-xf-primary hover:text-xf-accent 
+              transition-colors p-1 rounded
+              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:outline-none focus:ring-2 focus:ring-xf-primary/30
+            "
+            aria-label={showPassword ? '隐藏密码' : '显示密码'}
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <EyeOff className="w-5 h-5" aria-hidden="true" />
+            ) : (
+              <Eye className="w-5 h-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
         {error && (
           <p className="mt-2 text-red-500 text-xs px-2">{error}</p>
