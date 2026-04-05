@@ -9,12 +9,17 @@
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
 import type { TipTapJSON } from './json'
 
 // 用于服务端渲染的扩展配置
+// 必须与客户端 useTipTapEditor.ts 中的扩展保持一致
 const extensions = [
   StarterKit,
   Image,
+  TextStyle,
+  Color,
 ]
 
 /**
