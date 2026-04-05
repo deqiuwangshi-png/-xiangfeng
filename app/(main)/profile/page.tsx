@@ -26,13 +26,17 @@
  */
 
 import { Suspense } from 'react'
-import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { ProfileTabs } from '@/components/profile/ProfileTabs'
-import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
-import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
-import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
-import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
-import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
+import {
+  ProfileHeader,
+  ProfileTabs,
+  ProfileContent,
+  ProfileContentSkeleton,
+  ProfileTabsProvider,
+  ProfileTabContent,
+  ProfileHeaderSkeleton,
+  HeatMap,
+  HeatMapSkeleton,
+} from '@/components/profile'
 import { getCurrentUser } from '@/lib/auth/user'
 import { createClient } from '@/lib/supabase/server'
 import { getUserStats } from '@/lib/user/stats'

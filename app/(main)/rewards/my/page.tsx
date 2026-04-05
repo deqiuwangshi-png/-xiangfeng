@@ -5,10 +5,12 @@
  * @优化说明 改为Server Component，服务端获取数据，减少客户端JS体积
  */
 
-import { MyRewardsHeader } from '@/components/rewards/my/MyRewardsHeader'
-import { PtRecordServer } from '@/components/rewards/my/PtRecordServer'
-import { RwRecordServer } from '@/components/rewards/my/RwRecordServer'
-import { MyRewardsTabNav } from '@/components/rewards/my/MyRewardsTabNav'
+import {
+  MyRewardsHeader,
+  PtRecordServer,
+  RwRecordServer,
+  MyRewardsTabNav,
+} from '@/components/rewards'
 import { MobileBackButton } from '@/components/mobile/MobileBackButton'
 import type { ExchangeStatus } from '@/types/rewards'
 

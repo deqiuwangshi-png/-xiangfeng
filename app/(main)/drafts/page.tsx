@@ -1,10 +1,14 @@
 import { Suspense } from 'react'
-import { DraftsClient } from '@/components/drafts/core/DraftsClient'
-import { DraftCardSkeleton } from '@/components/drafts/card/DraftCardSkeleton'
+import {
+  DraftsClient,
+  DraftCardSkeleton,
+} from '@/components/drafts'
+import {
+  UnauthenticatedPrompt,
+} from '@/components/auth'
 import { getArticles } from '@/lib/articles/actions/query'
 import { filterOptions } from '@/constants/drafts'
 import { getCurrentUserWithProfile } from '@/lib/auth/user'
-import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
 import { FileText } from 'lucide-react'
 
 /**

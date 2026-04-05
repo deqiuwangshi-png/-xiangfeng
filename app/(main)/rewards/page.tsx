@@ -1,12 +1,16 @@
 import { getCurrentUserWithProfile } from '@/lib/auth/user'
 import { getUserPointsOverview } from '@/lib/rewards/points'
-import { PtOverview } from '@/components/rewards/overview/PtOverview'
-import { PtLevel } from '@/components/rewards/overview/PtLevel'
-import { SignCardSection } from '@/components/rewards/RwClient'
-import { MyRwSection } from '@/components/rewards/RwClient'
-import { TaskBoardServer } from '@/components/rewards/tasks/TaskBoardServer'
-import { ShopServerGrid } from '@/components/rewards/shop/ShopServerGrid'
-import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import {
+  PtOverview,
+  PtLevel,
+  SignCardSection,
+  MyRwSection,
+  TaskBoardServer,
+  ShopServerGrid,
+} from '@/components/rewards'
+import {
+  UnauthenticatedPrompt,
+} from '@/components/auth'
 import { Gift } from 'lucide-react'
 
 /**

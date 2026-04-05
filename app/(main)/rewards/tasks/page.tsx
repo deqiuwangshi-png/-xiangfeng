@@ -5,9 +5,11 @@
  * @优化说明 改为Server Component，服务端获取任务列表和积分数据，减少客户端JS体积
  */
 
-import { TasksHeader } from '@/components/rewards/tasks/TasksHeader'
-import { TasksServerList } from '@/components/rewards/tasks/TasksServerList'
-import { CategoryNavClient } from '@/components/rewards/tasks/CategoryNavClient'
+import {
+  TasksHeader,
+  TasksServerList,
+  CategoryNavClient,
+} from '@/components/rewards'
 import { MobileBackButton } from '@/components/mobile/MobileBackButton'
 import { getUserPointsOverview } from '@/lib/rewards/points'
 import { getUserTaskProgress } from '@/lib/rewards/tasks'

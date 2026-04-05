@@ -8,9 +8,11 @@
  * 3. 添加错误处理和超时控制
  */
 
-import { ShopHeader } from '@/components/rewards/shop/ShopHeader'
-import { ShopServerGrid } from '@/components/rewards/shop/ShopServerGrid'
-import { ShopCategoryNav } from '@/components/rewards/shop/ShopCategoryNav'
+import {
+  ShopHeader,
+  ShopServerGrid,
+  ShopCategoryNav,
+} from '@/components/rewards'
 import { MobileBackButton } from '@/components/mobile/MobileBackButton'
 import { 
   getCachedUserPoints,

@@ -23,3 +23,5 @@ export { ToolbarButton } from './_toolbar/ToolbarButton'
 export { EditorSkeleton } from './_skeleton/EditorSkeleton'
 // DynamicEditor 默认导出，用于动态导入
 export { default as DynamicEditor } from './_core/DynamicEditor'
+// 发布页面客户端组件
+export { default as PublishPageClient } from './PublishPageClient'
