@@ -13,7 +13,7 @@ import { validatePasswordMatch, getCurrentUser } from '../utils';
 import type { AuthResult } from './types';
 
 /**
- * 重置密码
+ * 重置密码（已登录用户）
  * @param formData 表单数据
  * @returns 重置结果
  */
