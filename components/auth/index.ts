@@ -7,6 +7,7 @@
 // Guards - 认证守卫组件
 export { AuthGuard } from './guards/AuthGuard';
 export { AuthRequiredContent } from './guards/AuthRequiredContent';
+export { UnauthenticatedPrompt } from './guards/UnauthenticatedPrompt';
 
 // Forms - 表单组件
 export { LoginForm } from './forms/LoginForm';

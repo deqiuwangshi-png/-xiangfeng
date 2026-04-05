@@ -3,14 +3,16 @@ import { Metadata } from 'next';
 import { Suspense, cache } from 'react';
 import Link from 'next/link';
 import { Home } from '@/components/icons';
-import { ProtectedArticleContent } from '@/components/article/content/ProtectedArticleContent';
-import { ArticlePaywall } from '@/components/article/ui/ArticlePaywall';
-import ArticleHeader from '@/components/article/content/ArticleHeader';
-import ArtAct from '@/components/article/actions/ArtAct';
-import { CommentPanel } from '@/components/article/comments';
-import ReadingProgress from '@/components/article/ui/ReadingProgress';
-import CommentSkeleton from '@/components/article/skeletons/CommentSkeleton';
-import { ViewTracker } from '@/components/article/tracking/ViewTracker';
+import {
+  ArticleHeader,
+  ProtectedArticleContent,
+  ArticlePaywall,
+  ArtAct,
+  CommentPanel,
+  ReadingProgress,
+  CommentSkeleton,
+  ViewTracker,
+} from '@/components/article';
 import { getCurrentUser } from '@/lib/auth/user';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';

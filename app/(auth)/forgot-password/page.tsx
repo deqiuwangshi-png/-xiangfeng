@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
-import { BrandSection } from '@/components/auth/ui/BrandSection';
-import { MobileBrandTitle } from '@/components/auth/ui/MobileBrandTitle';
-import { FormCard } from '@/components/auth/ui/FormCard';
-import { ForgotPasswordForm } from '@/components/auth/forms/ForgotPasswordForm';
+import {
+  BrandSection,
+  MobileBrandTitle,
+  FormCard,
+  ForgotPasswordForm,
+} from '@/components/auth';
 
 /**
  * 忘记密码页面 - Server Component
