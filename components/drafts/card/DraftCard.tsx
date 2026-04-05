@@ -1,7 +1,7 @@
 'use client'
 
 import { DraftData, DraftStatus, ViewMode } from '@/types/drafts'
-import { Trash2, Edit3 } from '@/components/icons'
+import { Trash2, Edit3, Check } from '@/components/icons'
 
 /**
  * 草稿卡片组件属性
@@ -177,13 +177,13 @@ export function DraftCard({
         <div onClick={handleSelectClick}>
           <div
             className={`
-              select-checkbox w-5 h-5 rounded border-2
+              select-checkbox w-5 h-5 rounded-md border-2
               flex items-center justify-center cursor-pointer
               transition-all duration-200
-              ${selected ? 'bg-gray-800 border-gray-800' : 'border-gray-300 bg-transparent hover:border-gray-400'}
+              ${selected ? 'bg-xf-primary border-xf-primary' : 'border-gray-300 bg-transparent hover:border-xf-primary/50'}
             `}
           >
-            {selected && <span className="text-white text-xs font-bold">✓</span>}
+            {selected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
           </div>
         </div>
 
@@ -274,13 +274,13 @@ export function DraftCard({
         >
           <div
             className={`
-              select-checkbox w-5 h-5 rounded border-2
+              select-checkbox w-5 h-5 rounded-md border-2
               flex items-center justify-center cursor-pointer
               transition-all duration-200
-              ${selected ? 'bg-gray-800 border-gray-800' : 'border-gray-300 bg-transparent hover:border-gray-400'}
+              ${selected ? 'bg-xf-primary border-xf-primary' : 'border-gray-300 bg-transparent hover:border-xf-primary/50'}
             `}
           >
-            {selected && <span className="text-white text-xs font-bold">✓</span>}
+            {selected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
           </div>
         </div>
 
