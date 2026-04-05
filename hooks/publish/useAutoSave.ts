@@ -93,8 +93,10 @@ export const useAutoSave = (
     // 如果用户从未交互过（初始加载状态），不保存
     if (!hasUserInteractedRef.current) return
 
-    // 如果标题和内容都为空，不保存
-    if (!editorState.title.trim() && !editorState.content.trim()) return
+    // 如果标题和内容都为空（或只有空白），不保存
+    const hasTitle = editorState.title.trim().length > 0
+    const hasContent = editorState.content.trim().length > 0
+    if (!hasTitle && !hasContent) return
 
     // 如果是初始内容（未修改过），不保存
     if (!hasSetInitialHashRef.current) {
@@ -158,7 +160,9 @@ export const useAutoSave = (
     if (!hasUserInteractedRef.current) return
 
     // 如果标题和内容都为空，不启动自动保存
-    if (!editorState.title.trim() && !editorState.content.trim()) return
+    const hasTitle = editorState.title.trim().length > 0
+    const hasContent = editorState.content.trim().length > 0
+    if (!hasTitle && !hasContent) return
 
     debounceTimerRef.current = setTimeout(() => {
       void doSave()

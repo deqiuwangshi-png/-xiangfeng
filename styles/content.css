@@ -33,43 +33,46 @@
   margin-top: 0.5rem;
 }
 
-/* ====== 标题样式 ====== */
+/* ====== 标题样式 ======
+ * 优化 清除margin-top，避免标题上方出现过大空白
+ */
 .article-content h1 {
   font-size: 2rem;
   font-weight: 700;
   color: var(--color-xf-dark);
-  margin: 2.5rem 0 1.25rem;
-  line-height: 1.3;
 }
 
 .article-content h2 {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-xf-dark);
-  margin: 3rem 0 1.5rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(106, 91, 138, 0.15);
 }
 
 .article-content h3 {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-xf-dark);
-  margin: 2rem 0 1rem;
+
 }
 
 .article-content h4 {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-xf-dark);
-  margin: 1.5rem 0 0.75rem;
+
 }
 
 .article-content h5 {
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-xf-dark);
-  margin: 1.25rem 0 0.5rem;
+
+}
+
+.article-content h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-xf-dark);
 }
 
 /* ====== 列表样式 ======

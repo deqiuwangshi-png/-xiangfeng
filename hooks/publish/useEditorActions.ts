@@ -42,21 +42,20 @@ export function useEditorActions<T extends EditorState>(
 
   /**
    * 验证内容是否可以保存
+   * 规则：标题或正文至少一个有实质性内容
    */
   const validateContent = useCallback((): { valid: boolean; error?: string } => {
-    // 标题验证
-    const trimmedTitle = editorState.title.trim()
-    if (!trimmedTitle) {
-      return { valid: false, error: '标题不能为空' }
+    const hasTitle = editorState.title.trim().length > 0
+    const hasContent = !isContentEmpty(editorState.content)
+
+    // 标题和内容都为空时，不允许保存
+    if (!hasTitle && !hasContent) {
+      return { valid: false, error: '标题和内容不能同时为空' }
     }
 
-    if (trimmedTitle.length > 100) {
+    // 标题长度限制（如果有标题）
+    if (hasTitle && editorState.title.trim().length > 100) {
       return { valid: false, error: '标题不能超过100个字符' }
-    }
-
-    // 内容验证 - 检查 JSON 是否为空
-    if (isContentEmpty(editorState.content)) {
-      return { valid: false, error: '内容不能为空' }
     }
 
     return { valid: true }
@@ -129,11 +128,16 @@ export function useEditorActions<T extends EditorState>(
   const publishContent = async () => {
     if (publishLockRef.current || isPublishing) return
 
-    // 发布前严格验证
-    const validation = validateContent()
-    if (!validation.valid) {
-      toast.error(validation.error)
-      throw new Error(validation.error)
+    // 发布前严格验证：必须有标题
+    if (!editorState.title.trim()) {
+      toast.error('发布文章必须填写标题')
+      throw new Error('发布文章必须填写标题')
+    }
+
+    // 发布前严格验证：必须有内容
+    if (isContentEmpty(editorState.content)) {
+      toast.error('发布文章必须填写内容')
+      throw new Error('发布文章必须填写内容')
     }
 
     // 额外验证：内容不能太短
