@@ -1,11 +1,12 @@
 'use client'
 
 /**
- * 发布页客户端组件
+ * 发布页客户端组件 - JSON 版本
  *
  * 将动态导入逻辑封装在客户端组件中
  * 解决 Server Component 中不能使用 ssr: false 的问题
  * 支持编辑模式：读取URL参数edit获取草稿数据
+ * 适配 JSON 格式内容存储
  *
  * @module PublishPageClient
  */
@@ -16,6 +17,7 @@ import dynamic from 'next/dynamic'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
 import { getArticleById } from '@/lib/articles/actions/query'
 import { toast } from 'sonner'
+import { safeParseJSON, createEmptyDocument } from '@/lib/utils/json'
 
 /**
  * 动态导入编辑器组件
@@ -49,7 +51,7 @@ export default function PublishPageClient() {
     isPublished: boolean
   }>({
     initialTitle: '',
-    initialContent: '',
+    initialContent: JSON.stringify(createEmptyDocument()),
     draftId: null,
     isPublished: false,
   })
@@ -66,9 +68,18 @@ export default function PublishPageClient() {
         const article = await getArticleById(editId)
 
         if (article) {
+          // 优先使用 content_json，兼容旧数据的 content 字段
+          let content = article.content_json
+            ? JSON.stringify(article.content_json)
+            : article.content
+
+          // 验证并确保是有效的 JSON
+          const parsed = safeParseJSON(content)
+          content = JSON.stringify(parsed)
+
           setInitialData({
             initialTitle: article.title,
-            initialContent: article.content,
+            initialContent: content,
             draftId: article.id,
             isPublished: article.status === 'published',
           })

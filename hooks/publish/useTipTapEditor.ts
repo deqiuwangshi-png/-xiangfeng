@@ -1,8 +1,9 @@
 'use client'
 
 /**
- * TipTap 编辑器 Hook - 带图片即时反馈版本
+ * TipTap 编辑器 Hook - JSON 版本
  * @module useTipTapEditor
+ * @description 使用 JSON 格式存储内容，支持图片即时反馈
  */
 
 import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
@@ -26,22 +27,52 @@ import {
 import { toast } from 'sonner'
 import { ImgNodeView } from '@/components/publish/_blocks/ImgNodeView'
 import { ParaNodeView } from '@/components/publish/_blocks/ParaNodeView'
+import type { TipTapJSON, TipTapNode } from '@/lib/utils/json'
+
+// 重新导出类型以便向后兼容
+export type { TipTapJSON, TipTapNode }
 
 /**
  * 编辑器选项接口
  */
 interface UseTipTapEditorOptions {
-  /** 初始内容 */
+  /** 初始内容 (JSON 字符串) */
   content: string
-  /** 内容变化回调 */
+  /** 内容变化回调 (返回 JSON 字符串) */
   onChange: (content: string) => void
   /** 占位符文本 */
   placeholder?: string
 }
 
-
+/**
+ * 默认空文档
+ */
+const EMPTY_DOCUMENT: TipTapJSON = {
+  type: 'doc',
+  content: [{ type: 'paragraph' }],
+}
 
 /**
+ * 解析 JSON 内容
+ * @param content - JSON 字符串
+ * @returns 解析后的 JSON 对象
+ */
+function parseContent(content: string): TipTapJSON {
+  if (!content) return EMPTY_DOCUMENT
+  try {
+    const parsed = JSON.parse(content) as TipTapJSON
+    if (parsed.type === 'doc') {
+      return parsed
+    }
+    return EMPTY_DOCUMENT
+  } catch {
+    return EMPTY_DOCUMENT
+  }
+}
+
+/**
+ * TipTap 编辑器 Hook
+ *
  * @param options - 编辑器选项
  * @returns 编辑器实例和挂载状态
  */
@@ -71,13 +102,14 @@ export function useTipTapEditor({
    * @性能优化 延迟 300ms 触发 onChange，减少重渲染
    */
   const debouncedOnChange = useCallback(
-    (htmlContent: string) => {
-      pendingContentRef.current = htmlContent
+    (jsonContent: TipTapJSON) => {
+      const jsonString = JSON.stringify(jsonContent)
+      pendingContentRef.current = jsonString
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
       }
       debounceTimerRef.current = setTimeout(() => {
-        onChange(htmlContent)
+        onChange(jsonString)
       }, 300)
     },
     [onChange]
@@ -118,6 +150,11 @@ export function useTipTapEditor({
       uploadsMap.clear()
     }
   }, [])
+
+  /**
+   * 解析初始内容
+   */
+  const initialContent = useMemo(() => parseContent(content), [content])
 
   /**
    * 缓存编辑器配置
@@ -182,11 +219,11 @@ export function useTipTapEditor({
           types: ['textStyle'],
         }),
       ],
-      content,
+      content: initialContent,
       editable: true,
       immediatelyRender: false,
       onUpdate: ({ editor }: { editor: Editor }) => {
-        debouncedOnChange(editor.getHTML())
+        debouncedOnChange(editor.getJSON() as TipTapJSON)
       },
       editorProps: {
         attributes: {
@@ -276,7 +313,7 @@ export function useTipTapEditor({
         },
       },
     }),
-    [content, debouncedOnChange, placeholder]
+    [initialContent, debouncedOnChange, placeholder]
   )
 
   // 创建编辑器实例
@@ -399,10 +436,10 @@ export function useTipTapEditor({
   useEffect(() => {
     if (editor) {
       try {
-        const currentContent = editor.getHTML()
+        const currentContent = JSON.stringify(editor.getJSON())
         if (currentContent !== content) {
           pendingContentRef.current = content
-          editor.commands.setContent(content || '')
+          editor.commands.setContent(parseContent(content))
         }
       } catch (error) {
         console.error('Error syncing content:', error)

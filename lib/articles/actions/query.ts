@@ -324,6 +324,7 @@ export async function getArticleById(id: string) {
       id: data.id,
       title: data.title,
       content: data.content,
+      content_json: data.content_json,
       status: data.status,
       createdAt: data.created_at,
       updatedAt: data.updated_at,

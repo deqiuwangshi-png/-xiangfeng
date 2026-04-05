@@ -1,21 +1,33 @@
 'use client'
 
 /**
- * 编辑器操作 Hook - 简化版
- * 只保留防重复点击，其他逻辑交给 Supabase
+ * 编辑器操作 Hook - JSON 版本
+ * 支持 JSON 格式内容保存
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { toast } from 'sonner'
+import { isContentEmpty, extractTextFromJSON } from '@/lib/utils/json'
+
+interface EditorState {
+  title: string
+  content: string
+  draftId: string | null
+  isPublished: boolean
+}
 
 /**
  * 编辑器操作 Hook
  */
-export function useEditorActions<T extends { title: string; content: string; draftId: string | null; isPublished: boolean }>(
+export function useEditorActions<T extends EditorState>(
   editorState: T,
-  setEditorState: React.Dispatch<React.SetStateAction<T>>
+  setEditorState: React.Dispatch<React.SetStateAction<T>>,
+  options?: {
+    onSaveSuccess?: () => void
+    onPublishSuccess?: (articleId: string) => void
+  }
 ) {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
@@ -29,10 +41,50 @@ export function useEditorActions<T extends { title: string; content: string; dra
   }, [editorState.draftId])
 
   /**
-   * 保存草稿
+   * 验证内容是否可以保存
    */
-  const saveDraft = async (options?: { silent?: boolean }) => {
+  const validateContent = useCallback((): { valid: boolean; error?: string } => {
+    // 标题验证
+    const trimmedTitle = editorState.title.trim()
+    if (!trimmedTitle) {
+      return { valid: false, error: '标题不能为空' }
+    }
+
+    if (trimmedTitle.length > 100) {
+      return { valid: false, error: '标题不能超过100个字符' }
+    }
+
+    // 内容验证 - 检查 JSON 是否为空
+    if (isContentEmpty(editorState.content)) {
+      return { valid: false, error: '内容不能为空' }
+    }
+
+    return { valid: true }
+  }, [editorState.title, editorState.content])
+
+  /**
+   * 保存草稿
+   * @param options - 保存选项
+   * @param options.silent - 是否静默保存（不跳转）
+   * @param options.skipValidation - 是否跳过验证
+   */
+  const saveDraft = async (saveOptions?: { 
+    silent?: boolean
+    skipValidation?: boolean 
+  }) => {
     if (saveLockRef.current || isSaving) return
+
+    // 验证内容
+    if (!saveOptions?.skipValidation) {
+      const validation = validateContent()
+      if (!validation.valid) {
+        if (!saveOptions?.silent) {
+          toast.error(validation.error)
+        }
+        throw new Error(validation.error)
+      }
+    }
+
     saveLockRef.current = true
     setIsSaving(true)
 
@@ -51,13 +103,17 @@ export function useEditorActions<T extends { title: string; content: string; dra
         draftIdRef.current = article.id
         setEditorState(prev => ({ ...prev, draftId: article.id }))
       }
-      if (!options?.silent) {
+
+      options?.onSaveSuccess?.()
+
+      if (!saveOptions?.silent) {
+        toast.success('草稿保存成功')
         router.push('/drafts')
       }
     } catch (error) {
       console.error('保存草稿失败:', error)
-      if (!options?.silent) {
-        const message = error instanceof Error ? error.message : '保存失败，请重试'
+      const message = error instanceof Error ? error.message : '保存失败，请重试'
+      if (!saveOptions?.silent) {
         toast.error(message)
       }
       throw error
@@ -72,6 +128,21 @@ export function useEditorActions<T extends { title: string; content: string; dra
    */
   const publishContent = async () => {
     if (publishLockRef.current || isPublishing) return
+
+    // 发布前严格验证
+    const validation = validateContent()
+    if (!validation.valid) {
+      toast.error(validation.error)
+      throw new Error(validation.error)
+    }
+
+    // 额外验证：内容不能太短
+    const textContent = extractTextFromJSON(editorState.content).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
+    if (textContent.length < 10) {
+      toast.error('发布内容不能少于10个字符')
+      throw new Error('发布内容不能少于10个字符')
+    }
+
     publishLockRef.current = true
     setIsPublishing(true)
 
@@ -95,6 +166,8 @@ export function useEditorActions<T extends { title: string; content: string; dra
       }
 
       setEditorState(prev => ({ ...prev, isPublished: true }))
+      options?.onPublishSuccess?.(articleId)
+      toast.success('文章发布成功')
       router.push(`/article/${articleId}`)
     } catch (error) {
       console.error('发布文章失败:', error)
@@ -112,5 +185,6 @@ export function useEditorActions<T extends { title: string; content: string; dra
     publishContent,
     isSaving,
     isPublishing,
+    validateContent,
   }
 }
