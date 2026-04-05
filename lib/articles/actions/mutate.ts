@@ -9,6 +9,20 @@ import { createClient } from '@/lib/supabase/server';
 import { generateSummary } from '@/lib/utils/html';
 
 /**
+ * 生成 URL 友好的 slug
+ * @param title - 文章标题
+ * @returns 格式化后的 slug
+ */
+function generateSlug(title: string): string {
+  const timestamp = Date.now().toString(36);
+  const normalized = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${normalized.slice(0, 50)}-${timestamp}`;
+}
+
+/**
  * 创建文章/草稿
  */
 export async function createArticle(data: {
@@ -31,6 +45,7 @@ export async function createArticle(data: {
     const insertData = {
       title: data.title,
       content: data.content,
+      slug: generateSlug(data.title),
       excerpt: generateSummary(data.content, 100),
       status: data.status || 'draft',
       author_id: user.id,
@@ -38,6 +53,7 @@ export async function createArticle(data: {
       like_count: 0,
       comment_count: 0,
       view_count: 0,
+      visibility: 'public',
       ...(data.status === 'published' && { published_at: new Date().toISOString() }),
     };
 
