@@ -1,49 +1,18 @@
 import { Metadata } from 'next'
+import { siteName, siteUrl, createMetadata } from '@/lib/seo'
 
 /**
  * SEO页面元数据配置
- * 包含标题、描述、关键词等核心SEO元素
+ * @description 使用统一SEO配置作为基础，扩展SEO展示页面特有配置
  */
 export const metadata: Metadata = {
-  // 页面标题 - 控制在60字符以内，包含核心关键词
-  title: '相逢 - 深度思考者的知识社区 | 长文创作与阅读平台',
-  
-  // 页面描述 - 控制在160字符以内，吸引点击
-  description: '相逢是面向全球思考者的深度知识社区，提供沉浸式长文阅读体验。整理碎片化知识，构建个人思维体系，与志同道合者共创价值，享受长期创作红利。',
-  
-  // 关键词 - 帮助搜索引擎理解页面主题
+  ...createMetadata({
+    title: '深度思考者的知识社区 | 长文创作与阅读平台',
+    description: '相逢是面向全球思考者的深度知识社区，提供沉浸式长文阅读体验。整理碎片化知识，构建个人思维体系，与志同道合者共创价值，享受长期创作红利。',
+  }),
+  // SEO页面特有：扩展关键词
   keywords: '相逢,知识社区,深度阅读,长文创作,思考者,知识体系,内容创作,思维网络,认知迭代',
-  
-  // 作者信息
-  authors: [{ name: '相逢团队' }],
-  
-  // Open Graph 标签 - 优化社交媒体分享
-  openGraph: {
-    title: '相逢 - 深度思考者的知识社区',
-    description: '面向全球80亿人的深度思考平台，把碎片化知识整理成完整逻辑体系，为深度阅读而生。',
-    type: 'website',
-    locale: 'zh_CN',
-    siteName: '相逢',
-  },
-  
-  // Twitter Card 标签
-  twitter: {
-    card: 'summary_large_image',
-    title: '相逢 - 深度思考者的知识社区',
-    description: '面向全球80亿人的深度思考平台，把碎片化知识整理成完整逻辑体系。',
-  },
-  
-  // 机器人标签 - 允许索引和跟踪链接
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
-  
-  // 替代语言版本（如有需要）
+  // SEO页面特有：规范链接
   alternates: {
     canonical: '/seo',
   },
@@ -51,17 +20,17 @@ export const metadata: Metadata = {
 
 /**
  * 结构化数据配置
- * 使用Schema.org标记帮助搜索引擎理解页面内容
+ * @description 使用统一SEO配置中的站点信息
  */
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: '相逢',
+  name: siteName,
   description: '深度思考者的知识社区',
-  url: 'https://www.xiangfeng.site',
+  url: siteUrl,
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://www.xiangfeng.site/search?q={search_term_string}',
+    target: `${siteUrl}/search?q={search_term_string}`,
     'query-input': 'required name=search_term_string',
   },
 }
@@ -72,9 +41,9 @@ const structuredData = {
 const organizationData = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: '相逢',
+  name: siteName,
   description: '面向全球思考者的深度知识社区平台',
-  url: 'https://www.xiangfeng.site',
+  url: siteUrl,
   sameAs: [],
 }
 

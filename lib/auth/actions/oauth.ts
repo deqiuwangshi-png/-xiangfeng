@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { siteUrl } from '@/lib/seo';
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { OAuthProvider, OAuthLoginResult } from '@/types/auth/oauth';
 
@@ -47,13 +48,6 @@ export async function oauthLogin(
 
   try {
     const supabase = await createClient();
-    /**
-     * 获取站点 URL
-     * @安全说明
-     * - 优先使用环境变量 NEXT_PUBLIC_SITE_URL（硬编码）
-     * - 回退到生产域名，避免使用 headers().get('origin') 防止 X-Forwarded-Host 伪造攻击
-     */
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,

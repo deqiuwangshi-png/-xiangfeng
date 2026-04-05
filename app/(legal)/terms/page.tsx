@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { Clock, FileText, AlertTriangle, Mail } from 'lucide-react'
-import type { Metadata } from 'next'
+import { createLegalMetadata } from '@/lib/seo'
 import '@/styles/terms.css'
 import Navbar from '@/components/marketing/Navbar'
 
-export const metadata: Metadata = {
-  title: '服务条款 - 相逢 Xiangfeng',
-  description: '欢迎使用相逢平台！请仔细阅读本服务条款，这些条款规定了您使用相逢服务（包括网站、移动应用及相关服务）的权利和义务。',
-}
+/**
+ * 服务条款页面Metadata
+ * @description 使用统一SEO配置
+ */
+export const metadata = createLegalMetadata(
+  '服务条款',
+  '欢迎使用相逢平台！请仔细阅读本服务条款，这些条款规定了您使用相逢服务（包括网站、移动应用及相关服务）的权利和义务。'
+)
 
 export default function TermsPage() {
   return (
@@ -265,7 +269,7 @@ export default function TermsPage() {
                 <h3 className="text-xl font-bold text-xf-dark mt-8 mb-4">6.2 商标</h3>
 
                 <p>
-                  &quot;相逢&quot;、&quot;Xiangfeng&quot;以及产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经开发者事先书面同意，您不得使用这些商标。
+                  &quot;相逢&quot;以及产品和服务名称、徽标、标语和品牌标识是相逢的商标。未经开发者事先书面同意，您不得使用这些商标。
                 </p>
               </div>
             </section>

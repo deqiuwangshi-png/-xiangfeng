@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
+import { siteUrl } from '@/lib/seo'
 
 /**
  * Robots.txt 配置 - SEO优化与安全加固
- *
- * @returns {MetadataRoute.Robots} Robots 配置
+ * @description 使用统一SEO配置中的siteUrl
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots
  *
  * @安全说明 - 重要！
@@ -20,7 +20,6 @@ import { MetadataRoute } from 'next'
  * - 保持配置简洁，避免暴露网站结构信息
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
 
   return {
     rules: {
@@ -33,7 +32,7 @@ export default function robots(): MetadataRoute.Robots {
       // 不设置 crawlDelay，Googlebot会忽略此指令
       // Bing和百度支持，但现代服务器通常不需要限制
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
   }
 }

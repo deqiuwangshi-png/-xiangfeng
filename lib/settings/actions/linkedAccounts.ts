@@ -10,9 +10,11 @@
  * @重构说明
  * - 使用公共认证工具 withAuth 替代重复认证逻辑
  * - 统一错误处理
+ * - 使用统一SEO配置中的siteUrl
  */
 
 import { withAuth } from '../utils/auth'
+import { siteUrl } from '@/lib/seo'
 import { LOGIN_MESSAGES, COMMON_ERRORS, SUCCESS_MESSAGES } from '@/lib/messages'
 import type {
   OAuthProvider,
@@ -141,14 +143,6 @@ export async function linkAccount(
     if (existingIdentity) {
       return { success: false, error: '该账号已绑定' }
     }
-
-    /**
-     * 获取站点 URL
-     * @安全说明
-     * - 优先使用环境变量 NEXT_PUBLIC_SITE_URL（硬编码）
-     * - 回退到生产域名，避免使用 headers().get('origin') 防止 X-Forwarded-Host 伪造攻击
-     */
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'
 
     // 调用Supabase linkIdentity
     const { data, error } = await supabase.auth.linkIdentity({

@@ -14,6 +14,7 @@
 import { z } from 'zod';
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
+import { siteUrl } from '@/lib/seo';
 import { checkServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
 import { RESET_PASSWORD_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from './types';
@@ -89,7 +90,7 @@ export async function forgotPassword(formData: FormData): Promise<AuthResult> {
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'}/reset-password`,
+      redirectTo: `${siteUrl}/reset-password`,
     });
 
     if (error) {

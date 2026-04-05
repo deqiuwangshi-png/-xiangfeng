@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
+import { createAuthMetadata } from '@/lib/seo';
 import '@/styles/auth.css';
 
-export const metadata: Metadata = {
-  title: '登录注册 | 相逢',
-  description: '相逢 - 深度思考者生态，不止相遇，更是改变',
-};
+/**
+ * 认证页面Metadata
+ * @description 使用统一SEO配置
+ */
+export const metadata = createAuthMetadata('登录注册');
 
 export default function AuthLayout({
   children,

@@ -25,7 +25,6 @@ const navItems = [
 
 /**
  * 桌面端导航组件
- * @returns {JSX.Element} 桌面端导航
  */
 function DesktopNav() {
   return (
@@ -64,7 +63,6 @@ function DesktopNav() {
 
 /**
  * 响应式导航栏组件
- * @returns {JSX.Element} 响应式导航
  */
 export default function Navbar() {
   return (
