@@ -16,6 +16,7 @@ import {
 import { getCurrentUser } from '@/lib/auth/server';
 import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
+import '@/styles/article.css';
 
 export type { ArticlePageProps } from '@/types';
 

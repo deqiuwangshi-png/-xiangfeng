@@ -47,6 +47,7 @@ import {
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/server'
 import type { UserStats, UserDisplayInfo } from '@/types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * 页面参数类型
@@ -61,11 +62,10 @@ interface UserProfilePageProps {
  * 获取用户公开统计数据
  *
  * @param {string} userId - 用户ID
+ * @param {SupabaseClient} supabase - Supabase 客户端实例（复用）
  * @returns {Promise<UserStats>} 用户统计数据
  */
-async function getUserPublicStats(userId: string): Promise<UserStats> {
-  const supabase = await createClient()
-
+async function getUserPublicStats(userId: string, supabase: SupabaseClient): Promise<UserStats> {
   const { data, error } = await supabase
     .from('profiles')
     .select('articles_count, followers_count, likes_received, nodes_count')
@@ -89,14 +89,14 @@ async function getUserPublicStats(userId: string): Promise<UserStats> {
  *
  * @param {string} targetUserId - 目标用户ID
  * @param {string | null} currentUserId - 当前登录用户ID
+ * @param {SupabaseClient} supabase - Supabase 客户端实例（复用）
  * @returns {Promise<{ allowed: boolean; visibility?: string }>} 是否允许访问
  */
 async function checkProfileVisibility(
   targetUserId: string,
-  currentUserId: string | null
+  currentUserId: string | null,
+  supabase: SupabaseClient
 ): Promise<{ allowed: boolean; visibility?: string }> {
-  const supabase = await createClient()
-
   // 获取目标用户的可见性设置
   const { data: profile, error } = await supabase
     .from('profiles')
@@ -154,14 +154,14 @@ async function checkProfileVisibility(
 /**
  * 用户资料头部数据获取组件
  * @性能优化 独立获取关键路径数据，优先渲染
+ * @param userId - 用户ID
+ * @param supabase - Supabase 客户端实例（复用）
  */
-async function ProfileHeaderData({ userId }: { userId: string }) {
-  const supabase = await createClient()
-
+async function ProfileHeaderData({ userId, supabase }: { userId: string; supabase: SupabaseClient }) {
   // 并行获取用户资料和统计数据
   const [profileResult, stats] = await Promise.all([
     supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
-    getUserPublicStats(userId),
+    getUserPublicStats(userId, supabase),
   ])
 
   const profile = profileResult.data
@@ -215,8 +215,11 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   const { userId } = await params
 
+  // 创建一次 supabase 客户端供后续复用
+  const supabase = await createClient()
+
   // 检查资料可见性权限
-  const { allowed, visibility } = await checkProfileVisibility(userId, currentUser?.id || null)
+  const { allowed, visibility } = await checkProfileVisibility(userId, currentUser?.id || null, supabase)
 
   if (!allowed) {
     // 根据可见性返回不同的提示
@@ -236,7 +239,7 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
         <div className="max-w-4xl mx-auto fade-in-up">
           {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
           <Suspense fallback={<ProfileHeaderSkeleton />}>
-            <ProfileHeaderData userId={userId} />
+            <ProfileHeaderData userId={userId} supabase={supabase} />
           </Suspense>
 
         {/* 标签页状态管理Provider */}

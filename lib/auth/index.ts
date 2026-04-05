@@ -32,9 +32,3 @@
 // 但强烈建议显式使用 client 或 server 路径
 export * from './client';
 
-// 添加控制台警告（仅在开发环境）
-if (process.env.NODE_ENV === 'development') {
-  console.warn(
-    '[@/lib/auth] 警告: 请使用 @/lib/auth/client 或 @/lib/auth/server 替代 @/lib/auth'
-  );
-}

@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, Suspense, useState, useCallback } from 'react'
+import { createContext, useContext, Suspense, useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { SettingsNav } from './SettingsNav'
 import { AccountSection } from '../account/AccountSection'
@@ -55,22 +55,15 @@ function SettingsLayoutContent({ userData, userSettings }: SettingsLayoutProps) 
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  {/* 从 URL 初始化标签页状态 */}
-  const [activeTab, setActiveTab] = useState(() => getTabFromSearchParams(searchParams))
+  {/* 从 URL 计算当前标签页 - 避免使用 state 导致级联渲染 */}
+  const activeTab = getTabFromSearchParams(searchParams)
 
-  {/* 处理标签页切换 - 先更新状态再同步 URL，避免子组件重新挂载 */}
+  {/* 处理标签页切换 - 直接更新 URL，状态从 URL 计算得出 */}
   const handleTabChange = useCallback((tabId: string) => {
-    setActiveTab(tabId)
     const params = new URLSearchParams(searchParams?.toString())
     params.set('tab', tabId)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }, [pathname, router, searchParams])
-
-  {/* 监听浏览器前进/后退按钮，同步 URL 变化到状态 */}
-  const currentTabFromUrl = getTabFromSearchParams(searchParams)
-  if (currentTabFromUrl !== activeTab) {
-    setActiveTab(currentTabFromUrl)
-  }
 
   {/* 上下文数据 - 服务端获取的数据通过 Context 共享给子组件 */}
   const contextValue: SettingsContextType = {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X } from '@/components/icons'
 import { Monitor, Smartphone, Tablet } from 'lucide-react'
-import { getLoginHistory } from '@/lib/auth/loginHistory'
+import { getLoginHistory } from '@/lib/auth/core/loginHistory'
 import type { LoginHistoryItem } from '@/types'
 
 /**
