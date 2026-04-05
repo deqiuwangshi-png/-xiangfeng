@@ -27,6 +27,8 @@ export type NotificationRow = {
   title: string
   content: string | null
   actor_id: string | null
+  article_id: string | null
+  comment_id: string | null
   actor?: { username: string } | { username: string }[] | null
   is_read: boolean
   created_at: string
@@ -52,6 +54,8 @@ export async function fetchNotificationsPage(args: {
         title,
         content,
         actor_id,
+        article_id,
+        comment_id,
         is_read,
         created_at,
         actor:profiles!actor_id(username)

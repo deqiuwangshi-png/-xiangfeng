@@ -1,6 +1,7 @@
 'use client'
 
 import { memo } from 'react'
+import { useRouter } from 'next/navigation'
 import { type NotificationWithIcon } from '@/types/notification'
 import { BatchSelectBox } from '../_actions/BatchSelectBox'
 import { NotificationActions } from '../_actions/NotifActions'
@@ -38,14 +39,24 @@ export const NotifCard = memo(function NotifCard({
   onSelect,
   isBatchMode = false,
 }: NotifCardProps) {
+  const router = useRouter()
   const Icon = notification.icon
   const canDelete = Boolean(!notification.unread && onDelete)
 
   const handleClick = () => {
     if (isBatchMode && onSelect) {
       onSelect(notification.id, !isSelected)
-    } else if (notification.unread) {
+      return
+    }
+
+    // 标记已读
+    if (notification.unread) {
       onMarkAsRead(notification.id)
+    }
+
+    // 跳转到关联页面
+    if (notification.articleId) {
+      router.push(`/article/${notification.articleId}`)
     }
   }
 
@@ -57,12 +68,19 @@ export const NotifCard = memo(function NotifCard({
     onDelete?.(notification.id)
   }
 
+  // 判断是否可以跳转（有关联内容）
+  const canNavigate = Boolean(notification.articleId || notification.commentId)
+
   return (
     <div
       className={`flex items-start gap-2 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border-gray-100 hover:shadow-sm transition ${
         notification.unread ? 'border-l-4 border-xf-primary' : ''
-      } ${isSelected ? 'ring-2 ring-xf-primary bg-blue-50' : ''}`}
+      } ${isSelected ? 'ring-2 ring-xf-primary bg-blue-50' : ''} ${
+        canNavigate && !isBatchMode ? 'cursor-pointer hover:bg-gray-50' : ''
+      }`}
       onClick={handleClick}
+      role={canNavigate && !isBatchMode ? 'button' : undefined}
+      tabIndex={canNavigate && !isBatchMode ? 0 : undefined}
     >
       {/* 批量选择框 */}
       {isBatchMode && (

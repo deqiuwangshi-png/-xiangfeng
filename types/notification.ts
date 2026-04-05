@@ -40,6 +40,9 @@ export type FilterType = 'all' | 'unread' | 'mention' | 'system'
  * @property {string} user - 触发通知的用户名
  * @property {string} time - 时间显示文本
  * @property {boolean} unread - 是否未读
+ * @property {string} [articleId] - 关联文章ID（用于跳转）
+ * @property {string} [commentId] - 关联评论ID（用于跳转）
+ * @property {string} [actorId] - 触发通知的用户ID
  */
 export interface NotificationData {
   id: string
@@ -49,6 +52,9 @@ export interface NotificationData {
   user: string
   time: string
   unread: boolean
+  articleId?: string
+  commentId?: string
+  actorId?: string
 }
 
 /**
