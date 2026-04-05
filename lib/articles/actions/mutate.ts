@@ -24,6 +24,13 @@ function generateSlug(title: string): string {
 
 /**
  * 创建文章/草稿
+ * @param data - 文章数据
+ * @param data.title - 文章标题，为空时会使用默认标题
+ * @param data.content - 文章内容
+ * @param data.status - 文章状态，默认为 'draft'
+ * @returns 创建的文章对象
+ * @throws 未登录时抛出错误
+ * @throws 数据库操作失败时抛出错误
  */
 export async function createArticle(data: {
   title: string;
@@ -32,7 +39,7 @@ export async function createArticle(data: {
 }) {
   try {
     const supabase = await createClient();
-    
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError) {
       console.error('[createArticle] 获取用户信息失败:', authError);
@@ -42,10 +49,13 @@ export async function createArticle(data: {
       throw new Error('未登录');
     }
 
+    // 处理空标题：如果标题为空或仅包含空白字符，使用默认标题
+    const normalizedTitle = data.title?.trim() || '无标题';
+
     const insertData = {
-      title: data.title,
+      title: normalizedTitle,
       content: data.content,
-      slug: generateSlug(data.title),
+      slug: generateSlug(normalizedTitle),
       excerpt: generateSummary(data.content, 100),
       status: data.status || 'draft',
       author_id: user.id,
@@ -101,6 +111,12 @@ export async function deleteArticle(id: string) {
 
 /**
  * 更新文章
+ * @param id - 文章ID
+ * @param data - 更新数据
+ * @param data.title - 文章标题，为空时会使用默认标题
+ * @param data.content - 文章内容
+ * @returns 更新后的文章对象
+ * @throws 数据库操作失败时抛出错误
  */
 export async function updateArticle(
   id: string,
@@ -110,6 +126,12 @@ export async function updateArticle(
     const supabase = await createClient();
 
     const updateData: Record<string, unknown> = { ...data };
+
+    // 处理空标题：如果标题为空或仅包含空白字符，使用默认标题
+    if (data.title !== undefined) {
+      updateData.title = data.title.trim() || '无标题';
+    }
+
     if (data.content) {
       updateData.excerpt = generateSummary(data.content, 100);
     }

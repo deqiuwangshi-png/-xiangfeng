@@ -17,11 +17,7 @@
  */
 
 import { AlertTriangle, X, Trash2 } from '@/components/icons'
-
-/**
- * 删除模式类型
- */
-type DeleteMode = 'single' | 'batch' | 'clear'
+import type { DeleteMode } from '@/types/drafts'
 
 /**
  * 删除确认弹窗组件属性接口

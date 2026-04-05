@@ -38,3 +38,20 @@ export interface DraftSelection {
   isAllSelected: boolean
   isPartiallySelected: boolean
 }
+
+/**
+ * 删除模式类型
+ * @description 删除确认弹窗的三种模式：单篇删除、批量删除、清空所有
+ */
+export type DeleteMode = 'single' | 'batch' | 'clear'
+
+/**
+ * 删除弹窗状态
+ * @description 管理删除确认弹窗的显示状态和操作目标
+ */
+export interface DeleteModalState {
+  isOpen: boolean
+  mode: DeleteMode
+  targetId?: string
+  targetName?: string
+}
