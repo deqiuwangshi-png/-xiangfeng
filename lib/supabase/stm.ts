@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getAuthCookieConfig } from '@/lib/auth/cookieConfig'
+import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
 
 /**
  * 创建带 STM 的 Supabase 客户端

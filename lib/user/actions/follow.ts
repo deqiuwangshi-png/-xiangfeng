@@ -21,9 +21,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/user';
-import { requireAuth } from '@/lib/auth/permissions';
-import { withAuth } from '@/lib/auth/withPermission';
+import { getCurrentUser } from '@/lib/auth/core/user';
+import { requireAuth } from '@/lib/auth/core/permissions';
+import { withAuth } from '@/lib/auth/core/withPermission';
 import { checkFollowUserTask } from '@/lib/rewards/tasks';
 import { FOLLOW_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 

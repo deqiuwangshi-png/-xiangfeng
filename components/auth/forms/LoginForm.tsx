@@ -20,7 +20,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAuth, useAuthToast } from '@/hooks';
-import { sanitizeRedirect } from '@/lib/auth/redir';
+import { sanitizeRedirect } from '@/lib/auth/utils/redir';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
 

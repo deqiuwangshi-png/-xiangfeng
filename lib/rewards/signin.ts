@@ -10,7 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/core/user'
 import { genNonce, verNonce } from '@/lib/security/nonce'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type { SignInResponse, SignInRecord } from '@/types/rewards'

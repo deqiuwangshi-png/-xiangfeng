@@ -15,7 +15,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUserId } from '@/lib/auth/user';
+import { getCurrentUserId } from '@/lib/auth/core/user';
 import type { CommentWithAuthor } from '@/types';
 
 export type { CommentWithAuthor } from '@/types';

@@ -12,7 +12,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUserId } from '@/lib/auth/user';
+import { getCurrentUserId } from '@/lib/auth/core/user';
 import type { ArticleWithAuthor } from '@/types';
 
 export type { ArticleWithAuthor } from '@/types';

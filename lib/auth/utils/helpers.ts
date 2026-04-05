@@ -10,10 +10,10 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser, getCurrentUserId, isAuthenticated } from '@/lib/auth/user';
+import { getCurrentUser, getCurrentUserId, isAuthenticated } from '@/lib/auth/core/user';
 import { validatePassword } from '@/lib/security/passwordPolicy';
 import { REGISTER_MESSAGES, LOGIN_MESSAGES } from '@/lib/messages';
-import type { AuthResult } from './actions/types';
+import type { AuthResult } from '../actions/types';
 import type { User } from '@supabase/supabase-js';
 
 /**

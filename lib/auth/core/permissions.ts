@@ -18,7 +18,7 @@
  */
 
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
-import { getCurrentUser } from '@/lib/auth/user';
+import { getCurrentUser } from '@/lib/auth/core/user';
 import type { User } from '@supabase/supabase-js';
 import type {
   UserRole,

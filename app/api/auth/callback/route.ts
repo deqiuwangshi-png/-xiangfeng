@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { syncIdentitiesToDatabase } from '@/lib/settings/actions/linkedAccounts';
-import { sanitizeRedirect } from '@/lib/auth/redir';
+import { sanitizeRedirect } from '@/lib/auth/utils/redir';
 
 /**
  * GET 请求处理 - OAuth 回调

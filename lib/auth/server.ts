@@ -20,8 +20,8 @@ export {
   getCurrentUser,
   isAuthenticated,
   getCurrentUserWithProfile,
-} from './user';
-export type { UserProfile } from './user';
+} from './core/user';
+export type { UserProfile } from './core/user';
 
 // ==================== Server Actions ====================
 // 服务端可以直接使用这些 Server Actions
