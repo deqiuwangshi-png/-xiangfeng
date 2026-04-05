@@ -163,6 +163,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
                   onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all pr-12"
                   placeholder="请输入新密码"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -189,6 +190,7 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
                   onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
                   className="w-full px-4 py-3 bg-white border border-xf-bg/60 rounded-xl text-xf-dark placeholder-xf-medium focus:outline-none focus:border-xf-accent focus:ring-2 focus:ring-xf-accent/20 transition-all pr-12"
                   placeholder="请再次输入新密码"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

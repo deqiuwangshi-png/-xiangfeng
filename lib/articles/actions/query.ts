@@ -14,7 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/user';
+import { getCurrentUser } from '@/lib/auth/core/user';
 import { isValidUUID, handleQueryError } from '../helpers/utils';
 import type { DraftData } from '@/types/drafts';
 
@@ -324,6 +324,7 @@ export async function getArticleById(id: string) {
       id: data.id,
       title: data.title,
       content: data.content,
+      content_json: data.content_json,
       status: data.status,
       createdAt: data.created_at,
       updatedAt: data.updated_at,

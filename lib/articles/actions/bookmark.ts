@@ -18,8 +18,8 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/permissions';
-import { withAuth } from '@/lib/auth/withPermission';
+import { requireAuth } from '@/lib/auth/core/permissions';
+import { withAuth } from '@/lib/auth/core/withPermission';
 import { checkCollectArticleTask } from '@/lib/rewards/tasks';
 import { isValidUUID } from '../helpers/utils';
 import { ARTICLE_ERROR_MESSAGES, ARTICLE_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';

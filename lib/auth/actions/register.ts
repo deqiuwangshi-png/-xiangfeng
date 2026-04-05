@@ -8,6 +8,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { siteUrl } from '@/lib/seo';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { REGISTER_MESSAGES } from '@/lib/messages';
 import { isAllowedEmail } from '../utils';
@@ -80,7 +81,7 @@ export async function register(formData: FormData): Promise<AuthResult> {
       password,
       options: {
         data: { username },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.xiangfeng.site'}/login`,
+        emailRedirectTo: `${siteUrl}/login`,
       },
     });
 

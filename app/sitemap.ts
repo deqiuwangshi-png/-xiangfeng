@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next'
+import { siteUrl } from '@/lib/seo'
 import { createSitemapClient } from '@/lib/supabase/sitemap-client'
 
 /**
  * 站点地图生成
+ * @description 使用统一SEO配置中的siteUrl
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-  const siteUrl = baseUrl || 'https://www.xiangfeng.site'
 
   // 基础页面
   const staticPages: MetadataRoute.Sitemap = [

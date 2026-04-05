@@ -8,6 +8,7 @@ import { BatchActionsBar } from '../actions/BatchActionsBar'
 import { DeleteConfirmModal } from '../actions/DeleteConfirmModal'
 import type { FilterOption } from '../filter/FilterChips'
 import type { Article } from '@/lib/drafts/draftService'
+import type { DeleteModalState } from '@/types/drafts'
 
 /**
  * DraftsClient Props 接口
@@ -15,16 +16,6 @@ import type { Article } from '@/lib/drafts/draftService'
 interface DraftsClientProps {
   initialArticles: Article[]
   filterOptions: FilterOption[]
-}
-
-/**
- * 删除弹窗状态类型
- */
-interface DeleteModalState {
-  isOpen: boolean
-  mode: 'single' | 'batch' | 'clear'
-  targetId?: string
-  targetName?: string
 }
 
 /**

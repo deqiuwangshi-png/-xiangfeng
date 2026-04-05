@@ -10,7 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/core/user'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import { isValidUUID } from '@/lib/utils/validation'
 import type {

@@ -10,7 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/core/user'
 import { LOGIN_HISTORY_MESSAGES } from '@/lib/messages'
 import type { LoginHistoryItem, GetLoginHistoryResult } from '@/types'
 

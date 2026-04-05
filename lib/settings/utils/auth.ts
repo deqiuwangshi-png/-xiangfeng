@@ -11,7 +11,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/core/user'
 import { LOGIN_MESSAGES } from '@/lib/messages'
 import type { User } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'

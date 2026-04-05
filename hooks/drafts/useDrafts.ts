@@ -272,29 +272,31 @@ export function useDrafts(
           await deleteArticle(ids[0])
 
           if (isMountedRef.current) {
+            // 乐观更新：立即更新本地数据，无需重新验证
             mutateDrafts(remainingDrafts, { revalidate: false })
             setSelectedIds((prev) => {
               const newSet = new Set(prev)
               ids.forEach((id) => newSet.delete(id))
               return newSet
             })
+            // 删除后校准分页状态
+            calibratePage(remainingDrafts)
           }
         } else {
           // 批量删除：使用安全增强版，批量验证所有权
           const result = await batchDeleteArticles(ids)
 
-          // 根据返回的统计信息处理
-          // 失败情况已在下方toast提示中处理
-
-          // 批量删除接口不返回具体ID列表，需要重新获取数据
-          // 使用乐观更新：假设传入的ID都成功删除
+          // 批量删除后，从服务器重新获取数据以确保准确性
           if (isMountedRef.current) {
-            mutateDrafts(remainingDrafts, { revalidate: true })
+            // 乐观更新：先更新本地数据，让用户立即看到效果
+            mutateDrafts(remainingDrafts, { revalidate: false })
             setSelectedIds((prev) => {
               const newSet = new Set(prev)
               ids.forEach((id) => newSet.delete(id))
               return newSet
             })
+            // 删除后校准分页状态
+            calibratePage(remainingDrafts)
           }
 
           // 显示结果提示
@@ -309,9 +311,8 @@ export function useDrafts(
           router.refresh()
         }
 
-        // 删除后校准分页状态，防止页码越界
+        // 显示删除成功提示
         if (isMountedRef.current) {
-          calibratePage(remainingDrafts)
           showDeleteSuccess()
         }
       } catch (error) {

@@ -26,25 +26,30 @@
  */
 
 import { Suspense } from 'react'
-import { ProfileHeader } from '@/components/profile/ProfileHeader'
-import { ProfileTabs } from '@/components/profile/ProfileTabs'
-import { ProfileContent, ProfileContentSkeleton } from '@/components/profile/ProfileContent'
-import { ProfileTabsProvider } from '@/components/profile/ProfileTabsContext'
-import { ProfileTabContent } from '@/components/profile/ProfileTabContent'
-import { ProfileHeaderSkeleton } from '@/components/profile/ProfileHeaderSkeleton'
-import { HeatMap, HeatMapSkeleton } from '@/components/profile/HeatMap'
-import { getCurrentUser } from '@/lib/auth/user'
+import {
+  ProfileHeader,
+  ProfileTabs,
+  ProfileContent,
+  ProfileContentSkeleton,
+  ProfileTabsProvider,
+  ProfileTabContent,
+  ProfileHeaderSkeleton,
+  HeatMap,
+  HeatMapSkeleton,
+} from '@/components/profile'
+import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * 个人资料头部数据获取组件
  * @性能优化 独立获取关键路径数据，优先渲染
+ * @param userId - 用户ID
+ * @param supabase - Supabase 客户端实例（复用，避免重复创建）
  */
-async function ProfileHeaderData({ userId }: { userId: string }) {
-  const supabase = await createClient()
-
+async function ProfileHeaderData({ userId, supabase }: { userId: string; supabase: SupabaseClient }) {
   // 并行获取用户资料和统计数据
   const [profileResult, statsResult] = await Promise.all([
     supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
@@ -95,12 +100,15 @@ export default async function ProfilePage() {
     throw new Error('用户未登录')
   }
 
+  // 创建一次 supabase 客户端供后续复用
+  const supabase = await createClient()
+
   return (
     <main className="flex-1 h-full overflow-y-auto no-scrollbar px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-10 pb-24 relative">
       <div className="max-w-4xl mx-auto fade-in-up">
         {/* 个人资料头部 - 使用 Suspense 优先渲染 */}
         <Suspense fallback={<ProfileHeaderSkeleton />}>
-          <ProfileHeaderData userId={user.id} />
+          <ProfileHeaderData userId={user.id} supabase={supabase} />
         </Suspense>
 
         {/* 标签页状态管理Provider */}

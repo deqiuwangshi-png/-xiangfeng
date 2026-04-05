@@ -1,8 +1,12 @@
 import { Suspense } from 'react'
-import PublishPageClient from '@/components/publish/PublishPageClient'
-import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
-import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import {
+  PublishPageClient,
+  EditorSkeleton,
+} from '@/components/publish'
+import {
+  UnauthenticatedPrompt,
+} from '@/components/auth'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { FileEdit } from 'lucide-react'
 
 /**

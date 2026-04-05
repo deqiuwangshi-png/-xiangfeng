@@ -29,6 +29,7 @@ export { SignCard } from './signin/SignCard'
  * @module components/rewards/tasks
  */
 export { TaskBoard } from './tasks/TaskBoard'
+export { TaskBoardServer } from './tasks/TaskBoardServer'
 export { TasksHeader } from './tasks/TasksHeader'
 export { TasksServerList } from './tasks/TasksServerList'
 export { CategoryNavClient } from './tasks/CategoryNavClient'
@@ -54,6 +55,10 @@ export { MyRw } from './my/MyRw'
 export { RwCenter } from './my/RwCenter'
 export { RwRecord } from './my/RwRecord'
 export { PtRecord } from './my/PtRecord'
+export { MyRewardsHeader } from './my/MyRewardsHeader'
+export { PtRecordServer } from './my/PtRecordServer'
+export { RwRecordServer } from './my/RwRecordServer'
+export { MyRewardsTabNav } from './my/MyRewardsTabNav'
 
 /**
  * 福利中心 Hooks 统一出口

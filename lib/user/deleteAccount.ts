@@ -11,7 +11,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCurrentUser } from '@/lib/auth/user'
+import { getCurrentUser } from '@/lib/auth/core/user'
 import type { DeleteAccountResult } from '@/types'
 
 export type { DeleteAccountResult } from '@/types'

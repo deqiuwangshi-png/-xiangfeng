@@ -12,9 +12,9 @@ import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit, resetServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
 import { LOGIN_MESSAGES, mapSupabaseError } from '@/lib/messages';
-import { sanitizeRedirect } from '../redir';
+import { sanitizeRedirect } from '../utils/redir';
 import { activateAccount } from '@/lib/user/deactivateAccount';
-import { recordLoginHistory } from '@/lib/auth/loginHistory';
+import { recordLoginHistory } from '@/lib/auth/core/loginHistory';
 import type { AuthResult } from './types';
 
 /**

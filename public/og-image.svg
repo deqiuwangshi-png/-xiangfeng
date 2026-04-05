@@ -34,8 +34,8 @@
   </g>
 
   {/* 品牌名称 */}
-  <text x="600" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#ffffff" text-anchor="middle">相逢 Xiangfeng</text>
+  <text x="600" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="bold" fill="#ffffff" text-anchor="middle">相逢</text>
 
   {/* 标语 */}
-  <text x="600" y="490" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#a0a0a0" text-anchor="middle">不止相遇，更是改变</text>
+  <text x="600" y="490" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#a0a0a0" text-anchor="middle">致敬全球思考者</text>
 </svg>

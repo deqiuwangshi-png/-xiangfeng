@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * 动态加载的编辑器组件
+ * 动态加载的编辑器组件 - JSON 版本
  *
  * 使用动态导入避免首屏加载 TipTap 的巨大包体积
  * 仅在需要时加载编辑器代码，显著减少初始 JS 大小
@@ -11,6 +11,7 @@
  * @module DynamicEditor
  */
 
+import { useEffect, useCallback } from 'react'
 import { useEditorState } from '@/hooks/publish/useEditorState'
 import { useEditorActions } from '@/hooks/publish/useEditorActions'
 import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor'
@@ -19,6 +20,8 @@ import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'
 import { SlashMenu } from '../_toolbar/SlashMenu'
+import { SaveStatus } from '../_core/SaveStatus'
+import { toast } from 'sonner'
 
 /**
  * 动态编辑器组件属性
@@ -26,7 +29,7 @@ import { SlashMenu } from '../_toolbar/SlashMenu'
 interface DynamicEditorProps {
   /** 初始标题 */
   initialTitle?: string
-  /** 初始内容 */
+  /** 初始内容 (JSON 字符串) */
   initialContent?: string
   /** 草稿ID（编辑模式） */
   draftId?: string | null
@@ -57,6 +60,7 @@ export default function DynamicEditor({
     updateContent,
     toggleFullscreen,
     setEditorState,
+    markSaved,
   } = useEditorState(initialTitle, initialContent, draftId, isPublished)
 
   // 编辑器操作（保存、发布）
@@ -65,27 +69,116 @@ export default function DynamicEditor({
     publishContent,
     isSaving,
     isPublishing,
-  } = useEditorActions(editorState, setEditorState)
+  } = useEditorActions(editorState, setEditorState, {
+    onSaveSuccess: () => {
+      markSaved()
+    },
+  })
 
   // 接入自动保存功能（内容变化后防抖自动保存）
-  useAutoSave(editorState, saveDraft)
+  const { saveStatus, lastSavedAt, errorMessage, triggerSave, markUserInteracted } = useAutoSave(
+    editorState,
+    saveDraft
+  )
+
+  // 包装 onChange 以标记用户交互
+  const handleContentChange = useCallback((content: string) => {
+    markUserInteracted()
+    updateContent(content)
+  }, [markUserInteracted, updateContent])
+
+  // 包装标题更新以标记用户交互
+  const handleTitleChange = useCallback((title: string) => {
+    markUserInteracted()
+    updateTitle(title)
+  }, [markUserInteracted, updateTitle])
 
   // TipTap 编辑器实例 - 作为内容唯一数据源
   const { editor, isMounted, isUploading, flushPendingContent } = useTipTapEditor({
     content: initialContent,
-    onChange: updateContent,
+    onChange: handleContentChange,
     placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
   })
 
+  /**
+   * 处理保存草稿
+   */
   const handleSaveDraft = async () => {
     flushPendingContent()
-    await saveDraft()
+    try {
+      await saveDraft()
+      markSaved()
+    } catch {
+      // 错误已在 useEditorActions 中处理
+    }
   }
 
+  /**
+   * 处理发布
+   */
   const handlePublish = async () => {
     flushPendingContent()
-    await publishContent()
+    try {
+      await publishContent()
+    } catch {
+      // 错误已在 useEditorActions 中处理
+    }
   }
+
+  /**
+   * 页面关闭前保护 - 防止内容丢失
+   */
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // 如果有未保存的变更，提示用户
+      if (editorState.hasUnsavedChanges && !editorState.isPublished) {
+        // 先尝试 flush 内容
+        flushPendingContent()
+        
+        // 触发保存
+        void triggerSave()
+        
+        // 显示确认提示
+        e.preventDefault()
+        e.returnValue = '您有未保存的更改，确定要离开吗？'
+        return e.returnValue
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [editorState.hasUnsavedChanges, editorState.isPublished, flushPendingContent, triggerSave])
+
+  /**
+   * 键盘快捷键 - Ctrl/Cmd + S 保存
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (!editorState.isPublished) {
+          void handleSaveDraft()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorState.isPublished])
+
+  /**
+   * 显示保存错误提示
+   */
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(`自动保存失败: ${errorMessage}`)
+    }
+  }, [errorMessage])
 
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden">
@@ -96,6 +189,13 @@ export default function DynamicEditor({
         isPublishing={isPublishing}
         isFullscreen={editorState.isFullscreen}
         onToggleFullscreen={toggleFullscreen}
+        saveStatusComponent={
+          <SaveStatus 
+            status={saveStatus} 
+            lastSavedAt={lastSavedAt} 
+            errorMessage={errorMessage}
+          />
+        }
       />
 
       {/* 内容区域容器 - 使用 flex-1 占据剩余空间，overflow-auto 处理滚动 */}
@@ -106,7 +206,7 @@ export default function DynamicEditor({
       }`}>
         <EditorCard
           title={editorState.title}
-          onTitleChange={updateTitle}
+          onTitleChange={handleTitleChange}
           titleLength={editorState.titleLength}
           contentLength={editorState.contentLength}
           editor={editor}

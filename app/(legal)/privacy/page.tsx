@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { Clock, FileText, Shield, AlertCircle } from 'lucide-react'
-import type { Metadata } from 'next'
+import { createLegalMetadata } from '@/lib/seo'
 import '@/styles/privacy.css'
 import Navbar from '@/components/marketing/Navbar'
 
-export const metadata: Metadata = {
-  title: '隐私政策 - 相逢 Xiangfeng',
-  description: '欢迎使用相逢！我们深知个人信息对您的重要性，并庄严承诺保护您的隐私和安全。',
-}
+/**
+ * 隐私政策页面Metadata
+ * @description 使用统一SEO配置
+ */
+export const metadata = createLegalMetadata(
+  '隐私政策',
+  '欢迎使用相逢！我们深知个人信息对您的重要性，并庄严承诺保护您的隐私和安全。'
+)
 
 export default function PrivacyPage() {
   return (

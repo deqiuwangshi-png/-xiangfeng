@@ -1,12 +1,22 @@
 'use server';
 
 /**
- * 文章增删改 Server Actions - 简化版
- * 所有安全校验由 Supabase RLS 处理
+ * 文章增删改 Server Actions - JSON 版本
+ * 支持 content_json 字段存储 TipTap JSON 格式
+ * 同时生成 HTML 用于文章展示
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { generateSummary } from '@/lib/utils/html';
+import { generateSummaryFromJSON } from '@/lib/utils/json';
+import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
+
+/**
+ * TipTap JSON 类型
+ */
+interface TipTapJSON {
+  type: 'doc'
+  content?: unknown[]
+}
 
 /**
  * 生成 URL 友好的 slug
@@ -23,7 +33,37 @@ function generateSlug(title: string): string {
 }
 
 /**
+ * 验证 JSON 内容格式
+ * @param content - 内容字符串
+ * @returns 是否为有效的 TipTap JSON
+ */
+function validateContentJSON(content: string): { valid: boolean; error?: string } {
+  if (!content) {
+    return { valid: false, error: '内容不能为空' };
+  }
+
+  try {
+    const parsed = JSON.parse(content) as TipTapJSON;
+    
+    if (parsed.type !== 'doc') {
+      return { valid: false, error: '内容格式错误：缺少 doc 类型' };
+    }
+
+    return { valid: true };
+  } catch {
+    return { valid: false, error: '内容格式错误：无效的 JSON' };
+  }
+}
+
+/**
  * 创建文章/草稿
+ * @param data - 文章数据
+ * @param data.title - 文章标题，为空时会使用默认标题
+ * @param data.content - 文章内容（JSON 格式）
+ * @param data.status - 文章状态，默认为 'draft'
+ * @returns 创建的文章对象
+ * @throws 未登录时抛出错误
+ * @throws 数据库操作失败时抛出错误
  */
 export async function createArticle(data: {
   title: string;
@@ -32,7 +72,7 @@ export async function createArticle(data: {
 }) {
   try {
     const supabase = await createClient();
-    
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError) {
       console.error('[createArticle] 获取用户信息失败:', authError);
@@ -42,11 +82,27 @@ export async function createArticle(data: {
       throw new Error('未登录');
     }
 
+    // 验证内容 JSON 格式
+    const contentValidation = validateContentJSON(data.content);
+    if (!contentValidation.valid) {
+      throw new Error(contentValidation.error);
+    }
+
+    // 处理空标题：如果标题为空或仅包含空白字符，使用默认标题
+    const normalizedTitle = data.title?.trim() || '无标题';
+
+    // 生成摘要
+    const excerpt = generateSummaryFromJSON(data.content, 100);
+
+    // 生成 HTML 用于展示
+    const contentHtml = generateHTMLFromJSON(data.content);
+
     const insertData = {
-      title: data.title,
-      content: data.content,
-      slug: generateSlug(data.title),
-      excerpt: generateSummary(data.content, 100),
+      title: normalizedTitle,
+      content: contentHtml,  // 存储 HTML 用于展示
+      content_json: JSON.parse(data.content) as TipTapJSON,  // 存储 JSON 用于编辑
+      slug: generateSlug(normalizedTitle),
+      excerpt,
       status: data.status || 'draft',
       author_id: user.id,
       tags: [],
@@ -101,6 +157,12 @@ export async function deleteArticle(id: string) {
 
 /**
  * 更新文章
+ * @param id - 文章ID
+ * @param data - 更新数据
+ * @param data.title - 文章标题，为空时会使用默认标题
+ * @param data.content - 文章内容（JSON 格式）
+ * @returns 更新后的文章对象
+ * @throws 数据库操作失败时抛出错误
  */
 export async function updateArticle(
   id: string,
@@ -109,9 +171,27 @@ export async function updateArticle(
   try {
     const supabase = await createClient();
 
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.content) {
-      updateData.excerpt = generateSummary(data.content, 100);
+    const updateData: Record<string, unknown> = {};
+
+    // 处理标题更新
+    if (data.title !== undefined) {
+      updateData.title = data.title.trim() || '无标题';
+    }
+
+    // 处理内容更新
+    if (data.content !== undefined) {
+      // 验证 JSON 格式
+      const contentValidation = validateContentJSON(data.content);
+      if (!contentValidation.valid) {
+        throw new Error(contentValidation.error);
+      }
+
+      // 生成 HTML 用于展示
+      const contentHtml = generateHTMLFromJSON(data.content);
+
+      updateData.content = contentHtml;  // 存储 HTML 用于展示
+      updateData.content_json = JSON.parse(data.content) as TipTapJSON;  // 存储 JSON 用于编辑
+      updateData.excerpt = generateSummaryFromJSON(data.content, 100);
     }
 
     const { data: article, error } = await supabase

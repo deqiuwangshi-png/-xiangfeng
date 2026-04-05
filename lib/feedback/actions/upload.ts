@@ -1,7 +1,7 @@
 'use server';
 
 import { uploadFileToFeishu } from '@/lib/feishu/api';
-import { requireAuth } from '@/lib/auth/permissions';
+import { requireAuth } from '@/lib/auth/core/permissions';
 import type { UploadedFile } from '@/types/user/feedback';
 
 /**

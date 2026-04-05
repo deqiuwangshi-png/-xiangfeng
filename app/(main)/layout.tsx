@@ -1,6 +1,6 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getCurrentUserWithProfile } from '@/lib/auth/user'
+import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { AuthGuard } from '@/components/auth/guards/AuthGuard'
 import { AuthProvider } from '@/components/providers'
 import '@/styles/app.css'

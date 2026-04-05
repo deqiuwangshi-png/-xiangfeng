@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
-import { BrandSection } from '@/components/auth/ui/BrandSection';
-import { MobileBrandTitle } from '@/components/auth/ui/MobileBrandTitle';
-import { FormCard } from '@/components/auth/ui/FormCard';
-import { LoginForm } from '@/components/auth/forms/LoginForm';
+import {
+  BrandSection,
+  MobileBrandTitle,
+  FormCard,
+  LoginForm,
+} from '@/components/auth';
 
 /**
  * 登录页面 - Server Component

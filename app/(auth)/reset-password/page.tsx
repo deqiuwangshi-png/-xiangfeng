@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
-import { BrandSection } from '@/components/auth/ui/BrandSection';
-import { MobileBrandTitle } from '@/components/auth/ui/MobileBrandTitle';
-import { FormCard } from '@/components/auth/ui/FormCard';
-import { ResetPasswordForm } from '@/components/auth/forms/ResetPasswordForm';
+import {
+  BrandSection,
+  MobileBrandTitle,
+  FormCard,
+  ResetPasswordForm,
+} from '@/components/auth';
 
 /**
  * 重置密码页面 - Server Component

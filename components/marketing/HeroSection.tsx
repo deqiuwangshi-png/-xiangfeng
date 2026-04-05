@@ -4,7 +4,6 @@
  * @description 响应式Hero区域，移动端优化显示
  * @优化说明 改为Server Component，将动画部分分离到客户端组件
  */
-import Link from 'next/link';
 import { ArrowRight, TrendingUp, Users, Bookmark, Sparkles, Brain } from 'lucide-react'
 import { RevealOnScrollClient } from './RevealOnScrollClient'
 
@@ -45,13 +44,14 @@ export default function HeroSection() {
               把碎片化笔记、知识、领域甚至经验，整理成属于你的完整逻辑体系，享受平台带来的长期红利，为深度阅读而生，为思考者而来。
             </p>
 
-            {/* CTA按钮 - LCP关键元素 */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-16 px-4 sm:px-0">
-              <Link href="/login">
-                <button className="px-6 sm:px-8 py-3 sm:py-4 bg-xf-dark hover:bg-xf-accent text-white rounded-xl sm:rounded-2xl font-semibold text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 touch-manipulation">
-                  开启深度思考之旅 <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
-                </button>
-              </Link>
+            {/* 理念文案 */}
+            <div className="mb-10 sm:mb-16 space-y-3">
+              <p className="text-base sm:text-lg text-xf-medium font-medium text-center">
+                我们共享一个星球，也共享同一个时代
+              </p>
+              <p className="text-sm sm:text-base text-xf-medium text-center max-w-xl mx-auto leading-relaxed">
+                深度思考，不是让生活变慢，而是让选择变对。它帮一位农民判断该种什么，帮一位母亲教育孩子，帮一位工程师避免致命错误，帮一位投票者看清真相。
+              </p>
             </div>
           </div>
 
