@@ -3,9 +3,6 @@
 /**
  * 斜杠命令菜单组件
  *
- * 输入 / 时唤起的命令菜单
- * 提供格式化命令的快速入口
- *
  * @module SlashMenu
  */
 
@@ -171,41 +168,56 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   const commands = getCommands()
 
   /**
-   * 显示菜单
-   * 自动检测屏幕边界，避免菜单被遮挡
-   * @修复 使用相对于视口的坐标，确保定位准确
+   * 更新菜单位置
+   * 紧跟光标位置，实时跟随输入
+   * @param forceShow - 是否强制显示菜单（首次唤起时使用）
    */
-  const showMenu = useCallback(() => {
+  const updateMenuPosition = useCallback((forceShow = false) => {
     if (!editor) return
 
     const { from } = editor.state.selection
-    // coordsAtPos 返回相对于视口的坐标
+    // coordsAtPos 返回相对于视口的坐标，紧跟光标位置
     const coords = editor.view.coordsAtPos(from)
+
+    // 获取编辑器容器的位置信息，用于计算边界
+    const editorElement = editor.view.dom as HTMLElement
+    const editorRect = editorElement.getBoundingClientRect()
 
     // 估算菜单高度（基于命令数量）
     const commandCount = getCommands().length
     const estimatedMenuHeight = Math.min(400, 40 + commandCount * 40)
 
-    // 计算视口内的可用空间
+    // 计算视口和编辑器容器内的可用空间
     const viewportHeight = window.innerHeight
-    const spaceBelow = viewportHeight - coords.bottom
-    const spaceAbove = coords.top
+    const spaceBelow = Math.min(viewportHeight - coords.bottom, editorRect.bottom - coords.bottom)
+    const spaceAbove = Math.max(coords.top - editorRect.top, coords.top)
 
     // 如果下方空间不足，菜单向上弹出
     const shouldShowAbove = spaceBelow < estimatedMenuHeight && spaceAbove > estimatedMenuHeight
     setShowAbove(shouldShowAbove)
 
-    // 使用相对于视口的坐标定位菜单
+    // 菜单紧跟光标位置，x坐标与光标对齐，y坐标在光标下方或上方
     setPosition({
       x: coords.left,
       y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
-      containerTop: 0,
-      containerBottom: viewportHeight,
+      containerTop: editorRect.top,
+      containerBottom: Math.min(viewportHeight, editorRect.bottom),
     })
-    setIsVisible(true)
-    setSelectedIndex(0)
-    setQuery('')
+
+    if (forceShow) {
+      setIsVisible(true)
+      setSelectedIndex(0)
+      setQuery('')
+    }
   }, [editor, getCommands])
+
+  /**
+   * 显示菜单
+   * 自动检测屏幕边界，避免菜单被遮挡
+   */
+  const showMenu = useCallback(() => {
+    updateMenuPosition(true)
+  }, [updateMenuPosition])
 
   /**
    * 隐藏菜单
@@ -288,6 +300,8 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
       const match = textBefore.match(/\/(\w*)$/)
       if (match) {
         setQuery(match[1])
+        // 输入过程中实时更新菜单位置，紧跟光标
+        updateMenuPosition(false)
       } else {
         hideMenu()
       }
@@ -302,7 +316,7 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
       editor.off('update', handleUpdate)
       editor.off('selectionUpdate', handleUpdate)
     }
-  }, [editor, isVisible, commands.length, selectedIndex, showMenu, hideMenu, executeCommand])
+  }, [editor, isVisible, commands.length, selectedIndex, showMenu, hideMenu, executeCommand, updateMenuPosition])
 
   // 点击外部隐藏
   useEffect(() => {

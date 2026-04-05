@@ -11,6 +11,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Paragraph from '@tiptap/extension-paragraph'
+import Blockquote from '@tiptap/extension-blockquote'
 
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
@@ -217,6 +218,11 @@ export function useTipTapEditor({
         TextStyle,
         Color.configure({
           types: ['textStyle'],
+        }),
+        Blockquote.configure({
+          HTMLAttributes: {
+            class: 'editor-blockquote',
+          },
         }),
       ],
       content: initialContent,
