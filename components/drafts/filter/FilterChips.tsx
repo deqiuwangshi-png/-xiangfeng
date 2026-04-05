@@ -54,9 +54,6 @@ export function FilterChips({
 
   return (
     <div className="flex flex-wrap items-center gap-2 filter-chips">
-      <div className="text-sm font-medium text-xf-dark mr-2">
-        状态:
-      </div>
       {options.map((option) => (
         <button
           key={option.value}

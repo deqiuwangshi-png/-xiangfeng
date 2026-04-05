@@ -80,6 +80,9 @@ function formatNotification(raw: NotificationRow): NotificationData & { createdA
     user: actorUsername || '未知用户',
     time: formatTime(raw.created_at),
     unread: !raw.is_read,
+    articleId: raw.article_id || undefined,
+    commentId: raw.comment_id || undefined,
+    actorId: raw.actor_id || undefined,
     createdAt: raw.created_at,
   }
 }

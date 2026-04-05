@@ -4,28 +4,16 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArticleCard } from '@/components/app/ArticleCard'
 import { RefreshCw } from '@/components/icons'
-
-/**
- * 文章数据类型
- */
-interface Article {
-  id: string
-  title: string
-  summary: string
-  author: {
-    id: string
-    name: string
-    avatar?: string
-  }
-  publishedAt: string
-  viewsCount: number
-}
+import type { ArticleCardData } from '@/types/article/article'
 
 /**
  * ArticleList组件属性
+ * @interface ArticleListProps
+ * @property {ArticleCardData[]} articles - 文章列表数据
+ * @property {boolean} isAuthenticated - 是否已认证
  */
 interface ArticleListProps {
-  articles: Article[]
+  articles: ArticleCardData[]
   isAuthenticated: boolean
 }
 
