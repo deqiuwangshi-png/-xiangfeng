@@ -163,7 +163,7 @@ export async function deleteUser(targetUserId: string): Promise<ActionResult> {
     }
     
     // 使用 Admin Client 删除用户
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId)
     
     if (error) {

@@ -3,13 +3,20 @@
  * @module stores/auth
  * @description 认证状态管理的统一导出入口
  *
- * 使用方式：
+ * @使用指南
+ * - useAuthStore: 直接访问 Store（高级用法）
+ * - selectUser: 用户数据 Selector
+ * - selectStatus: 状态 Selector
+ * - selectIsAuthenticated: 登录状态 Selector
+ *
+ * @推荐用法
+ * 客户端组件推荐使用 hooks/auth 中的 Hook：
  * ```typescript
- * import { useAuthStore, selectUser, selectStatus } from '@/stores/auth';
- * 
- * // 在组件中使用
- * const { user, isAuthenticated } = useAuthStore(selectUser);
- * const { login, logout } = useAuthStore();
+ * import { useUser, useAuth, useIsAuthenticated } from '@/hooks/auth';
+ *
+ * const { user, profile, username, avatarUrl } = useUser();
+ * const { login, logout } = useAuth();
+ * const isAuthenticated = useIsAuthenticated();
  * ```
  */
 
@@ -17,7 +24,7 @@
 // Store 导出
 // ============================================
 
-export { 
+export {
   useAuthStore,
   selectUser,
   selectStatus,

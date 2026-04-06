@@ -94,7 +94,7 @@ export default function DynamicEditor({
   }, [markUserInteracted, updateTitle])
 
   // TipTap 编辑器实例 - 作为内容唯一数据源
-  const { editor, isMounted, isUploading, flushPendingContent } = useTipTapEditor({
+  const { editor, flushPendingContent } = useTipTapEditor({
     content: initialContent,
     onChange: handleContentChange,
     placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
@@ -210,7 +210,6 @@ export default function DynamicEditor({
           titleLength={editorState.titleLength}
           contentLength={editorState.contentLength}
           editor={editor}
-          isMounted={isMounted}
           isFocusMode={editorState.isFullscreen}
         />
 
@@ -219,16 +218,6 @@ export default function DynamicEditor({
 
         {/* 斜杠命令菜单 - 输入 / 时显示 */}
         <SlashMenu editor={editor} />
-
-        {/* 图片上传中提示 */}
-        {isUploading && (
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-xf-light/50">
-              <div className="w-4 h-4 border-2 border-xf-primary/30 border-t-xf-primary rounded-full animate-spin" />
-              <span className="text-sm text-xf-dark">图片上传中...</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

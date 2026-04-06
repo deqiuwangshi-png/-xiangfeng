@@ -21,7 +21,6 @@ interface EditorCardProps {
   titleLength: number
   contentLength: number
   editor: Editor | null
-  isMounted: boolean
   /** 是否启用专注模式（无边框、全宽） */
   isFocusMode?: boolean
 }
@@ -46,7 +45,6 @@ export function EditorCard({
   titleLength,
   contentLength,
   editor,
-  isMounted,
   isFocusMode = false,
 }: EditorCardProps) {
   return (
@@ -83,15 +81,10 @@ export function EditorCard({
             isFocusMode ? 'pl-0 bg-transparent' : 'pl-3 bg-white rounded-lg'
           }`}
         >
-          {!isMounted ? (
-            // SSR 占位，避免水合错误 - 与装饰线严格对齐
-            <span className="opacity-30 italic">输入 / 唤起命令菜单，或开始书写...</span>
-          ) : (
-            <EditorContent
-              editor={editor}
-              className={`article-content article-content-editor max-w-none outline-none`}
-            />
-          )}
+          <EditorContent
+            editor={editor}
+            className={`article-content article-content-editor max-w-none outline-none`}
+          />
         </div>
       </div>
 

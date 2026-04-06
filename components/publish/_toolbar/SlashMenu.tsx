@@ -10,15 +10,11 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus, Image
+  List, ListOrdered, Minus
 } from '@/components/icons'
-import { selectImageFile, uploadImage } from '@/lib/upload/img'
-import { useEditorToast } from '@/hooks/publish/useEditorToast'
 
 interface SlashMenuProps {
   editor: Editor | null
-  onUploadStart?: () => void
-  onUploadEnd?: () => void
 }
 
 interface CommandItem {
@@ -35,16 +31,13 @@ interface CommandItem {
  * @param props - 组件属性
  * @returns 命令菜单JSX
  */
-export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps) {
+export function SlashMenu({ editor }: SlashMenuProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0, containerTop: 0, containerBottom: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [query, setQuery] = useState('')
   const [showAbove, setShowAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  // 使用统一的 toast 提示 hook
-  const { showImageUploadSuccess, showImageUploadError } = useEditorToast()
 
   /**
    * 获取命令列表
@@ -122,39 +115,6 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
         shortcut: '---',
         action: () => editor.chain().focus().setHorizontalRule().run(),
       },
-      {
-        id: 'image',
-        label: '图片',
-        icon: Image,
-        shortcut: '/img',
-        action: async () => {
-          const file = await selectImageFile()
-          if (!file || !editor) return
-
-          onUploadStart?.()
-          try {
-            const url = await uploadImage(file)
-            console.log('SlashMenu uploaded image URL:', url)
-
-            // 使用 insertContent 插入图片节点，支持自定义属性
-            editor.chain().focus().insertContent({
-              type: 'image',
-              attrs: {
-                src: url,
-                alt: file.name,
-                'data-align': 'center',
-              },
-            }).run()
-
-            showImageUploadSuccess()
-          } catch (error) {
-            showImageUploadError(error instanceof Error ? error : '图片上传失败')
-            console.error('SlashMenu image upload error:', error)
-          } finally {
-            onUploadEnd?.()
-          }
-        },
-      },
     ]
 
     // 根据输入过滤命令
@@ -163,7 +123,7 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.id.toLowerCase().includes(query.toLowerCase())
     )
-  }, [editor, query, onUploadStart, onUploadEnd, showImageUploadSuccess, showImageUploadError])
+  }, [editor, query])
 
   const commands = getCommands()
 
@@ -230,7 +190,7 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   /**
    * 执行命令
    */
-  const executeCommand = useCallback((index: number) => {
+  const executeCommand = useCallback(async (index: number) => {
     const command = commands[index]
     if (command) {
       // 删除 / 字符
@@ -239,7 +199,8 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
         to: editor.state.selection.from,
       }).run()
 
-      command.action()
+      // 等待异步 action 完成（特别是图片上传）
+      await command.action()
       hideMenu()
     }
   }, [commands, editor, hideMenu, query.length])

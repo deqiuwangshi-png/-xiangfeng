@@ -121,7 +121,7 @@ export async function deleteAccount(password: string): Promise<DeleteAccountResu
     }
 
     // 6. 使用 Admin API 彻底删除 Auth 用户（方案 4A）
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
 
     if (deleteError) {

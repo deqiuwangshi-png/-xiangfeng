@@ -1,40 +1,38 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+/**
+ * @fileoverview STM (Session Token Management) 专用 Supabase 客户端
+ * @module lib/supabase/stm
+ * @description STM 场景专用的服务端客户端
+ *
+ * @说明
+ * - 此文件是 server.ts 的别名导出，保持向后兼容
+ * - STM 场景使用标准的服务端客户端即可
+ * - 未来如果需要 STM 特定的配置，可以在此扩展
+ *
+ * @统一认证 2026-04-06
+ * - 复用 server.ts 的实现，避免代码重复
+ * - 保持相同的 Cookie 配置和会话管理逻辑
+ */
+
+import { createClient as createServerClient } from './server'
 
 /**
- * 创建带 STM 的 Supabase 客户端
- * 
+ * 创建 STM 专用的 Supabase 客户端
+ *
+ * @description STM 场景使用标准服务端客户端
  * @returns Supabase 服务端客户端实例
  * @throws {Error} 如果环境变量未配置
+ *
+ * @使用场景
+ * - STM 相关的服务端操作
+ * - 需要会话管理的 Server Actions
  */
 export async function createSTMClient() {
-  const cookieStore = await cookies()
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase environment variables')
-  }
-
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll()
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, {
-              ...options,
-              // SMTP 会话设置
-              ...getAuthCookieConfig(),
-            })
-          )
-        } catch {
-          // 忽略 Server Component 调用错误
-        }
-      },
-    },
-  })
+  // 直接复用 server.ts 的实现
+  return createServerClient()
 }
+
+/**
+ * STM 客户端类型
+ * @description 导出类型供其他模块使用
+ */
+export type STMClient = Awaited<ReturnType<typeof createSTMClient>>

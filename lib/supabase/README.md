@@ -33,7 +33,7 @@ lib/supabase/
 ```bash
 # Supabase 基础配置
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 # 服务端专用（不要暴露到客户端）
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
@@ -44,7 +44,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 | 配置项 | 说明 | 使用场景 |
 |--------|------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL | 所有客户端 |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | 匿名/发布密钥 | 所有客户端 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 匿名/发布密钥 | 所有客户端 |
 | `SUPABASE_SERVICE_ROLE_KEY` | 服务角色密钥 | 仅服务端管理员操作 |
 
 ⚠️ **安全警告**: `SUPABASE_SERVICE_ROLE_KEY` 拥有绕过 RLS 的权限，绝对不能暴露到客户端！
