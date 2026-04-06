@@ -14,8 +14,6 @@ import { getCurrentUser } from '@/lib/auth/core/user'
 import { LOGIN_HISTORY_MESSAGES } from '@/lib/messages'
 import type { LoginHistoryItem, GetLoginHistoryResult } from '@/types'
 
-export type { LoginHistoryItem, GetLoginHistoryResult } from '@/types'
-
 /**
  * 获取用户登录历史
  *

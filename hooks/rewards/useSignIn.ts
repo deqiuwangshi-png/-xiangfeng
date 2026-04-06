@@ -110,16 +110,16 @@ export function useSignIn(): UseSignInReturn {
   // 获取 SWR 配置用于刷新其他缓存
   const { mutate: globalMutate } = useSWRConfig()
 
-  // 使用 SWR 获取签到状态 - 30秒去重，挂载时自动获取
+  // 使用 SWR 获取签到状态 - 5秒去重，挂载时自动获取
   const {
     data: signInStatus,
     isLoading: isStatusLoading,
     isValidating: isStatusValidating,
     mutate: mutateStatus,
   } = useSWR('signin-status', fetchSignInStatus, {
-    dedupingInterval: 30000,
+    dedupingInterval: 5000, // 缩短去重间隔，确保签到后能快速获取最新状态
     keepPreviousData: true,
-    revalidateOnFocus: false,
+    revalidateOnFocus: true, // 聚焦时重新验证，确保状态最新
     revalidateOnReconnect: true,
     revalidateOnMount: true,
   })
@@ -148,25 +148,32 @@ export function useSignIn(): UseSignInReturn {
   const handleSignIn = useCallback(async () => {
     if (signInStatus?.hasSigned || isSigning) return
 
+    // 重置之前的签到结果
+    setSignResult(null)
     setIsSigning(true)
     try {
       const result = await doSignIn()
       setSignResult(result)
 
       if (result.success) {
-        // 乐观更新签到状态缓存
+        // 乐观更新签到状态缓存，并触发重新验证以确保数据一致性
         await mutateStatus(
           {
             hasSigned: true,
             consecutiveDays: result.consecutive_days,
           },
-          false
+          { revalidate: true }
         )
 
         // 刷新积分数据缓存（签到获得积分）
         await globalMutate('user-points-overview', undefined, { revalidate: true })
+
+        // 显示成功提示
+        toast.success(`签到成功！获得 ${result.points_earned} 灵感币`)
       } else {
-        // 签到失败时重新验证状态
+        // 签到失败时显示错误信息
+        toast.error(result.error || '签到失败，请稍后重试')
+        // 重新验证状态
         await mutateStatus()
       }
     } catch {

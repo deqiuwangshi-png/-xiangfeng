@@ -24,10 +24,7 @@ import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
 import { COMMENT_ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
-import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
-import type { Comment } from '@/types';
-
-export type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
+import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult, Comment } from '@/types';
 
 /**
  * 获取文章评论列表（SWR 缓存用）
@@ -254,4 +251,3 @@ export const deleteArticleComment = withAuth(
   }
 );
 
-{/* 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql */}

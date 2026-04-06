@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAuth } from '@/lib/auth/core/permissions';
 import { generateSummaryFromJSON } from '@/lib/utils/json';
 import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
 
@@ -72,15 +73,7 @@ export async function createArticle(data: {
 }) {
   try {
     const supabase = await createClient();
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) {
-      console.error('[createArticle] 获取用户信息失败:', authError);
-      throw new Error('未登录');
-    }
-    if (!user) {
-      throw new Error('未登录');
-    }
+    const user = await requireAuth();
 
     // 验证内容 JSON 格式
     const contentValidation = validateContentJSON(data.content);

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { ArrowLeft, Mail, Shield, CheckCircle } from '@/components/icons'
 import { IconBox, PrimaryButton } from '@/components/ui'
-import { initiateEmailChange, UpdateEmailResult } from '@/lib/user/updateEmail'
+import { initiateEmailChange } from '@/lib/user/updateEmail'
+import type { UpdateEmailResult } from '@/types'
 
 /**
  * 更换邮箱表单组件

@@ -15,8 +15,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserId } from '@/lib/auth/core/user';
 import type { ArticleWithAuthor } from '@/types';
 
-export type { ArticleWithAuthor } from '@/types';
-
 /** 相关文章最大返回数量 */
 const MAX_RELATED_ARTICLES = 20;
 

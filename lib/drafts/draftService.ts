@@ -1,8 +1,6 @@
 import { DraftData, DraftStatus, DraftFilter } from '@/types/drafts'
 import type { Article } from '@/types'
 
-export type { Article } from '@/types'
-
 /**
  * 草稿服务类
  *

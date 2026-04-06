@@ -18,8 +18,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserId } from '@/lib/auth/core/user';
 import type { CommentWithAuthor } from '@/types';
 
-export type { CommentWithAuthor } from '@/types';
-
 /**
  * 获取文章评论列表（安全优化版）
  *

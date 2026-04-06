@@ -7,8 +7,6 @@ import { isAllowedEmail } from '@/lib/auth/utils/helpers'
 import { LOGIN_MESSAGES, REGISTER_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateEmailResult } from '@/types'
 
-export type { UpdateEmailResult } from '@/types'
-
 /**
  * 发起邮箱更换请求
  *

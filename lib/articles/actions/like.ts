@@ -25,8 +25,6 @@ import { checkLikeArticleTask } from '@/lib/rewards/tasks';
 import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
-export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
-
 /**
  * 文章点赞/取消点赞
  *

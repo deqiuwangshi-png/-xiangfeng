@@ -14,8 +14,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentUser } from '@/lib/auth/core/user'
 import type { DeleteAccountResult } from '@/types'
 
-export type { DeleteAccountResult } from '@/types'
-
 /**
  * 硬删除用户账户
  *
