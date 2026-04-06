@@ -88,7 +88,6 @@ export type {
   ReportMdlProps,
   RwMdProps,
   PtRwProps,
-  TabBtnProps,
   ReadingProgressProps,
   CommentCardActionsProps,
 } from './article';

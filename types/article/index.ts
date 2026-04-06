@@ -67,6 +67,5 @@ export type {
   ReportMdlProps,
   RwMdProps,
   PtRwProps,
-  TabBtnProps,
   LoginPromptProps,
 } from './components';
