@@ -48,7 +48,7 @@ docs/*
 .sql文件/
 /sql文件/
 lib/supabase/migrations/*
-
+projects/*  
 
 
 

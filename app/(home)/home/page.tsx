@@ -101,7 +101,6 @@ export default async function HomePage() {
                 登录后可以点赞、评论和发布自己的文章
               </p>
             </div>
-            <SearchBox placeholder="搜索文章..." />
           </div>
         )}
       </div>
