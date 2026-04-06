@@ -72,7 +72,7 @@ export function useDrafts(
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      dedupingInterval: Infinity, // 页面级别缓存，不重复获取
+      // 注意：不设置 dedupingInterval 为 Infinity，以允许乐观更新正常工作
       keepPreviousData: true,
     }
   )
@@ -244,58 +244,51 @@ export function useDrafts(
       if (ids.length === 0) return
 
       setIsLoading(true)
-      try {
-        // 先计算删除后的数据（乐观更新）
-        const remainingDrafts = DraftService.removeDrafts(drafts, new Set(ids))
 
+      // ========== 乐观更新：立即更新 UI，让用户立即看到效果 ==========
+      const remainingDrafts = DraftService.removeDrafts(drafts, new Set(ids))
+      const previousDrafts = [...drafts] // 保存原始数据用于回滚
+
+      // 立即更新本地数据
+      mutateDrafts(remainingDrafts, { revalidate: false })
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev)
+        ids.forEach((id) => newSet.delete(id))
+        return newSet
+      })
+      // 删除后校准分页状态
+      calibratePage(remainingDrafts)
+
+      try {
         if (ids.length === 1) {
           // 单条删除：使用原有方法
           await deleteArticle(ids[0])
 
-          if (isMountedRef.current) {
-            // 乐观更新：立即更新本地数据，无需重新验证
-            mutateDrafts(remainingDrafts, { revalidate: false })
-            setSelectedIds((prev) => {
-              const newSet = new Set(prev)
-              ids.forEach((id) => newSet.delete(id))
-              return newSet
-            })
-            // 删除后校准分页状态
-            calibratePage(remainingDrafts)
+          if (!shouldRefresh) {
+            showDeleteSuccess()
           }
         } else {
           // 批量删除：使用安全增强版，批量验证所有权
           const result = await batchDeleteArticles(ids)
 
-          // 批量删除后，从服务器重新获取数据以确保准确性
-          if (isMountedRef.current) {
-            // 乐观更新：先更新本地数据，让用户立即看到效果
-            mutateDrafts(remainingDrafts, { revalidate: false })
-            setSelectedIds((prev) => {
-              const newSet = new Set(prev)
-              ids.forEach((id) => newSet.delete(id))
-              return newSet
-            })
-            // 删除后校准分页状态
-            calibratePage(remainingDrafts)
-
-            // 显示批量删除结果提示
-            if (result.successCount === ids.length) {
-              showDeleteSuccess({ message: `成功删除 ${result.successCount} 篇草稿` })
-            } else if (result.successCount > 0) {
-              showBatchDeletePartialSuccess(result.successCount, result.failedCount)
-            } else {
-              showDeleteError('删除失败，请检查权限或稍后重试')
-            }
+          // 显示批量删除结果提示
+          if (result.successCount === ids.length) {
+            showDeleteSuccess({ message: `成功删除 ${result.successCount} 篇草稿` })
+          } else if (result.successCount > 0) {
+            // 部分成功：需要重新获取数据以同步实际状态
+            showBatchDeletePartialSuccess(result.successCount, result.failedCount)
+            await mutateDrafts()
+          } else {
+            // 全部失败：回滚到原始数据
+            showDeleteError('删除失败，请检查权限或稍后重试')
+            mutateDrafts(previousDrafts, { revalidate: false })
           }
-        }
-
-        if (!shouldRefresh) {
-          showDeleteSuccess()
         }
       } catch (error) {
         console.error('删除草稿失败:', error)
         showDeleteError(error instanceof Error ? error : undefined)
+        // 出错时回滚到原始数据
+        mutateDrafts(previousDrafts, { revalidate: false })
       } finally {
         setIsLoading(false)
       }
