@@ -214,6 +214,81 @@ export async function getPublishedArticles() {
 }
 
 /**
+ * 搜索已发布的文章
+ * @description 根据关键词搜索标题和摘要，返回匹配的文章列表
+ * @param {string} query - 搜索关键词
+ * @returns {Promise<Array>} 匹配的文章列表
+ *
+ * @业务规则
+ * - 只搜索 published 状态的文章
+ * - 过滤停用用户(is_active=false)的文章
+ * - 匹配标题或摘要中的关键词
+ * - 最多返回 10 条结果
+ *
+ * @安全优化
+ * - 对输入进行清理，防止注入
+ * - 错误处理不暴露数据库细节
+ */
+export async function searchPublishedArticles(query: string) {
+  // 输入验证：清理搜索词
+  const sanitizedQuery = query.trim().replace(/[%_]/g, '');
+  
+  if (!sanitizedQuery || sanitizedQuery.length < 1) {
+    return [];
+  }
+
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select(`
+        id,
+        title,
+        excerpt,
+        status,
+        created_at,
+        updated_at,
+        published_at,
+        author_id,
+        like_count,
+        comment_count,
+        view_count,
+        author:profiles!inner(username, avatar_url, is_active)
+      `)
+      .eq('status', 'published')
+      .eq('author.is_active', true)
+      .or(`title.ilike.%${sanitizedQuery}%,excerpt.ilike.%${sanitizedQuery}%`)
+      .order('published_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      summary: item.excerpt || '',
+      status: item.status,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      publishedAt: item.published_at,
+      author: {
+        id: item.author_id,
+        name: (item.author as { username?: string })?.username || '匿名',
+        avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
+      },
+      likesCount: item.like_count || 0,
+      commentsCount: item.comment_count || 0,
+      viewsCount: item.view_count || 0,
+    }));
+  } catch (err) {
+    return handleQueryError('searchPublishedArticles', err);
+  }
+}
+
+/**
  * 获取公开文章详情（详情页用）
  *
  * @description 只返回已发布状态的文章，用于公开页面展示

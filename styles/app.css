@@ -436,6 +436,9 @@ i[data-lucide],
   top: 50%;
   transform: translateY(-50%);
   color: #9CA3AF;
+  stroke: #9CA3AF;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* 操作按钮悬停效果 */
