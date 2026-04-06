@@ -1,23 +1,28 @@
 'use client'
 
+/**
+ * @fileoverview 自动保存 Hook
+ * @module hooks/publish/useAutoSave
+ * @description 自动保存编辑器内容，带保存状态指示器
+ *
+ * @类型依赖
+ * - 类型定义位于: types/publish/editor.ts
+ * - 导入: SaveStatus, EditorBaseState, UseAutoSaveReturn
+ */
+
 import { useEffect, useCallback, useRef, useState } from 'react'
 import { useAuthStore, selectIsAuthenticated } from '@/stores/auth'
 import { isContentEmpty } from '@/lib/utils/json'
+import type { SaveStatus, EditorBaseState, UseAutoSaveReturn } from '@/types/publish/editor'
 
-/**
- * 保存状态类型
- */
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
-
-interface EditorState {
-  title: string
-  content: string
-  draftId: string | null
-  isPublished: boolean
-}
-
+/** 认证错误重试冷却时间（毫秒） */
 const AUTH_RETRY_COOLDOWN_MS = 30_000
 
+/**
+ * 判断是否为认证相关错误
+ * @param error - 错误对象
+ * @returns 是否为认证错误
+ */
 const isAuthRelatedError = (error: unknown): boolean => {
   const message = error instanceof Error ? error.message : String(error)
   const normalized = message.toLowerCase()
@@ -36,9 +41,9 @@ const isAuthRelatedError = (error: unknown): boolean => {
  * @returns 保存状态和上次保存时间
  */
 export const useAutoSave = (
-  editorState: EditorState,
+  editorState: EditorBaseState,
   saveDraft: (options?: { silent?: boolean }) => Promise<void>
-) => {
+): UseAutoSaveReturn => {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const isInitialized = useAuthStore(state => state.isInitialized)
 

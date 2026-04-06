@@ -1,12 +1,15 @@
 'use client'
 
 /**
- * 草稿管理提示 Hook
- *
- * 统一封装草稿管理相关的 toast 提示，避免重复定义和分散管理
+ * @fileoverview 草稿管理提示 Hook
+ * @module hooks/drafts/useDraftsToast
+ * @description 统一封装草稿管理相关的 toast 提示，避免重复定义和分散管理
  * 支持删除、发布、归档等各类批量操作的提示
  *
- * @module useDraftsToast
+ * @类型依赖
+ * - 类型定义位于: types/drafts.ts
+ * - 导入: ToastOptions, UseDraftsToastReturn
+ *
  * @example
  * ```typescript
  * const { showDeleteSuccess, showBatchPartialSuccess, showNoDraftsToClear } = useDraftsToast()
@@ -16,71 +19,7 @@
 
 import { toast } from 'sonner'
 import { useCallback } from 'react'
-
-/**
- * Toast 提示配置选项
- */
-interface ToastOptions {
-  /** 是否显示 toast，默认为 true */
-  enabled?: boolean
-  /** 自定义消息内容 */
-  message?: string
-}
-
-/**
- * 批量操作结果
- */
-interface BatchResult {
-  successCount: number
-  failedCount: number
-}
-
-/**
- * 草稿管理 Toast Hook 返回值
- */
-interface UseDraftsToastReturn {
-  // ========== 删除操作提示 ==========
-  /** 删除成功 */
-  showDeleteSuccess: (options?: ToastOptions) => void
-  /** 删除失败 */
-  showDeleteError: (error?: Error | string) => void
-  /** 批量删除部分成功 */
-  showBatchDeletePartialSuccess: (successCount: number, failedCount: number) => void
-
-  // ========== 发布操作提示 ==========
-  /** 发布成功 */
-  showPublishSuccess: (options?: ToastOptions) => void
-  /** 发布失败 */
-  showPublishError: (error?: Error | string) => void
-
-  // ========== 归档操作提示 ==========
-  /** 归档成功 */
-  showArchiveSuccess: (options?: ToastOptions) => void
-  /** 归档失败 */
-  showArchiveError: (error?: Error | string) => void
-
-  // ========== 批量操作提示 ==========
-  /** 批量操作全部成功 */
-  showBatchSuccess: (successMessage: string, count?: number) => void
-  /** 批量操作全部失败 */
-  showBatchAllFailed: () => void
-  /** 批量操作部分成功 */
-  showBatchPartialSuccess: (successCount: number, failedCount: number) => void
-
-  // ========== 清空操作提示 ==========
-  /** 没有可清空的草稿 */
-  showNoDraftsToClear: () => void
-
-  // ========== 通用方法 ==========
-  /** 显示成功提示 */
-  success: (message: string) => void
-  /** 显示错误提示 */
-  error: (message: string) => void
-  /** 显示警告提示 */
-  warning: (message: string) => void
-  /** 显示信息提示 */
-  info: (message: string) => void
-}
+import type { ToastOptions, UseDraftsToastReturn } from '@/types/drafts'
 
 /**
  * 草稿管理 Toast 提示 Hook
@@ -277,4 +216,5 @@ export function useDraftsToast(): UseDraftsToastReturn {
   }
 }
 
-export type { ToastOptions, BatchResult, UseDraftsToastReturn }
+// 重新导出类型以便向后兼容
+export type { ToastOptions, UseDraftsToastReturn }

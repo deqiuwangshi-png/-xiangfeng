@@ -1,8 +1,13 @@
 'use client'
 
 /**
- * 编辑器操作 Hook - JSON 版本
- * 支持 JSON 格式内容保存
+ * @fileoverview 编辑器操作 Hook
+ * @module hooks/publish/useEditorActions
+ * @description 支持 JSON 格式内容保存，提供保存草稿和发布文章功能
+ *
+ * @类型依赖
+ * - 类型定义位于: types/publish/editor.ts
+ * - 导入: EditorBaseState, SaveDraftOptions, EditorActionsOptions, ValidationResult, UseEditorActionsReturn
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -10,25 +15,27 @@ import { useRouter } from 'next/navigation'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { toast } from 'sonner'
 import { isContentEmpty, extractTextFromJSON } from '@/lib/utils/json'
-
-interface EditorState {
-  title: string
-  content: string
-  draftId: string | null
-  isPublished: boolean
-}
+import type {
+  EditorBaseState,
+  SaveDraftOptions,
+  EditorActionsOptions,
+  ValidationResult,
+  UseEditorActionsReturn,
+} from '@/types/publish/editor'
 
 /**
  * 编辑器操作 Hook
+ *
+ * @param editorState - 编辑器状态
+ * @param setEditorState - 设置编辑器状态的函数
+ * @param options - 编辑器操作选项
+ * @returns 编辑器操作方法
  */
-export function useEditorActions<T extends EditorState>(
+export function useEditorActions<T extends EditorBaseState>(
   editorState: T,
   setEditorState: React.Dispatch<React.SetStateAction<T>>,
-  options?: {
-    onSaveSuccess?: () => void
-    onPublishSuccess?: (articleId: string) => void
-  }
-) {
+  options?: EditorActionsOptions
+): UseEditorActionsReturn {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
@@ -44,7 +51,7 @@ export function useEditorActions<T extends EditorState>(
    * 验证内容是否可以保存
    * 规则：标题或正文至少一个有实质性内容
    */
-  const validateContent = useCallback((): { valid: boolean; error?: string } => {
+  const validateContent = useCallback((): ValidationResult => {
     const hasTitle = editorState.title.trim().length > 0
     const hasContent = !isContentEmpty(editorState.content)
 
@@ -63,14 +70,11 @@ export function useEditorActions<T extends EditorState>(
 
   /**
    * 保存草稿
-   * @param options - 保存选项
-   * @param options.silent - 是否静默保存（不跳转）
-   * @param options.skipValidation - 是否跳过验证
+   * @param saveOptions - 保存选项
+   * @param saveOptions.silent - 是否静默保存（不跳转）
+   * @param saveOptions.skipValidation - 是否跳过验证
    */
-  const saveDraft = async (saveOptions?: { 
-    silent?: boolean
-    skipValidation?: boolean 
-  }) => {
+  const saveDraft = async (saveOptions?: SaveDraftOptions) => {
     if (saveLockRef.current || isSaving) return
 
     // 验证内容

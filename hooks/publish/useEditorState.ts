@@ -1,35 +1,22 @@
 'use client'
 
+/**
+ * @fileoverview 编辑器状态管理 Hook
+ * @module hooks/publish/useEditorState
+ * @description 管理编辑器的状态，包括标题、内容、保存状态等
+ *
+ * @类型依赖
+ * - 类型定义位于: types/publish/editor.ts
+ * - 导入: EditorState, ValidationResult, FULLSCREEN_STORAGE_KEY
+ */
+
 import { useState, useCallback } from 'react'
 import { extractTextFromJSON, isContentEmpty } from '@/lib/utils/json'
+import type { EditorState, ValidationResult } from '@/types/publish/editor'
+import { FULLSCREEN_STORAGE_KEY } from '@/types/publish/editor'
 
-export interface EditorState {
-  title: string
-  content: string
-  titleLength: number
-  contentLength: number
-  isFullscreen: boolean
-  isToolbarCollapsed: boolean
-  draftId: string | null
-  isSaving: boolean
-  isPublishing: boolean
-  /**
-   * 文章是否已发布
-   * @逻辑说明 true = 已发布文章，不再保存草稿；false = 草稿/未发布，可以保存草稿
-   */
-  isPublished: boolean
-  /**
-   * 最后保存时间
-   */
-  lastSavedAt: Date | null
-  /**
-   * 是否有未保存的变更
-   */
-  hasUnsavedChanges: boolean
-}
-
-/** localStorage Key for fullscreen mode */
-const FULLSCREEN_STORAGE_KEY = 'editor/fullscreen'
+// 重新导出 isContentEmpty 以便向后兼容
+export { isContentEmpty }
 
 /**
  * 获取内容长度（字符数）
@@ -40,12 +27,8 @@ function getContentLength(jsonString: string): number {
   return extractTextFromJSON(jsonString).length
 }
 
-// 重新导出 isContentEmpty 以便向后兼容
-export { isContentEmpty }
-
 /**
  * 从 localStorage 获取专注模式初始状态
- *
  * @returns {boolean} 是否启用专注模式
  */
 const getInitialFullscreen = (): boolean => {
@@ -165,13 +148,13 @@ export const useEditorState = (
    * 验证内容是否可保存
    * @returns 验证结果和错误信息
    */
-  const validateForSave = useCallback((): { valid: boolean; error?: string } => {
+  const validateForSave = useCallback((): ValidationResult => {
     // 标题验证
     const trimmedTitle = editorState.title.trim()
     if (!trimmedTitle) {
       return { valid: false, error: '标题不能为空' }
     }
-    
+
     if (trimmedTitle.length > 100) {
       return { valid: false, error: '标题不能超过100个字符' }
     }
@@ -193,7 +176,7 @@ export const useEditorState = (
    * 验证内容是否可发布
    * 发布时验证更严格
    */
-  const validateForPublish = useCallback((): { valid: boolean; error?: string } => {
+  const validateForPublish = useCallback((): ValidationResult => {
     // 复用保存验证
     const saveValidation = validateForSave()
     if (!saveValidation.valid) {

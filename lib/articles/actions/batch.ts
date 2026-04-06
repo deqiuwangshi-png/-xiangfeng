@@ -91,6 +91,7 @@ async function batchDeleteArticlesMedia(
  * @description 批量删除操作的结果，不包含敏感信息
  */
 interface BatchDeleteResult {
+  successCount: number;
   /** 是否成功 */
   success: boolean;
   /** 成功删除的数量 */

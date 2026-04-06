@@ -1,9 +1,14 @@
 'use client'
 
 /**
- * TipTap 编辑器 Hook - JSON 版本
- * @module useTipTapEditor
- * @description 使用 JSON 格式存储内容
+ * @fileoverview TipTap 编辑器 Hook
+ * @module hooks/publish/useTipTapEditor
+ * @description 使用 JSON 格式存储内容，提供 TipTap 编辑器实例
+ *
+ * @类型依赖
+ * - 类型定义位于: types/publish/editor.ts
+ * - 导入: TipTapJSON, TipTapEditorOptions
+ * - 注意: TipTapJSON 从 lib/utils/json 重新导出
  */
 
 import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
@@ -11,7 +16,6 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Paragraph from '@tiptap/extension-paragraph'
 import Blockquote from '@tiptap/extension-blockquote'
-
 import { TextStyle } from '@tiptap/extension-text-style'
 import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
@@ -19,30 +23,11 @@ import type { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { ParaNodeView } from '@/components/publish/_blocks/ParaNodeView'
-import type { TipTapJSON, TipTapNode } from '@/lib/utils/json'
+import type { TipTapJSON, TipTapEditorOptions } from '@/types/publish/editor'
+import { EMPTY_DOCUMENT } from '@/types/publish/editor'
 
 // 重新导出类型以便向后兼容
-export type { TipTapJSON, TipTapNode }
-
-/**
- * 编辑器选项接口
- */
-interface UseTipTapEditorOptions {
-  /** 初始内容 (JSON 字符串) */
-  content: string
-  /** 内容变化回调 (返回 JSON 字符串) */
-  onChange: (content: string) => void
-  /** 占位符文本 */
-  placeholder?: string
-}
-
-/**
- * 默认空文档
- */
-const EMPTY_DOCUMENT: TipTapJSON = {
-  type: 'doc',
-  content: [{ type: 'paragraph' }],
-}
+export type { TipTapJSON }
 
 /**
  * 解析 JSON 内容
@@ -72,7 +57,7 @@ export function useTipTapEditor({
   content,
   onChange,
   placeholder = '开始书写你的故事...',
-}: UseTipTapEditorOptions) {
+}: TipTapEditorOptions) {
   /**
    * 防抖定时器引用
    * @性能优化 使用防抖避免每次输入都触发状态更新
