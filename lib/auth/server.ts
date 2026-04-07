@@ -57,3 +57,19 @@ export type {
 
 // ==================== 登录历史 ====================
 export { getLoginHistory, recordLoginHistory } from './core/loginHistory';
+
+// ==================== 工具函数 ====================
+export {
+  isAllowedEmail,
+  getAllowedEmailHint,
+  validatePasswordMatch,
+} from './utils/helpers';
+
+// ==================== Cookie 配置 ====================
+export {
+  getAuthCookieConfig,
+  getFeatureCookieConfig,
+} from './utils/cookieConfig';
+
+// ==================== 重定向安全 ====================
+export { sanitizeRedirect } from './utils/redir';

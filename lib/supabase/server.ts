@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import { getAuthCookieConfig } from '@/lib/auth/server'
 
 /**
  * @fileoverview Supabase 服务端客户端

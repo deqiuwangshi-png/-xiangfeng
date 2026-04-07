@@ -1,7 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { sanitizeRedirect } from '@/lib/auth/utils/redir'
-import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import { sanitizeRedirect, getAuthCookieConfig } from '@/lib/auth/server'
 
 /**
  * 认证相关路由列表 - 已登录用户访问时重定向

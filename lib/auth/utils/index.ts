@@ -26,9 +26,4 @@ export {
   isAllowedEmail,
   getAllowedEmailHint,
   validatePasswordMatch,
-  getCurrentUser,
-  getCurrentUserId,
-  isAuthenticated,
-  requireCurrentUser,
-  createAuthClient,
 } from './helpers';
