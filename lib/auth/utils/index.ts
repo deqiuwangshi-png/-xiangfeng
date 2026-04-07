@@ -15,11 +15,6 @@ export {
   getFeatureCookieConfig,
 } from './cookieConfig';
 
-// ==================== Cookie 管理 ====================
-export {
-  CookieManager,
-} from './cookieManager';
-
 // ==================== 重定向工具 ====================
 export {
   sanitizeRedirect,

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
-import { REGISTER_MESSAGES, register } from '@/lib/auth';
+import { REGISTER_MESSAGES, register } from '@/lib/auth/client';
 import { useAuthToast } from './useAuthToast';
 import type { RegisterFormData, RegisterFormErrors, UseRegisterFormReturn } from '@/types';
 

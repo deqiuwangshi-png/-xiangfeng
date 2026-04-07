@@ -18,6 +18,7 @@
 // ==================== 服务端用户获取 ====================
 export {
   getCurrentUser,
+  getCurrentUserId,
   isAuthenticated,
   getCurrentUserWithProfile,
 } from './core/user';
@@ -45,9 +46,14 @@ export {
   mapSupabaseError,
 } from '@/lib/messages';
 
-// ==================== 权限类型 ====================
+// ==================== 权限控制 ====================
+export { requireAuth } from './core/permissions';
+export { withAuth } from './core/withPermission';
 export type {
   UserRole,
   WriteOperation,
   PermissionCheckResult,
 } from '@/types/auth/permissions';
+
+// ==================== 登录历史 ====================
+export { getLoginHistory, recordLoginHistory } from './core/loginHistory';

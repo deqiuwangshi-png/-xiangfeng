@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import { isAllowedEmail } from '@/lib/auth/utils/helpers'
 import { LOGIN_MESSAGES, REGISTER_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateEmailResult } from '@/types'

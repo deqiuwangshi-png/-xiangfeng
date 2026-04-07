@@ -7,7 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
+import { requireAuth } from '@/lib/auth/server';
 import { generateSummaryFromJSON } from '@/lib/utils/json';
 import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
 

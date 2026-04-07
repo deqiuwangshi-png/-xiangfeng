@@ -14,7 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/core/user';
+import { getCurrentUser } from '@/lib/auth/server';
 import { isValidUUID, handleQueryError } from '../helpers/utils';
 import type { DraftData } from '@/types/drafts';
 

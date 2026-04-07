@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuthToast } from '@/hooks/auth/useAuthToast';
-import { forgotPassword } from '@/lib/auth';
+import { forgotPassword } from '@/lib/auth/client';
 
 /**
  * 忘记密码表单组件

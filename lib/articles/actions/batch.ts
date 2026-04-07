@@ -6,7 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
+import { requireAuth } from '@/lib/auth/server';
 import { BatchDeleteSchema } from '../schema';
 import { revalidatePathsAsync } from './utils';
 

@@ -19,8 +19,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
-import { withAuth } from '@/lib/auth/core/withPermission';
+import { requireAuth, withAuth } from '@/lib/auth/server';
 import { checkLikeArticleTask } from '@/lib/rewards/tasks';
 import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';

@@ -10,7 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser, getCurrentUserId, isAuthenticated } from '@/lib/auth/core/user';
+import { getCurrentUser, getCurrentUserId, isAuthenticated } from '@/lib/auth/server';
 import { validatePassword } from '@/lib/security/passwordPolicy';
 import { REGISTER_MESSAGES, LOGIN_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from '../actions/types';

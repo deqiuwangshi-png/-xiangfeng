@@ -16,7 +16,7 @@
 
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import type { UserStats } from '@/types'
 
 /**

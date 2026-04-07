@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthToast } from '@/hooks/auth/useAuthToast';
 import { createClient } from '@/lib/supabase/client';
-import { resetPassword } from '@/lib/auth';
+import { resetPassword } from '@/lib/auth/client';
 import { validatePassword } from '@/lib/security/passwordPolicy';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 

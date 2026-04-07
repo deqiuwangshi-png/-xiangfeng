@@ -1,19 +1,13 @@
 'use client';
-
-/**
- * 反馈页面客户端组件
- * @module components/feedback/FeedbackClient
- * @description 处理反馈页面的客户端交互逻辑
- * @优化说明 从page.tsx提取为独立Client Component，支持页面改为Server Component
- */
-
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import type { FeedbackItem } from '@/types/user/feedback';
+
 import { Loader2 } from '@/components/icons';
 import FeedbackTabs from '@/components/feedback/FeedbackTabs';
 import Toast from '@/components/feedback/modal/Toast';
+
 import { getFeedbacksByTrackingIds } from '@/lib/feedback/actions';
 import { getTrackingIds, addTrackingId } from '@/lib/feedback/storage';
-import type { FeedbackItem } from '@/types/user/feedback';
 
 /* 懒加载标签页组件，减少初始加载时间 */
 const SubmitFeedback = lazy(() => import('@/components/feedback/SubmitFeedback'));

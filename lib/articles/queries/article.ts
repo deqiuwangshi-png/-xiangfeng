@@ -12,7 +12,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUserId } from '@/lib/auth/core/user';
+import { getCurrentUserId } from '@/lib/auth/server';
 import type { ArticleWithAuthor } from '@/types';
 
 /** 相关文章最大返回数量 */

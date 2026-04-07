@@ -11,7 +11,7 @@
  * - 使用 React cache() 确保同一请求内共享用户数据
  */
 
-import { getCurrentUser as getGlobalCurrentUser } from '@/lib/auth/core/user';
+import { getCurrentUser as getGlobalCurrentUser } from '@/lib/auth/server';
 
 /**
  * 获取当前登录用户信息（反馈模块专用格式）

@@ -10,7 +10,7 @@ import { User, Newspaper, MessageSquare, Settings, LogOut, LogIn, UserPlus } fro
 import { useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
-import { useLogout } from '@/lib/auth'
+import { useLogout } from '@/lib/auth/client'
 import type { SimpleUser, DropdownItem } from '@/types'
 
 /**
