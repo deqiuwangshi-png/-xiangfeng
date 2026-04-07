@@ -97,19 +97,6 @@ const getModalConfig = (mode: DeleteMode, count = 0, itemName = '') => {
 
 /**
  * 删除确认弹窗组件
- *
- * @function DeleteConfirmModal
- * @param {DeleteConfirmModalProps} props - 组件属性
- * @returns {JSX.Element | null} 删除确认弹窗组件
- *
- * @description
- * 提供统一的删除确认弹窗，包括：
- * - 居中的警告图标
- * - 动态标题和描述（根据模式变化）
- * - 删除数量高亮显示
- * - 柔和的警告提示
- * - 圆角按钮设计
- * - 点击背景关闭
  */
 export function DeleteConfirmModal({
   isOpen,

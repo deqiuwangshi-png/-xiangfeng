@@ -2,11 +2,6 @@
  * 类型定义统一导出
  * @module types/index
  * @description 统一导出所有类型定义，方便外部引用
- *
- * 使用方式：
- * ```typescript
- * import { AuthResult, Article, DraftData } from '@/types';
- * ```
  */
 
 // ============================================
@@ -100,7 +95,14 @@ export type {
   DraftData,
   DraftFilter,
   DraftAction,
+  ViewMode,
   DraftSelection,
+  DeleteMode,
+  DeleteModalState,
+  ToastOptions,
+  BatchResult,
+  UseDraftsToastReturn,
+  UseDraftsReturn,
 } from './drafts';
 
 // ============================================

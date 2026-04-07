@@ -7,7 +7,7 @@ import { DraftsContent } from './DraftsContent'
 import { BatchActionsBar } from '../actions/BatchActionsBar'
 import { DeleteConfirmModal } from '../actions/DeleteConfirmModal'
 import type { FilterOption } from '../filter/FilterChips'
-import type { Article } from '@/lib/drafts/draftService'
+import type { Article } from '@/types'
 import type { DeleteModalState } from '@/types/drafts'
 
 /**
