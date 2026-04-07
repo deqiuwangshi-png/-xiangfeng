@@ -22,6 +22,10 @@ export { logout } from './actions/logout';
 export { forgotPassword } from './actions/forgot-password';
 export { resetPassword } from './actions/reset-password';
 export { changePassword } from './actions/change-password';
+export { getLoginHistory } from './core/loginHistory';
+
+// ==================== 上传相关 Server Actions ====================
+export { uploadAvatarAction, deleteAvatarAction } from '@/lib/upload/actions';
 
 // ==================== 类型定义 ====================
 export type { AuthResult } from '@/types';

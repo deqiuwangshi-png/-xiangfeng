@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
 import { UserAvt, FormActions } from '@/components/ui'
 import { updateProfile } from '@/lib/user/updateProfile'
-import { uploadAvatar, deleteOldAvatar, AvatarUploadError } from '@/lib/upload/avatar'
+import { uploadAvatarAction, deleteAvatarAction } from '@/lib/auth/client'
 import { containsXss } from '@/lib/security/inputValidator'
 import { toast } from 'sonner'
 import { UserData, UpdateProfileParams } from '@/types/user/settings'
@@ -95,7 +95,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
     try {
       // 如果已有临时头像，先删除（避免堆积）
       if (tempAvatarUrl) {
-        await deleteOldAvatar(tempAvatarUrl)
+        await deleteAvatarAction(tempAvatarUrl)
       }
 
       // 标记原始头像为待删除（如果是第一次上传新头像）
@@ -103,19 +103,22 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
         pendingDeleteUrl.current = originalAvatarUrl.current
       }
 
-      // 上传新头像到Storage（临时）
-      const newAvatarUrl = await uploadAvatar(file, initialData.id)
+      // 上传新头像到Storage（临时）- 使用 Server Action
+      const formData = new FormData()
+      formData.append('file', file)
+      const result = await uploadAvatarAction(formData)
+
+      if (!result.success || !result.url) {
+        throw new Error(result.error || '上传失败')
+      }
 
       // 保存为临时头像，不更新formData.avatar_url
-      setTempAvatarUrl(newAvatarUrl)
+      setTempAvatarUrl(result.url)
 
       toast.success('头像已上传，点击保存后生效', { id: toastId })
     } catch (err) {
-      if (err instanceof AvatarUploadError) {
-        toast.error(err.message, { id: toastId })
-      } else {
-        toast.error('头像上传失败，请稍后重试', { id: toastId })
-      }
+      const message = err instanceof Error ? err.message : '头像上传失败，请稍后重试'
+      toast.error(message, { id: toastId })
     } finally {
       setIsUploading(false)
       // 清空input，允许重复选择同一文件
@@ -132,7 +135,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   const clearAvatar = () => {
     // 如果有临时头像，直接删除
     if (tempAvatarUrl) {
-      deleteOldAvatar(tempAvatarUrl).catch(console.error)
+      deleteAvatarAction(tempAvatarUrl).catch(console.error)
       setTempAvatarUrl(null)
     }
 
@@ -152,7 +155,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   const handleCancel = () => {
     // 如果有临时头像未保存，删除它
     if (tempAvatarUrl) {
-      deleteOldAvatar(tempAvatarUrl).catch(console.error)
+      deleteAvatarAction(tempAvatarUrl).catch(console.error)
     }
 
     // 恢复原始头像显示
@@ -193,7 +196,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
       if (result.success) {
         // 保存成功后，异步删除旧头像（不阻塞用户反馈）
         if (pendingDeleteUrl.current) {
-          deleteOldAvatar(pendingDeleteUrl.current).catch(console.error)
+          deleteAvatarAction(pendingDeleteUrl.current).catch(console.error)
           pendingDeleteUrl.current = null
         }
 
