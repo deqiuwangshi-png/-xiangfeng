@@ -34,7 +34,7 @@ export { resetPassword } from './actions/reset-password';
 export { changePassword } from './actions/change-password';
 
 // ==================== 类型定义 ====================
-export type { AuthResult } from './actions/types';
+export type { AuthResult } from '@/types';
 
 // ==================== 消息常量 ====================
 export {

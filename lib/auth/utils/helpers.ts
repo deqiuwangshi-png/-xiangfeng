@@ -6,7 +6,7 @@
 
 import { validatePassword } from '@/lib/security/passwordPolicy';
 import { REGISTER_MESSAGES } from '@/lib/messages';
-import type { AuthResult } from '../actions/types';
+import type { AuthResult } from '@/types';
 
 /**
  * 允许的邮箱域名白名单

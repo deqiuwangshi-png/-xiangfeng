@@ -14,7 +14,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { LOGOUT_MESSAGES } from '@/lib/messages';
-import type { AuthResult } from './types';
+import type { AuthResult } from '@/types';
 
 /**
  * 退出登录
