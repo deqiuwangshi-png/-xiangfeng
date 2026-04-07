@@ -13,20 +13,6 @@ interface SearchBoxProps {
 
 /**
  * 搜索框组件
- * 
- * @function SearchBox
- * @param {SearchBoxProps} props - 组件属性
- * @returns {JSX.Element} 搜索框组件
- * 
- * @description
- * 提供草稿搜索功能
- * @state
- * - query: 搜索查询字符串
- * - isFocused: 输入框聚焦状态
- * @refs
- * - inputRef: 输入框引用
- * @styles
- * @interactions
  */
 export function SearchBox({
   placeholder = '搜索草稿标题或内容...',
@@ -40,12 +26,6 @@ export function SearchBox({
 
   /**
    * 处理输入变化
-   * 
-   * @function handleInputChange
-   * @param {React.ChangeEvent<HTMLInputElement>} e - 输入事件
-   * @returns {void}
-   * 
-   * @description
    * 更新搜索查询，使用防抖优化性能
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,11 +43,6 @@ export function SearchBox({
 
   /**
    * 处理清空搜索
-   * 
-   * @function handleClearSearch
-   * @returns {void}
-   * 
-   * @description
    * 清空搜索查询并重置搜索结果
    */
   const handleClearSearch = () => {
@@ -78,12 +53,6 @@ export function SearchBox({
 
   /**
    * 处理键盘事件
-   * 
-   * @function handleKeyDown
-   * @param {React.KeyboardEvent<HTMLInputElement>} e - 键盘事件
-   * @returns {void}
-   * 
-   * @description
    * 按Escape键清空搜索
    */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

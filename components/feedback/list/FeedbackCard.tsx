@@ -15,8 +15,6 @@ const statusStyles: Record<FeedbackStatus, string> = {
 
 /**
  * 反馈卡片内容组件 - 服务端组件
- * ✅ 纯展示，服务端渲染
- * ✅ 样式和状态渲染在服务端完成
  */
 function FeedbackCardContent({ item }: { item: FeedbackItem }) {
   return (
@@ -60,11 +58,6 @@ function FeedbackCardContent({ item }: { item: FeedbackItem }) {
 
 /**
  * 反馈卡片组件 - 服务端组件 + 客户端交互
- * ✅ 内容在服务端渲染
- * ✅ 点击交互由客户端组件处理
- *
- * @param item 反馈数据
- * @param onClick 点击回调
  */
 export default function FeedbackCard({ item, onClick }: FeedbackCardProps) {
   return (

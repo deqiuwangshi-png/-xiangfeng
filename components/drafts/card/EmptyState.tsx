@@ -19,8 +19,6 @@ interface EmptyStateProps {
 
 /**
  * 空状态组件
- * @param {EmptyStateProps} props - 组件属性
- * @returns {JSX.Element} 空状态组件
  */
 export function EmptyState({
   title = '暂无文章',

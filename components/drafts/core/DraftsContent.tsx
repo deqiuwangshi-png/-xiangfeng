@@ -1,13 +1,21 @@
 'use client'
 
+
+// 类型导入
+import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
+import type { FilterOption } from '../filter/FilterChips'
+
+// 卡片相关
 import { DraftCard } from '../card/DraftCard'
+import { EmptyState } from '../card/EmptyState'
+
+// 筛选相关
 import { FilterChips } from '../filter/FilterChips'
 import { SearchBox } from '../filter/SearchBox'
 import { SelectAllCheckbox } from '../filter/SelectAllCheckbox'
+
+// 导航相关
 import { Pagination } from '../navigation/Pagination'
-import { EmptyState } from '../card/EmptyState'
-import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
-import type { FilterOption } from '../filter/FilterChips'
 
 /**
  * DraftsContent Props 接口

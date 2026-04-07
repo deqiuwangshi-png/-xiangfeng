@@ -57,8 +57,6 @@ export default function ArtAct({
 
   /**
    * 检查用户是否登录
-   *
-   * @returns {boolean} 是否已登录
    */
   const checkAuth = () => {
     if (!currentUser) {
@@ -70,11 +68,6 @@ export default function ArtAct({
 
   /**
    * 处理点赞（乐观更新）
-   * 1. 先保存当前状态用于回滚
-   * 2. 立即更新UI（乐观更新）
-   * 3. 发送请求
-   * 4. 成功时只同步状态，保持乐观更新的数字（避免触发器延迟问题）
-   * 5. 失败时回滚
    */
   const handleLike = async () => {
     if (!checkAuth()) return;

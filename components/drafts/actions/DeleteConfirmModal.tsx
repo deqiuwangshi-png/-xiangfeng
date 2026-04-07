@@ -108,9 +108,6 @@ export function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   /**
    * 处理背景点击关闭
-   *
-   * @param {React.MouseEvent<HTMLDivElement>} e - 鼠标事件
-   * @returns {void}
    */
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {

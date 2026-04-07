@@ -5,7 +5,6 @@ import { ChevronRight, Loader2 } from '@/components/icons';
 import FeedbackCard from './FeedbackCard';
 import type { FeedbackItem } from '@/types/user/feedback';
 
-{/* 懒加载弹窗组件，减少列表初始渲染负担 */}
 const FeedbackDetailModal = lazy(() => import('../modal/DetailDlg'));
 
 export type { FeedbackItem };

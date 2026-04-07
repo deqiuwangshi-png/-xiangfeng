@@ -11,8 +11,6 @@ interface FeedbackCardActionsProps {
 
 /**
  * 反馈卡片交互组件 - 客户端组件
- * ✅ 处理点击交互
- * ✅ 包裹服务端渲染的内容
  */
 export function FeedbackCardActions({ item, onClick, children }: FeedbackCardActionsProps) {
   return (

@@ -31,11 +31,6 @@ export function Pagination({
 }: PaginationProps) {
   /**
    * 生成页码数组
-   * 
-   * @function generatePageNumbers
-   * @returns {Array<number | string>} 页码数组（包含数字和省略号）
-   * 
-   * @description
    * 根据当前页和总页数生成页码数组
    * 包含省略号以减少显示的页码数量
    */
@@ -76,11 +71,6 @@ export function Pagination({
 
   /**
    * 处理上一页
-   * 
-   * @function handlePrevious
-   * @returns {void}
-   * 
-   * @description
    * 跳转到上一页
    */
   const handlePrevious = () => {
@@ -91,11 +81,6 @@ export function Pagination({
 
   /**
    * 处理下一页
-   * 
-   * @function handleNext
-   * @returns {void}
-   * 
-   * @description
    * 跳转到下一页
    */
   const handleNext = () => {
@@ -106,12 +91,6 @@ export function Pagination({
 
   /**
    * 处理页码点击
-   * 
-   * @function handlePageClick
-   * @param {number} page - 页码
-   * @returns {void}
-   * 
-   * @description
    * 跳转到指定页码
    */
   const handlePageClick = (page: number) => {
