@@ -2,9 +2,6 @@
 
 /**
  * 标题输入组件
- * @param {string} value - 标题值
- * @param {(value: string) => void} onChange - 值变化处理函数
- * @returns {JSX.Element} 标题输入组件
  * 依赖:
  *   - react (React组件)
  * 更新时间: 2026-02-19

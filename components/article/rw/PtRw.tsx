@@ -15,8 +15,6 @@ import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 积分打赏面板
- * @param {PtRwProps} props - 组件属性
- * @returns {JSX.Element} 积分打赏面板
  */
 export function PtRw({ articleId, authorId, onSuccess }: PtRwProps) {
   const pointsOptions = [10, 50, 100, 500]
