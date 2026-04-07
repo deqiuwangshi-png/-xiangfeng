@@ -5,12 +5,18 @@
  */
 
 import { cache } from 'react'
-import { getShopItems as originalGetShopItems } from '@/lib/rewards/shop'
-import { getUserPointsOverview as originalGetUserPointsOverview } from '@/lib/rewards/points'
-import { getUserTaskProgress as originalGetUserTaskProgress } from '@/lib/rewards/tasks'
-import type { ShopItem, ShopItemCategory } from '@/types/rewards'
-import type { UserPointsOverview } from '@/types/rewards'
-import type { TaskProgressResponse, TaskCategory } from '@/types/rewards'
+import {
+  getShopItems as originalGetShopItems,
+  getUserPointsOverview as originalGetUserPointsOverview,
+  getUserTaskProgress as originalGetUserTaskProgress,
+} from '@/lib/rewards'
+import type {
+  ShopItem,
+  ShopItemCategory,
+  UserPointsOverview,
+  TaskProgressResponse,
+  TaskCategory,
+} from '@/types'
 
 /**
  * 缓存的商品列表获取

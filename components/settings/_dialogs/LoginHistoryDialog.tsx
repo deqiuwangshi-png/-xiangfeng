@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X } from '@/components/icons'
 import { Monitor, Smartphone, Tablet } from 'lucide-react'
 import { getLoginHistory } from '@/lib/auth/server'
+import { formatDateTime } from '@/lib/utils/date'
 import type { LoginHistoryItem } from '@/types'
 
 /**
@@ -15,22 +16,6 @@ interface LoginHistoryDialogProps {
   isOpen: boolean
   /** 关闭回调 */
   onClose: () => void
-}
-
-/**
- * 格式化日期
- * @param dateString - ISO日期字符串
- * @returns 格式化后的日期
- */
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 /**
@@ -135,7 +120,7 @@ export function LoginHistoryDialog({ isOpen, onClose }: LoginHistoryDialogProps)
                         {item.os || '未知系统'} · {item.ip_address || '未知IP'}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        {formatDate(item.created_at)}
+                        {formatDateTime(item.created_at)}
                       </p>
                     </div>
                   </div>

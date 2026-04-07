@@ -11,6 +11,7 @@
 import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { HeatMapData } from '@/lib/thoughts/queries'
+import { formatDateShort } from '@/lib/utils/date'
 
 /**
  * 热力图视图组件Props
@@ -49,15 +50,7 @@ function getColorLevel(count: number): string {
   return DEPTH_COLORS[Math.min(count, 5)] || DEPTH_COLORS[0]
 }
 
-/**
- * 格式化日期为中文
- * @param {string} dateStr - 日期字符串
- * @returns {string} 格式化后的日期
- */
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return `${date.getMonth() + 1}月${date.getDate()}日`
-}
+
 
 /**
  * 获取月份标签
@@ -236,10 +229,10 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
                   )} transition-all duration-300 hover:scale-125 hover:shadow-sm cursor-pointer`}
                   title={
                     day.count > 0
-                      ? `${formatDate(day.date)} · ${DEPTH_LABELS[day.count]}思${
+                      ? `${formatDateShort(day.date)} · ${DEPTH_LABELS[day.count]}思${
                           day.domain ? ` · ${day.domain}` : ''
                         }${day.insight ? `\n${day.insight}` : ''}`
-                      : formatDate(day.date)
+                      : formatDateShort(day.date)
                   }
                 />
               ))}

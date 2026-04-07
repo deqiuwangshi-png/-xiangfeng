@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { searchPublishedArticles } from '@/lib/articles/actions/query'
+import { formatDateShort } from '@/lib/utils/date'
 
 /**
  * 搜索结果项类型
@@ -177,18 +178,7 @@ export function SearchBox({
     setValue('')
   }
 
-  /**
-   * 格式化日期
-   * @param dateString - ISO日期字符串
-   * @returns 格式化后的日期
-   */
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('zh-CN', {
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+
 
   return (
     <div 
@@ -295,7 +285,7 @@ export function SearchBox({
                 </p>
                 <div className="flex items-center justify-between text-xs text-gray-400">
                   <span>{result.author.name}</span>
-                  <span>{formatDate(result.publishedAt)}</span>
+                  <span>{formatDateShort(result.publishedAt)}</span>
                 </div>
               </Link>
             ))}

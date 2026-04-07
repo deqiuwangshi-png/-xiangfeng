@@ -1,6 +1,7 @@
 import { Gift, Calendar } from '@/components/icons'
 import { getExchangeRecords } from '@/lib/rewards/shop'
-import type { ExchangeRecordWithItem, ExchangeStatus } from '@/types/rewards'
+import { formatDateISO } from '@/lib/utils/date'
+import type { ExchangeStatus } from '@/types/rewards'
 
 /**
  * 兑换记录服务端组件
@@ -34,14 +35,7 @@ interface RwRecordServerProps {
   pageSize?: number
 }
 
-/**
- * 格式化日期
- * @param {string} dateStr - 日期字符串
- * @returns {string} 格式化后的日期
- */
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toISOString().split('T')[0]
-}
+
 
 /**
  * 兑换记录服务端组件
@@ -103,7 +97,7 @@ export async function RwRecordServer({
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <Calendar className="w-3 h-3 text-xf-medium" />
-                <span className="text-xs text-xf-medium">{formatDate(record.created_at)}</span>
+                <span className="text-xs text-xf-medium">{formatDateISO(record.created_at)}</span>
               </div>
             </div>
 
