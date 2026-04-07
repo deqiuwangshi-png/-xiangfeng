@@ -1,10 +1,12 @@
 'use client'
 
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { DangerZone } from '../_danger/DangerZone'
-import { DeactivateAccountCard } from '../_danger/DeactivateAccountCard'
-import { DeleteAccountCard } from '../_danger/DeleteAccountCard'
+import {
+  SettingsSection,
+  SettingItem,
+  DangerZone,
+  DeactivateAccountCard,
+  DeleteAccountCard,
+} from '@/components/settings'
 
 /**
  * 高级设置区块（Client Component）

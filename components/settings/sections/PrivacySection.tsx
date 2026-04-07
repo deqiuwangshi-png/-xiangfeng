@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { LoginHistoryDialog } from '../_dialogs/LoginHistoryDialog'
+import { toast } from 'sonner'
+import {
+  SettingsSection,
+  SettingItem,
+  LoginHistoryDialog,
+  useSettings,
+} from '@/components/settings'
 import { PRIVACY_VISIBILITY_OPTIONS } from '@/types/user/settings'
 import { updatePrivacySettings } from '@/lib/settings/actions/privacy'
-import { useSettings } from '../_layout/SettingsLayout'
-import { toast } from 'sonner'
 
 /**
  * 隐私与安全设置区块（Client Component）

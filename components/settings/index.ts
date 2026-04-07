@@ -5,7 +5,7 @@
  */
 
 // Layout - 布局组件
-export { SettingsLayout } from './_layout/SettingsLayout'
+export { SettingsLayout, useSettings } from './_layout/SettingsLayout'
 export { SettingsSection } from './_layout/SettingsSection'
 export { SettingItem } from './_layout/SettingItem'
 export { SettingsNav } from './_layout/SettingsNav'

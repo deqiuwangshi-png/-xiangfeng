@@ -1,13 +1,15 @@
 'use client'
 
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { ColorPreview } from '../_ui/ColorPreview'
 import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
+import {
+  SettingsSection,
+  SettingItem,
+  ColorPreview,
+  useSettings,
+} from '@/components/settings'
 import { PRESET_THEME_BACKGROUNDS, THEME_MODES } from '@/types/user/settings'
 import { updateAppearanceSettings } from '@/lib/settings/actions/appearance'
-import { useSettings } from '../_layout/SettingsLayout'
-import { toast } from 'sonner'
 
 /**
  * 外观与主题设置区块（Client Component）

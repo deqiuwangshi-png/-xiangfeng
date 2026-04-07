@@ -7,7 +7,7 @@
  */
 
 import { useState, useCallback } from 'react'
-import { SettingItem } from '../_layout/SettingItem'
+import { SettingItem } from '@/components/settings'
 import { updateContentLanguage } from '@/lib/settings/actions/content'
 import { SUPPORTED_LANGUAGES } from '@/types/user/settings'
 

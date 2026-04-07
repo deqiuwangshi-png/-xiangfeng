@@ -7,8 +7,8 @@
  */
 
 import { lazy, Suspense } from 'react'
+import { AccountList } from '@/components/settings'
 import { useAccountView } from './useAccountView'
-import { AccountList } from './AccountList'
 import { UserData } from '@/types/user/settings'
 
 {/* 表单组件懒加载 - 减少首屏 JS 体积 */}

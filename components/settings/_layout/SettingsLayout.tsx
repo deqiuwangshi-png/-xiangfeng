@@ -2,13 +2,15 @@
 
 import { createContext, useContext, Suspense, useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import { SettingsNav } from './SettingsNav'
-import { AccountSection } from '../account/AccountSection'
-import { PrivacySection } from '../sections/PrivacySection'
-import { NotificationsSection } from '../sections/NotificationsSection'
-import { AppearanceSection } from '../sections/AppearanceSection'
-import { ContentSection } from '../content/ContentSection'
-import { AdvancedSection } from '../sections/AdvancedSection'
+import {
+  SettingsNav,
+  AccountSection,
+  PrivacySection,
+  NotificationsSection,
+  AppearanceSection,
+  ContentSection,
+  AdvancedSection,
+} from '@/components/settings'
 import { UserData, UserSettings } from '@/types/user/settings'
 
 /**

@@ -7,9 +7,11 @@
  */
 
 import { useState } from 'react'
-import { SettingsSection } from '../_layout/SettingsSection'
-import { ContentLanguage } from './ContentLanguage'
-import { useSettings } from '../_layout/SettingsLayout'
+import {
+  SettingsSection,
+  ContentLanguage,
+  useSettings,
+} from '@/components/settings'
 
 /**
  * 内容偏好设置区块

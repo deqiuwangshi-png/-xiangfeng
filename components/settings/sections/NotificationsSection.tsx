@@ -1,12 +1,14 @@
 'use client'
 
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { ToggleSwitch } from '../_ui/ToggleSwitch'
-import { updateNotificationSettings } from '@/lib/settings/actions/notifications'
-import { useSettings } from '../_layout/SettingsLayout'
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import {
+  SettingsSection,
+  SettingItem,
+  ToggleSwitch,
+  useSettings,
+} from '@/components/settings'
+import { updateNotificationSettings } from '@/lib/settings/actions/notifications'
 
 /**
  * 通知设置项配置
