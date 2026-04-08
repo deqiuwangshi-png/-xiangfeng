@@ -11,7 +11,7 @@
 
 import { useRef } from 'react'
 import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
-import { UserAvt, FormActions } from '@/components/ui'
+import { UserAvt } from '@/components/ui'
 import { useProfileForm } from '@/hooks/settings/useProfileForm'
 import { UserData } from '@/types/user/settings'
 

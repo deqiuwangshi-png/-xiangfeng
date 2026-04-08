@@ -10,17 +10,6 @@
  * - 统一的错误处理和提示
  * - 防止重复提交
  * - 完整的 TypeScript 类型支持
- *
- * @使用示例
- * ```typescript
- * const { mutate, isMutating } = useOptimisticMutation({
- *   cacheKey: CACHE_KEYS.ARTICLE.DRAFTS,
- *   mutationFn: deleteDraft,
- *   optimisticUpdater: (drafts, id) => drafts?.filter(d => d.id !== id),
- *   successMessage: '删除成功',
- *   relatedKeys: [CACHE_KEYS.USER.POINTS_OVERVIEW],
- * })
- * ```
  */
 
 'use client'
