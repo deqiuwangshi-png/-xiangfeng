@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvt } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
-import type { SimpleUser, SimpleUserProfile } from '@/types'
+import type { SimpleUser, SimpleUserProfile, UserProfile } from '@/types'
 
 /**
  * 用户资料区域组件属性接口
@@ -20,8 +20,8 @@ import type { SimpleUser, SimpleUserProfile } from '@/types'
 interface UserProfileSectionProps {
   /** 当前用户（支持SupabaseUser或简化用户对象） */
   user?: SupabaseUser | SimpleUser | null
-  /** 用户资料（从profiles表获取，优先级高于user.user_metadata） */
-  profile?: SimpleUserProfile | null
+  /** 用户资料（支持SimpleUserProfile或完整UserProfile） */
+  profile?: SimpleUserProfile | UserProfile | null
   /** 额外的CSS类名 */
   className?: string
 }

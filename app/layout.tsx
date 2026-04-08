@@ -6,21 +6,14 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { defaultMetadata } from "@/lib/seo";
 import "./globals.css";
 
-/**
- * 视口配置
- * @description 移动端适配配置
- */
+const isDev = process.env.NODE_ENV === "development";
+
 export const viewport: Viewport = {
   themeColor: '#3A3C6E',
   width: 'device-width',
   initialScale: 1,
 };
 
-/**
- * 全局Metadata配置
- * @description 使用统一SEO配置，避免重复定义
- * @see @/lib/seo/config.ts
- */
 export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
@@ -35,8 +28,8 @@ export default function RootLayout({
           {children}
           <ToastProvider />
         </SWRProvider>
-        <Analytics />
-        <SpeedInsights />
+        {!isDev && <Analytics />}
+        {!isDev && <SpeedInsights />}
       </body>
     </html>
   );

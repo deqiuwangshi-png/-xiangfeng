@@ -7,7 +7,6 @@
  * - useAuthStore: 直接访问 Store（高级用法）
  * - selectUser: 用户数据 Selector
  * - selectStatus: 状态 Selector
- * - selectIsAuthenticated: 登录状态 Selector
  *
  * @推荐用法
  * 客户端组件推荐使用 hooks/auth 中的 Hook：
@@ -28,8 +27,6 @@ export {
   useAuthStore,
   selectUser,
   selectStatus,
-  selectUserId,
-  selectIsAuthenticated,
 } from './authStore'
 
 // ============================================

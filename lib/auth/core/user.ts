@@ -12,17 +12,13 @@
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { User } from '@supabase/supabase-js'
+import type { UserProfile } from '@/types/user/user'
 
 /**
- * 用户资料接口
- * @interface UserProfile
+ * 重新导出 UserProfile 类型
+ * @description 统一从 types/user/user.ts 导入，避免重复定义
  */
-export interface UserProfile {
-  id: string
-  email: string
-  username: string
-  avatar_url: string
-}
+export type { UserProfile }
 
 /**
  * 判断是否为匿名用户访问的正常错误

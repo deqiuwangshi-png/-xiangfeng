@@ -6,9 +6,14 @@
  * @description 应用主导航侧边栏，只负责导航和布局
  *
  * @优化说明
- * - 使用全局认证状态管理（Zustand）
- * - 从 Store 获取用户信息，无需 props 传递
+ * - 接收用户数据通过 props，避免 hydration 不匹配
  * - 支持服务端状态水合
+ * - 使用全局认证状态管理（Zustand）作为备选
+ *
+ * @关键修复 2026-04-08
+ * - 添加 user 和 profile props，从父组件接收初始状态
+ * - 避免直接从 store 读取导致的 hydration 问题
+ * - 确保首次渲染时显示正确的用户头像
  */
 
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
@@ -17,6 +22,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UserProfileSection } from '@/components/user'
 import { useInboxCache, useAuthUser } from '@/hooks'
+import type { SimpleUser, UserProfile } from '@/types/user/user'
 
 /**
  * 导航项接口
@@ -53,8 +59,20 @@ const navItems: NavItem[] = [
 const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
 
 /**
+ * 侧边栏组件 Props 接口
+ * @interface SidebarProps
+ */
+interface SidebarProps {
+  /** 当前用户（从父组件传入，避免 hydration 不匹配） */
+  user?: SimpleUser | null
+  /** 用户资料（从父组件传入） */
+  profile?: UserProfile | null
+}
+
+/**
  * 侧边栏组件
  * @function Sidebar
+ * @param {SidebarProps} props - 组件属性
  * @returns {JSX.Element} 侧边栏组件
  *
  * @description
@@ -65,19 +83,28 @@ const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
  * - 路由预加载优化
  *
  * @优化说明
- * - 使用 useAuthUser Hook 从全局 Store 获取用户信息
- * - 无需通过 props 传递用户数据
+ * - 优先使用 props 传入的用户数据（避免 hydration 不匹配）
+ * - 如果 props 未提供，从全局 Store 获取（客户端状态变化时）
  * - 自动响应登录/登出状态变化
  *
+ * @关键修复 2026-04-08
+ * - 添加 user 和 profile props 支持
+ * - 优先使用 props 数据，确保首次渲染正确
+ * - 避免 hydration 期间显示访客头像
+ *
  * @example
- * <Sidebar />
+ * <Sidebar user={user} profile={profile} />
  */
-export function Sidebar() {
+export function Sidebar({ user: propUser, profile: propProfile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
-  {/* 从全局 Store 获取用户信息 */}
-  const { user, profile } = useAuthUser()
+  {/* 从全局 Store 获取用户信息（用于客户端状态更新） */}
+  const { user: storeUser, profile: storeProfile } = useAuthUser()
+
+  {/* 优先使用 props 传入的数据，避免 hydration 不匹配 */}
+  const user = propUser ?? storeUser
+  const profile = propProfile ?? storeProfile
 
   {/* 使用客户端缓存获取未读消息数量 */}
   const { unreadCount } = useInboxCache(user?.id || '')

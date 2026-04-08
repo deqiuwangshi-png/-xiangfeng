@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useCallback, useRef, useState } from 'react'
-import { useAuthStore, selectIsAuthenticated } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { isContentEmpty } from '@/lib/utils/json'
 import type { SaveStatus, EditorBaseState, UseAutoSaveReturn } from '@/types/publish/editor'
 
@@ -44,7 +44,7 @@ export const useAutoSave = (
   editorState: EditorBaseState,
   saveDraft: (options?: { silent?: boolean }) => Promise<void>
 ): UseAutoSaveReturn => {
-  const isAuthenticated = useAuthStore(selectIsAuthenticated)
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const isInitialized = useAuthStore(state => state.isInitialized)
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')

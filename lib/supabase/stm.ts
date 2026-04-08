@@ -11,6 +11,7 @@
  * @统一认证 2026-04-06
  * - 复用 server.ts 的实现，避免代码重复
  * - 保持相同的 Cookie 配置和会话管理逻辑
+ * @deprecated 直接使用 createClient from '@/lib/supabase/server' 即可
  */
 
 import { createClient as createServerClient } from './server'
@@ -25,6 +26,7 @@ import { createClient as createServerClient } from './server'
  * @使用场景
  * - STM 相关的服务端操作
  * - 需要会话管理的 Server Actions
+ * @deprecated 请直接使用 createClient from '@/lib/supabase/server'
  */
 export async function createSTMClient() {
   // 直接复用 server.ts 的实现
@@ -34,5 +36,6 @@ export async function createSTMClient() {
 /**
  * STM 客户端类型
  * @description 导出类型供其他模块使用
+ * @deprecated 请使用 SupabaseServerClient from '@/lib/supabase/server'
  */
 export type STMClient = Awaited<ReturnType<typeof createSTMClient>>

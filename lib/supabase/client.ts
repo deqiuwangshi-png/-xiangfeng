@@ -7,13 +7,14 @@
  *
  * @架构说明
  * - 单例模式，确保全局只有一个客户端实例
- * - 自动从 Cookie 读取会话
+ * - 自动从 Cookie 读取会话（由 @supabase/ssr 内部处理）
  * - 与 AuthProvider 配合实现状态同步
  *
  * @统一认证 2026-04-06
  * - 客户端通过此客户端监听 onAuthStateChange
  * - 服务端状态通过 AuthProvider 水合
  * - 中间件统一刷新会话并写入 Cookie
+ * - 客户端不直接操作 Cookie，由 @supabase/ssr 自动处理
  */
 
 import { createBrowserClient } from '@supabase/ssr'
@@ -75,41 +76,12 @@ export function createClient(): SupabaseClient {
     )
   }
 
-  // 创建新实例
-  supabaseInstance = createBrowserClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      /**
-       * 获取所有 Cookie
-       * @description 从 document.cookie 读取所有 Cookie
-       */
-      getAll() {
-        return document.cookie.split(';').map((cookie) => {
-          const [name, ...rest] = cookie.trim().split('=')
-          return { name, value: rest.join('=') }
-        })
-      },
-      /**
-       * 设置所有 Cookie
-       * @description 将 Cookie 写入浏览器
-       */
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          let cookieString = `${name}=${value}`
-
-          if (options) {
-            if (options.path) cookieString += `; Path=${options.path}`
-            if (options.maxAge) cookieString += `; Max-Age=${options.maxAge}`
-            if (options.domain) cookieString += `; Domain=${options.domain}`
-            if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`
-            if (options.secure) cookieString += '; Secure'
-            if (options.httpOnly) cookieString += '; HttpOnly'
-          }
-
-          document.cookie = cookieString
-        })
-      },
-    },
-  })
+  /**
+   * 创建浏览器客户端
+   * @注意 @supabase/ssr 会自动处理 Cookie 读写，无需自定义配置
+   * Cookie 的 HttpOnly/Secure 属性由中间件统一设置
+   */
+  supabaseInstance = createBrowserClient(supabaseUrl, supabaseKey)
 
   return supabaseInstance
 }

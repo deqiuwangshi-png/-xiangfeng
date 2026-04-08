@@ -12,7 +12,9 @@
 // ==================== Cookie 配置 ====================
 export {
   getAuthCookieConfig,
+  getDevAuthCookieConfig,
   getFeatureCookieConfig,
+  getCurrentAuthCookieConfig,
 } from './cookieConfig';
 
 // ==================== 重定向工具 ====================

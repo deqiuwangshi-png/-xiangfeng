@@ -13,17 +13,22 @@
  * - 拦截浏览器返回按钮，防止未登录用户回到认证页面
  *
  * @优化说明
- * - Sidebar 组件从全局 Store 获取用户信息
- * - 无需通过 props 传递用户数据
+ * - 使用 useAuthUser Hook 获取用户信息
+ * - Sidebar 组件通过 props 接收用户数据，避免 hydration 不匹配
  * - 自动响应登录/登出状态变化
  * - 监听 popstate 事件，拦截浏览器返回操作
+ *
+ * @关键修复 2026-04-08
+ * - 从 useIsAuthenticated 改为 useAuthUser，获取完整用户信息
+ * - 将 user 和 profile 通过 props 传递给 Sidebar
+ * - 避免 Sidebar 直接从 store 读取导致的 hydration 问题
  */
 
 import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
-import { useIsAuthenticated } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuth';
 
 /**
  * 认证守卫组件属性
@@ -41,14 +46,14 @@ interface AuthGuardProps {
  * @returns {JSX.Element} 根据认证状态渲染的布局
  *
  * @优化说明
- * - 使用 useUserId Hook 获取用户 ID
- * - Sidebar 组件内部从全局 Store 获取完整用户信息
+ * - 使用 useAuthUser Hook 获取完整用户信息
+ * - Sidebar 组件通过 props 接收用户数据
  * - 布局自动响应认证状态变化
  * - 监听 popstate 事件，拦截浏览器返回操作
  */
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
-  const isAuthenticated = useIsAuthenticated();
+  const { user, profile, isAuthenticated } = useAuthUser();
 
   useEffect(() => {
     // 监听 popstate 事件，拦截浏览器返回操作
@@ -78,7 +83,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     <>
       {/* 桌面端：侧边栏布局 */}
       <div className="hidden lg:flex h-screen w-full max-w-[1600px] mx-auto bg-xf-light overflow-hidden">
-        <Sidebar />
+        <Sidebar user={user} profile={profile} />
         <main className="flex-1 h-full overflow-y-auto no-scrollbar relative">
           {children}
         </main>

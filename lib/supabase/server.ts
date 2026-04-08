@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getAuthCookieConfig } from '@/lib/auth/server'
+import { getAuthCookieConfig, getDevAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
 
 /**
  * @fileoverview Supabase 服务端客户端
@@ -81,14 +81,19 @@ export async function createClient() {
        * 设置所有 Cookie
        * @description 将 Cookie 写入响应
        * @注意 从 Server Component 调用时可能会抛出错误，这是正常的
+       * @统一配置 使用与中间件相同的配置逻辑
        */
       setAll(cookiesToSet) {
         try {
+          // 统一使用与中间件相同的配置函数
+          const isDev = process.env.NODE_ENV === 'development'
+          const cookieOptions = isDev ? getDevAuthCookieConfig() : getAuthCookieConfig()
+
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, {
               ...options,
               // 应用统一的 Cookie 安全配置
-              ...getAuthCookieConfig(),
+              ...cookieOptions,
             })
           })
         } catch {
@@ -96,6 +101,19 @@ export async function createClient() {
           // 这是正常的，因为 Server Component 不能直接设置 Cookie
           // 中间件会在响应时统一刷新会话
         }
+      },
+    },
+    // 全局配置：增加超时和重试
+    global: {
+      fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+        // 设置 10 秒超时
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
+        return fetch(url, {
+          ...init,
+          signal: controller.signal,
+        }).finally(() => clearTimeout(timeoutId))
       },
     },
   })

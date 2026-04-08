@@ -65,7 +65,7 @@ export default async function MainLayout({
     redirect('/')
   }
 
-  {/* 构建用户对象 */}
+  {/* 构建用户对象 - 与客户端 SimpleUser 类型保持一致 */}
   const user = profile ? {
     id: profile.id,
     email: profile.email || '',
@@ -75,8 +75,16 @@ export default async function MainLayout({
     },
   } : null
 
+  {/* 构建用户资料对象 - 与客户端 UserProfile 类型保持一致 */}
+  const userProfile = profile ? {
+    id: profile.id,
+    email: profile.email || '',
+    username: profile.username,
+    avatar_url: profile.avatar_url,
+  } : null
+
   return (
-    <AuthProvider initialUser={user} initialProfile={profile}>
+    <AuthProvider initialUser={user} initialProfile={userProfile}>
       <AuthGuard>
         {children}
       </AuthGuard>
