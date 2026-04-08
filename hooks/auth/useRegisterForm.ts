@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { validatePassword, type PasswordValidationResult } from '@/lib/security/passwordPolicy';
 import { REGISTER_MESSAGES, register } from '@/lib/auth/client';
 import { useAuthToast } from './useAuthToast';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { RegisterFormData, RegisterFormErrors, UseRegisterFormReturn } from '@/types';
 
 /**
@@ -24,18 +25,6 @@ export function useRegisterForm(): UseRegisterFormReturn {
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationResult | null>(null);
   const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
-  // 使用 useRef 存储防抖的 timeoutId
-  const passwordTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // 清理定时器，防止内存泄漏
-  useEffect(() => {
-    return () => {
-      if (passwordTimeoutRef.current) {
-        clearTimeout(passwordTimeoutRef.current);
-      }
-    };
-  }, []);
-
   /**
    * 验证密码强度（防抖处理）
    */
@@ -49,21 +38,8 @@ export function useRegisterForm(): UseRegisterFormReturn {
 
   /**
    * 防抖处理的密码强度验证
-   * 使用 useRef 存储 timeoutId，避免闭包问题
    */
-  const debouncedValidatePassword = useCallback(
-    (password: string) => {
-      // 清除之前的定时器
-      if (passwordTimeoutRef.current) {
-        clearTimeout(passwordTimeoutRef.current);
-      }
-      // 设置新的定时器
-      passwordTimeoutRef.current = setTimeout(() => {
-        validatePasswordStrength(password);
-      }, 300);
-    },
-    [validatePasswordStrength]
-  );
+  const debouncedValidatePassword = useDebounce(validatePasswordStrength, 300);
 
   /**
    * 更新表单字段

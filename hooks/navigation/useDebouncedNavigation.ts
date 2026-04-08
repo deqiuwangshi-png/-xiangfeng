@@ -8,6 +8,7 @@
 
 import { useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useDebounce } from '@/hooks/useDebounce'
 
 /**
  * 防抖导航配置
@@ -28,46 +29,50 @@ interface DebouncedNavigationOptions {
 export function useDebouncedNavigation(options: DebouncedNavigationOptions = {}) {
   const { delay = 300, showLoading = true } = options
   const router = useRouter()
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isNavigatingRef = useRef(false)
+
+  /**
+   * 执行导航
+   * @param {string} url - 目标URL
+   */
+  const performNavigate = useCallback(
+    (url: string) => {
+      isNavigatingRef.current = true
+
+      if (showLoading) {
+        document.body.style.cursor = 'wait'
+      }
+
+      router.push(url)
+
+      setTimeout(() => {
+        isNavigatingRef.current = false
+        if (showLoading) {
+          document.body.style.cursor = 'default'
+        }
+      }, 100)
+    },
+    [router, showLoading]
+  )
 
   /**
    * 防抖导航
    * @param {string} url - 目标URL
    */
+  const debouncedNavigate = useDebounce(performNavigate, delay)
+
+  /**
+   * 防抖导航（带状态检查）
+   * @param {string} url - 目标URL
+   */
   const navigate = useCallback(
     (url: string) => {
-      // 如果正在导航中，忽略新请求
       if (isNavigatingRef.current) {
         return
       }
-
-      // 清除之前的定时器
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-
-      // 设置新的定时器
-      timeoutRef.current = setTimeout(() => {
-        isNavigatingRef.current = true
-        
-        if (showLoading) {
-          // 可以在这里显示全局加载状态
-          document.body.style.cursor = 'wait'
-        }
-
-        router.push(url)
-
-        // 导航完成后重置状态
-        setTimeout(() => {
-          isNavigatingRef.current = false
-          if (showLoading) {
-            document.body.style.cursor = 'default'
-          }
-        }, 100)
-      }, delay)
+      debouncedNavigate(url)
     },
-    [router, delay, showLoading]
+    [debouncedNavigate]
   )
 
   /**
@@ -76,9 +81,6 @@ export function useDebouncedNavigation(options: DebouncedNavigationOptions = {})
    */
   const navigateImmediate = useCallback(
     (url: string) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
       isNavigatingRef.current = true
       router.push(url)
       setTimeout(() => {
@@ -88,20 +90,9 @@ export function useDebouncedNavigation(options: DebouncedNavigationOptions = {})
     [router]
   )
 
-  /**
-   * 取消待处理的导航
-   */
-  const cancelNavigation = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-  }, [])
-
   return {
     navigate,
     navigateImmediate,
-    cancelNavigation,
     isNavigating: () => isNavigatingRef.current,
   }
 }

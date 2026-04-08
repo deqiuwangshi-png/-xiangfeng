@@ -5,6 +5,7 @@ import { Search, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { searchPublishedArticles } from '@/lib/articles/actions/query'
 import { formatDateShort } from '@/lib/utils/date'
+import { useDebounce } from '@/hooks/useDebounce'
 
 /**
  * 搜索结果项类型
@@ -28,31 +29,6 @@ interface SearchResult {
  */
 interface SearchBoxProps {
   placeholder?: string
-}
-
-/**
- * 防抖钩子
- * @param callback - 需要防抖的回调函数
- * @param delay - 延迟时间（毫秒）
- * @returns 防抖后的函数
- */
-function useDebounce<T extends (...args: string[]) => Promise<void>>(
-  callback: T,
-  delay: number
-): (query: string) => void {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  return useCallback(
-    (query: string) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-      timeoutRef.current = setTimeout(() => {
-        callback(query)
-      }, delay)
-    },
-    [callback, delay]
-  )
 }
 
 export function SearchBox({ 
