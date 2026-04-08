@@ -6,8 +6,9 @@
  * @description 管理商城商品数据和兑换操作
  */
 
-import useSWR, { useSWRConfig } from 'swr'
-import { useCallback, useState, useRef, useEffect } from 'react'
+import { useSWRConfig } from 'swr'
+import { useCallback, useState } from 'react'
+import { useSWRQuery } from '@/hooks/useSWRQuery'
 import { getShopItems, exchangeItem } from '@/lib/rewards/shop'
 import type { ShopItem, ShopItemCategory } from '@/types/rewards'
 
@@ -52,38 +53,19 @@ const fetchItems = async (category?: ShopItemCategory): Promise<ShopItem[]> => {
 export function useShop(category?: ShopItemCategory): UseShopReturn {
   const cacheKey = category ? `shop-${category}` : 'shop-all'
   const [isExchanging, setIsExchanging] = useState(false)
-  const isMountedRef = useRef(true)
   const { mutate: globalMutate } = useSWRConfig()
 
-  // 组件卸载时设置标记
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
-
-  // 使用 SWR 获取商品数据 - 5分钟缓存
+  // 使用通用 SWR Query 获取商品数据
   const {
     data: items = [],
     error,
     isLoading,
+    refresh: refreshItems,
     mutate,
-  } = useSWR(cacheKey, () => fetchItems(category), {
-    dedupingInterval: 300000,
-    keepPreviousData: true,
-    revalidateOnFocus: false,
+  } = useSWRQuery(cacheKey, () => fetchItems(category), {
+    preset: 'default',
     revalidateOnReconnect: false,
-    revalidateOnMount: true,
   })
-
-  /**
-   * 刷新商品数据
-   * @returns {Promise<void>}
-   */
-  const refreshItems = useCallback(async () => {
-    if (!isMountedRef.current) return
-    await mutate()
-  }, [mutate])
 
   /**
    * 兑换商品
@@ -93,14 +75,10 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
    */
   const exchange = useCallback(
     async (itemId: string, quantity: number = 1) => {
-      if (!isMountedRef.current) {
-        return { success: false, error: '组件已卸载' }
-      }
-      
       setIsExchanging(true)
       try {
         const result = await exchangeItem({ item_id: itemId, quantity })
-        if (result.success && isMountedRef.current) {
+        if (result.success) {
           // 兑换成功后刷新商品列表（库存变化）
           await mutate()
           // 刷新兑换记录
@@ -116,9 +94,7 @@ export function useShop(category?: ShopItemCategory): UseShopReturn {
         const msg = err instanceof Error ? err.message : '兑换失败'
         return { success: false, error: msg }
       } finally {
-        if (isMountedRef.current) {
-          setIsExchanging(false)
-        }
+        setIsExchanging(false)
       }
     },
     [globalMutate, mutate]

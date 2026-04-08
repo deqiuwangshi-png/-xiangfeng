@@ -17,7 +17,7 @@
  * - keydown、copy、cut、dragstart 绑定到元素本身（减少全局监听）
  */
 
-import { useEffect, useCallback, useRef, RefObject } from 'react';
+import { useEffect, useCallback, RefObject } from 'react';
 
 /**
  * 内容保护配置选项

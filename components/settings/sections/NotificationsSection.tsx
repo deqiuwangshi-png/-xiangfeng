@@ -1,14 +1,31 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { toast } from 'sonner'
+/**
+ * 通知设置区块（Client Component）
+ *
+ * @module components/settings/NotificationsSection
+ * @description 显示通知设置相关选项，支持从服务端获取和保存设置
+ * @version 2.0.0
+ * @更新说明 使用统一的 useOptimisticMutation 进行乐观更新
+ *
+ * 性能优化:
+ *   - 从 Context 获取服务端预取的数据，避免重复请求
+ *   - 使用统一的乐观更新 Hook，自动处理回滚
+ *   - 防止重复提交
+ *
+ * 架构说明:
+ *   - 使用'use client'指令
+ *   - 使用Server Actions进行数据修改
+ *   - 数据通过 Context 从 Server Component 传递
+ */
+
 import {
   SettingsSection,
   SettingItem,
   ToggleSwitch,
   useSettings,
 } from '@/components/settings'
-import { updateNotificationSettings } from '@/lib/settings/actions/notifications'
+import { useNotificationSettings } from '@/hooks/settings/useNotificationSettings'
 
 /**
  * 通知设置项配置
@@ -26,65 +43,35 @@ const NOTIFICATION_CONFIG = [
 ] as const
 
 /**
- * 通知设置区块（Client Component）
- *
- * 作用: 显示通知设置相关选项，支持从服务端获取和保存设置
+ * 通知设置区块
  *
  * @returns {JSX.Element} 通知设置区块
- *
- * 性能优化:
- *   - 从 Context 获取服务端预取的数据，避免重复请求
- *   - 本地状态优先响应，异步保存到服务端
- *   - 保存失败时回滚状态
- *
- * 架构说明:
- *   - 使用'use client'指令
- *   - 使用Server Actions进行数据修改
- *   - 数据通过 Context 从 Server Component 传递
- * 更新时间: 2026-03-28
  */
-
 export function NotificationsSection() {
   const { userSettings } = useSettings()
 
-  // 使用对象存储所有通知设置状态，从 Context 初始化
-  const [settings, setSettings] = useState<Record<string, boolean>>({
-    email: userSettings.notifications.email,
-    newFollowers: userSettings.notifications.newFollowers,
-    comments: userSettings.notifications.comments,
-    likes: userSettings.notifications.likes,
-    mentions: userSettings.notifications.mentions,
-    system: userSettings.notifications.system,
-    achievements: userSettings.notifications.achievements,
+  // ==========================================
+  // 使用统一的通知设置 Hook
+  // ==========================================
+  const { settings, isSaving, updateSetting } = useNotificationSettings({
+    initialSettings: {
+      email: userSettings.notifications.email,
+      newFollowers: userSettings.notifications.newFollowers,
+      comments: userSettings.notifications.comments,
+      likes: userSettings.notifications.likes,
+      mentions: userSettings.notifications.mentions,
+      system: userSettings.notifications.system,
+      achievements: userSettings.notifications.achievements,
+    },
   })
 
   /**
    * 处理开关变化
-   * @param key - 设置键
-   * @param checked - 新状态
+   * 使用统一的乐观更新 Hook
    */
-  const handleToggle = useCallback(async (key: string, checked: boolean) => {
-    // 乐观更新：先更新本地状态
-    setSettings((prev) => ({ ...prev, [key]: checked }))
-
-    try {
-      const formData = new FormData()
-      formData.append('key', key)
-      formData.append('value', String(checked))
-
-      const result = await updateNotificationSettings(formData)
-
-      if (!result.success) {
-        // 保存失败，回滚状态
-        setSettings((prev) => ({ ...prev, [key]: !checked }))
-        toast.error('保存失败: ' + (result.error || '未知错误'))
-      }
-    } catch {
-      // 异常时回滚状态
-      setSettings((prev) => ({ ...prev, [key]: !checked }))
-      toast.error('保存失败，请稍后重试')
-    }
-  }, [])
+  const handleToggle = async (key: string, checked: boolean) => {
+    await updateSetting(key as keyof typeof settings, checked)
+  }
 
   return (
     <SettingsSection id="settings-notifications-section" title="通知设置">
@@ -98,6 +85,7 @@ export function NotificationsSection() {
               <ToggleSwitch
                 checked={settings[config.key] ?? true}
                 onChange={(checked) => handleToggle(config.key, checked)}
+                disabled={isSaving}
               />
             }
           />

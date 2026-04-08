@@ -6,9 +6,10 @@
  * @description 管理签到状态、签到操作和奖励配置，使用 SWR 缓存优化性能
  */
 
-import useSWR, { useSWRConfig } from 'swr'
+import { useSWRConfig } from 'swr'
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { useSWRQuery } from '@/hooks/useSWRQuery'
 import {
   getTodaySignInStatus,
   performSignIn,
@@ -110,28 +111,25 @@ export function useSignIn(): UseSignInReturn {
   // 获取 SWR 配置用于刷新其他缓存
   const { mutate: globalMutate } = useSWRConfig()
 
-  // 使用 SWR 获取签到状态 - 5秒去重，挂载时自动获取
+  // 使用通用 SWR Query 获取签到状态
   const {
     data: signInStatus,
     isLoading: isStatusLoading,
     isValidating: isStatusValidating,
+    refresh: refreshStatus,
     mutate: mutateStatus,
-  } = useSWR('signin-status', fetchSignInStatus, {
+  } = useSWRQuery('signin-status', fetchSignInStatus, {
     dedupingInterval: 5000, // 缩短去重间隔，确保签到后能快速获取最新状态
-    keepPreviousData: true,
     revalidateOnFocus: true, // 聚焦时重新验证，确保状态最新
-    revalidateOnReconnect: true,
-    revalidateOnMount: true,
   })
 
-  // 使用 SWR 获取奖励配置 - 5分钟缓存，保持旧数据，切换页面不重新获取
+  // 使用通用 SWR Query 获取奖励配置
   const {
     data: rewardsConfig = [],
     isLoading: isConfigLoading,
     isValidating: isConfigValidating,
-  } = useSWR('signin-rewards-config', fetchRewardsConfig, {
-    dedupingInterval: 300000,
-    keepPreviousData: true,
+  } = useSWRQuery('signin-rewards-config', fetchRewardsConfig, {
+    preset: 'default',
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     revalidateOnMount: false,
@@ -162,7 +160,7 @@ export function useSignIn(): UseSignInReturn {
             hasSigned: true,
             consecutiveDays: result.consecutive_days,
           },
-          { revalidate: true }
+          true
         )
 
         // 刷新积分数据缓存（签到获得积分）
@@ -183,16 +181,6 @@ export function useSignIn(): UseSignInReturn {
       setIsSigning(false)
     }
   }, [signInStatus?.hasSigned, isSigning, mutateStatus, globalMutate])
-
-  /**
-   * 刷新签到状态
-   * @returns {Promise<void>}
-   */
-  const refreshStatus = useCallback(async () => {
-    await mutateStatus()
-  }, [mutateStatus])
-
-  // 错误处理：已在SWR配置中处理
 
   return {
     isSigned: signInStatus?.hasSigned || false,

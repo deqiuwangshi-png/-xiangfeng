@@ -348,3 +348,6 @@ export function LinkedAccountsForm({ onCancel, onSave }: LinkedAccountsFormProps
     </div>
   )
 }
+
+// 默认导出，用于懒加载
+export default LinkedAccountsForm

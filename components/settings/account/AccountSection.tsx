@@ -15,7 +15,7 @@ import { UserData } from '@/types/user/settings'
 const EditProfileForm = lazy(() => import('../_forms/EditProfileForm'))
 const SecuritySettingsForm = lazy(() => import('../_forms/SecuritySettingsForm'))
 const ChangeEmailForm = lazy(() => import('../_forms/ChangeEmailForm'))
-const LinkedAccountsForm = lazy(() => import('../_forms/LinkedAccountsForm').then(module => ({ default: module.LinkedAccountsForm })))
+const LinkedAccountsForm = lazy(() => import('../_forms/LinkedAccountsForm'))
 
 {/* 表单加载骨架屏 */}
 function FormSkeleton() {

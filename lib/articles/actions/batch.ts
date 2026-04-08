@@ -11,6 +11,7 @@ import { BatchDeleteSchema } from '../schema';
 import { revalidatePathsAsync } from './utils';
 
 interface BatchDeleteResult {
+  successCount: number;
   success: boolean;
   deletedCount: number;
   failedCount: number;

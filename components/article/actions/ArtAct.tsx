@@ -1,21 +1,22 @@
-'use client';
+'use client'
 
 /**
  * 文章操作按钮组件
  *
  * @module components/article/ArtAct
  * @description 提供文章点赞、评论、分享、收藏功能
+ * @version 2.0.0
+ * @更新说明 使用统一的 useOptimisticMutation 进行乐观更新
  */
 
-import { useState, useRef, useEffect } from 'react';
-import { Heart, MessageCircle, Sparkles } from '@/components/icons';
-import type { ArtActProps } from '@/types';
-import { toggleArticleLike } from '@/lib/articles/actions/like';
-import { toggleArticleBookmark } from '@/lib/articles/actions/bookmark';
-import { RwMd } from '../rw/RwMd';
-import { AuthorAvatar } from '../ui/AuthorAvatar';
-import { MoreActions } from './MoreActions';
-import { useArticleToast } from '@/hooks/article/useArticleToast';
+import { useState } from 'react'
+import { Heart, MessageCircle, Sparkles } from '@/components/icons'
+import type { ArtActProps } from '@/types'
+import { RwMd } from '../rw/RwMd'
+import { AuthorAvatar } from '../ui/AuthorAvatar'
+import { MoreActions } from './MoreActions'
+import { useArticleToast } from '@/hooks/article/useArticleToast'
+import { useArticleActions } from '@/hooks/article/useArticleActions'
 
 /**
  * 文章操作按钮组件
@@ -34,26 +35,26 @@ export default function ArtAct({
   initialLiked = false,
   initialBookmarked = false,
 }: ArtActProps) {
-  const isFirstRenderRef = useRef(true);
+  // ==========================================
+  // 使用统一的文章操作 Hook
+  // ==========================================
+  const {
+    likeData,
+    bookmarkData,
+    isLikeLoading,
+    isBookmarkLoading,
+    toggleLike,
+    toggleBookmark,
+  } = useArticleActions({
+    articleId,
+    initialLiked,
+    initialLikeCount,
+    initialBookmarked,
+  })
 
-  const [liked, setLiked] = useState(() => initialLiked);
-  const [likeCount, setLikeCount] = useState(() => initialLikeCount);
-  const [isLikeLoading, setIsLikeLoading] = useState(false);
-  const [bookmarked, setBookmarked] = useState(() => initialBookmarked);
-  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
-  const [showRewardModal, setShowRewardModal] = useState(false);
-  const [commentCount] = useState(() => initialCommentCount);
-  const { showSuccess, showError, showNetworkError, showAuthRequired } = useArticleToast();
-
-  useEffect(() => {
-    if (isFirstRenderRef.current) {
-      setLiked(initialLiked);
-      setLikeCount(initialLikeCount);
-      setBookmarked(initialBookmarked);
-      isFirstRenderRef.current = false;
-    }
-    {/* eslint-disable-next-line react-hooks/exhaustive-deps */}
-  }, [articleId]);
+  const [showRewardModal, setShowRewardModal] = useState(false)
+  const [commentCount] = useState(() => initialCommentCount)
+  const { showAuthRequired } = useArticleToast()
 
   /**
    * 检查用户是否登录
@@ -67,69 +68,21 @@ export default function ArtAct({
   }
 
   /**
-   * 处理点赞（乐观更新）
+   * 处理点赞
+   * 使用统一的乐观更新 Hook
    */
   const handleLike = async () => {
-    if (!checkAuth()) return;
-
-    const previousLiked = liked;
-    const previousLikeCount = likeCount;
-
-    const newLiked = !previousLiked;
-    const newLikeCount = newLiked ? previousLikeCount + 1 : Math.max(0, previousLikeCount - 1);
-
-    setLiked(newLiked);
-    setLikeCount(newLikeCount);
-    setIsLikeLoading(true);
-
-    try {
-      const result = await toggleArticleLike(articleId);
-
-      if (result.success) {
-        setLiked(result.liked);
-      } else {
-        setLiked(previousLiked);
-        setLikeCount(previousLikeCount);
-        showError(result.error || '操作失败', '请稍后重试');
-      }
-    } catch {
-      setLiked(previousLiked);
-      setLikeCount(previousLikeCount);
-      showNetworkError();
-    } finally {
-      setIsLikeLoading(false);
-    }
-  };
+    if (!checkAuth()) return
+    await toggleLike()
+  }
 
   /**
    * 处理收藏
+   * 使用统一的乐观更新 Hook
    */
   const handleBookmark = async () => {
-    if (!currentUser) {
-      showAuthRequired('收藏文章')
-      return
-    }
-
-    setIsBookmarkLoading(true)
-    const previousBookmarked = bookmarked
-    setBookmarked(!bookmarked)
-
-    try {
-      const result = await toggleArticleBookmark(articleId)
-
-      if (result.success) {
-        setBookmarked(result.favorited)
-        showSuccess('收藏', !result.favorited)
-      } else {
-        setBookmarked(previousBookmarked)
-        showError(result.error || '操作失败', '请稍后重试')
-      }
-    } catch {
-      setBookmarked(previousBookmarked)
-      showNetworkError()
-    } finally {
-      setIsBookmarkLoading(false)
-    }
+    if (!checkAuth()) return
+    await toggleBookmark()
   }
 
   /**
@@ -137,8 +90,8 @@ export default function ArtAct({
    * 使用自定义事件触发，避免直接操作DOM
    */
   const handleCommentsClick = () => {
-    window.dispatchEvent(new CustomEvent('open-comments-panel'));
-  };
+    window.dispatchEvent(new CustomEvent('open-comments-panel'))
+  }
 
   return (
     <div className="douyin-sidebar">
@@ -164,12 +117,12 @@ export default function ArtAct({
 
       {/* 点赞按钮 */}
       <div
-        className={`douyin-action-btn ${liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
+        className={`douyin-action-btn ${likeData.liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
         onClick={!isLikeLoading ? handleLike : undefined}
         title={currentUser ? (isLikeLoading ? '处理中...' : '点赞') : '请先登录'}
       >
         <Heart className={`douyin-icon ${isLikeLoading ? 'animate-pulse' : ''}`} />
-        <span className="douyin-count">{likeCount}</span>
+        <span className="douyin-count">{likeData.likeCount}</span>
       </div>
 
       {/* 评论按钮 */}
@@ -186,7 +139,7 @@ export default function ArtAct({
         articleId={articleId}
         authorId={authorId}
         currentUser={currentUser}
-        initialBookmarked={bookmarked}
+        initialBookmarked={bookmarkData.bookmarked}
         onBookmark={handleBookmark}
         isBookmarkLoading={isBookmarkLoading}
       />
@@ -196,8 +149,10 @@ export default function ArtAct({
         <RwMd
           articleId={articleId}
           authorId={authorId}
-          onClose={() => setShowRewardModal(false)} currentUser={null}        />
+          onClose={() => setShowRewardModal(false)}
+          currentUser={null}
+        />
       )}
     </div>
-  );
+  )
 }

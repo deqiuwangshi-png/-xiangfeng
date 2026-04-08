@@ -13,11 +13,14 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
-import { DraftService, Article } from '@/lib/drafts/draftService'
+
+import { DraftService } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { batchDeleteArticles } from '@/lib/articles/actions/batch'
 import { fetchDrafts } from '@/lib/articles/actions/query'
 import { useDraftsToast } from './useDraftsToast'
+
+import type { Article } from '@/types'
 import type { DraftData, DraftFilter, DraftSelection, ViewMode, UseDraftsReturn } from '@/types/drafts'
 
 /** SWR 缓存 Key */
