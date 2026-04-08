@@ -1,8 +1,8 @@
 'use client'
 
 /**
- * 防抖导航 Hook
- * @module hooks/useDebouncedNavigation
+ * 延迟导航 Hook
+ * @module hooks/useDelayNav
  * @description 防止用户快速连续点击导致的多次导航
  */
 
@@ -11,22 +11,22 @@ import { useRouter } from 'next/navigation'
 import { useDebounce } from '@/hooks/useDebounce'
 
 /**
- * 防抖导航配置
- * @interface DebouncedNavigationOptions
+ * 延迟导航配置
+ * @interface DelayNavOptions
  */
-interface DebouncedNavigationOptions {
-  /** 防抖延迟(ms) */
+interface DelayNavOptions {
+  /** 延迟时间(ms) */
   delay?: number
   /** 是否显示加载状态 */
   showLoading?: boolean
 }
 
 /**
- * 防抖导航 Hook
- * @param {DebouncedNavigationOptions} options - 配置选项
+ * 延迟导航 Hook
+ * @param {DelayNavOptions} options - 配置选项
  * @returns {object} 导航方法
  */
-export function useDebouncedNavigation(options: DebouncedNavigationOptions = {}) {
+export function useDelayNav(options: DelayNavOptions = {}) {
   const { delay = 300, showLoading = true } = options
   const router = useRouter()
   const isNavigatingRef = useRef(false)
@@ -62,7 +62,7 @@ export function useDebouncedNavigation(options: DebouncedNavigationOptions = {})
   const debouncedNavigate = useDebounce(performNavigate, delay)
 
   /**
-   * 防抖导航（带状态检查）
+   * 延迟导航（带状态检查）
    * @param {string} url - 目标URL
    */
   const navigate = useCallback(
@@ -76,7 +76,7 @@ export function useDebouncedNavigation(options: DebouncedNavigationOptions = {})
   )
 
   /**
-   * 立即导航（跳过防抖）
+   * 立即导航（跳过延迟）
    * @param {string} url - 目标URL
    */
   const navigateImmediate = useCallback(

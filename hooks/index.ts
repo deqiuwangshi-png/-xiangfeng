@@ -30,8 +30,8 @@ export { useCommentSubmit } from './article/useCommentSub';
 export { useContentProtection } from './article/useContentProtection';
 
 // ==================== Navigation Hooks ====================
-export { useDebouncedNavigation } from './navigation/useDebouncedNavigation';
-export { useOptimisticNavigation } from './navigation/useOptimisticNavigation';
+export { useDelayNav } from './navigation/useDelayNav';
+export { useFastNav } from './navigation/useFastNav';
 
 // ==================== Notification Hooks ====================
 export { useInboxCache } from './notification/useInboxCache';
