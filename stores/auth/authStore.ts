@@ -2,8 +2,14 @@ import { create } from 'zustand'
 import type { AuthStore, AuthState, AuthError, LoginParams, LoginResult } from './authTypes'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
 
-let fetchPromise: Promise<{ user: SimpleUser; profile: UserProfile } | null> | null = null
-let lastFetchTime = 0
+/**
+ * 请求缓存 - 按用户ID存储
+ */
+const requestCache = new Map<string, {
+  promise: Promise<{ user: SimpleUser; profile: UserProfile } | null>
+  timestamp: number
+}>()
+
 const CACHE_DURATION = 5000
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000
@@ -12,6 +18,9 @@ interface ErrorWithMessage {
   message?: string
 }
 
+/**
+ * 检查是否为网络错误
+ */
 function isNetworkError(error: unknown): boolean {
   const networkErrorMessages = ['网络错误', 'Network error', 'Connection failed', 'Timeout', 'fetch failed', '请求失败']
   const err = error as ErrorWithMessage
@@ -21,6 +30,9 @@ function isNetworkError(error: unknown): boolean {
   return false
 }
 
+/**
+ * 检查是否为临时认证错误
+ */
 function isTemporaryAuthError(error: unknown): boolean {
   const temporaryErrors = ['Auth session missing!', 'session_not_found', 'token_not_found']
   const err = error as ErrorWithMessage
@@ -30,16 +42,22 @@ function isTemporaryAuthError(error: unknown): boolean {
   return false
 }
 
-async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProfile } | null> {
+/**
+ * 获取当前用户数据
+ * @param userId - 用户ID（用于缓存）
+ * @returns 用户数据和资料
+ */
+async function fetchCurrentUser(userId?: string): Promise<{ user: SimpleUser; profile: UserProfile } | null> {
   const now = Date.now()
-
-  if (fetchPromise && now - lastFetchTime < CACHE_DURATION) {
-    return fetchPromise
+  const cacheKey = userId || 'anonymous'
+  
+  // 检查缓存
+  const cached = requestCache.get(cacheKey)
+  if (cached && now - cached.timestamp < CACHE_DURATION) {
+    return cached.promise
   }
-
-  lastFetchTime = now
-
-  fetchPromise = (async () => {
+  
+  const promise = (async () => {
     let retries = 0
 
     while (retries < MAX_RETRIES) {
@@ -70,11 +88,16 @@ async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProf
           return null
         }
 
-        const { data: profileData } = await supabase
+        // 获取用户资料
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('username, avatar_url')
           .eq('id', user.id)
           .single()
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('[AuthStore] 获取用户资料失败:', profileError)
+        }
 
         const profile: UserProfile = {
           id: user.id,
@@ -101,18 +124,28 @@ async function fetchCurrentUser(): Promise<{ user: SimpleUser; profile: UserProf
             continue
           }
         }
+        console.error('[AuthStore] 获取用户数据失败:', err)
         return null
       }
     }
 
     return null
-  })().finally(() => {
+  })()
+  
+  // 存储到缓存
+  requestCache.set(cacheKey, { promise, timestamp: now })
+  
+  // 清理过期缓存
+  promise.finally(() => {
     setTimeout(() => {
-      fetchPromise = null
+      const current = requestCache.get(cacheKey)
+      if (current?.promise === promise) {
+        requestCache.delete(cacheKey)
+      }
     }, CACHE_DURATION)
   })
 
-  return fetchPromise
+  return promise
 }
 
 const initialAuthState: AuthState = {
@@ -129,6 +162,11 @@ const initialAuthState: AuthState = {
 export const useAuthStore = create<AuthStore>()((set, get) => ({
   ...initialAuthState,
 
+  /**
+   * 用户登录
+   * @param params - 登录参数
+   * @returns 登录结果
+   */
   login: async (params: LoginParams): Promise<LoginResult> => {
     const { setLoading, setError, setUser, clearError } = get()
 
@@ -157,10 +195,33 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
         return { success: false, error: result.error }
       }
 
-      const userProfile = await fetchCurrentUser()
+      // 二次验证：确认会话已建立
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session) {
+        setError({
+          code: 'SESSION_ERROR',
+          message: '登录会话建立失败，请重试',
+          type: 'server',
+        })
+        setLoading(false)
+        return { success: false, error: '登录会话建立失败' }
+      }
+
+      const userProfile = await fetchCurrentUser(session.user.id)
 
       if (userProfile) {
         setUser(userProfile.user, userProfile.profile)
+      } else {
+        setError({
+          code: 'USER_DATA_ERROR',
+          message: '获取用户信息失败',
+          type: 'server',
+        })
+        setLoading(false)
+        return { success: false, error: '获取用户信息失败' }
       }
 
       setLoading(false)
@@ -177,6 +238,10 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     }
   },
 
+  /**
+   * 用户登出
+   * @returns 登出结果
+   */
   logout: async () => {
     const { setLoading, clearUser } = get()
 
@@ -203,6 +268,11 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     }
   },
 
+  /**
+   * 设置用户信息
+   * @param user - 用户对象
+   * @param profile - 用户资料
+   */
   setUser: (user: SimpleUser | null, profile?: UserProfile | null) => {
     set({
       user,
@@ -215,8 +285,11 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     })
   },
 
+  /**
+   * 刷新用户信息
+   */
   refreshUser: async () => {
-    const { setLoading, setUser, user: currentUser } = get()
+    const { setLoading, setUser, clearUser, user: currentUser } = get()
 
     if (!currentUser) {
       setLoading(false)
@@ -226,19 +299,39 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     setLoading(true)
 
     try {
-      const userProfile = await fetchCurrentUser()
+      const userProfile = await fetchCurrentUser(currentUser.id)
 
       if (userProfile) {
         setUser(userProfile.user, userProfile.profile)
       } else {
-        setLoading(false)
+        // 会话已过期，清理用户状态
+        clearUser()
       }
-    } catch{
-      setLoading(false)
+    } catch (error) {
+      // 网络错误时保留当前状态，其他错误清理状态
+      if (isNetworkError(error)) {
+        setLoading(false)
+      } else {
+        console.error('[AuthStore] 刷新用户失败:', error)
+        clearUser()
+      }
     }
   },
 
+  /**
+   * 清除用户信息
+   */
   clearUser: () => {
+    // 清理本地存储中的认证相关数据
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem('auth:last_refresh')
+        // 保留 device_id 用于设备追踪
+      } catch {
+        // 忽略存储错误
+      }
+    }
+    
     set({
       ...initialAuthState,
       status: 'unauthenticated',
@@ -247,6 +340,10 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     })
   },
 
+  /**
+   * 设置加载状态
+   * @param isLoading - 是否加载中
+   */
   setLoading: (isLoading: boolean) => {
     set({
       isLoading,
@@ -254,6 +351,10 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     })
   },
 
+  /**
+   * 设置错误信息
+   * @param error - 错误对象
+   */
   setError: (error: AuthError | null) => {
     set({
       error,
@@ -261,10 +362,18 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     })
   },
 
+  /**
+   * 清除错误信息
+   */
   clearError: () => {
     set({ error: null })
   },
 
+  /**
+   * 初始化认证状态
+   * @param user - 初始用户数据
+   * @param profile - 初始用户资料
+   */
   initialize: (user: SimpleUser | null, profile?: UserProfile | null) => {
     set({
       user,
@@ -278,6 +387,10 @@ export const useAuthStore = create<AuthStore>()((set, get) => ({
     })
   },
 
+  /**
+   * 更新用户资料字段
+   * @param updates - 部分更新的资料
+   */
   updateProfile: (updates: Partial<UserProfile>) => {
     const { profile, user } = get()
 

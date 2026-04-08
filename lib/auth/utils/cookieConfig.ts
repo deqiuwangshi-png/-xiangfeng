@@ -16,22 +16,19 @@ import type { CookieOptions } from '@supabase/ssr';
  * 这是安全的设计。客户端应通过 Server Actions 或 API 路由
  * 获取需要的用户信息。
  *
- * @修复 2026-04-08 将 sameSite 从 'strict' 改为 'lax'
- * - 'strict' 在浏览器标签页切换后可能导致 Cookie 读取问题
- * - 'lax' 在保持 CSRF 防护的同时提供更好的用户体验
+ * @修复 2026-04-08 移除 expires，避免与 maxAge 冲突
+ * - 浏览器会根据 maxAge 自动计算过期时间
+ * - 避免服务器时间和客户端时间不一致的问题
  * - 参考: https://web.dev/samesite-cookies-explained/
  */
 export function getAuthCookieConfig(): CookieOptions {
-  // 计算7天后的过期时间
-  const expires = new Date(Date.now() + 60 * 60 * 24 * 7 * 1000);
-
   return {
     secure: true, // 强制 HTTPS，生产环境必须启用
     httpOnly: true, // 禁止 JavaScript 读取，防止 XSS
     sameSite: 'lax' as const, // 宽松同源策略，避免标签页切换问题
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7天（秒）
-    expires, // 明确过期时间，确保浏览器正确处理
+    // 注意：不设置 expires，让浏览器根据 maxAge 计算
   };
 }
 
@@ -44,18 +41,18 @@ export function getAuthCookieConfig(): CookieOptions {
  * @使用场景
  * - 本地 HTTP 开发环境
  * - 需要调试 Cookie 的场景
+ * 
+ * @安全修复 2026-04-08
+ * - 保持 httpOnly 为 true 进行安全测试
+ * - 使用 lax 便于跨端口调试
  */
 export function getDevAuthCookieConfig(): CookieOptions {
-  // 计算7天后的过期时间
-  const expires = new Date(Date.now() + 60 * 60 * 24 * 7 * 1000);
-
   return {
     secure: false, // 开发环境允许 HTTP
     httpOnly: true, // 仍然启用 HttpOnly 进行测试
     sameSite: 'lax' as const, // 开发环境使用 lax 便于调试
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7天（秒）
-    expires, // 明确过期时间
   };
 }
 
@@ -79,15 +76,13 @@ export function getFeatureCookieConfig(maxAge: number = 24 * 60 * 60): CookieOpt
  * 获取当前环境的认证 Cookie 配置
  *
  * @returns 根据环境返回合适的配置
+ * @deprecated 请直接使用 getAuthCookieConfig 或 getDevAuthCookieConfig
  */
 export function getCurrentAuthCookieConfig(): CookieOptions {
   const isDev = process.env.NODE_ENV === 'development';
-  const isLocalhost = typeof window !== 'undefined'
-    ? window.location.hostname === 'localhost'
-    : false;
-
+  
   // 本地开发环境使用宽松配置
-  if (isDev && isLocalhost) {
+  if (isDev) {
     return getDevAuthCookieConfig();
   }
 

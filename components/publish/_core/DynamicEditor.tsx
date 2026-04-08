@@ -11,17 +11,14 @@
  * @module DynamicEditor
  */
 
-import { useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 import { useEditorState } from '@/hooks/publish/useEditorState'
 import { useEditorActions } from '@/hooks/publish/useEditorActions'
 import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor'
-import { useAutoSave } from '@/hooks/publish/useAutoSave'
 import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'
 import { SlashMenu } from '../_toolbar/SlashMenu'
-import { SaveStatus } from '../_core/SaveStatus'
-import { toast } from 'sonner'
 
 /**
  * 动态编辑器组件属性
@@ -75,28 +72,10 @@ export default function DynamicEditor({
     },
   })
 
-  // 接入自动保存功能（内容变化后防抖自动保存）
-  const { saveStatus, lastSavedAt, errorMessage, triggerSave, markUserInteracted } = useAutoSave(
-    editorState,
-    saveDraft
-  )
-
-  // 包装 onChange 以标记用户交互
-  const handleContentChange = useCallback((content: string) => {
-    markUserInteracted()
-    updateContent(content)
-  }, [markUserInteracted, updateContent])
-
-  // 包装标题更新以标记用户交互
-  const handleTitleChange = useCallback((title: string) => {
-    markUserInteracted()
-    updateTitle(title)
-  }, [markUserInteracted, updateTitle])
-
   // TipTap 编辑器实例 - 作为内容唯一数据源
   const { editor, flushPendingContent } = useTipTapEditor({
     content: initialContent,
-    onChange: handleContentChange,
+    onChange: updateContent,
     placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
   })
 
@@ -132,12 +111,6 @@ export default function DynamicEditor({
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       // 如果有未保存的变更，提示用户
       if (editorState.hasUnsavedChanges && !editorState.isPublished) {
-        // 先尝试 flush 内容
-        flushPendingContent()
-        
-        // 触发保存
-        void triggerSave()
-        
         // 显示确认提示
         e.preventDefault()
         e.returnValue = '您有未保存的更改，确定要离开吗？'
@@ -149,7 +122,7 @@ export default function DynamicEditor({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [editorState.hasUnsavedChanges, editorState.isPublished, flushPendingContent, triggerSave])
+  }, [editorState.hasUnsavedChanges, editorState.isPublished])
 
   /**
    * 键盘快捷键 - Ctrl/Cmd + S 保存
@@ -171,15 +144,6 @@ export default function DynamicEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorState.isPublished])
 
-  /**
-   * 显示保存错误提示
-   */
-  useEffect(() => {
-    if (errorMessage) {
-      toast.error(`自动保存失败: ${errorMessage}`)
-    }
-  }, [errorMessage])
-
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden">
       <EditorHeader
@@ -189,13 +153,6 @@ export default function DynamicEditor({
         isPublishing={isPublishing}
         isFullscreen={editorState.isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        saveStatusComponent={
-          <SaveStatus 
-            status={saveStatus} 
-            lastSavedAt={lastSavedAt} 
-            errorMessage={errorMessage}
-          />
-        }
       />
 
       {/* 内容区域容器 - 使用 flex-1 占据剩余空间，overflow-auto 处理滚动 */}
@@ -206,7 +163,7 @@ export default function DynamicEditor({
       }`}>
         <EditorCard
           title={editorState.title}
-          onTitleChange={handleTitleChange}
+          onTitleChange={updateTitle}
           titleLength={editorState.titleLength}
           contentLength={editorState.contentLength}
           editor={editor}

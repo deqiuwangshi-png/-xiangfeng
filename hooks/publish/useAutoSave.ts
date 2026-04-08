@@ -4,10 +4,6 @@
  * @fileoverview 自动保存 Hook
  * @module hooks/publish/useAutoSave
  * @description 自动保存编辑器内容，带保存状态指示器
- *
- * @类型依赖
- * - 类型定义位于: types/publish/editor.ts
- * - 导入: SaveStatus, EditorBaseState, UseAutoSaveReturn
  */
 
 import { useEffect, useCallback, useRef, useState } from 'react'
@@ -18,15 +14,15 @@ import type { SaveStatus, EditorBaseState, UseAutoSaveReturn } from '@/types/pub
 /** 认证错误重试冷却时间（毫秒） */
 const AUTH_RETRY_COOLDOWN_MS = 30_000
 
+/** 自动保存防抖延迟（毫秒） */
+const AUTOSAVE_DELAY_MS = 3000
+
 /**
  * 判断是否为认证相关错误
- * @param error - 错误对象
- * @returns 是否为认证错误
  */
-const isAuthRelatedError = (error: unknown): boolean => {
+function isAuthRelatedError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error)
   const normalized = message.toLowerCase()
-
   return (
     normalized.includes('auth session missing') ||
     normalized.includes('未登录') ||
@@ -35,7 +31,7 @@ const isAuthRelatedError = (error: unknown): boolean => {
 }
 
 /**
- * 自动保存 Hook - 带保存状态指示器
+ * 自动保存 Hook
  * @param editorState - 编辑器状态
  * @param saveDraft - 保存草稿函数
  * @returns 保存状态和上次保存时间
@@ -52,18 +48,11 @@ export const useAutoSave = (
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const lastSavedHashRef = useRef<string>('')
-  const isPublishedRef = useRef<boolean>(editorState.isPublished)
-  const authErrorLockedUntilRef = useRef<number>(0)
-  const saveDraftRef = useRef(saveDraft)
   const isSavingRef = useRef(false)
   const hasUserInteractedRef = useRef(false)
-  const initialContentHashRef = useRef<string>('')
-  const hasSetInitialHashRef = useRef(false)
-
-  useEffect(() => {
-    isPublishedRef.current = editorState.isPublished
-  }, [editorState.isPublished])
+  const lastContentRef = useRef<string>('')
+  const authErrorLockedUntilRef = useRef<number>(0)
+  const saveDraftRef = useRef(saveDraft)
 
   useEffect(() => {
     saveDraftRef.current = saveDraft
@@ -75,10 +64,6 @@ export const useAutoSave = (
     }
   }, [isAuthenticated])
 
-  const getContentHash = useCallback(() => {
-    return `${editorState.title}:${editorState.content}`
-  }, [editorState.title, editorState.content])
-
   /**
    * 标记用户已交互
    */
@@ -86,43 +71,39 @@ export const useAutoSave = (
     hasUserInteractedRef.current = true
   }, [])
 
+  /**
+   * 执行保存
+   */
   const doSave = useCallback(async () => {
-    if (isPublishedRef.current) return
+    if (editorState.isPublished) return
     if (!isInitialized || !isAuthenticated) return
     if (Date.now() < authErrorLockedUntilRef.current) return
+    if (isSavingRef.current) return
 
-    const currentHash = getContentHash()
+    const currentContent = `${editorState.title}:${editorState.content}`
 
-    // 如果内容没有变化，不保存
-    if (currentHash === lastSavedHashRef.current) return
+    // 内容未变化，不保存
+    if (currentContent === lastContentRef.current) return
 
-    // 如果用户从未交互过（初始加载状态），不保存
-    if (!hasUserInteractedRef.current) return
+    // 用户未交互，不保存
+    if (!hasUserInteractedRef.current) {
+      lastContentRef.current = currentContent
+      return
+    }
 
-    // 如果标题和内容都为空，不保存（严格判断）
+    // 标题和内容都为空，不保存
     const hasTitle = editorState.title.trim().length > 0
     const hasContent = !isContentEmpty(editorState.content)
     if (!hasTitle && !hasContent) return
 
-    // 如果是初始内容（未修改过），不保存
-    if (!hasSetInitialHashRef.current) {
-      initialContentHashRef.current = currentHash
-      hasSetInitialHashRef.current = true
-      return
-    }
-
-    // 如果内容与初始内容相同，不保存
-    if (currentHash === initialContentHashRef.current) return
+    isSavingRef.current = true
+    setSaveStatus('saving')
+    setErrorMessage(null)
 
     try {
-      if (isSavingRef.current) return
-      isSavingRef.current = true
-      setSaveStatus('saving')
-      setErrorMessage(null)
-
       await saveDraftRef.current({ silent: true })
 
-      lastSavedHashRef.current = currentHash
+      lastContentRef.current = currentContent
       authErrorLockedUntilRef.current = 0
       setSaveStatus('saved')
       setLastSavedAt(new Date())
@@ -140,57 +121,58 @@ export const useAutoSave = (
       if (isAuthRelatedError(error)) {
         authErrorLockedUntilRef.current = Date.now() + AUTH_RETRY_COOLDOWN_MS
       }
-
-      // 保存失败时，不更新 lastSavedHashRef，允许下次重试
     } finally {
       isSavingRef.current = false
     }
-  }, [editorState, getContentHash, isAuthenticated, isInitialized])
+  }, [editorState, isAuthenticated, isInitialized])
+
+  /**
+   * 清理定时器
+   */
+  const clearDebounceTimer = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
+    // 不满足保存条件，清理定时器并返回
     if (!isInitialized || !isAuthenticated || editorState.isPublished || Date.now() < authErrorLockedUntilRef.current) {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-        debounceTimerRef.current = null
-      }
+      clearDebounceTimer()
       return
     }
 
-    // 内容变化时设置为 idle（如果有变更）
-    const currentHash = getContentHash()
-    if (currentHash !== lastSavedHashRef.current && saveStatus !== 'saving') {
+    const currentContent = `${editorState.title}:${editorState.content}`
+
+    // 内容变化时重置状态
+    if (currentContent !== lastContentRef.current && saveStatus !== 'saving') {
       setSaveStatus('idle')
     }
 
-    // 如果用户未交互过，不启动自动保存定时器
+    // 用户未交互，不启动自动保存
     if (!hasUserInteractedRef.current) return
 
-    // 如果标题和内容都为空，不启动自动保存（严格判断）
+    // 内容为空，不启动自动保存
     const hasTitle = editorState.title.trim().length > 0
     const hasContent = !isContentEmpty(editorState.content)
     if (!hasTitle && !hasContent) return
 
+    // 设置防抖定时器
     debounceTimerRef.current = setTimeout(() => {
       void doSave()
-    }, 3000)
+    }, AUTOSAVE_DELAY_MS)
 
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
-      }
-    }
-  }, [editorState.title, editorState.content, editorState.isPublished, doSave, isAuthenticated, isInitialized, getContentHash, saveStatus])
+    return clearDebounceTimer
+  }, [editorState.title, editorState.content, editorState.isPublished, doSave, isAuthenticated, isInitialized, saveStatus, clearDebounceTimer])
 
   /**
    * 手动触发保存
    */
   const triggerSave = useCallback(async () => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current)
-      debounceTimerRef.current = null
-    }
+    clearDebounceTimer()
     await doSave()
-  }, [doSave])
+  }, [doSave, clearDebounceTimer])
 
   /**
    * 重置保存状态

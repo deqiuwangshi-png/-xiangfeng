@@ -4,13 +4,9 @@
  * @fileoverview 编辑器操作 Hook
  * @module hooks/publish/useEditorActions
  * @description 支持 JSON 格式内容保存，提供保存草稿和发布文章功能
- *
- * @类型依赖
- * - 类型定义位于: types/publish/editor.ts
- * - 导入: EditorBaseState, SaveDraftOptions, EditorActionsOptions, ValidationResult, UseEditorActionsReturn
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createArticle, updateArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { toast } from 'sonner'
@@ -22,6 +18,46 @@ import type {
   ValidationResult,
   UseEditorActionsReturn,
 } from '@/types/publish/editor'
+
+/**
+ * 验证内容是否可以保存
+ * 规则：标题或正文至少一个有实质性内容
+ */
+function validateContent(title: string, content: string): ValidationResult {
+  const hasTitle = title.trim().length > 0
+  const hasContent = !isContentEmpty(content)
+
+  if (!hasTitle && !hasContent) {
+    return { valid: false, error: '标题和内容不能同时为空' }
+  }
+
+  if (hasTitle && title.trim().length > 100) {
+    return { valid: false, error: '标题不能超过100个字符' }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * 验证内容是否可以发布
+ * 规则：必须有标题和内容，且内容不少于10个字符
+ */
+function validatePublish(title: string, content: string): ValidationResult {
+  if (!title.trim()) {
+    return { valid: false, error: '发布文章必须填写标题' }
+  }
+
+  if (isContentEmpty(content)) {
+    return { valid: false, error: '发布文章必须填写内容' }
+  }
+
+  const textContent = extractTextFromJSON(content).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
+  if (textContent.length < 10) {
+    return { valid: false, error: '发布内容不能少于10个字符' }
+  }
+
+  return { valid: true }
+}
 
 /**
  * 编辑器操作 Hook
@@ -39,47 +75,16 @@ export function useEditorActions<T extends EditorBaseState>(
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
-  const saveLockRef = useRef(false)
-  const publishLockRef = useRef(false)
-  const draftIdRef = useRef<string | null>(editorState.draftId)
-
-  useEffect(() => {
-    draftIdRef.current = editorState.draftId
-  }, [editorState.draftId])
-
-  /**
-   * 验证内容是否可以保存
-   * 规则：标题或正文至少一个有实质性内容
-   */
-  const validateContent = useCallback((): ValidationResult => {
-    const hasTitle = editorState.title.trim().length > 0
-    const hasContent = !isContentEmpty(editorState.content)
-
-    // 标题和内容都为空时，不允许保存
-    if (!hasTitle && !hasContent) {
-      return { valid: false, error: '标题和内容不能同时为空' }
-    }
-
-    // 标题长度限制（如果有标题）
-    if (hasTitle && editorState.title.trim().length > 100) {
-      return { valid: false, error: '标题不能超过100个字符' }
-    }
-
-    return { valid: true }
-  }, [editorState.title, editorState.content])
 
   /**
    * 保存草稿
    * @param saveOptions - 保存选项
-   * @param saveOptions.silent - 是否静默保存（不跳转）
-   * @param saveOptions.skipValidation - 是否跳过验证
    */
-  const saveDraft = async (saveOptions?: SaveDraftOptions) => {
-    if (saveLockRef.current || isSaving) return
+  const saveDraft = useCallback(async (saveOptions?: SaveDraftOptions) => {
+    if (isSaving) return
 
-    // 验证内容
     if (!saveOptions?.skipValidation) {
-      const validation = validateContent()
+      const validation = validateContent(editorState.title, editorState.content)
       if (!validation.valid) {
         if (!saveOptions?.silent) {
           toast.error(validation.error)
@@ -88,12 +93,11 @@ export function useEditorActions<T extends EditorBaseState>(
       }
     }
 
-    saveLockRef.current = true
     setIsSaving(true)
 
     try {
-      if (draftIdRef.current) {
-        await updateArticle(draftIdRef.current, {
+      if (editorState.draftId) {
+        await updateArticle(editorState.draftId, {
           title: editorState.title,
           content: editorState.content,
         })
@@ -103,7 +107,6 @@ export function useEditorActions<T extends EditorBaseState>(
           content: editorState.content,
           status: 'draft',
         })
-        draftIdRef.current = article.id
         setEditorState(prev => ({ ...prev, draftId: article.id }))
       }
 
@@ -122,48 +125,33 @@ export function useEditorActions<T extends EditorBaseState>(
       throw error
     } finally {
       setIsSaving(false)
-      saveLockRef.current = false
     }
-  }
+  }, [editorState, isSaving, setEditorState, options, router])
 
   /**
    * 发布文章
    */
-  const publishContent = async () => {
-    if (publishLockRef.current || isPublishing) return
+  const publishContent = useCallback(async () => {
+    if (isPublishing) return
 
-    // 发布前严格验证：必须有标题
-    if (!editorState.title.trim()) {
-      toast.error('发布文章必须填写标题')
-      throw new Error('发布文章必须填写标题')
+    const validation = validatePublish(editorState.title, editorState.content)
+    if (!validation.valid) {
+      toast.error(validation.error)
+      throw new Error(validation.error)
     }
 
-    // 发布前严格验证：必须有内容
-    if (isContentEmpty(editorState.content)) {
-      toast.error('发布文章必须填写内容')
-      throw new Error('发布文章必须填写内容')
-    }
-
-    // 额外验证：内容不能太短
-    const textContent = extractTextFromJSON(editorState.content).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
-    if (textContent.length < 10) {
-      toast.error('发布内容不能少于10个字符')
-      throw new Error('发布内容不能少于10个字符')
-    }
-
-    publishLockRef.current = true
     setIsPublishing(true)
 
     try {
       let articleId: string
 
-      if (draftIdRef.current) {
-        await updateArticle(draftIdRef.current, {
+      if (editorState.draftId) {
+        await updateArticle(editorState.draftId, {
           title: editorState.title,
           content: editorState.content,
         })
-        await updateArticleStatus(draftIdRef.current, 'published')
-        articleId = draftIdRef.current
+        await updateArticleStatus(editorState.draftId, 'published')
+        articleId = editorState.draftId
       } else {
         const article = await createArticle({
           title: editorState.title,
@@ -184,15 +172,17 @@ export function useEditorActions<T extends EditorBaseState>(
       throw error
     } finally {
       setIsPublishing(false)
-      publishLockRef.current = false
     }
-  }
+  }, [editorState, isPublishing, setEditorState, options, router])
 
   return {
     saveDraft,
     publishContent,
     isSaving,
     isPublishing,
-    validateContent,
+    validateContent: useCallback(
+      () => validateContent(editorState.title, editorState.content),
+      [editorState.title, editorState.content]
+    ),
   }
 }
