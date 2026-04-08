@@ -76,7 +76,7 @@ async function ProfileHeaderData({ userId, supabase }: { userId: string; supabas
 
   const stats: UserStats = statsResult.success && statsResult.data
     ? statsResult.data
-    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
+    : { articles: 0, followers: 0, likes: 0, favorites: 0 }
 
   return <ProfileHeader user={userData} stats={stats} />
 }

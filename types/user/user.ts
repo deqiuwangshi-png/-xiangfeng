@@ -153,6 +153,6 @@ export interface UserStats {
   followers: number
   /** 获赞数量 */
   likes: number
-  /** 社群数量 */
-  nodes: number
+  /** 收藏数量 */
+  favorites: number
 }

@@ -10,7 +10,7 @@
  * - 防止 XSS 攻击，确保恶意脚本不会被执行
  */
 
-import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Filter } from '@/components/icons'
+import { UserPlus, UserCheck, MapPin, Calendar, FileText, Users, ThumbsUp, Bookmark, Filter } from '@/components/icons'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { UserAvt } from '@/components/ui'
@@ -194,6 +194,11 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
           <ThumbsUp className="w-4 h-4 text-xf-accent" />
           <span className="text-sm font-semibold text-xf-accent">{stats.likes}</span>
           <span className="text-xs text-xf-medium">获赞</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Bookmark className="w-4 h-4 text-xf-primary" />
+          <span className="text-sm font-semibold text-xf-accent">{stats.favorites}</span>
+          <span className="text-xs text-xf-medium">收藏</span>
         </div>
       </div>
     </div>

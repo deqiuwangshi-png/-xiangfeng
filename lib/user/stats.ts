@@ -37,12 +37,12 @@ export const getUserStats = cache(async (): Promise<{ success: boolean; data?: U
     /**
      * 使用 profiles 表缓存字段获取所有统计
      * @性能优化 单次查询替代多次并行查询，减少数据库往返
-     * @说明 articles_count, followers_count, total_likes, nodes_count
+     * @说明 articles_count, followers_count, total_likes
      *       均由数据库触发器自动维护
      */
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('articles_count, followers_count, total_likes, nodes_count')
+      .select('articles_count, followers_count, total_likes')
       .eq('id', user.id)
       .single()
 
@@ -51,13 +51,23 @@ export const getUserStats = cache(async (): Promise<{ success: boolean; data?: U
       return { success: false, error: '获取统计数据失败' }
     }
 
+    // 查询用户收藏数量
+    const { count: favoritesCount, error: favoritesError } = await supabase
+      .from('favorites')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+
+    if (favoritesError) {
+      console.error('获取收藏数量失败:', JSON.stringify(favoritesError))
+    }
+
     return {
       success: true,
       data: {
         articles: profile?.articles_count || 0,
         followers: profile?.followers_count || 0,
         likes: profile?.total_likes || 0,
-        nodes: profile?.nodes_count || 0,
+        favorites: favoritesCount || 0,
       },
     }
   } catch (err) {

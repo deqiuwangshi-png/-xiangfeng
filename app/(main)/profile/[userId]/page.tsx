@@ -68,19 +68,25 @@ interface UserProfilePageProps {
 async function getUserPublicStats(userId: string, supabase: SupabaseClient): Promise<UserStats> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('articles_count, followers_count, likes_received, nodes_count')
+    .select('articles_count, followers_count, likes_received')
     .eq('id', userId)
     .single()
 
   if (error || !data) {
-    return { articles: 0, followers: 0, likes: 0, nodes: 0 }
+    return { articles: 0, followers: 0, likes: 0, favorites: 0 }
   }
+
+  // 查询用户收藏数量
+  const { count: favoritesCount } = await supabase
+    .from('favorites')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
 
   return {
     articles: data.articles_count || 0,
     followers: data.followers_count || 0,
     likes: data.likes_received || 0,
-    nodes: data.nodes_count || 0,
+    favorites: favoritesCount || 0,
   }
 }
 
