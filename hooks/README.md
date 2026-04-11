@@ -312,6 +312,7 @@ function DraftsPage({ initialArticles }) {
 ```
 
 **功能：**
+
 - 草稿列表管理（SWR 缓存）
 - 筛选和搜索
 - 分页
@@ -344,6 +345,7 @@ function FeedbackForm({ onSubmitSuccess }) {
 ```
 
 **功能：**
+
 - 表单状态管理（类型、描述、文件）
 - 表单验证
 - 文件上传（延迟到提交时）
@@ -370,6 +372,7 @@ function ReplySection({ pageId }) {
 ```
 
 **功能：**
+
 - 评论列表加载
 - 新评论提交
 - 加载和提交状态管理
@@ -390,6 +393,7 @@ function Editor({ editorState, saveDraft }) {
 ```
 
 **功能：**
+
 - 定时自动保存（30秒间隔）
 - 静默保存模式
 - 离开页面前保存提示
@@ -411,6 +415,7 @@ function Editor({ editorState, setEditorState }) {
 ```
 
 **功能：**
+
 - 保存草稿
 - 发布文章
 - 更新媒体状态
@@ -434,6 +439,7 @@ function Editor({ initialTitle, initialContent, draftId }) {
 ```
 
 **功能：**
+
 - 标题和内容状态
 - 字数统计
 - 全屏模式
@@ -458,6 +464,7 @@ function Editor({ content, onChange }) {
 ```
 
 **功能：**
+
 - TipTap 编辑器实例创建
 - 图片上传处理
 - 粘贴图片支持
@@ -479,6 +486,7 @@ function ExchangeHistory() {
 ```
 
 **功能：**
+
 - 兑换记录列表获取
 - SWR 缓存优化
 - 分页支持
@@ -498,6 +506,7 @@ function PointsPage() {
 ```
 
 **功能：**
+
 - 积分总览获取
 - 积分流水查询
 - 加载更多
@@ -517,6 +526,7 @@ function ShopPage({ category }) {
 ```
 
 **功能：**
+
 - 商品列表获取
 - 商品兑换
 - 分类筛选
@@ -536,6 +546,7 @@ function SignInCard() {
 ```
 
 **功能：**
+
 - 签到状态查询
 - 执行签到
 - 连续签到天数
@@ -555,6 +566,7 @@ function TaskPage({ category }) {
 ```
 
 **功能：**
+
 - 任务列表获取
 - 领取任务奖励
 - 接取任务
@@ -605,3 +617,4 @@ import { useArticleToast } from '../../../hooks/article/useArticleToast';
 - [文章库](../lib/articles/README.md) - 文章相关 Hooks
 - [Supabase库](../lib/supabase/README.md) - 数据库操作
 - [类型定义](../types/README.md) - Hooks 类型定义
+

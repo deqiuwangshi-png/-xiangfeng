@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/server';
 import { siteUrl } from '@/lib/seo';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { REGISTER_MESSAGES } from '@/lib/messages';
-import { isAllowedEmail } from '../utils';
+import { isAllowedEmail } from '../utils/helpers';
 import type { AuthResult } from '@/types';
 
 /**

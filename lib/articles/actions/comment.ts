@@ -15,7 +15,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth, withAuth } from '@/lib/auth/server';
+import { withAuth } from '@/lib/auth/server';
 import { getArticleCommentsPaginated } from '../queries/comment';
 import { checkCommentArticleTask } from '@/lib/rewards/tasks';
 import { CommentSchema, CommentIdSchema } from '../schema';
@@ -85,11 +85,11 @@ export async function getArticleComments(
  */
 export const submitArticleComment = withAuth(
   async (
+    user,
     articleId: string,
     content: string,
     parentId?: string
   ): Promise<SubmitCommentResult> => {
-    const user = await requireAuth();
     const supabase = await createClient();
 
     try {
@@ -213,8 +213,7 @@ export const submitArticleComment = withAuth(
  * - 使用 withAuth 统一权限控制
  */
 export const deleteArticleComment = withAuth(
-  async (commentId: string): Promise<DeleteCommentResult> => {
-    const user = await requireAuth();
+  async (user, commentId: string): Promise<DeleteCommentResult> => {
     const supabase = await createClient();
 
     try {

@@ -39,6 +39,8 @@ import {
 } from '@/components/profile'
 import { getCurrentUser } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
+import { UnauthenticatedPrompt } from '@/components/auth/guards/UnauthenticatedPrompt'
+import { User } from 'lucide-react'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -112,10 +114,16 @@ export default async function ProfilePage() {
   // 获取当前登录用户 - 使用统一入口（与布局共享）
   const user = await getCurrentUser()
 
-  // 未登录状态：显示登录引导（与其他页面保持一致）
-  // Layout 层已拦截未登录用户，此处 user 理论上不会为 null
+  // 未登录：与 inbox 等页一致，避免布局拦截失效时出现错误页
   if (!user) {
-    throw new Error('用户未登录')
+    return (
+      <UnauthenticatedPrompt
+        title="个人主页"
+        description="查看你的资料、内容与数据概览"
+        icon={<User className="w-8 h-8 sm:w-10 sm:h-10 text-xf-primary" />}
+        promptText="登录后查看你的个人主页"
+      />
+    )
   }
 
   // 创建一次 supabase 客户端供后续复用

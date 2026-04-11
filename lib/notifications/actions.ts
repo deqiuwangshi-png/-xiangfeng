@@ -35,12 +35,14 @@ export type NotificationRow = {
 }
 
 export async function fetchNotificationsPage(args: {
-  userId: string
   page: number
   pageSize: number
 }) {
+  const user = await getCurrentUser()
+  if (!user) return []
+
   const supabase = await createClient()
-  const { userId, page, pageSize } = args
+  const { page, pageSize } = args
 
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
@@ -61,7 +63,7 @@ export async function fetchNotificationsPage(args: {
         actor:profiles!actor_id(username)
       `
     )
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .range(from, to)
 
@@ -69,28 +71,32 @@ export async function fetchNotificationsPage(args: {
   return (data ?? []) as unknown as NotificationRow[]
 }
 
-export async function fetchUnreadCount(args: { userId: string }) {
+export async function fetchUnreadCount() {
+  const user = await getCurrentUser()
+  if (!user) return 0
+
   const supabase = await createClient()
-  const { userId } = args
 
   const { count, error } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .eq('is_read', false)
 
   if (error) throw error
   return count ?? 0
 }
 
-export async function markAllAsRead(args: { userId: string }) {
+export async function markAllAsRead() {
+  const user = await getCurrentUser()
+  if (!user) throw new Error('未登录')
+
   const supabase = await createClient()
-  const { userId } = args
 
   const { error } = await supabase
     .from('notifications')
     .update({ is_read: true, read_at: new Date().toISOString() })
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .eq('is_read', false)
 
   if (error) throw error
@@ -162,27 +168,20 @@ export async function batchDeleteNotifications(args: { ids: string[] }) {
 }
 
 /**
- * 获取增量通知（只获取比指定时间更新的通知）
- * @description 用于 Realtime 触发后的增量更新，避免全量获取
- * @param args - 参数对象
- * @param args.userId - 用户ID
- * @param args.after - 时间戳，只获取此时间之后创建的通知
- * @returns 新增的通知列表
- */
-/**
  * 增量获取新通知（带上限限制）
  *
  * @性能优化 P-03: 添加 limit 限制，防止长时间离线后拉取过多数据
- * @param args.userId - 用户ID
  * @param args.after - 时间戳，只获取此时间之后创建的通知
  * @returns 新增的通知列表（最多 100 条）
  */
 export async function fetchNewNotifications(args: {
-  userId: string
   after: string
 }): Promise<NotificationRow[]> {
+  const user = await getCurrentUser()
+  if (!user) return []
+
   const supabase = await createClient()
-  const { userId, after } = args
+  const { after } = args
 
   /**
    * @性能优化 P-03: 添加 limit(100) 限制
@@ -204,7 +203,7 @@ export async function fetchNewNotifications(args: {
         actor:profiles!actor_id(username)
       `
     )
-    .eq('user_id', userId)
+    .eq('user_id', user.id)
     .gt('created_at', after)
     .order('created_at', { ascending: false })
     .limit(100)

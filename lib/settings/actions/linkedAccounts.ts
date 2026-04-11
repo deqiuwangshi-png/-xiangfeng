@@ -8,12 +8,12 @@
  * @lastUpdated 2026-03-28
  *
  * @重构说明
- * - 使用公共认证工具 withAuth 替代重复认证逻辑
+ * - 使用 withAuthSession 统一获取 user + supabase
  * - 统一错误处理
  * - 使用统一SEO配置中的siteUrl
  */
 
-import { withAuth } from '../utils/auth'
+import { withAuthSession } from '@/lib/auth/server'
 import { siteUrl } from '@/lib/seo'
 import { LOGIN_MESSAGES, COMMON_ERRORS, SUCCESS_MESSAGES } from '@/lib/messages'
 import type {
@@ -42,7 +42,7 @@ const PROVIDER_CONFIG: Record<
 
  */
 export async function getLinkedAccounts(): Promise<GetLinkedAccountsResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     // 从数据库查询已关联的账号
     const { data: dbIdentities, error: queryError } = await supabase
       .from('user_identities')
@@ -125,7 +125,7 @@ export async function linkAccount(
     }
   }
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     // 检查是否已绑定
     const { data: existingIdentity, error: checkError } = await supabase
       .from('user_identities')
@@ -191,7 +191,7 @@ export async function linkAccount(
 export async function unlinkAccount(
   provider: OAuthProvider
 ): Promise<LinkAccountResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     // 从 Supabase Auth 获取 identities（作为权威来源）
     const { data: authIdentitiesData, error: authIdentitiesError } =
       await supabase.auth.getUserIdentities()
@@ -292,7 +292,7 @@ export async function syncIdentitiesToDatabase(): Promise<{
   success: boolean
   error?: string
 }> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     // 获取用户的所有身份
     const { data: identities, error: identitiesError } =
       await supabase.auth.getUserIdentities()

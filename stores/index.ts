@@ -17,8 +17,6 @@ export {
   useAuthStore,
   selectUser,
   selectStatus,
-  selectUserId,
-  selectIsAuthenticated,
 } from './auth'
 
 export type {

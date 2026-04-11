@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { CHANGE_PASSWORD_MESSAGES } from '@/lib/messages';
-import { validatePasswordMatch } from '../utils';
+import { validatePasswordMatch } from '../utils/helpers';
 import { getCurrentUser } from '@/lib/auth/server';
 import type { AuthResult } from '@/types';
 

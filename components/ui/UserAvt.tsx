@@ -120,15 +120,3 @@ export function UserAvt({
     />
   )
 }
-
-/**
- * 向后兼容的别名导出
- * @deprecated 请使用 UserAvt
- */
-export { UserAvt as AvatarPlaceholder }
-
-/**
- * 向后兼容的别名导出
- * @deprecated 请使用 UserAvt
- */
-export { UserAvt as UserAvatar }

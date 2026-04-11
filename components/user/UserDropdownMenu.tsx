@@ -11,6 +11,7 @@ import { useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { useLogout } from '@/lib/auth/client'
+import { FEISHU_FEEDBACK_FORM_URL } from '@/constants/feedback'
 import type { SimpleUser, DropdownItem } from '@/types'
 
 /**
@@ -63,13 +64,14 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
         { label: '登录', icon: LogIn, href: '/login' },
         { label: '注册', icon: UserPlus, href: '/register' },
         { label: '更新公告', icon: Newspaper, href: '/updates' },
+        { label: '产品反馈', icon: MessageSquare, externalUrl: FEISHU_FEEDBACK_FORM_URL },
       ]
     }
     {/* 已登录用户菜单 */}
     return [
       { label: '个人主页', icon: User, href: '/profile' },
       { label: '更新公告', icon: Newspaper, href: '/updates' },
-      { label: '产品反馈', icon: MessageSquare, href: '/feedback' },
+      { label: '产品反馈', icon: MessageSquare, externalUrl: FEISHU_FEEDBACK_FORM_URL },
       { label: '用户设置', icon: Settings, href: '/settings' },
       {
         label: isLoggingOut ? '退出中...' : '退出登录',
@@ -132,9 +134,25 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
             <item.icon className="w-4 h-4" />
             {item.label}
           </button>
+        ) : item.externalUrl ? (
+          <a
+            key={item.label}
+            href={item.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className={`
+              flex items-center gap-3 px-5 py-3 text-sm 
+              transition-colors
+              text-xf-dark hover:bg-xf-bg/50 hover:text-xf-accent
+            `}
+          >
+            <item.icon className="w-4 h-4" />
+            {item.label}
+          </a>
         ) : (
           <Link
-            key={item.href}
+            key={item.href ?? item.label}
             href={item.href!}
             onClick={onClose}
             className={`

@@ -49,11 +49,14 @@ export {
 // ==================== 权限控制 ====================
 export { requireAuth } from './core/permissions';
 export { withAuth } from './core/withPermission';
+export { verifyAuthSession, withAuthSession } from './core/sessionContext';
 export type {
   UserRole,
   WriteOperation,
   PermissionCheckResult,
 } from '@/types/auth/permissions';
+
+export type { AuthSessionResult, AuthSessionCallback } from '@/types/auth/auth';
 
 // ==================== 登录历史 ====================
 export { getLoginHistory, recordLoginHistory } from './core/loginHistory';
@@ -63,7 +66,6 @@ export {
   getAuthCookieConfig,
   getDevAuthCookieConfig,
   getFeatureCookieConfig,
-  getCurrentAuthCookieConfig,
 } from './utils/cookieConfig';
 
 // ==================== 工具函数 ====================

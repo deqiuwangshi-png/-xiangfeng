@@ -5,30 +5,34 @@ import { AuthGuard } from '@/components/auth/guards/AuthGuard'
 import { AuthProvider } from '@/components/providers'
 import '@/styles/app.css'
 import '@/styles/user.css'
-import '@/styles/feedback.css'
 import '@/styles/inbox.css'
 import '@/styles/publish.css'
 
 /**
  * 需要登录才能访问的路由列表
  */
+/**
+ * 需登录的路由（不含 /profile/[userId]，该路径为公开访客主页）
+ */
 const REQUIRE_AUTH_ROUTES = [
   '/publish',
   '/drafts',
   '/inbox',
   '/settings',
-  '/feedback',
   '/updates',
   '/rewards',
-  '/profile',
 ]
 
 /**
  * 检查路径是否需要登录
  */
 function requiresAuth(pathname: string): boolean {
+  const norm = (pathname.replace(/\/$/, '') || '/')
+  // 当前用户「我的主页」入口 /profile 需登录；/profile/uuid 为他人公开页
+  if (norm === '/profile') return true
+
   return REQUIRE_AUTH_ROUTES.some(route =>
-    pathname === route || pathname.startsWith(`${route}/`)
+    norm === route || norm.startsWith(`${route}/`)
   )
 }
 

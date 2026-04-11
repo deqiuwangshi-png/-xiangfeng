@@ -18,7 +18,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth, withAuth } from '@/lib/auth/server';
+import { withAuth } from '@/lib/auth/server';
 import { checkCollectArticleTask } from '@/lib/rewards/tasks';
 import { isValidUUID } from '../helpers/utils';
 import { ARTICLE_ERROR_MESSAGES, ARTICLE_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
@@ -47,13 +47,12 @@ export interface ToggleBookmarkResult {
  * @returns 收藏结果
  */
 export const toggleArticleBookmark = withAuth(
-  async (articleId: string): Promise<ToggleBookmarkResult> => {
+  async (user, articleId: string): Promise<ToggleBookmarkResult> => {
     // 1. 验证 articleId 格式
     if (!isValidUUID(articleId)) {
       return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
     }
 
-    const user = await requireAuth();
     const supabase = await createClient();
     const currentUserId = user.id;
     const currentArticleId = articleId;

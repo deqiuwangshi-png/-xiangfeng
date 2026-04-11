@@ -1,6 +1,6 @@
 /**
  * 认证状态检查 API
- * @module app/api/auth/check
+ * @module app/api/auth/route
  * @description 用于前端检查用户是否已登录
  */
 
@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * GET /api/auth/check
+ * GET /api/auth
  * 检查当前用户是否已认证
  */
 export async function GET() {

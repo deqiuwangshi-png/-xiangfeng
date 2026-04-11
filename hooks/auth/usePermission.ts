@@ -76,7 +76,7 @@ export function usePermission(): UsePermissionReturn {
   const checkAuth = useCallback(async (): Promise<boolean> => {
     setIsChecking(true);
     try {
-      const response = await fetch('/api/auth/check', {
+      const response = await fetch('/api/auth', {
         method: 'GET',
         credentials: 'include',
       });

@@ -25,6 +25,21 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
 }
 
 /**
+ * 将当前路径注入请求头，供 Server Layout 等读取（Next 不直接提供 pathname）
+ */
+function withPathnameHeader(request: NextRequest): Headers {
+  const h = new Headers(request.headers)
+  h.set('x-pathname', request.nextUrl.pathname)
+  return h
+}
+
+function nextWithPathname(request: NextRequest) {
+  return NextResponse.next({
+    request: { headers: withPathnameHeader(request) },
+  })
+}
+
+/**
  * 更新用户会话
  *
  * @param request - Next.js 请求对象
@@ -52,12 +67,8 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname
   const isAuthRoute = isMatchingRoute(path, AUTH_ROUTES)
 
-  // 创建基础响应对象
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  // 创建基础响应对象（附带 x-pathname，供 (main)/layout 等做路由级鉴权）
+  let supabaseResponse = nextWithPathname(request)
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -87,9 +98,7 @@ export async function updateSession(request: NextRequest) {
 
         // 创建新的响应对象，但保留已设置的 cookies
         const currentCookies = supabaseResponse.cookies.getAll()
-        supabaseResponse = NextResponse.next({
-          request: { headers: request.headers },
-        })
+        supabaseResponse = nextWithPathname(request)
         
         // 恢复之前设置的 cookies
         currentCookies.forEach(cookie => {

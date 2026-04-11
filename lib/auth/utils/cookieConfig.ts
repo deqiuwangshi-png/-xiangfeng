@@ -72,19 +72,3 @@ export function getFeatureCookieConfig(maxAge: number = 24 * 60 * 60): CookieOpt
   };
 }
 
-/**
- * 获取当前环境的认证 Cookie 配置
- *
- * @returns 根据环境返回合适的配置
- * @deprecated 请直接使用 getAuthCookieConfig 或 getDevAuthCookieConfig
- */
-export function getCurrentAuthCookieConfig(): CookieOptions {
-  const isDev = process.env.NODE_ENV === 'development';
-  
-  // 本地开发环境使用宽松配置
-  if (isDev) {
-    return getDevAuthCookieConfig();
-  }
-
-  return getAuthCookieConfig();
-}

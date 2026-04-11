@@ -7,7 +7,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { withAuth } from '../utils/auth'
+import { withAuthSession } from '@/lib/auth/server'
 import { CONTENT_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
 import type { ContentSettingsResult, UpdateSettingResult } from '@/types/user/settings'
@@ -17,7 +17,7 @@ import type { ContentSettingsResult, UpdateSettingResult } from '@/types/user/se
  * @returns 内容设置结果
  */
 export async function getContentSettings(): Promise<ContentSettingsResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { data, error } = await supabase
       .from('user_settings')
       .select('content_language')
@@ -54,7 +54,7 @@ export async function updateContentLanguage(
     return { success: false, error: COMMON_ERRORS.INVALID_PARAMS }
   }
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { error } = await supabase.from('user_settings').upsert(
       {
         user_id: user.id,
@@ -91,7 +91,7 @@ export async function updateContentSettings(formData: FormData): Promise<UpdateS
     return { success: false, error: '无效的内容设置项' }
   }
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { error } = await supabase
       .from('user_settings')
       .upsert(

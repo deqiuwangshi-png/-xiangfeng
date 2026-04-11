@@ -9,6 +9,8 @@
 // ============================================
 export type {
   AuthResult,
+  AuthSessionResult,
+  AuthSessionCallback,
   AuthErrorType,
   RegisterFormData,
   RegisterFormErrors,
@@ -104,26 +106,6 @@ export type {
   UseDraftsToastReturn,
   UseDraftsReturn,
 } from './drafts';
-
-// ============================================
-// 反馈模块
-// ============================================
-export type {
-  FeedbackStatus,
-  FeedbackType,
-  Reply,
-  Attachment,
-  FeedbackItem,
-  HotFeedbackItem,
-  FAQItem,
-  FeedbackInput,
-  FeedbackSubmitResult,
-  FeedbackQueryResult,
-  ReplyQueryResult,
-  ReplySubmitResult,
-  FileUploadStatus,
-  UploadedFile,
-} from './user/feedback';
 
 // ============================================
 // 通知模块

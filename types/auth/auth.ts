@@ -4,6 +4,8 @@
  * @description 集中管理认证相关的所有类型定义
  */
 
+import type { User, SupabaseClient } from '@supabase/supabase-js'
+
 // ============================================
 // 基础认证类型
 // ============================================
@@ -21,6 +23,23 @@ export interface AuthResult {
   /** 成功消息 */
   message?: string;
 }
+
+/**
+ * 服务端已登录会话（用户 + Supabase 服务端客户端）
+ * @description 用于需要同时访问 auth 用户与 RLS 数据库客户端的场景
+ */
+export interface AuthSessionResult extends AuthResult {
+  user?: User;
+  supabase?: SupabaseClient;
+}
+
+/**
+ * 在已认证会话中执行的回调
+ */
+export type AuthSessionCallback<T> = (
+  user: User,
+  supabase: SupabaseClient
+) => Promise<T>;
 
 /**
  * 认证错误类型

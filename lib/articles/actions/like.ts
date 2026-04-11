@@ -19,7 +19,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth, withAuth } from '@/lib/auth/server';
+import { withAuth } from '@/lib/auth/server';
 import { checkLikeArticleTask } from '@/lib/rewards/tasks';
 import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
@@ -38,10 +38,9 @@ import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
  * @returns 点赞结果
  */
 export const toggleArticleLike = withAuth(
-  async (articleId: string): Promise<ToggleLikeResult> => {
+  async (user, articleId: string): Promise<ToggleLikeResult> => {
     console.log('[点赞 Server] toggleArticleLike 被调用:', articleId);
 
-    const user = await requireAuth();
     const supabase = await createClient();
 
     try {
@@ -158,10 +157,9 @@ export const toggleArticleLike = withAuth(
  * @returns 点赞结果
  */
 export const toggleCommentLike = withAuth(
-  async (commentId: string): Promise<ToggleCommentLikeResult> => {
+  async (user, commentId: string): Promise<ToggleCommentLikeResult> => {
     console.log('[点赞 Server] toggleCommentLike 被调用:', commentId);
 
-    const user = await requireAuth();
     const supabase = await createClient();
 
     try {

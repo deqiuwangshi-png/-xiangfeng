@@ -124,17 +124,6 @@ export const SETTINGS_KEYS = {
 } as const
 
 // ============================================
-// 反馈相关
-// ============================================
-export const FEEDBACK_KEYS = {
-  /** 反馈列表 */
-  LIST: 'feedback/list',
-  
-  /** 我的反馈 */
-  myFeedback: (userId: string): (string | number)[] => ['feedback', 'my', userId],
-} as const
-
-// ============================================
 // 统一导出
 // ============================================
 export const CACHE_KEYS = {
@@ -144,7 +133,6 @@ export const CACHE_KEYS = {
   REWARDS: REWARDS_KEYS,
   NOTIFICATION: NOTIFICATION_KEYS,
   SETTINGS: SETTINGS_KEYS,
-  FEEDBACK: FEEDBACK_KEYS,
 } as const
 
 // 导出兼容旧代码的别名

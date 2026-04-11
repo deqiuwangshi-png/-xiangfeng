@@ -7,7 +7,7 @@
  */
 
 import { Save, Check, AlertCircle } from 'lucide-react'
-import type { SaveStatus } from '@/hooks/publish/useAutoSave'
+import type { SaveStatus } from '@/types/publish/editor'
 
 interface SaveStatusProps {
   status: SaveStatus

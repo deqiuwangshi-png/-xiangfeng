@@ -135,6 +135,7 @@ export async function batchDeleteArticles(ids: string[]): Promise<BatchDeleteRes
   const failedCount = validIds.length - deletedCount;
 
   return {
+    successCount: deletedCount,
     success: failedCount === 0,
     deletedCount,
     failedCount,
