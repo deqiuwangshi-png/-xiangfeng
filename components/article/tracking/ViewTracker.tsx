@@ -8,7 +8,7 @@
  *
  * @特性
  * - 页面加载后自动统计
- * - 使用 sessionStorage + cookie 双重防刷
+ * - 使用 sessionStorage + 服务端 HttpOnly Cookie 双重防刷（计数标记仅服务端可读）
  * - 延迟 3 秒后触发，确保真实阅读
  */
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { AuthStore, AuthState, AuthError, LoginParams, LoginResult } from './authTypes'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
+import { isNetworkError } from '@/lib/auth/utils/helpers'
 
 /**
  * 请求缓存 - 按用户ID存储
@@ -16,18 +17,6 @@ const RETRY_DELAY = 1000
 
 interface ErrorWithMessage {
   message?: string
-}
-
-/**
- * 检查是否为网络错误
- */
-function isNetworkError(error: unknown): boolean {
-  const networkErrorMessages = ['网络错误', 'Network error', 'Connection failed', 'Timeout', 'fetch failed', '请求失败']
-  const err = error as ErrorWithMessage
-  if (err?.message) {
-    return networkErrorMessages.some(msg => err.message?.includes(msg))
-  }
-  return false
 }
 
 /**

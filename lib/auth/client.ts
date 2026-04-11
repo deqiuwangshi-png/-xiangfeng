@@ -34,6 +34,9 @@ export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/auth/useLogout';
 // ==================== Hooks ====================
 export { useLogout } from '@/hooks/auth/useLogout';
 
+// ==================== 工具 ====================
+export { isNetworkError } from './utils/helpers';
+
 // ==================== 消息常量 ====================
 export {
   COMMON_ERRORS,

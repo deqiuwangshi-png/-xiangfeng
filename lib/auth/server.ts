@@ -63,16 +63,23 @@ export { getLoginHistory, recordLoginHistory } from './core/loginHistory';
 
 // ==================== Cookie 配置 ====================
 export {
+  AUTH_COOKIE_SAME_SITE,
+  allowInsecureCookieTransport,
+  cookieSecureDefault,
+  cookieSecureForRequest,
   getAuthCookieConfig,
+  getAuthCookieExpireOptions,
   getDevAuthCookieConfig,
   getFeatureCookieConfig,
 } from './utils/cookieConfig';
+export type { CookieTransportRequest } from './utils/cookieConfig';
 
 // ==================== 工具函数 ====================
 export {
   isAllowedEmail,
   getAllowedEmailHint,
   validatePasswordMatch,
+  isNetworkError,
 } from './utils/helpers';
 
 // ==================== 重定向安全 ====================

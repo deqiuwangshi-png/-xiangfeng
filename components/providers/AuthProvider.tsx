@@ -15,6 +15,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useAuthStore } from '@/stores/auth'
 import { createClient } from '@/lib/supabase/client'
+import { isNetworkError } from '@/lib/auth/utils/helpers'
 import type { SimpleUser, UserProfile } from '@/types/user/user'
 import type { AuthChangeEvent } from '@supabase/supabase-js'
 
@@ -27,15 +28,6 @@ interface AuthProviderProps {
   children: React.ReactNode
   initialUser?: SimpleUser | null
   initialProfile?: UserProfile | null
-}
-
-/**
- * 检查是否为网络错误
- */
-function isNetworkError(error: unknown): boolean {
-  const networkErrorMessages = ['网络错误', 'Network error', 'Connection failed', 'Timeout', 'fetch failed']
-  const message = error instanceof Error ? error.message : String(error)
-  return networkErrorMessages.some(msg => message.includes(msg))
 }
 
 export function AuthProvider({

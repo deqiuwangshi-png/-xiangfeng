@@ -54,10 +54,10 @@ export function MobileNav() {
         <div className="flex items-center gap-3">
           {/* @性能优化: 使用 Link 替代 router.push，启用自动预加载 */}
           <Link
-            href="/login"
+            href="/home"
             className="px-4 py-2 bg-xf-primary text-white rounded-lg text-sm font-medium touch-manipulation active-scale"
           >
-            登录
+            去使用
           </Link>
 
           {/* 汉堡菜单按钮 */}

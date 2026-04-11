@@ -50,10 +50,10 @@ function DesktopNav() {
 
         <div className="flex items-center gap-4">
           <Link
-            href="/login"
+            href="/home"
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
           >
-            登录
+            去使用
           </Link>
         </div>
       </div>

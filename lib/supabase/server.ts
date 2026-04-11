@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getAuthCookieConfig, getDevAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
 
 /**
  * @fileoverview Supabase 服务端客户端
@@ -85,17 +85,15 @@ export async function createClient() {
        */
       setAll(cookiesToSet) {
         try {
-          // 统一使用与中间件相同的配置函数
-          const isDev = process.env.NODE_ENV === 'development'
-          const cookieOptions = isDev ? getDevAuthCookieConfig() : getAuthCookieConfig()
+          const cookieOptions = getAuthCookieConfig()
 
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, {
               ...options,
-              // 应用统一的 Cookie 安全配置
               ...cookieOptions,
             })
           })
+          // 防 CDN 缓存头由 Proxy（middleware）在刷新会话时统一附加；RSC/SA 无法可靠写入响应头
         } catch {
           // `setAll` 方法从 Server Component 调用时可能会抛出错误
           // 这是正常的，因为 Server Component 不能直接设置 Cookie

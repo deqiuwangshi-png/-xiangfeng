@@ -16,13 +16,15 @@ export async function GET() {
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
 
+    const noStore = { 'Cache-Control': 'private, no-store, max-age=0' } as const;
+
     if (error || !user) {
       return NextResponse.json(
         {
           authenticated: false,
           user: null,
         },
-        { status: 200 }
+        { status: 200, headers: noStore }
       );
     }
 
@@ -35,17 +37,19 @@ export async function GET() {
           role: user.app_metadata?.role || 'authenticated',
         },
       },
-      { status: 200 }
+      { status: 200, headers: noStore }
     );
   } catch (error) {
-    console.error('认证检查失败:', error);
+    console.error('[api/auth] 认证检查失败', {
+      name: error instanceof Error ? error.name : 'UNKNOWN',
+    });
     return NextResponse.json(
       {
         authenticated: false,
         user: null,
         error: '检查认证状态失败',
       },
-      { status: 500 }
+      { status: 500, headers: { 'Cache-Control': 'private, no-store, max-age=0' } }
     );
   }
 }

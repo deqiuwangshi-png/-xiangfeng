@@ -9,6 +9,15 @@ import { REGISTER_MESSAGES } from '@/lib/messages';
 import type { AuthResult } from '@/types';
 
 /**
+ * 判断是否为网络类错误（登录/会话刷新等可重试场景）
+ */
+export function isNetworkError(error: unknown): boolean {
+  const messages = ['网络错误', 'Network error', 'Connection failed', 'Timeout', 'fetch failed', '请求失败']
+  const message = error instanceof Error ? error.message : String(error)
+  return messages.some((msg) => message.includes(msg))
+}
+
+/**
  * 允许的邮箱域名白名单
  */
 export const ALLOWED_EMAIL_DOMAINS = ['qq.com', 'gmail.com', '139.com'];

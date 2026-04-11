@@ -14,11 +14,12 @@
  * - 客户端通过此客户端监听 onAuthStateChange
  * - 服务端状态通过 AuthProvider 水合
  * - 中间件统一刷新会话并写入 Cookie
- * - 客户端不直接操作 Cookie，由 @supabase/ssr 自动处理
+ * - 通过 /api/auth/cookies 桥接读写 Cookie，由服务端合并 HttpOnly/Secure（@supabase/ssr 官方推荐模式）
  */
 
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient, type CookieOptions } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { SUPABASE_BROWSER_COOKIE_API_PATH } from '@/lib/supabase/authCookieBridge'
 
 // 全局单例实例
 let supabaseInstance: SupabaseClient | null = null
@@ -59,11 +60,6 @@ let supabaseInstance: SupabaseClient | null = null
  * ```
  */
 export function createClient(): SupabaseClient {
-  // 如果已有实例，直接返回
-  if (supabaseInstance) {
-    return supabaseInstance
-  }
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -76,35 +72,76 @@ export function createClient(): SupabaseClient {
     )
   }
 
+  // 构建期 / RSC：禁止走 Cookie 桥接 fetch，否则静态页生成会被迫变为动态路由
+  if (typeof window === 'undefined') {
+    return createBrowserClient(supabaseUrl, supabaseKey)
+  }
+
+  if (supabaseInstance) {
+    return supabaseInstance
+  }
+
   /**
-   * 创建浏览器客户端
-   * @注意 @supabase/ssr 会自动处理 Cookie 读写，无需自定义配置
-   * Cookie 的 HttpOnly/Secure 属性由中间件统一设置
+   * Cookie 桥接：避免在浏览器使用 document.cookie，写入由 Route Handler 统一加安全属性；
+   * setAll 第二参数为 Supabase 要求的防 CDN 缓存头（@supabase/ssr ≥0.10）。
    */
-  supabaseInstance = createBrowserClient(supabaseUrl, supabaseKey)
+  let cookieGetInFlight: Promise<{ name: string; value: string }[]> | null = null
+  supabaseInstance = createBrowserClient(supabaseUrl, supabaseKey, {
+    cookies: {
+      getAll: async () => {
+        try {
+          if (!cookieGetInFlight) {
+            cookieGetInFlight = fetch(SUPABASE_BROWSER_COOKIE_API_PATH, {
+              method: 'GET',
+              credentials: 'include',
+              cache: 'no-store',
+            })
+              .then(async (res) => {
+                if (!res.ok) return []
+                const data = (await res.json()) as { cookies?: { name: string; value: string }[] }
+                return data.cookies ?? []
+              })
+              .finally(() => {
+                cookieGetInFlight = null
+              })
+          }
+          return cookieGetInFlight
+        } catch {
+          return []
+        }
+      },
+      setAll: async (cookiesToSet, cacheHeaders) => {
+        try {
+          await fetch(SUPABASE_BROWSER_COOKIE_API_PATH, {
+            method: 'POST',
+            credentials: 'include',
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cookies: cookiesToSet, headers: cacheHeaders }),
+          })
+        } catch {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[supabase/client] Cookie 桥接 POST 失败')
+          }
+        }
+      },
+    },
+    // 与 cookieConfig 一致：默认 Secure + lax；明文本地调试需同时在 .env 设置
+    // COOKIE_ALLOW_INSECURE_LOCAL=1 与 NEXT_PUBLIC_COOKIE_ALLOW_INSECURE_LOCAL=1
+    cookieOptions: {
+      path: '/',
+      sameSite: 'lax',
+      secure:
+        process.env.NODE_ENV === 'production'
+          ? true
+          : process.env.NEXT_PUBLIC_COOKIE_ALLOW_INSECURE_LOCAL === '1'
+            ? typeof window !== 'undefined' && window.location.protocol === 'https:'
+            : true,
+    } satisfies CookieOptions,
+  })
 
   return supabaseInstance
 }
-
-/**
- * 全局 Supabase 客户端实例
- * @description 用于需要直接使用全局实例的场景，避免重复创建客户端
- *
- * @使用场景
- * - 不需要在 useEffect 中创建客户端的场景
- * - 需要直接访问 Supabase 的工具函数
- *
- * @示例
- * ```typescript
- * import { supabase } from '@/lib/supabase/client';
- *
- * async function fetchArticles() {
- *   const { data } = await supabase.from('articles').select('*');
- *   return data;
- * }
- * ```
- */
-export const supabase = createClient()
 
 /**
  * 浏览器客户端类型

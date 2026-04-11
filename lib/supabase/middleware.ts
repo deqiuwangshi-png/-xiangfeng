@@ -1,15 +1,20 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/utils/redir'
-import { getAuthCookieConfig, getDevAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import { getAuthCookieConfig, getAuthCookieExpireOptions } from '@/lib/auth/utils/cookieConfig'
+import { mergeResponseCacheHeaders } from '@/lib/supabase/authCookieBridge'
 
 /**
- * 获取当前环境的 Cookie 配置
- * @description 统一中间件和服务端的配置逻辑
+ * 生产环境：检测到明文 HTTP（常见于反向代理未传 HTTPS）时强制跳转 HTTPS
  */
-function getMiddlewareCookieConfig(): CookieOptions {
-  const isDev = process.env.NODE_ENV === 'development'
-  return isDev ? getDevAuthCookieConfig() : getAuthCookieConfig()
+function redirectToHttpsIfNeeded(request: NextRequest): NextResponse | null {
+  if (process.env.NODE_ENV !== 'production') return null
+  if (process.env.DISABLE_FORCE_HTTPS_REDIRECT === '1') return null
+  if (request.headers.get('x-forwarded-proto') !== 'http') return null
+
+  const u = request.nextUrl.clone()
+  u.protocol = 'https:'
+  return NextResponse.redirect(u, 308)
 }
 
 /**
@@ -64,6 +69,9 @@ function nextWithPathname(request: NextRequest) {
  * - 防止竞态条件的响应对象管理
  */
 export async function updateSession(request: NextRequest) {
+  const httpsRedirect = redirectToHttpsIfNeeded(request)
+  if (httpsRedirect) return httpsRedirect
+
   const path = request.nextUrl.pathname
   const isAuthRoute = isMatchingRoute(path, AUTH_ROUTES)
 
@@ -83,8 +91,8 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll()
       },
-      setAll(cookiesToSet) {
-        const secureOptions = getMiddlewareCookieConfig()
+      setAll(cookiesToSet, cacheHeaders) {
+        const secureOptions = getAuthCookieConfig(request)
 
         // 批量设置到 request cookies
         cookiesToSet.forEach(({ name, value, options }) => {
@@ -100,9 +108,13 @@ export async function updateSession(request: NextRequest) {
         const currentCookies = supabaseResponse.cookies.getAll()
         supabaseResponse = nextWithPathname(request)
         
-        // 恢复之前设置的 cookies
-        currentCookies.forEach(cookie => {
-          supabaseResponse.cookies.set(cookie.name, cookie.value)
+        // 恢复之前设置的 cookies（必须带齐安全属性，否则仅 name/value 会丢失 HttpOnly/Secure）
+        currentCookies.forEach(({ name, value }) => {
+          supabaseResponse.cookies.set({
+            name,
+            value,
+            ...secureOptions,
+          })
         })
 
         // 设置新的 cookies
@@ -114,6 +126,8 @@ export async function updateSession(request: NextRequest) {
             ...secureOptions,
           })
         })
+
+        mergeResponseCacheHeaders(supabaseResponse, cacheHeaders)
       },
     },
   })
@@ -140,22 +154,22 @@ export async function updateSession(request: NextRequest) {
     if (errorCode === 'refresh_token_not_found' ||
         errorCode === 'refresh_token_expired' ||
         errorMessage.includes('refresh token')) {
-      console.log('[Middleware] Refresh token expired, clearing cookies')
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Middleware] Auth session cleared (invalid or expired refresh)')
+      }
 
       // 清除所有 Supabase 认证 Cookie
-      const cookieNames = request.cookies.getAll()
-        .map(c => c.name)
-        .filter(name => name.includes('auth-token') || name.startsWith('sb-'))
+      const expireOpts = getAuthCookieExpireOptions(request)
+      const cookieNames = request.cookies
+        .getAll()
+        .map((c) => c.name)
+        .filter((name) => name.includes('auth-token') || name.startsWith('sb-'))
 
-      cookieNames.forEach(name => {
+      cookieNames.forEach((name) => {
         supabaseResponse.cookies.set({
           name,
           value: '',
-          maxAge: 0,
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
+          ...expireOpts,
         })
       })
     }
@@ -165,7 +179,7 @@ export async function updateSession(request: NextRequest) {
     }
     // 其他错误
     else {
-      console.error('[Middleware] Auth error:', userError.message, { code: errorCode })
+      console.error('[Middleware] Auth error', { code: errorCode ?? 'unknown' })
     }
   }
 

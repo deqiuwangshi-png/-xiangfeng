@@ -87,6 +87,14 @@ const nextConfig: NextConfig = {
             key: 'X-Frame-Options',
             value: 'DENY',
           },
+          ...(process.env.NODE_ENV === 'production'
+            ? [
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=63072000; includeSubDomains',
+                },
+              ]
+            : []),
         ],
       },
     ]
