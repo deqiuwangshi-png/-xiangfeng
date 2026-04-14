@@ -26,7 +26,7 @@ async function canViewArticleComments(
 ): Promise<boolean> {
   const { data, error } = await supabase
     .from('articles')
-    .select('status, author_id, author:profiles!author_id(is_active)')
+    .select('status, author_id, author:profiles!author_id(account_status)')
     .eq('id', articleId)
     .single()
 
@@ -36,9 +36,12 @@ async function canViewArticleComments(
 
   const isAuthor = !!currentUserId && data.author_id === currentUserId
   const isPublished = data.status === 'published'
-  const authorActive = Array.isArray(data.author)
-    ? data.author?.[0]?.is_active !== false
-    : data.author?.is_active !== false
+  // 使用类型断言处理 Supabase 外键关联类型推断问题
+  const author = data.author as { account_status: string }[] | { account_status: string } | null
+  const authorStatus = Array.isArray(author)
+    ? author?.[0]?.account_status
+    : author?.account_status
+  const authorActive = authorStatus === 'active'
 
   return authorActive && (isPublished || isAuthor)
 }

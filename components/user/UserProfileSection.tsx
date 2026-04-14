@@ -68,12 +68,12 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
    * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
    * 匿名用户显示访客信息
    */
-  const isAuthenticated = !!user
+  const isAuthenticated = !!user && !!user.id
   const userId = user?.id || 'guest'
   const userEmail = user?.email || ''
   const userName = isAuthenticated
     ? getSafeDisplayName(
-        profile?.username || user?.user_metadata?.username || userEmail.split('@')[0],
+        profile?.username || user?.user_metadata?.username || (userEmail ? userEmail.split('@')[0] : undefined),
         '用户'
       )
     : '访客'

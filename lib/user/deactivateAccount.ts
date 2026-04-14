@@ -7,20 +7,7 @@ import type { DeactivateAccountResult } from '@/types'
 
 /**
  * 停用用户账户
- *
- * @returns 停用结果
- *
- * @统一认证 2026-03-30
- * - 使用 lib/auth/user.ts 的统一入口获取用户信息
- *
- * @description
- * 软删除用户账户：
- * 1. 将 profiles.is_active 设置为 false
- * 2. 退出登录
- * 3. 文章对外不可见（通过查询过滤）
- *
- * 数据保留：所有数据保留，仅标记为停用状态
- * 重新激活：用户重新登录时自动激活
+
  */
 export async function deactivateAccount(): Promise<DeactivateAccountResult> {
   try {
@@ -38,7 +25,7 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
     {/* 更新 profiles 表，标记为停用 */}
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ is_active: false })
+      .update({ account_status: 'suspended' })
       .eq('id', userId)
 
     if (updateError) {
@@ -61,13 +48,7 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
 
 /**
  * 激活用户账户（登录时调用）
- *
- * @param userId - 用户ID
- * @returns 激活结果
- *
- * @description
- * 用户重新登录时自动激活账户
- * 将 profiles.is_active 设置为 true
+
  */
 export async function activateAccount(userId: string): Promise<DeactivateAccountResult> {
   try {
@@ -76,7 +57,7 @@ export async function activateAccount(userId: string): Promise<DeactivateAccount
     {/* 更新 profiles 表，标记为激活 */}
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ is_active: true })
+      .update({ account_status: 'active' })
       .eq('id', userId)
 
     if (updateError) {
@@ -96,12 +77,7 @@ export async function activateAccount(userId: string): Promise<DeactivateAccount
 
 /**
  * 检查用户账户状态
- *
- * @param userId - 用户ID
- * @returns 是否激活
- *
- * @description
- * 检查用户账户是否处于激活状态
+
  */
 export async function checkAccountStatus(userId: string): Promise<boolean> {
   try {
@@ -109,7 +85,7 @@ export async function checkAccountStatus(userId: string): Promise<boolean> {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('is_active')
+      .select('account_status')
       .eq('id', userId)
       .single()
 
@@ -117,7 +93,7 @@ export async function checkAccountStatus(userId: string): Promise<boolean> {
       return true
     }
 
-    return data.is_active !== false
+    return data.account_status === 'active'
   } catch {
     return true
   }
