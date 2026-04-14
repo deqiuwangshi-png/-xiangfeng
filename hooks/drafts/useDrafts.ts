@@ -20,7 +20,6 @@ import { batchDeleteArticles } from '@/lib/articles/actions/batch'
 import { fetchDrafts } from '@/lib/articles/actions/query'
 import { useDraftsToast } from './useDraftsToast'
 
-import type { Article } from '@/types'
 import type { DraftData, DraftFilter, DraftSelection, ViewMode, UseDraftsReturn } from '@/types/drafts'
 
 /** SWR 缓存 Key */
@@ -37,7 +36,7 @@ const VIEW_MODE_STORAGE_KEY = 'drafts/viewMode'
  * @returns 草稿管理相关的状态和方法
  */
 export function useDrafts(
-  initialArticles: Article[],
+  initialArticles: DraftData[],
   itemsPerPage = 6
 ): UseDraftsReturn {
   const router = useRouter()
@@ -70,7 +69,7 @@ export function useDrafts(
     DRAFTS_CACHE_KEY,
     fetchDrafts,
     {
-      fallbackData: initialArticles.map(DraftService.convertToDraftData),
+      fallbackData: initialArticles,
       revalidateOnMount: false,
       revalidateIfStale: false,
       revalidateOnFocus: false,

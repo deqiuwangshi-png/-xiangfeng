@@ -14,6 +14,7 @@ import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/compo
 import { UserAvt } from '@/components/ui'
 import { useProfileForm } from '@/hooks/settings/useProfileForm'
 import { UserData } from '@/types/user/settings'
+import { normalizeAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 编辑个人资料表单组件
@@ -94,10 +95,10 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
   }
 
   // 获取当前显示的头像URL（临时头像优先）
-  const displayAvatarUrl = formData.avatar_url
+  const displayAvatarUrl = normalizeAvatarUrl(formData.avatar_url, { allowBlob: true })
 
   return (
-    <div className="fade-in-up">
+    <div>
       {/* 返回按钮和标题区域 */}
       <div className="flex items-center justify-between mb-10">
         <button
@@ -126,7 +127,10 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
       )}
 
       {/* 编辑表单 */}
-      <form onSubmit={handleSubmit} className="card-bg rounded-2xl p-8 space-y-8">
+      <form
+        onSubmit={handleSubmit}
+        className="card-bg rounded-2xl p-8 space-y-8 border border-xf-bg/60 shadow-none transition-none"
+      >
         {/* 头像和基本信息区域 - 水平布局 */}
         <div className="flex flex-col md:flex-row gap-8 items-start">
           {/* 头像上传区域 - 左侧 */}
@@ -165,7 +169,7 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
                 </div>
               </button>
               {/* 清空头像按钮 - 有头像时显示 */}
-              {(displayAvatarUrl || formData.avatar_url) && (
+              {displayAvatarUrl && (
                 <button
                   type="button"
                   onClick={clearAvatar}

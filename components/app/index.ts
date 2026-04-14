@@ -7,3 +7,4 @@
 export { ArticleCard } from './ArticleCard'
 export { ArticleCardSkeleton } from './ArticleCardSkeleton'
 export { SearchBox } from './SearchBox'
+export { AppShell } from './AppShell'

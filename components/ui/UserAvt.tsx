@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { JSX } from 'react'
+import { getSafeDisplayName, normalizeAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 头像组件
@@ -65,7 +66,8 @@ export function UserAvt({
   className = '',
 }: UserAvtProps): JSX.Element {
   const { px, class: sizeClass } = SIZE_MAP[size]
-  const initial = name.charAt(0).toUpperCase()
+  const safeName = getSafeDisplayName(name, '用户')
+  const initial = safeName.charAt(0).toUpperCase()
 
   /**
    * 图片加载错误状态
@@ -77,16 +79,7 @@ export function UserAvt({
    * 判断是否为有效的真实头像URL
    * 排除空值、undefined、以及自动生成的 Dicebear URL
    */
-  const isRealAvatar = (() => {
-    if (!avatarUrl || avatarUrl.trim().length === 0) {
-      return false
-    }
-    {/* 排除 Dicebear 自动生成的头像URL */}
-    if (avatarUrl.includes('dicebear.com')) {
-      return false
-    }
-    return true
-  })()
+  const safeAvatarUrl = normalizeAvatarUrl(avatarUrl, { allowBlob: true })
 
   /**
    * 头像显示逻辑：
@@ -96,8 +89,7 @@ export function UserAvt({
    * 注意：不使用固定默认图，保持简洁和一致性
    */
 
-  {/* 情况1：显示首字母占位符（无真实头像或图片加载失败） */}
-  if (!isRealAvatar || imgError) {
+  if (!safeAvatarUrl || imgError) {
     return (
       <div
         className={`rounded-full bg-xf-primary flex items-center justify-center text-white font-bold ${sizeClass} ${className}`}
@@ -107,11 +99,10 @@ export function UserAvt({
     )
   }
 
-  {/* 情况2：显示真实头像图片 */}
   return (
     <Image
-      src={avatarUrl!}
-      alt={name}
+      src={safeAvatarUrl}
+      alt={safeName}
       width={px}
       height={px}
       className={`rounded-full object-cover ${sizeClass} ${className}`}

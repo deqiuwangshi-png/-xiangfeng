@@ -3,19 +3,9 @@
 /**
  * @fileoverview TipTap 编辑器 Hook
  * @module hooks/publish/useTipTapEditor
- * @description 使用 JSON 格式存储内容，提供 TipTap 编辑器实例
- *
- * @类型依赖
- * - 类型定义位于: types/publish/editor.ts
- * - 导入: TipTapJSON, TipTapEditorOptions
- * - 注意: TipTapJSON 从 lib/utils/json 重新导出
  */
 
-import {
-  useEditor,
-  type Editor,
-  ReactNodeViewRenderer,
-} from '@tiptap/react'
+import { useEditor, type Editor, ReactNodeViewRenderer } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -25,29 +15,26 @@ import Color from '@tiptap/extension-color'
 import type { EditorView } from '@tiptap/pm/view'
 import type { Slice } from '@tiptap/pm/model'
 import { TextSelection } from '@tiptap/pm/state'
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from 'react'
+import type { JSONContent } from '@tiptap/core'
+import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { ParaNodeView } from '@/components/publish/_blocks/ParaNodeView'
-import {
-  type TipTapJSON,
-  type TipTapEditorOptions,
-  EMPTY_DOCUMENT,
-} from '@/types/publish/editor'
 import { useDebounce } from '@/hooks/useDebounce'
 
-/**
- * 解析 JSON 内容
- * @param content - JSON 字符串
- * @returns 解析后的 JSON 对象
- */
-function parseContent(content: string): TipTapJSON {
+interface TipTapEditorOptions {
+  content: string
+  onChange: (content: string) => void
+  placeholder?: string
+}
+
+const EMPTY_DOCUMENT: JSONContent = {
+  type: 'doc',
+  content: [{ type: 'paragraph', content: [] }],
+}
+
+function parseContent(content: string): JSONContent {
   if (!content) return EMPTY_DOCUMENT
   try {
-    const parsed = JSON.parse(content) as TipTapJSON
+    const parsed = JSON.parse(content) as JSONContent
     if (parsed.type === 'doc') {
       return parsed
     }
@@ -57,12 +44,6 @@ function parseContent(content: string): TipTapJSON {
   }
 }
 
-/**
- * TipTap 编辑器 Hook
- *
- * @param options - 编辑器选项
- * @returns 编辑器实例和挂载状态
- */
 export function useTipTapEditor({
   content,
   onChange,
@@ -70,12 +51,8 @@ export function useTipTapEditor({
 }: TipTapEditorOptions) {
   const pendingContentRef = useRef<string>(content)
 
-  /**
-   * 防抖处理的内容更新函数
-   * @性能优化 延迟 300ms 触发 onChange，减少重渲染
-   */
   const debouncedOnChange = useDebounce(
-    (jsonContent: TipTapJSON) => {
+    (jsonContent: JSONContent) => {
       const jsonString = JSON.stringify(jsonContent)
       pendingContentRef.current = jsonString
       onChange(jsonString)
@@ -83,16 +60,8 @@ export function useTipTapEditor({
     300
   )
 
-  /**
-   * 解析初始内容
-   */
   const initialContent = useMemo(() => parseContent(content), [content])
 
-  /**
-   * 缓存编辑器配置
-   * 使用 useMemo 避免每次渲染重新创建配置对象
-   * 减少不必要的重渲染
-   */
   const editorConfig = useMemo(
     () => ({
       extensions: [
@@ -100,9 +69,7 @@ export function useTipTapEditor({
           paragraph: false,
           blockquote: false,
           horizontalRule: {
-            HTMLAttributes: {
-              class: 'editor-hr',
-            },
+            HTMLAttributes: { class: 'editor-hr' },
           },
           link: {
             openOnClick: false,
@@ -120,30 +87,22 @@ export function useTipTapEditor({
           showOnlyCurrent: true,
         }),
         TextStyle,
-        Color.configure({
-          types: ['textStyle'],
-        }),
+        Color.configure({ types: ['textStyle'] }),
         Blockquote.configure({
-          HTMLAttributes: {
-            class: 'editor-blockquote',
-          },
+          HTMLAttributes: { class: 'editor-blockquote' },
         }),
       ],
       content: initialContent,
       editable: true,
       immediatelyRender: false,
       onUpdate: ({ editor }: { editor: Editor }) => {
-        debouncedOnChange(editor.getJSON() as TipTapJSON)
+        debouncedOnChange(editor.getJSON())
       },
       editorProps: {
         attributes: {
           class: 'article-content article-content-editor max-w-none focus:outline-none',
         },
-        /**
-         * 处理拖拽事件 - 支持节点拖拽排序
-         */
         handleDrop(view: EditorView, event: DragEvent, _slice: Slice, moved: boolean) {
-          // 处理节点拖拽排序
           const dragPos = event.dataTransfer?.getData('application/x-prosemirror-node')
           if (dragPos && !moved) {
             const from = Number(dragPos)
@@ -201,17 +160,12 @@ export function useTipTapEditor({
     [initialContent, debouncedOnChange, placeholder]
   )
 
-  // 创建编辑器实例
-  // 空依赖数组确保只在客户端创建，避免 SSR hydration 问题
   const editor = useEditor(editorConfig, [])
 
   const flushPendingContent = useCallback(() => {
     onChange(pendingContentRef.current)
   }, [onChange])
 
-  /**
-   * 同步外部内容变化
-   */
   useEffect(() => {
     if (editor) {
       try {
@@ -229,5 +183,4 @@ export function useTipTapEditor({
   return { editor, flushPendingContent }
 }
 
-// 重新导出类型以便向后兼容
-export type { TipTapJSON }
+export type { JSONContent as TipTapJSON }

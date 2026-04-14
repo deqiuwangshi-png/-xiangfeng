@@ -12,8 +12,9 @@
  */
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import type { OAuthProvider, OAuthButtonsProps } from '@/types/auth/oauth';
+import { oauthLogin } from '@/lib/auth/client';
+import { OAUTH_PROVIDER_CONFIG } from '@/config/navigation';
 
 /**
  * 获取站点 URL
@@ -40,19 +41,6 @@ const getSiteUrl = (): string => {
 };
 
 /**
- * Supabase 支持的 Provider 类型
- */
-type SupabaseProvider = 'github' | 'google' | 'azure' | 'bitbucket' | 'discord' | 'facebook' | 'figma' | 'gitlab' | 'keycloak' | 'linkedin' | 'notion' | 'slack' | 'spotify' | 'twitch' | 'twitter' | 'workos' | 'zoom';
-
-/**
- * 提供商配置
- */
-const PROVIDER_CONFIG: Record<OAuthProvider, { name: string; enabled: boolean; supabaseProvider?: SupabaseProvider }> = {
-  github: { name: 'GitHub', enabled: true, supabaseProvider: 'github' },
-  google: { name: 'Google', enabled: false, supabaseProvider: 'google' },
-};
-
-/**
  * 第三方登录按钮组
  * @function OAuthButtons
  * @param {OAuthButtonsProps} props - 组件属性
@@ -75,7 +63,7 @@ export function OAuthButtons({
    * @param provider OAuth 提供商
    */
   const handleOAuthLogin = async (provider: OAuthProvider) => {
-    const config = PROVIDER_CONFIG[provider];
+    const config = OAUTH_PROVIDER_CONFIG[provider];
 
     if (!config.enabled) {
       alert(`${config.name} 登录暂未开通`);
@@ -87,27 +75,17 @@ export function OAuthButtons({
     setIsLoading(provider);
 
     try {
-      const supabase = createClient();
+      const siteUrl = getSiteUrl()
+      if (!siteUrl) {
+        alert('系统配置错误，请稍后重试');
+        return;
+      }
+      const result = await oauthLogin(provider, redirectTo)
 
-      /**
-       * @安全修复 S-07: 使用硬编码域名构建回调 URL
-       * - 替代 window.location.origin 防止回调劫持
-       * - 确保回调始终指向受信任的域名
-       */
-      const siteUrl = getSiteUrl();
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: config.supabaseProvider as SupabaseProvider,
-        options: {
-          redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-        },
-      });
-
-      if (error) {
-        console.error('OAuth error:', error);
-        alert('登录请求失败，请稍后重试');
-      } else if (data.url) {
-        {/* 使用 window.location.assign 进行完整页面跳转，避免 iframe 问题 */}
-        window.location.assign(data.url);
+      if (!result.success) {
+        alert(result.error || '登录请求失败，请稍后重试');
+      } else if (result.url) {
+        window.location.assign(result.url);
       }
     } catch (err) {
       console.error('OAuth exception:', err);
@@ -118,7 +96,7 @@ export function OAuthButtons({
   };
 
   const isButtonDisabled = (provider: OAuthProvider) => {
-    return disabled || isLoading !== null || !PROVIDER_CONFIG[provider].enabled;
+    return disabled || isLoading !== null || !OAUTH_PROVIDER_CONFIG[provider].enabled;
   };
 
   return (

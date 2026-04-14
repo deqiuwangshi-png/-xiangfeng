@@ -3,50 +3,45 @@
 /**
  * 忘记密码表单组件
  * @module components/auth/ForgotPasswordForm
- * @description 忘记密码表单逻辑和交互（包含成功状态）
- * @性能优化 P1: 从 page.tsx 分离，使页面主体支持 SSR
  */
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
+import { toast } from 'sonner';
 import { forgotPassword } from '@/lib/auth/client';
 
-/**
- * 忘记密码表单组件
- * @function ForgotPasswordForm
- * @returns {JSX.Element} 忘记密码表单或成功页面
- * @description
- * 包含表单状态管理、提交处理、成功状态
- * 作为 Client Component 独立出来，使页面主体可 SSR
- */
 export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
-  /**
-   * 处理表单提交
-   * @param {FormData} formData - 表单数据
-   */
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    const toastId = showLoading('发送中...');
+    const toastId = toast.loading('发送中...');
 
-    const result = await forgotPassword(formData);
+    const email = formData.get('email') as string;
 
-    dismiss(toastId);
+    try {
+      const payload = new FormData();
+      payload.set('email', email);
+      const result = await forgotPassword(payload);
+      toast.dismiss(toastId);
 
-    if (!result.success) {
-      showError(result.error || '发送失败');
+      if (!result.success) {
+        toast.error(result.error || '发送失败，请重试');
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success(result.message || '重置密码邮件已发送，请检查邮箱');
+      setIsSuccess(true);
+    } catch {
+      toast.dismiss(toastId);
+      toast.error('发送失败，请重试');
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    showSuccess('重置密码邮件已发送，请检查邮箱');
-    setIsSuccess(true);
-    setIsLoading(false);
   }
+
   if (isSuccess) {
     return (
       <>
@@ -102,7 +97,7 @@ export function ForgotPasswordForm() {
           disabled={isLoading}
           className="w-full bg-xf-primary hover:bg-xf-accent text-white font-semibold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-98 text-lg tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? <span className="loading-dots">发送中</span> : '发送重置链接'}
+          {isLoading ? '发送中...' : '发送重置链接'}
         </button>
       </form>
 

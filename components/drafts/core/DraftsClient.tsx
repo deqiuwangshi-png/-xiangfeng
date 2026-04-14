@@ -7,14 +7,13 @@ import { DraftsContent } from './DraftsContent'
 import { BatchActionsBar } from '../actions/BatchActionsBar'
 import { DeleteConfirmModal } from '../actions/DeleteConfirmModal'
 import type { FilterOption } from '../filter/FilterChips'
-import type { Article } from '@/types'
-import type { DeleteModalState } from '@/types/drafts'
+import type { DeleteModalState, DraftData } from '@/types/drafts'
 
 /**
  * DraftsClient Props 接口
  */
 interface DraftsClientProps {
-  initialArticles: Article[]
+  initialArticles: DraftData[]
   filterOptions: FilterOption[]
 }
 

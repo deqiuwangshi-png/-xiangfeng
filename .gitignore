@@ -45,10 +45,10 @@ next-env.d.ts
 docs/*
 .next/
 .trae/
-.sql文件/
-/sql文件/
-lib/supabase/migrations/*
+.sql/
+supabase/
 projects/*  
+mcp.json/
 
 
 

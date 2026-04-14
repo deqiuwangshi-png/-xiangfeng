@@ -1,85 +1,58 @@
 /**
  * 退出登录按钮组件
  * @module components/auth/LogoutButton
- * @description 可复用的退出登录按钮，内置退出逻辑和状态管理
  */
 
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
-import { useAuth } from '@/hooks/auth/useAuth'
-import type { UseLogoutOptions } from '@/types/auth/auth'
+import { logout } from '@/lib/auth/client'
 
-/**
- * LogoutButton 组件属性接口
- * @interface LogoutButtonProps
- * @extends {Omit<UseLogoutOptions, 'onSuccess' | 'onError'>}
- */
-export interface LogoutButtonProps extends Omit<UseLogoutOptions, 'onSuccess' | 'onError'> {
-  /** 按钮样式变体 */
+interface LogoutButtonProps {
   variant?: 'default' | 'danger' | 'ghost'
-  /** 是否显示图标 */
   showIcon?: boolean
-  /** 自定义按钮文本 */
   label?: string
-  /** 退出成功后的回调 */
   onSuccess?: () => void
-  /** 退出失败后的回调 */
-  onError?: (error: string) => void
-  /** 额外的CSS类名 */
   className?: string
-  /** 按钮尺寸 */
   size?: 'sm' | 'md' | 'lg'
 }
 
-/**
- * 退出登录按钮组件
- * @description 可复用的退出登录按钮，内置退出逻辑、加载状态和错误处理
- * 
- * @param {LogoutButtonProps} props - 组件属性
- * @returns {JSX.Element} 退出登录按钮
- * 
-
- */
 export function LogoutButton({
   variant = 'default',
   showIcon = true,
   label = '退出登录',
   onSuccess,
-  onError,
   className = '',
   size = 'md',
-  redirectTo = '/',
 }: LogoutButtonProps) {
-  const { isLoading, logout } = useAuth()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogout = async () => {
-    const success = await logout({ redirectTo })
-    if (success) {
+    setIsLoading(true)
+    try {
+      await logout()
       onSuccess?.()
-    } else {
-      onError?.('退出失败')
+      router.push('/login')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  // 基础样式
-  const baseStyles = 'flex items-center gap-2 rounded-lg transition-all duration-200 font-medium'
-
-  // 尺寸样式
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
     lg: 'px-5 py-3 text-base',
   }
 
-  // 变体样式
   const variantStyles = {
-    default: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200',
-    danger: 'text-red-500 hover:bg-red-50 hover:text-red-600 active:bg-red-100',
-    ghost: 'text-gray-500 hover:text-gray-700 hover:bg-gray-50 active:bg-gray-100',
+    default: 'text-gray-700 hover:bg-gray-100',
+    danger: 'text-red-500 hover:bg-red-50',
+    ghost: 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
   }
 
-  // 图标尺寸
   const iconSizes = {
     sm: 'w-3.5 h-3.5',
     md: 'w-4 h-4',
@@ -90,80 +63,10 @@ export function LogoutButton({
     <button
       onClick={handleLogout}
       disabled={isLoading}
-      className={`
-        ${baseStyles}
-        ${sizeStyles[size]}
-        ${variantStyles[variant]}
-        ${className}
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-      `}
-      aria-label={isLoading ? '正在退出登录' : label}
-      type="button"
+      className={`flex items-center gap-2 rounded-lg transition-all font-medium ${sizeStyles[size]} ${variantStyles[variant]} ${className} ${isLoading ? 'opacity-50' : ''}`}
     >
-      {showIcon && (
-        <LogOut 
-          className={`${iconSizes[size]} ${isLoading ? 'animate-pulse' : ''}`} 
-          aria-hidden="true"
-        />
-      )}
+      {showIcon && <LogOut className={iconSizes[size]} />}
       <span>{isLoading ? '退出中...' : label}</span>
-    </button>
-  )
-}
-
-/**
- * 简化的退出登录按钮（仅图标）
- * @description 适用于空间有限的场景，如工具栏
- */
-export function LogoutIconButton({
-  onSuccess,
-  onError,
-  className = '',
-  size = 'md',
-  redirectTo = '/',
-}: Omit<LogoutButtonProps, 'variant' | 'showIcon' | 'label'>) {
-  const { isLoading, logout } = useAuth()
-
-  const handleLogout = async () => {
-    const success = await logout({ redirectTo })
-    if (success) {
-      onSuccess?.()
-    } else {
-      onError?.('退出失败')
-    }
-  }
-
-  const sizeStyles = {
-    sm: 'p-1.5',
-    md: 'p-2',
-    lg: 'p-3',
-  }
-
-  const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-  }
-
-  return (
-    <button
-      onClick={handleLogout}
-      disabled={isLoading}
-      className={`
-        rounded-lg transition-all duration-200
-        text-gray-500 hover:text-red-500 hover:bg-red-50
-        ${sizeStyles[size]}
-        ${className}
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-      `}
-      aria-label="退出登录"
-      title="退出登录"
-      type="button"
-    >
-      <LogOut 
-        className={`${iconSizes[size]} ${isLoading ? 'animate-pulse' : ''}`}
-        aria-hidden="true"
-      />
     </button>
   )
 }

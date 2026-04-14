@@ -15,7 +15,7 @@
 import { useCallback } from 'react'
 import { useOptimisticMutation } from '@/hooks/useOptimisticMutation'
 import { ARTICLE_KEYS } from '@/lib/cache/keys'
-import { toggleArticleLike, toggleArticleBookmark } from '@/lib/articles/actions'
+import { setArticleLike, setArticleBookmark } from '@/lib/articles/actions'
 
 /**
  * 点赞状态数据
@@ -99,10 +99,10 @@ export function useArticleActions({
     mutate: toggleLikeMutate,
     isMutating: isLikeLoading,
     data: likeResult,
-  } = useOptimisticMutation<LikeData, void>({
+  } = useOptimisticMutation<LikeData, boolean>({
     cacheKey: ARTICLE_KEYS.likes(articleId),
-    mutationFn: async () => {
-      const result = await toggleArticleLike(articleId)
+    mutationFn: async (desiredLiked) => {
+      const result = await setArticleLike(articleId, desiredLiked)
       if (!result.success) {
         throw new Error(result.error || '点赞失败')
       }
@@ -111,9 +111,9 @@ export function useArticleActions({
         likeCount: result.likes ?? initialLikeCount,
       }
     },
-    optimisticUpdater: (current) => {
+    optimisticUpdater: (current, desiredLiked) => {
       const currentData = current || { liked: initialLiked, likeCount: initialLikeCount }
-      const newLiked = !currentData.liked
+      const newLiked = desiredLiked
       return {
         liked: newLiked,
         likeCount: newLiked 
@@ -132,10 +132,10 @@ export function useArticleActions({
     mutate: toggleBookmarkMutate,
     isMutating: isBookmarkLoading,
     data: bookmarkResult,
-  } = useOptimisticMutation<BookmarkData, void>({
+  } = useOptimisticMutation<BookmarkData, boolean>({
     cacheKey: ARTICLE_KEYS.bookmarks(articleId),
-    mutationFn: async () => {
-      const result = await toggleArticleBookmark(articleId)
+    mutationFn: async (desiredBookmarked) => {
+      const result = await setArticleBookmark(articleId, desiredBookmarked)
       if (!result.success) {
         throw new Error(result.error || '收藏失败')
       }
@@ -143,10 +143,10 @@ export function useArticleActions({
         bookmarked: result.favorited,
       }
     },
-    optimisticUpdater: (current) => {
+    optimisticUpdater: (current, desiredBookmarked) => {
       const currentData = current || { bookmarked: initialBookmarked }
       return {
-        bookmarked: !currentData.bookmarked,
+        bookmarked: desiredBookmarked,
       }
     },
     successMessage: '操作成功',
@@ -157,12 +157,14 @@ export function useArticleActions({
   // 方法封装
   // ==========================================
   const toggleLike = useCallback(async () => {
-    await toggleLikeMutate()
-  }, [toggleLikeMutate])
+    const desiredLiked = !(likeResult?.liked ?? initialLiked)
+    await toggleLikeMutate(desiredLiked)
+  }, [toggleLikeMutate, likeResult, initialLiked])
 
   const toggleBookmark = useCallback(async () => {
-    await toggleBookmarkMutate()
-  }, [toggleBookmarkMutate])
+    const desiredBookmarked = !(bookmarkResult?.bookmarked ?? initialBookmarked)
+    await toggleBookmarkMutate(desiredBookmarked)
+  }, [toggleBookmarkMutate, bookmarkResult, initialBookmarked])
 
   // 使用乐观更新的数据或初始数据
   const likeData: LikeData = likeResult || { liked: initialLiked, likeCount: initialLikeCount }

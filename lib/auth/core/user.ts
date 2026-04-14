@@ -13,6 +13,7 @@ import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { User } from '@supabase/supabase-js'
 import type { UserProfile } from '@/types/user/user'
+import { getSafeDisplayName, normalizeAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 重新导出 UserProfile 类型
@@ -133,7 +134,7 @@ export const getCurrentUserWithProfile = cache(async (): Promise<UserProfile | n
   return {
     id: user.id,
     email: user.email || '',
-    username: profile?.username || user.email?.split('@')[0] || '用户',
-    avatar_url: profile?.avatar_url || '',
+    username: getSafeDisplayName(profile?.username || user.email?.split('@')[0], '用户'),
+    avatar_url: normalizeAvatarUrl(profile?.avatar_url) || '',
   }
 })

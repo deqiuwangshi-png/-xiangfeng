@@ -1,86 +1,6 @@
 # 认证模块 (Auth Module)
 
-<!--
-================================================================================
-                              ⚠️  统一认证入口  ⚠️
-================================================================================
 
- ████████╗██╗   ██╗███╗   ██╗███████╗██████╗  ██████╗ █████╗ ██╗      ██████╗
- ╚══██╔══╝██║   ██║████╗  ██║██╔════╝██╔══██╗██╔════╝██╔══██╗██║     ██╔════╝
-    ██║   ██║   ██║██╔██╗ ██║█████╗  ██████╔╝██║     ███████║██║     ██║     
-    ██║   ██║   ██║██║╚██╗██║██╔══╝  ██╔══██╗██║     ██╔══██║██║     ██║     
-    ██║   ╚██████╔╝██║ ╚████║███████╗██║  ██║╚██████╗██║  ██║███████╗╚██████╗
-    ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           认证入口使用规范                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  【强制】所有认证相关操作必须从此模块导入，禁止分散定义！                      │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  客户端使用 (Client Components)                                      │   │
-│  │  ─────────────────────────────────────────────────────────────────  │   │
-│  │  import { login, logout, useLogout } from '@/lib/auth/client';      │   │
-│  │  import { useAuth, useUser } from '@/hooks/auth';                   │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  服务端使用 (Server Components / Server Actions)                     │   │
-│  │  ─────────────────────────────────────────────────────────────────  │   │
-│  │  // 获取用户/权限检查                                                │   │
-│  │  import { getCurrentUser, requireAuth } from '@/lib/auth/server';   │   │
-│  │                                                                     │   │
-│  │  // 需要原始 Supabase 客户端时（数据库操作）                          │   │
-│  │  import { createClient } from '@/lib/supabase/server';              │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ⚠️  警告: @/lib/auth/index.ts 已删除，请勿使用 @/lib/auth 导入！            │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           四层架构说明                                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  第4层 - 业务层 (app/, components/, hooks/)                                  │
-│  └── 统一使用 @/lib/auth/server 或 @/hooks/auth                             │
-│                                                                             │
-│  第3层 - 认证业务层 (lib/auth/)                                              │
-│  ├── server.ts - 服务端认证功能统一导出                                      │
-│  ├── client.ts - 客户端认证功能统一导出                                      │
-│  ├── core/     - 核心实现 (user, permissions)                               │
-│  └── actions/  - Server Actions                                             │
-│                                                                             │
-│  第2层 - Supabase客户端层 (lib/supabase/)                                    │
-│  ├── server.ts  - 服务端客户端（仅 lib/auth 和业务代码使用）                 │
-│  ├── client.ts  - 浏览器客户端（仅 AuthProvider 使用）                       │
-│  └── middleware.ts - 中间件会话刷新                                          │
-│                                                                             │
-│  第1层 - 基础设施层 (lib/auth/utils/)                                        │
-│  └── cookieConfig.ts - Cookie配置（最底层，无依赖）                          │
-│                                                                             │
-│  ✅ 依赖方向: 第4层 → 第3层 → 第2层 → 第1层（单向，无循环）                   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-================================================================================
-                              📋  代码审查检查清单  📋
-================================================================================
-
-创建新功能时，请确认以下检查项：
-
-□ 1. 是否从 @/lib/auth/client 或 @/lib/auth/server 导入认证功能？
-□ 2. 是否在 Client Component 中错误地引入了服务端 API？
-□ 3. 是否使用了统一的 getCurrentUser() 获取用户信息？
-□ 4. 是否使用了统一的权限检查函数（checkWritePermission/requireAuth）？
-□ 5. 是否使用了 sanitizeRedirect() 处理重定向路径？
-□ 6. 是否在 Server Action 中调用了 revalidatePath() 刷新缓存？
-
-如发现分散的认证逻辑，请立即迁移至此模块！
-
-================================================================================
--->
 
 ## 概述
 
@@ -127,11 +47,11 @@ lib/auth/
 
 ```typescript
 // ✅ 正确示例
-import { login, logout, useLogout } from '@/lib/auth/client';
+import { login, logout, forgotPassword, resetPassword } from '@/lib/auth/client';
 import { COMMON_ERRORS } from '@/lib/auth/client';
 
-// ❌ 错误示例 - 已废弃
-import { login } from '@/lib/auth';  // index.ts 已删除！
+// ❌ 错误示例：在 UI 中直接调用 supabase.auth.*
+// import { createClient } from '@/lib/supabase/client'
 ```
 
 ### 服务端使用（Server Components / Server Actions）
@@ -152,6 +72,7 @@ import { getCurrentUser } from '@/lib/auth/client';  // 服务端 API 不在 cli
 **位置**: `actions/login.ts`
 
 **功能**:
+
 - 邮箱密码登录
 - 输入验证（Zod）
 - IP + 邮箱组合限流（防止恶意锁账号）
@@ -159,10 +80,12 @@ import { getCurrentUser } from '@/lib/auth/client';  // 服务端 API 不在 cli
 - 记录登录历史
 
 **安全特性**:
+
 - 使用 IP + 邮箱组合限流，防止恶意锁账号攻击
 - 攻击者无法通过伪造请求锁定其他用户的账号
 
 **使用示例**:
+
 ```typescript
 import { login } from '@/lib/auth/client';  // 或 server
 
@@ -181,6 +104,7 @@ if (result.success) {
 **位置**: `actions/register.ts`
 
 **功能**:
+
 - 邮箱密码注册
 - 用户名验证（字母、数字、下划线、中文）
 - 邮箱域名白名单验证
@@ -188,11 +112,13 @@ if (result.success) {
 - 注册限流（更严格）
 
 **邮箱白名单**:
+
 - qq.com
 - gmail.com
 - 139.com
 
 **使用示例**:
+
 ```typescript
 import { register } from '@/lib/auth/client';
 
@@ -211,16 +137,19 @@ if (result.success) {
 **位置**: `actions/logout.ts`
 
 **功能**:
+
 - 使用 `scope: 'global'` 使服务端会话失效
 - 防止窃取 Cookie 后的未授权访问
 - 清除本地 Cookie 和服务端会话状态
 
 **安全特性**:
+
 - `scope: 'global'` 确保服务端会话被标记为失效
 - 所有该用户的活跃会话都会被终止
 - 已窃取的 Cookie 将无法通过服务端验证
 
 **使用示例**:
+
 ```typescript
 import { logout } from '@/lib/auth/client';
 
@@ -237,17 +166,22 @@ if (result.success) {
 **位置**: `actions/oauth.ts`
 
 **功能**:
+
 - GitHub 登录
 - Google 登录（预留）
 - 自动重定向到授权页面
 
 **支持的提供商**:
-| 提供商 | 状态 |
-|--------|------|
+
+
+| 提供商    | 状态    |
+| ------ | ----- |
 | GitHub | ✅ 已启用 |
 | Google | ⏸️ 预留 |
 
+
 **使用示例**:
+
 ```typescript
 import { oauthLogin } from '@/lib/auth/client';
 
@@ -264,16 +198,19 @@ if (result.success && result.url) {
 **位置**: `actions/forgot-password.ts`
 
 **功能**:
+
 - 发送密码重置邮件
 - 三层限流防止邮箱轰炸攻击
 
 **安全特性**:
+
 - **IP 级别限流**: 防止单一 IP 发送大量请求
 - **邮箱级别限流**: 防止对单一邮箱的频繁请求
 - **组合限流**: 防止攻击者轮换邮箱绕过限制
 - **统一返回**: 防止邮箱枚举攻击
 
 **使用示例**:
+
 ```typescript
 import { forgotPassword } from '@/lib/auth/client';
 
@@ -289,11 +226,13 @@ toast.success(result.message)
 **位置**: `actions/reset-password.ts`
 
 **功能**:
+
 - 通过邮件链接重置密码
 - 密码强度验证
 - 限流保护
 
 **使用示例**:
+
 ```typescript
 import { resetPassword } from '@/lib/auth/client';
 
@@ -313,10 +252,12 @@ if (result.success) {
 **位置**: `actions/change-password.ts`
 
 **功能**:
+
 - 已登录用户修改密码
 - 修改成功后自动退出登录
 
 **使用示例**:
+
 ```typescript
 import { changePassword } from '@/lib/auth/client';
 
@@ -336,6 +277,7 @@ if (result.success) {
 **说明**: 服务端获取当前登录用户的**唯一入口**，使用 React `cache()` 确保同一请求内共享用户数据。
 
 **使用示例**:
+
 ```typescript
 import { getCurrentUser } from '@/lib/auth/server';
 
@@ -380,11 +322,13 @@ if (await isAuthenticated()) {
 type UserRole = 'anonymous' | 'authenticated' | 'admin'
 ```
 
-| 角色 | 说明 | 权限 |
-|------|------|------|
-| anonymous | 匿名用户 | 只能浏览公开内容 |
+
+| 角色            | 说明   | 权限       |
+| ------------- | ---- | -------- |
+| anonymous     | 匿名用户 | 只能浏览公开内容 |
 | authenticated | 认证用户 | 可操作自己的资源 |
-| admin | 管理员 | 拥有所有权限 |
+| admin         | 管理员  | 拥有所有权限   |
+
 
 ### 权限检查函数
 
@@ -457,6 +401,7 @@ const safeRedirect = sanitizeRedirect(redirectTo, '/home')
 ```
 
 **防护机制**:
+
 - 禁止带协议的外部链接
 - 禁止协议相对路径
 - 禁止反斜杠绕过
@@ -494,16 +439,18 @@ import {
 
 ### 消息类型
 
-| 常量 | 用途 |
-|------|------|
-| COMMON_ERRORS | 通用错误 |
-| LOGIN_MESSAGES | 登录相关（含成功/错误） |
-| REGISTER_MESSAGES | 注册相关（含成功/错误） |
-| RESET_PASSWORD_MESSAGES | 密码重置相关 |
-| CHANGE_PASSWORD_MESSAGES | 修改密码相关 |
-| LOGOUT_MESSAGES | 退出登录相关 |
-| LOGIN_HISTORY_MESSAGES | 登录历史相关 |
-| AUTH_ERRORS | 认证通用 |
+
+| 常量                       | 用途           |
+| ------------------------ | ------------ |
+| COMMON_ERRORS            | 通用错误         |
+| LOGIN_MESSAGES           | 登录相关（含成功/错误） |
+| REGISTER_MESSAGES        | 注册相关（含成功/错误） |
+| RESET_PASSWORD_MESSAGES  | 密码重置相关       |
+| CHANGE_PASSWORD_MESSAGES | 修改密码相关       |
+| LOGOUT_MESSAGES          | 退出登录相关       |
+| LOGIN_HISTORY_MESSAGES   | 登录历史相关       |
+| AUTH_ERRORS              | 认证通用         |
+
 
 ## 类型定义
 
@@ -537,8 +484,9 @@ interface OAuthLoginResult {
 
 ### 相关 Hooks
 
-- `useAuth` - 认证状态管理（@/hooks/auth）
-- `useLogout` - 退出登录 Hook（从 `@/lib/auth/client` 导出）
+- `useAuth` - 认证状态管理（`@/hooks/auth`）
+- `useUser` - 当前用户派生数据（`@/hooks/auth`）
+- `useIsAuthenticated` - 登录态派生值（`@/hooks/auth`）
 
 ### 相关类型
 
@@ -558,6 +506,10 @@ interface OAuthLoginResult {
 ### 1. 始终使用 Server Actions
 
 所有认证操作都应该是 Server Actions，确保敏感逻辑在服务端执行。
+
+### 0. 客户端必须走统一入口
+
+Client Components 禁止直接调用 `supabase.auth.*`。请统一通过 `@/lib/auth/client` 调用认证动作，避免绕过限流、错误映射和安全策略。
 
 ```typescript
 'use server'
@@ -627,13 +579,3 @@ if (!check.allowed) {
 
 ---
 
-<!--
-================================================================================
-                          🚨  重要提醒：统一认证入口  🚨
-================================================================================
-
-如需修改认证逻辑，请在此模块内进行，禁止在业务代码中分散定义！
-
-发现问题请联系：项目维护团队
-================================================================================
--->

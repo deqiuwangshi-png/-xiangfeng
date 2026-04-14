@@ -7,6 +7,7 @@
 
 import { z } from 'zod';
 import { VALIDATION_MESSAGES, COMMENT_ERROR_MESSAGES, ARTICLE_ERROR_MESSAGES } from '@/lib/messages';
+import { extractTextFromJSON, isContentEmpty } from '@/lib/utils/json';
 
 /**
  * 文章状态枚举
@@ -141,3 +142,76 @@ export type CreateArticleInput = z.infer<typeof CreateArticleSchema>;
 export type UpdateArticleInput = z.infer<typeof UpdateArticleSchema>;
 export type CommentInput = z.infer<typeof CommentSchema>;
 export type BatchDeleteInput = z.infer<typeof BatchDeleteSchema>;
+
+export interface ArticleValidationResult {
+  valid: boolean
+  error?: string
+}
+
+interface ArticleDraftInput {
+  title: string
+  content: string
+}
+
+interface TipTapJSON {
+  type: 'doc'
+  content?: unknown[]
+}
+
+export function validateArticleContentJSON(content: string): ArticleValidationResult {
+  if (!content) {
+    return { valid: false, error: '内容不能为空' }
+  }
+
+  try {
+    const parsed = JSON.parse(content) as TipTapJSON
+    if (parsed.type !== 'doc') {
+      return { valid: false, error: '内容格式错误：缺少 doc 类型' }
+    }
+    return { valid: true }
+  } catch {
+    return { valid: false, error: '内容格式错误：无效的 JSON' }
+  }
+}
+
+export function validateArticleDraftInput({ title, content }: ArticleDraftInput): ArticleValidationResult {
+  const jsonValidation = validateArticleContentJSON(content)
+  if (!jsonValidation.valid) {
+    return jsonValidation
+  }
+
+  const hasTitle = title.trim().length > 0
+  const hasContent = !isContentEmpty(content)
+
+  if (!hasTitle && !hasContent) {
+    return { valid: false, error: '标题和内容不能同时为空' }
+  }
+
+  if (hasTitle && title.trim().length > 100) {
+    return { valid: false, error: '标题不能超过100个字符' }
+  }
+
+  return { valid: true }
+}
+
+export function validateArticlePublishInput({ title, content }: ArticleDraftInput): ArticleValidationResult {
+  const draftValidation = validateArticleDraftInput({ title, content })
+  if (!draftValidation.valid) {
+    return draftValidation
+  }
+
+  if (!title.trim()) {
+    return { valid: false, error: '发布文章必须填写标题' }
+  }
+
+  if (isContentEmpty(content)) {
+    return { valid: false, error: '发布文章必须填写内容' }
+  }
+
+  const textContent = extractTextFromJSON(content).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '')
+  if (textContent.length < 10) {
+    return { valid: false, error: '发布内容不能少于10个字符' }
+  }
+
+  return { valid: true }
+}

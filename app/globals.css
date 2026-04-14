@@ -2,7 +2,7 @@
 @import "../styles/content.css";
 
 @theme inline {
-  --color-xf-bg: #E1E4EA;
+  --color-xf-bg: #FFFFFF;
   --color-xf-surface: #D2C3D5;
   --color-xf-primary: #6A5B8A;
   --color-xf-accent: #3A3C6E;

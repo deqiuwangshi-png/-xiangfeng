@@ -9,7 +9,6 @@
 
 import Link from 'next/link'
 import { Logo } from '@/components/icons'
-import { MobileNav } from '@/components/mobile/MobileNav'
 
 /**
  * 导航项配置
@@ -66,16 +65,6 @@ function DesktopNav() {
  */
 export default function Navbar() {
   return (
-    <>
-      {/* 桌面端导航 - lg以上显示 */}
-      <div className="hidden lg:block">
-        <DesktopNav />
-      </div>
-
-      {/* 移动端导航 - lg以下显示 */}
-      <div className="lg:hidden">
-        <MobileNav />
-      </div>
-    </>
+    <DesktopNav />
   )
 }

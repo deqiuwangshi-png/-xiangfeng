@@ -10,14 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import { siteUrl } from '@/lib/seo';
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { OAuthProvider, OAuthLoginResult } from '@/types/auth/oauth';
-
-/**
- * 支持的 OAuth 提供商配置
- */
-const PROVIDER_CONFIG: Record<OAuthProvider, { name: string; enabled: boolean }> = {
-  github: { name: 'GitHub', enabled: true },
-  google: { name: 'Google', enabled: false },
-};
+import { OAUTH_PROVIDER_CONFIG } from '@/config/navigation';
 
 /**
  * 使用 OAuth 登录
@@ -37,7 +30,7 @@ export async function oauthLogin(
   provider: OAuthProvider,
   redirectTo: string = '/home'
 ): Promise<OAuthLoginResult> {
-  const config = PROVIDER_CONFIG[provider];
+  const config = OAUTH_PROVIDER_CONFIG[provider];
 
   if (!config || !config.enabled) {
     return {
@@ -91,5 +84,5 @@ export async function oauthLogin(
 export async function getOAuthProvidersStatus(): Promise<
   Record<OAuthProvider, { name: string; enabled: boolean }>
 > {
-  return { ...PROVIDER_CONFIG };
+  return { ...OAUTH_PROVIDER_CONFIG };
 }

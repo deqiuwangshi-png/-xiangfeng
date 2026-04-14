@@ -27,8 +27,8 @@ import { sanitizeRichText } from '@/lib/utils/purify';
  * @interface ArticlePaywallProps
  */
 interface ArticlePaywallProps {
-  /** 文章完整内容 */
-  content: string;
+  /** 服务端生成的预览内容（不下发全文） */
+  previewContent: string;
   /** 预览比例（默认35%） */
   previewRatio?: number;
   /** 文章标题（用于生成主题文案） */
@@ -195,7 +195,7 @@ function truncateHtml(html: string, maxLength: number): string {
  * @returns {JSX.Element} 文章预览墙
  */
 export function ArticlePaywall({
-  content,
+  previewContent,
   previewRatio = 0.35,
   articleTitle = '',
   tags = [],
@@ -222,10 +222,10 @@ export function ArticlePaywall({
    * 避免每次渲染重新解析 HTML
    */
   const sanitizedPreview = useMemo(() => {
-    const previewLength = calculatePreviewLength(content, previewRatio);
-    const previewHtml = truncateHtml(content, previewLength);
+    const previewLength = calculatePreviewLength(previewContent, previewRatio);
+    const previewHtml = truncateHtml(previewContent, previewLength);
     return sanitizeRichText(previewHtml);
-  }, [content, previewRatio]);
+  }, [previewContent, previewRatio]);
 
   return (
     <div className="relative">

@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
 import { requireAuth } from '@/lib/auth/server';
 import { generateSummaryFromJSON } from '@/lib/utils/json';
 import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
+import { validateContentJSON, validateDraftInput, validatePublishInput } from '@/lib/articles/validators';
 
 /**
  * TipTap JSON 类型
@@ -29,27 +30,6 @@ function generateSlug(title: string): string {
     .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
     .replace(/^-|-$/g, '');
   return `${normalized.slice(0, 50)}-${timestamp}`;
-}
-
-/**
- * 验证 JSON 内容格式
- */
-function validateContentJSON(content: string): { valid: boolean; error?: string } {
-  if (!content) {
-    return { valid: false, error: '内容不能为空' };
-  }
-
-  try {
-    const parsed = JSON.parse(content) as TipTapJSON;
-
-    if (parsed.type !== 'doc') {
-      return { valid: false, error: '内容格式错误：缺少 doc 类型' };
-    }
-
-    return { valid: true };
-  } catch {
-    return { valid: false, error: '内容格式错误：无效的 JSON' };
-  }
 }
 
 /**
@@ -85,10 +65,11 @@ export async function createArticle(data: {
   const supabase = await createClient();
   const user = await requireAuth();
 
-  // 验证内容 JSON 格式
-  const contentValidation = validateContentJSON(data.content);
-  if (!contentValidation.valid) {
-    throw new Error(contentValidation.error);
+  const validation = data.status === 'published'
+    ? validatePublishInput({ title: data.title, content: data.content })
+    : validateDraftInput({ title: data.title, content: data.content });
+  if (!validation.valid) {
+    throw new Error(validation.error);
   }
 
   // 处理空标题
@@ -141,7 +122,8 @@ export async function deleteArticle(id: string) {
   const { error } = await supabase
     .from('articles')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('author_id', user.id);
 
   if (error) {
     console.error('[deleteArticle] 删除文章失败:', error);
@@ -186,6 +168,7 @@ export async function updateArticle(
     .from('articles')
     .update(updateData)
     .eq('id', id)
+    .eq('author_id', user.id)
     .select()
     .single();
 
@@ -218,7 +201,8 @@ export async function updateArticleStatus(
   const { error } = await supabase
     .from('articles')
     .update(updateData)
-    .eq('id', id);
+    .eq('id', id)
+    .eq('author_id', user.id);
 
   if (error) {
     console.error('[updateArticleStatus] 更新文章状态失败:', error);
@@ -226,4 +210,57 @@ export async function updateArticleStatus(
   }
 
   return { success: true };
+}
+
+/**
+ * 原子发布文章（单次写入）
+ */
+export async function publishArticle(data: {
+  title: string
+  content: string
+  draftId?: string | null
+}) {
+  const supabase = await createClient()
+  const user = await requireAuth()
+
+  const validation = validatePublishInput({ title: data.title, content: data.content })
+  if (!validation.valid) {
+    throw new Error(validation.error)
+  }
+
+  const normalizedTitle = data.title?.trim() || '无标题'
+  const contentHtml = generateHTMLFromJSON(data.content)
+  const contentJson = JSON.parse(data.content) as TipTapJSON
+  const excerpt = generateSummaryFromJSON(data.content, 100)
+  const publishedAt = new Date().toISOString()
+
+  if (data.draftId) {
+    const { data: article, error } = await supabase
+      .from('articles')
+      .update({
+        title: normalizedTitle,
+        content: contentHtml,
+        content_json: contentJson,
+        excerpt,
+        status: 'published',
+        published_at: publishedAt,
+      })
+      .eq('id', data.draftId)
+      .eq('author_id', user.id)
+      .select()
+      .single()
+
+    if (error || !article) {
+      console.error('[publishArticle] 发布草稿失败:', error)
+      throw new Error(error?.message || '发布失败')
+    }
+
+    return article
+  }
+
+  return createArticle({
+    title: normalizedTitle,
+    content: data.content,
+    status: 'published',
+  })
 }

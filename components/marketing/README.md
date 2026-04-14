@@ -176,7 +176,6 @@ components/marketing/
 - 导航链接（特色功能、如何运作、生态创作者、生态经济）
 - 登录按钮
 - 滚动阴影效果
-- 移动端适配（使用 MobileNav）
 
 **导航项**:
 - 特色功能: `#features`
@@ -279,7 +278,6 @@ components/marketing/
 ```
 MarketingLayout (Server Component)
 ├── Navbar (Client)
-│   └── MobileNav (Client)
 ├── main
 │   └── HomePage (Server Component)
 │       ├── HeroSection (Server)

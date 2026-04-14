@@ -12,6 +12,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvt } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
 import type { SimpleUser, SimpleUserProfile, UserProfile } from '@/types'
+import { getSafeDisplayName, resolveAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 用户资料区域组件属性接口
@@ -71,10 +72,13 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   const userId = user?.id || 'guest'
   const userEmail = user?.email || ''
   const userName = isAuthenticated
-    ? (profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户')
+    ? getSafeDisplayName(
+        profile?.username || user?.user_metadata?.username || userEmail.split('@')[0],
+        '用户'
+      )
     : '访客'
   const avatarUrl = isAuthenticated
-    ? (profile?.avatar_url ?? user?.user_metadata?.avatar_url)
+    ? resolveAvatarUrl(profile?.avatar_url, user?.user_metadata?.avatar_url)
     : undefined
 
   return (

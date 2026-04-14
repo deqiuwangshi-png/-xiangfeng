@@ -17,6 +17,12 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/server';
 import { isValidUUID, handleQueryError } from '../helpers/utils';
 import type { DraftData } from '@/types/drafts';
+import {
+  mapArticleDetailDto,
+  mapDraftListItemDto,
+  mapProfilePublicArticleDto,
+  mapPublicArticleCardDto,
+} from '../dto';
 
 /** 文章状态白名单 */
 const VALID_STATUSES = ['all', 'draft', 'published', 'archived'] as const;
@@ -64,15 +70,7 @@ export async function fetchDrafts(): Promise<DraftData[]> {
       throw error;
     }
 
-    return (data || []).map(item => ({
-      id: item.id,
-      title: item.title,
-      content: '',
-      summary: item.excerpt || '暂无摘要',
-      status: item.status,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-    }));
+    return (data || []).map(item => mapDraftListItemDto(item));
   } catch (err) {
     return handleQueryError('fetchDrafts', err);
   }
@@ -134,14 +132,8 @@ export async function getArticles(status?: string) {
     }
 
     return (data || []).map(item => ({
-      id: item.id,
-      title: item.title,
-      content: '',
-      summary: item.excerpt || '暂无摘要',
-      status: item.status,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-      published_at: item.published_at,
+      ...mapDraftListItemDto(item),
+      publishedAt: item.published_at ?? null,
     }));
   } catch (err) {
     return handleQueryError('getArticles', err);
@@ -191,23 +183,7 @@ export async function getPublishedArticles() {
       throw error;
     }
 
-    return (data || []).map(item => ({
-      id: item.id,
-      title: item.title,
-      summary: item.excerpt || '',
-      status: item.status,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-      publishedAt: item.published_at,
-      author: {
-        id: item.author_id,
-        name: (item.author as { username?: string })?.username || '匿名',
-        avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
-      },
-      likesCount: item.like_count || 0,
-      commentsCount: item.comment_count || 0,
-      viewsCount: item.view_count || 0,
-    }));
+    return (data || []).map(item => mapPublicArticleCardDto(item));
   } catch (err) {
     return handleQueryError('getPublishedArticles', err);
   }
@@ -266,23 +242,7 @@ export async function searchPublishedArticles(query: string) {
       throw error;
     }
 
-    return (data || []).map(item => ({
-      id: item.id,
-      title: item.title,
-      summary: item.excerpt || '',
-      status: item.status,
-      createdAt: item.created_at,
-      updatedAt: item.updated_at,
-      publishedAt: item.published_at,
-      author: {
-        id: item.author_id,
-        name: (item.author as { username?: string })?.username || '匿名',
-        avatar: (item.author as { avatar_url?: string })?.avatar_url || undefined,
-      },
-      likesCount: item.like_count || 0,
-      commentsCount: item.comment_count || 0,
-      viewsCount: item.view_count || 0,
-    }));
+    return (data || []).map(item => mapPublicArticleCardDto(item));
   } catch (err) {
     return handleQueryError('searchPublishedArticles', err);
   }
@@ -325,24 +285,20 @@ export async function getPublicArticleById(id: string) {
 
     if (error || !data) return null;
 
+    const dto = mapArticleDetailDto(data);
     return {
-      id: data.id,
-      title: data.title,
-      content: data.content,
-      summary: data.excerpt,
-      status: data.status,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-      publishedAt: data.published_at,
-      author: {
-        id: data.author_id,
-        name: data.author?.username || '匿名',
-        avatar: data.author?.avatar_url,
-        bio: data.author?.bio,
-      },
-      likesCount: data.like_count || 0,
-      commentsCount: data.comment_count || 0,
-      viewsCount: data.view_count || 0,
+      id: dto.id,
+      title: dto.title,
+      content: dto.content,
+      summary: dto.summary,
+      status: dto.status,
+      createdAt: dto.created_at,
+      updatedAt: dto.updated_at,
+      publishedAt: dto.publishedAt,
+      author: dto.author,
+      likesCount: dto.likesCount,
+      commentsCount: dto.commentsCount,
+      viewsCount: dto.viewsCount,
     };
   } catch {
     console.error('[getPublicArticleById] 查询失败');
@@ -450,18 +406,7 @@ export async function getUserPublicArticles(userId: string) {
       throw error;
     }
 
-    return (data || []).map(item => ({
-      id: item.id,
-      title: item.title,
-      content: '',
-      summary: item.excerpt || '暂无摘要',
-      status: item.status,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-      published_at: item.published_at,
-      likes_count: item.like_count || 0,
-      comments_count: item.comment_count || 0,
-    }));
+    return (data || []).map(item => mapProfilePublicArticleDto(item));
   } catch (err) {
     return handleQueryError('getUserPublicArticles', err);
   }

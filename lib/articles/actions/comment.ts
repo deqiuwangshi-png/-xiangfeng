@@ -24,6 +24,7 @@ import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
 import { COMMENT_ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult, Comment } from '@/types';
+import { mapNewCommentDto } from '../dto';
 
 /**
  * 获取文章评论列表（SWR 缓存用）
@@ -181,18 +182,7 @@ export const submitArticleComment = withAuth(
 
       return {
         success: true,
-        comment: {
-          id: comment.id,
-          content: comment.content,
-          created_at: comment.created_at,
-          likes: comment.likes || 0,
-          author: {
-            id: user.id,
-            name: comment.author?.username || '匿名用户',
-            avatar: comment.author?.avatar_url || undefined,
-          },
-          liked: false,
-        },
+        comment: mapNewCommentDto(comment, user.id),
       };
     } catch (error) {
       console.error('提交评论失败:', error);

@@ -14,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserId } from '@/lib/auth/server';
 import type { ArticleWithAuthor } from '@/types';
+import { mapArticleDetailDto } from '../dto';
 
 /** 相关文章最大返回数量 */
 const MAX_RELATED_ARTICLES = 20;
@@ -62,7 +63,7 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
         .eq('user_id', currentUserId)
         .maybeSingle(),
       supabase
-        .from('article_favorites')
+        .from('favorites')
         .select('id')
         .eq('article_id', id)
         .eq('user_id', currentUserId)
@@ -73,22 +74,7 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
     isBookmarked = !!bookmarkResult.data;
   }
 
-  return {
-    ...data,
-    author: {
-      id: data.author_id,
-      name: data.author?.username || '匿名',
-      avatar: data.author?.avatar_url || undefined,
-      bio: data.author?.bio || undefined,
-    },
-    publishedAt: data.published_at || data.created_at,
-    readTime: Math.ceil(data.content.length / 500),
-    likesCount: data.like_count || 0,
-    commentsCount: data.comment_count || 0,
-    viewsCount: data.view_count || 0,
-    isLiked,
-    isBookmarked,
-  };
+  return mapArticleDetailDto(data, { isLiked, isBookmarked });
 }
 
 /**

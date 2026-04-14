@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { Comment } from '@/types'
 import { getArticleComments, deleteArticleComment } from '@/lib/articles/actions/comment'
-import { toggleCommentLike } from '@/lib/articles/actions/like'
+import { setCommentLike } from '@/lib/articles/actions/like'
 import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
@@ -23,6 +23,7 @@ export function useComments(
   const [totalCount, setTotalCount] = useState(initialTotalCount)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
+  const pendingLikeRef = useRef<Set<string>>(new Set())
   const { showDeleteSuccess, showError } = useArticleToast()
 
   const hasMore = comments.length < totalCount
@@ -66,8 +67,12 @@ export function useComments(
    * 切换评论点赞状态
    */
   const toggleLike = useCallback(async (commentId: string) => {
+    if (pendingLikeRef.current.has(commentId)) return
+
     const comment = comments.find((c) => c.id === commentId)
     if (!comment) return
+
+    pendingLikeRef.current.add(commentId)
 
     // 先更新 UI
     const newLiked = !comment.liked
@@ -83,7 +88,7 @@ export function useComments(
 
     // 调用 API
     try {
-      const result = await toggleCommentLike(commentId)
+      const result = await setCommentLike(commentId, newLiked)
       if (!result.success) {
         // 失败则恢复
         setComments((prev) =>
@@ -103,6 +108,8 @@ export function useComments(
             : c
         )
       )
+    } finally {
+      pendingLikeRef.current.delete(commentId)
     }
   }, [comments])
 
