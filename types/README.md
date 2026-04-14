@@ -52,7 +52,7 @@ types/
 
 | 文件名 | 说明 | 包含类型 |
 |--------|------|----------|
-| `auth.ts` | 基础认证类型 | `AuthResult`, `LoginFormData`, `RegisterFormData`, `LoginResult`, `LogoutResult` 等 |
+| `auth.ts` | 基础认证类型 | `AuthResult`, `LoginFormData`, `LoginResult`, `PasswordValidationResult` 等 |
 | `oauth.ts` | OAuth 第三方认证类型 | `OAuthProvider`, `OAuthLoginResult`, `OAuthButtonsProps`, `LinkedAccountItem` 等 |
 | `permissions.ts` | 权限相关类型 | `UserRole`, `Permission`, `PermissionCheckResult` 等 |
 
@@ -64,12 +64,8 @@ types/
 |--------|------|------|
 | `AuthResult` | 认证操作结果 | 统一认证返回格式 |
 | `AuthErrorType` | 认证错误类型 | 错误分类处理 |
-| `RegisterFormData` | 注册表单数据 | 注册页面表单类型 |
-| `RegisterFormErrors` | 注册表单错误 | 表单验证错误 |
-| `UseRegisterFormReturn` | 注册 Hook 返回 | useRegisterForm 返回值 |
 | `LoginFormData` | 登录表单数据 | 登录页面表单类型 |
 | `LoginResult` | 登录结果 | 登录操作返回 |
-| `LogoutResult` | 登出结果 | 登出操作返回 |
 | `PasswordValidationResult` | 密码验证结果 | 密码强度检查 |
 | `UpdateEmailResult` | 更新邮箱结果 | 邮箱修改操作 |
 | `DeleteAccountResult` | 删除账户结果 | 账户删除操作 |

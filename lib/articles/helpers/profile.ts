@@ -14,7 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/core/user';
+import { getCurrentUser } from '@/lib/auth/server';
 
 /**
  * 验证UUID格式

@@ -6,9 +6,11 @@
  * @description 渲染账户设置选项列表
  */
 
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { SettingsBtn } from '../_ui/SettingsBtn'
+import {
+  SettingsSection,
+  SettingItem,
+  SettingsBtn,
+} from '@/components/settings'
 
 /**
  * 账户设置列表属性

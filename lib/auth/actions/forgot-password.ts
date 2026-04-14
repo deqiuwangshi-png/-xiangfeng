@@ -17,7 +17,7 @@ import { createClient } from '@/lib/supabase/server';
 import { siteUrl } from '@/lib/seo';
 import { checkServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
 import { RESET_PASSWORD_MESSAGES } from '@/lib/messages';
-import type { AuthResult } from './types';
+import type { AuthResult } from '@/types';
 
 /**
  * 忘记密码

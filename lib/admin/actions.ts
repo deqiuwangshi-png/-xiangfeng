@@ -13,7 +13,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import {
   isSuperAdmin,
   isAdmin,
@@ -163,7 +163,7 @@ export async function deleteUser(targetUserId: string): Promise<ActionResult> {
     }
     
     // 使用 Admin Client 删除用户
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { error } = await adminClient.auth.admin.deleteUser(targetUserId)
     
     if (error) {

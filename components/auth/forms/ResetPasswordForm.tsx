@@ -1,20 +1,17 @@
-/* eslint-disable react-hooks/immutability */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
+import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
-import { resetPassword } from '@/lib/auth';
+import { resetPassword } from '@/lib/auth/client';
 import { validatePassword } from '@/lib/security/passwordPolicy';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
 
 export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { showError, showSuccess, showLoading, dismiss } = useAuthToast();
 
-  // ========== 状态 ==========
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [pageState, setPageState] = useState<'checking' | 'error' | 'form'>('checking');
@@ -24,13 +21,11 @@ export function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-
     const error = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
     const errorDesc = searchParams.get('error_description');
 
     if (error) {
-      // 有错误参数 → 直接显示错误，不需要检查 session
       setErrorInfo({
         code: errorCode || 'unknown',
         message: decodeURIComponent(errorDesc || '验证失败')
@@ -39,30 +34,18 @@ export function ResetPasswordForm() {
       return;
     }
 
-    // 2. 无错误参数 → 检查 session（成功流程）
-
     checkSession();
   }, [searchParams]);
 
-  async function checkSession() {
+  function checkSession() {
     const supabase = createClient();
-    
-    // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'PASSWORD_RECOVERY' && session) {
-          setPageState('form');
-        }
-      }
-    );
 
-    // 立即检查现有 session
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-      setPageState('form');
-    } else {
-      // 给 Supabase 1秒时间从 hash 恢复（成功时 token 在 #hash 中）
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setPageState('form');
+        return;
+      }
+
       setTimeout(async () => {
         const { data: { session: s } } = await supabase.auth.getSession();
         setPageState(s ? 'form' : 'error');
@@ -73,48 +56,51 @@ export function ResetPasswordForm() {
           });
         }
       }, 1000);
-    }
-
-    return () => subscription.unsubscribe();
+    });
   }
 
-  // ========== 提交处理 ==========
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
     const pwd = formData.get('password') as string;
     const confirmPwd = formData.get('confirmPassword') as string;
 
-    // 验证密码...
     const check = validatePassword(pwd);
     if (!check.valid) {
-      showError(check.message || '密码不符合安全要求');
+      toast.error(check.message || '密码不符合安全要求');
       setIsLoading(false);
       return;
     }
     if (pwd !== confirmPwd) {
-      showError('两次输入的密码不一致');
+      toast.error('两次输入的密码不一致');
       setIsLoading(false);
       return;
     }
 
-    const toastId = showLoading('处理中...');
-    const result = await resetPassword(formData);
-    dismiss(toastId);
+    const toastId = toast.loading('处理中...');
+    
+    try {
+      const payload = new FormData();
+      payload.set('password', pwd);
+      payload.set('confirmPassword', confirmPwd);
+      const result = await resetPassword(payload);
+      toast.dismiss(toastId);
 
-    if (!result.success) {
-      showError(result.error || '重置失败');
+      if (!result.success) {
+        toast.error(result.error || '重置失败，请重试');
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success(result.message || '密码重置成功');
+      setIsSuccess(true);
+    } catch {
+      toast.dismiss(toastId);
+      toast.error('重置失败，请重试');
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    showSuccess('密码重置成功');
-    setIsSuccess(true);
-    setIsLoading(false);
   }
 
-  // ========== 渲染 ==========
-  
-  // 1. 检查中
   if (pageState === 'checking') {
     return (
       <div className="space-y-6">
@@ -125,7 +111,6 @@ export function ResetPasswordForm() {
     );
   }
 
-  // 2. 错误状态（核心修复：显示具体错误）
   if (pageState === 'error' && errorInfo) {
     const isExpired = errorInfo.code === 'otp_expired';
     
@@ -146,11 +131,6 @@ export function ResetPasswordForm() {
               ? '密码重置链接有效期为1小时，请重新申请' 
               : errorInfo.message}
           </p>
-          {isExpired && (
-            <p className="text-sm text-gray-500 mt-2">
-              提示：邮件发送后请及时查收，避免链接过期
-            </p>
-          )}
         </div>
         
         <button
@@ -163,7 +143,6 @@ export function ResetPasswordForm() {
     );
   }
 
-  // 3. 成功状态
   if (isSuccess) {
     return (
       <div className="text-center space-y-6">
@@ -186,7 +165,6 @@ export function ResetPasswordForm() {
     );
   }
 
-  // 4. 表单状态
   return (
     <form action={handleSubmit} className="space-y-6">
       <div className="space-y-2">

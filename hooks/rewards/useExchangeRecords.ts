@@ -6,7 +6,7 @@
  * @description 管理用户兑换记录，使用 SWR 缓存优化性能
  */
 
-import useSWR from 'swr'
+import { useSWRQuery } from '@/hooks/useSWRQuery'
 import { getExchangeRecords } from '@/lib/rewards'
 import type { ExchangeRecordWithItem } from '@/types/rewards'
 
@@ -57,31 +57,19 @@ export function useExchangeRecords(
 ): UseExchangeRecordsReturn {
   const { limit = 4, offset = 0 } = params
 
-  // 使用 SWR 获取兑换记录 - 1分钟去重，挂载时自动获取
+  // 使用通用 SWR Query 获取兑换记录
   const {
     data: records = [],
     isLoading,
     isValidating,
-    mutate,
-  } = useSWR(
+    refresh: refreshRecords,
+  } = useSWRQuery(
     ['user-exchange-records', limit, offset],
     () => fetchExchangeRecords({ limit, offset }),
     {
-      dedupingInterval: 60000,
-      keepPreviousData: true,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      revalidateOnMount: true,
+      preset: 'short',
     }
   )
-
-  /**
-   * 刷新兑换记录
-   * @returns {Promise<void>}
-   */
-  const refreshRecords = async (): Promise<void> => {
-    await mutate()
-  }
 
   return {
     records,

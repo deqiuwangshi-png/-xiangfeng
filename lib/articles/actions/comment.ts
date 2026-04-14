@@ -15,8 +15,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
-import { withAuth } from '@/lib/auth/core/withPermission';
+import { withAuth } from '@/lib/auth/server';
 import { getArticleCommentsPaginated } from '../queries/comment';
 import { checkCommentArticleTask } from '@/lib/rewards/tasks';
 import { CommentSchema, CommentIdSchema } from '../schema';
@@ -24,10 +23,8 @@ import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { sanitizePlainText } from '@/lib/utils/purify';
 import { COMMENT_ERROR_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
-import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
-import type { Comment } from '@/types';
-
-export type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult } from '@/types';
+import type { SubmitCommentResult, GetCommentsResult, DeleteCommentResult, Comment } from '@/types';
+import { mapNewCommentDto } from '../dto';
 
 /**
  * 获取文章评论列表（SWR 缓存用）
@@ -89,11 +86,11 @@ export async function getArticleComments(
  */
 export const submitArticleComment = withAuth(
   async (
+    user,
     articleId: string,
     content: string,
     parentId?: string
   ): Promise<SubmitCommentResult> => {
-    const user = await requireAuth();
     const supabase = await createClient();
 
     try {
@@ -185,18 +182,7 @@ export const submitArticleComment = withAuth(
 
       return {
         success: true,
-        comment: {
-          id: comment.id,
-          content: comment.content,
-          created_at: comment.created_at,
-          likes: comment.likes || 0,
-          author: {
-            id: user.id,
-            name: comment.author?.username || '匿名用户',
-            avatar: comment.author?.avatar_url || undefined,
-          },
-          liked: false,
-        },
+        comment: mapNewCommentDto(comment, user.id),
       };
     } catch (error) {
       console.error('提交评论失败:', error);
@@ -217,8 +203,7 @@ export const submitArticleComment = withAuth(
  * - 使用 withAuth 统一权限控制
  */
 export const deleteArticleComment = withAuth(
-  async (commentId: string): Promise<DeleteCommentResult> => {
-    const user = await requireAuth();
+  async (user, commentId: string): Promise<DeleteCommentResult> => {
     const supabase = await createClient();
 
     try {
@@ -254,4 +239,3 @@ export const deleteArticleComment = withAuth(
   }
 );
 
-{/* 注意：所有通知发送逻辑已迁移到数据库触发器，详见 docs/05数据库文档/sql文件/15通知触发器.sql */}

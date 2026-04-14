@@ -7,10 +7,8 @@ hooks/
 ├── README.md                   # 本文档
 ├── index.ts                    # 统一导出入口
 ├── auth/                       # 认证相关 Hooks
-│   ├── useAuthToast.ts         # 认证模块 Toast 提示
-│   ├── useLogout.ts            # 退出登录
-│   ├── usePermission.ts        # 权限控制
-│   └── useRegisterForm.ts      # 注册表单管理
+│   ├── useAuth.ts              # 认证状态与动作（单一入口）
+│   └── index.ts                # 统一导出
 ├── article/                    # 文章相关 Hooks
 │   ├── useArticleToast.ts      # 文章模块 Toast 提示
 │   ├── useArticleView.ts       # 文章浏览量统计
@@ -51,15 +49,14 @@ hooks/
 ### 方式一：统一入口导入（推荐）
 
 ```typescript
-import { useArticleToast, useComments, useLogout } from '@/hooks';
+import { useArticleToast, useComments, useAuth } from '@/hooks';
 ```
 
 ### 方式二：分类路径导入
 
 ```typescript
 // Auth
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
-import { useLogout } from '@/hooks/auth/useLogout';
+import { useAuth, useUser, useIsAuthenticated } from '@/hooks/auth/useAuth';
 
 // Article
 import { useArticleToast } from '@/hooks/article/useArticleToast';
@@ -99,58 +96,12 @@ import { useTasks } from '@/hooks/rewards/useTasks';
 
 ### 1. Auth 认证相关
 
-#### useAuthToast
+#### useAuth / useUser / useIsAuthenticated
 
-认证模块的 Toast 提示，支持错误类型自动识别。
-
-```typescript
-import { useAuthToast } from '@/hooks/auth/useAuthToast';
-
-function LoginForm() {
-  const { showError, showSuccess, showLoading } = useAuthToast();
-  // ...
-}
-```
-
-#### useLogout
-
-退出登录的状态管理和执行逻辑。
+认证模块已收敛为单一会话源（`AuthProvider`），这三个 Hook 均从统一上下文派生，避免重复订阅 `onAuthStateChange`。
 
 ```typescript
-import { useLogout } from '@/hooks/auth/useLogout';
-
-function UserMenu() {
-  const { isLoggingOut, handleLogout } = useLogout({
-    redirectTo: '/login',
-  });
-  // ...
-}
-```
-
-#### usePermission
-
-前端权限检查，控制 UI 元素显示和操作。
-
-```typescript
-import { usePermission } from '@/hooks/auth/usePermission';
-
-function LikeButton() {
-  const { requireAuth } = usePermission();
-  // ...
-}
-```
-
-#### useRegisterForm
-
-注册表单的状态管理和验证。
-
-```typescript
-import { useRegisterForm } from '@/hooks/auth/useRegisterForm';
-
-function RegisterForm() {
-  const { formData, errors, submitForm } = useRegisterForm();
-  // ...
-}
+import { useAuth, useUser, useIsAuthenticated } from '@/hooks';
 ```
 
 ### 2. Article 文章相关
@@ -312,6 +263,7 @@ function DraftsPage({ initialArticles }) {
 ```
 
 **功能：**
+
 - 草稿列表管理（SWR 缓存）
 - 筛选和搜索
 - 分页
@@ -344,6 +296,7 @@ function FeedbackForm({ onSubmitSuccess }) {
 ```
 
 **功能：**
+
 - 表单状态管理（类型、描述、文件）
 - 表单验证
 - 文件上传（延迟到提交时）
@@ -370,6 +323,7 @@ function ReplySection({ pageId }) {
 ```
 
 **功能：**
+
 - 评论列表加载
 - 新评论提交
 - 加载和提交状态管理
@@ -390,7 +344,8 @@ function Editor({ editorState, saveDraft }) {
 ```
 
 **功能：**
-- 定时自动保存（30秒间隔）
+
+- 防抖自动保存（默认 3 秒）
 - 静默保存模式
 - 离开页面前保存提示
 
@@ -411,6 +366,7 @@ function Editor({ editorState, setEditorState }) {
 ```
 
 **功能：**
+
 - 保存草稿
 - 发布文章
 - 更新媒体状态
@@ -434,6 +390,7 @@ function Editor({ initialTitle, initialContent, draftId }) {
 ```
 
 **功能：**
+
 - 标题和内容状态
 - 字数统计
 - 全屏模式
@@ -458,6 +415,7 @@ function Editor({ content, onChange }) {
 ```
 
 **功能：**
+
 - TipTap 编辑器实例创建
 - 图片上传处理
 - 粘贴图片支持
@@ -479,6 +437,7 @@ function ExchangeHistory() {
 ```
 
 **功能：**
+
 - 兑换记录列表获取
 - SWR 缓存优化
 - 分页支持
@@ -498,6 +457,7 @@ function PointsPage() {
 ```
 
 **功能：**
+
 - 积分总览获取
 - 积分流水查询
 - 加载更多
@@ -517,6 +477,7 @@ function ShopPage({ category }) {
 ```
 
 **功能：**
+
 - 商品列表获取
 - 商品兑换
 - 分类筛选
@@ -536,6 +497,7 @@ function SignInCard() {
 ```
 
 **功能：**
+
 - 签到状态查询
 - 执行签到
 - 连续签到天数
@@ -555,6 +517,7 @@ function TaskPage({ category }) {
 ```
 
 **功能：**
+
 - 任务列表获取
 - 领取任务奖励
 - 接取任务
@@ -605,3 +568,4 @@ import { useArticleToast } from '../../../hooks/article/useArticleToast';
 - [文章库](../lib/articles/README.md) - 文章相关 Hooks
 - [Supabase库](../lib/supabase/README.md) - 数据库操作
 - [类型定义](../types/README.md) - Hooks 类型定义
+

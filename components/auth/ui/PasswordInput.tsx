@@ -67,6 +67,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
               ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-xf-bg/60 focus:border-xf-primary focus:ring-xf-primary/20'}
               focus:bg-white focus:ring-2 outline-none transition-all text-xf-dark
               disabled:opacity-50 disabled:cursor-not-allowed
+              [&::-ms-reveal]:hidden [&::-ms-clear]:hidden
             `}
             {...props}
           />

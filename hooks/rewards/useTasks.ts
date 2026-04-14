@@ -6,9 +6,9 @@
  * @description 管理用户任务数据，使用 SWR 缓存优化性能
  */
 
-import useSWR from 'swr'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
+import { useSWRQuery } from '@/hooks/useSWRQuery'
 import {
   getUserTaskProgress,
   claimTaskReward,
@@ -63,32 +63,22 @@ const fetchTasks = async (category?: TaskCategory): Promise<TaskProgressResponse
 export function useTasks(category?: TaskCategory): UseTasksReturn {
   const cacheKey = category ? `tasks-${category}` : 'tasks-all'
 
-  // P1-4: 请求中状态管理
+  // 请求中状态管理
   const [claimingTaskIds, setClaimingTaskIds] = useState<Set<string>>(new Set())
   const [acceptingTaskIds, setAcceptingTaskIds] = useState<Set<string>>(new Set())
 
-  // 使用 SWR 获取任务数据 - 1分钟去重，挂载时不自动重新验证
+  // 使用通用 SWR Query 获取任务数据
   const {
     data: tasks = [],
     error,
     isLoading,
     isValidating,
+    refresh: refreshTasks,
     mutate,
-  } = useSWR(cacheKey, () => fetchTasks(category), {
-    dedupingInterval: 60000,
-    keepPreviousData: true,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
+  } = useSWRQuery(cacheKey, () => fetchTasks(category), {
+    preset: 'short',
+    revalidateOnMount: false, // 服务端已提供初始数据
   })
-
-  /**
-   * 刷新任务数据
-   * @returns {Promise<void>}
-   */
-  const refreshTasks = useCallback(async () => {
-    await mutate()
-  }, [mutate])
 
   /**
    * 领取任务奖励
@@ -97,7 +87,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
    */
   const claimReward = useCallback(
     async (taskId: string): Promise<{ success: boolean; points?: number; error?: string }> => {
-      // P1-4: 防止重复请求
+      // 防止重复请求
       if (claimingTaskIds.has(taskId)) {
         return { success: false, error: '正在处理中' }
       }
@@ -129,7 +119,7 @@ export function useTasks(category?: TaskCategory): UseTasksReturn {
    */
   const accept = useCallback(
     async (taskId: string): Promise<{ success: boolean; error?: string }> => {
-      // P1-4: 防止重复请求
+      // 防止重复请求
       if (acceptingTaskIds.has(taskId)) {
         return { success: false, error: '正在处理中' }
       }

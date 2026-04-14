@@ -2,23 +2,6 @@
 
 /**
  * 编辑器骨架屏组件
- * 
- * 在动态导入加载期间显示，优化感知性能
- * 与编辑器实际布局一致，减少布局偏移(CLS)
- * 
- * @module EditorSkeleton
- */
-
-/**
- * 编辑器骨架屏
- * 
- * 模拟编辑器的完整布局结构：
- * - 顶部操作栏
- * - 标题输入区域
- * - 内容编辑区域
- * - 底部字符计数
- * 
- * @returns 骨架屏JSX
  */
 export function EditorSkeleton() {
   return (

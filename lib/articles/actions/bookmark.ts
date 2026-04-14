@@ -18,8 +18,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
-import { withAuth } from '@/lib/auth/core/withPermission';
+import { withAuth } from '@/lib/auth/server';
 import { checkCollectArticleTask } from '@/lib/rewards/tasks';
 import { isValidUUID } from '../helpers/utils';
 import { ARTICLE_ERROR_MESSAGES, ARTICLE_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
@@ -48,85 +47,108 @@ export interface ToggleBookmarkResult {
  * @returns 收藏结果
  */
 export const toggleArticleBookmark = withAuth(
-  async (articleId: string): Promise<ToggleBookmarkResult> => {
+  async (user, articleId: string): Promise<ToggleBookmarkResult> => {
     // 1. 验证 articleId 格式
     if (!isValidUUID(articleId)) {
       return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
     }
 
-    const user = await requireAuth();
     const supabase = await createClient();
-    const currentUserId = user.id;
-    const currentArticleId = articleId;
+    return setArticleBookmarkInternal(supabase, user.id, articleId, null)
+  }
+);
 
-    try {
-      let favorited = false;
+async function setArticleBookmarkInternal(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  articleId: string,
+  desiredFavorited: boolean | null
+): Promise<ToggleBookmarkResult> {
+  try {
+    let favorited = false
 
-      // 2. 尝试插入收藏 - 利用唯一约束防重
+    if (desiredFavorited === true) {
+      const { error } = await supabase
+        .from('favorites')
+        .insert({ article_id: articleId, user_id: userId })
+      if (error && error.code !== '23505') {
+        if (error.code === '23503') {
+          return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND }
+        }
+        return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.BOOKMARK_ERROR }
+      }
+      favorited = true
+    } else if (desiredFavorited === false) {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('article_id', articleId)
+        .eq('user_id', userId)
+      if (error) {
+        return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.UNBOOKMARK_ERROR }
+      }
+      favorited = false
+    } else {
       const { error: insertError } = await supabase
         .from('favorites')
-        .insert({
-          article_id: currentArticleId,
-          user_id: currentUserId,
-        });
-
+        .insert({ article_id: articleId, user_id: userId })
       if (insertError) {
-        // 唯一约束冲突 (23505) = 已收藏，取消收藏
         if (insertError.code === '23505') {
           const { error: deleteError } = await supabase
             .from('favorites')
             .delete()
-            .eq('article_id', currentArticleId)
-            .eq('user_id', currentUserId);
-
+            .eq('article_id', articleId)
+            .eq('user_id', userId)
           if (deleteError) {
-            console.error('取消收藏失败:', deleteError);
-            return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.UNBOOKMARK_ERROR };
+            return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.UNBOOKMARK_ERROR }
           }
-          favorited = false;
+          favorited = false
         } else if (insertError.code === '23503') {
-          // 外键约束错误 - 文章不存在
-          console.error('收藏失败，文章不存在:', insertError);
-          return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
+          return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND }
         } else {
-          console.error('收藏插入失败:', insertError);
-          return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.BOOKMARK_ERROR };
+          return { success: false, favorited: false, favorites: 0, error: ARTICLE_INTERACTION_MESSAGES.BOOKMARK_ERROR }
         }
       } else {
-        // 插入成功 = 新收藏
-        favorited = true;
-        // 异步检测任务，不阻塞主流程 - 使用局部变量避免闭包问题
-        setImmediate(async () => {
-          try {
-            const taskSuccess = await checkCollectArticleTask();
-            if (!taskSuccess) {
-              console.warn('[任务系统] 收藏文章任务进度更新失败，不影响收藏操作');
-            }
-          } catch (taskError) {
-            console.warn('[任务系统] 任务检测异常:', taskError);
-          }
-        });
+        favorited = true
       }
-
-      // 3. 查询数据库获取实时收藏计数
-      const { data: articleData, error: countError } = await supabase
-        .from('articles')
-        .select('favorite_count')
-        .eq('id', currentArticleId)
-        .single();
-
-      if (countError) {
-        console.error('获取收藏计数失败:', countError);
-      }
-
-      return {
-        success: true,
-        favorited,
-        favorites: articleData?.favorite_count ?? (favorited ? 1 : 0),
-      };
-    } catch (error) {
-      console.error('收藏操作失败:', error);
-      return { success: false, favorited: false, favorites: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
+
+    if (favorited) {
+      setImmediate(async () => {
+        try {
+          const taskSuccess = await checkCollectArticleTask();
+          if (!taskSuccess) {
+            console.warn('[任务系统] 收藏文章任务进度更新失败，不影响收藏操作');
+          }
+        } catch (taskError) {
+          console.warn('[任务系统] 任务检测异常:', taskError);
+        }
+      });
+    }
+
+    const { data: articleData } = await supabase
+      .from('articles')
+      .select('favorite_count')
+      .eq('id', articleId)
+      .single()
+
+    return {
+      success: true,
+      favorited,
+      favorites: articleData?.favorite_count ?? (favorited ? 1 : 0),
+    }
+  } catch (error) {
+    console.error('收藏操作失败:', error);
+    return { success: false, favorited: false, favorites: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
   }
-);
+}
+
+export const setArticleBookmark = withAuth(
+  async (user, articleId: string, favorited: boolean): Promise<ToggleBookmarkResult> => {
+    if (!isValidUUID(articleId)) {
+      return { success: false, favorited: false, favorites: 0, error: ARTICLE_ERROR_MESSAGES.NOT_FOUND };
+    }
+    const supabase = await createClient()
+    return setArticleBookmarkInternal(supabase, user.id, articleId, favorited)
+  }
+)

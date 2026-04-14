@@ -2,6 +2,7 @@
 
 import { DraftData, DraftStatus, ViewMode } from '@/types/drafts'
 import { Trash2, Edit3, Check } from '@/components/icons'
+import { formatDateISO } from '@/lib/utils/date'
 
 /**
  * 草稿卡片组件属性
@@ -135,23 +136,7 @@ export function DraftCard({
     onEdit(draft.id)
   }
 
-  /**
-   * 格式化日期
-   *
-   * @function formatDate
-   * @param {string} dateString - 日期字符串
-   * @returns {string} 格式化后的日期
-   *
-   * @description
-   * 将日期字符串格式化为简洁格式
-   */
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
+
 
   /**
    * 列表模式渲染
@@ -230,7 +215,7 @@ export function DraftCard({
 
         {/* 日期 */}
         <div className="text-sm text-gray-400 whitespace-nowrap">
-          {formatDate(draft.updatedAt)}
+          {formatDateISO(draft.updatedAt)}
         </div>
       </div>
     </div>
@@ -312,7 +297,7 @@ export function DraftCard({
           {/* 底部信息 */}
           <div className="flex items-center justify-between">
             <div className="text-xs text-gray-400">
-              更新于 {formatDate(draft.updatedAt)}
+              更新于 {formatDateISO(draft.updatedAt)}
             </div>
 
             {/* 悬浮删除按钮 */}

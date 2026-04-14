@@ -267,24 +267,6 @@ export interface PtRwProps {
 }
 
 /**
- * 选项卡按钮 Props 接口
- * @interface TabBtnProps
- * @description 选项卡按钮组件(TabBtn)的属性
- */
-export interface TabBtnProps {
-  /** 是否激活 */
-  active: boolean;
-  /** 点击回调 */
-  onClick: () => void;
-  /** 图标 */
-  icon: React.ReactNode;
-  /** 标签文字 */
-  label: string;
-  /** 是否禁用 */
-  disabled?: boolean;
-}
-
-/**
  * 登录提示 Props 接口
  * @interface LoginPromptProps
  * @description 登录提示组件的属性

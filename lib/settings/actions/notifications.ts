@@ -7,7 +7,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { withAuth } from '../utils/auth'
+import { withAuthSession } from '@/lib/auth/server'
 import { NOTIFICATION_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateSettingResult } from '@/types/user/settings'
@@ -26,7 +26,7 @@ export interface NotificationSettingsResult {
  * @returns 通知设置结果
  */
 export async function getNotificationSettings(): Promise<NotificationSettingsResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { data, error } = await supabase
       .from('user_settings')
       .select('email_notifications, notify_new_follower, notify_comment, notify_like, notify_mention, notify_system, notify_achievement')
@@ -88,7 +88,7 @@ export async function updateNotificationSettings(formData: FormData): Promise<Up
 
   const booleanValue = value === 'true'
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { error } = await supabase
       .from('user_settings')
       .upsert(

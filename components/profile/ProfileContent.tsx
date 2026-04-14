@@ -23,10 +23,10 @@ interface Article {
   id: string
   title: string
   summary: string
-  published_at?: string
-  created_at: string
-  likes_count?: number
-  comments_count?: number
+  publishedAt?: string | null
+  createdAt: string
+  likesCount?: number
+  commentsCount?: number
 }
 
 /**
@@ -69,7 +69,7 @@ export function ProfileContentSkeleton() {
  * - 点击跳转到文章详情页
  */
 function ArticleListItem({ article }: { article: Article }) {
-  const publishedAt = article.published_at || article.created_at
+  const publishedAt = article.publishedAt || article.createdAt
 
   return (
     <Link href={`/article/${article.id}`}>
@@ -92,11 +92,11 @@ function ArticleListItem({ article }: { article: Article }) {
           </span>
           <span className="flex items-center gap-1">
             <ThumbsUp className="w-3.5 h-3.5" />
-            {article.likes_count || 0}
+            {article.likesCount || 0}
           </span>
           <span className="flex items-center gap-1">
             <MessageSquare className="w-3.5 h-3.5" />
-            {article.comments_count || 0}
+            {article.commentsCount || 0}
           </span>
         </div>
       </article>

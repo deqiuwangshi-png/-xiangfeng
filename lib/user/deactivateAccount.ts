@@ -1,11 +1,9 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { DeactivateAccountResult } from '@/types'
-
-export type { DeactivateAccountResult } from '@/types'
 
 /**
  * 停用用户账户

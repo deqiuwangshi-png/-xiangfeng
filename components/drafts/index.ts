@@ -39,4 +39,4 @@ export { DeleteConfirmModal } from './actions/DeleteConfirmModal'
 
 // Hooks - 从 @/hooks 统一导出
 export { useDrafts } from '@/hooks/drafts/useDrafts'
-export type { UseDraftsReturn } from '@/hooks/drafts/useDrafts'
+export type { UseDraftsReturn } from '@/types/drafts'

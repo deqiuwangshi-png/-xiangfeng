@@ -14,9 +14,6 @@ import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 更多操作菜单组件
- *
- * @param {MoreActionsProps} props - 组件属性
- * @returns {JSX.Element} 更多操作菜单组件
  */
 export function MoreActions({
   articleId,

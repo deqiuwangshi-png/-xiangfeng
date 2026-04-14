@@ -1,88 +1,103 @@
-/**
- * 认证状态提供者组件
- * @module components/providers/AuthProvider
- * @description 用于在客户端初始化认证状态的 Provider 组件
- *
- * @架构说明
- * - 接收服务端获取的初始用户数据
- * - 在客户端水合时初始化 Store
- * - 避免客户端和服务端状态不一致
- */
-
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { useAuthStore } from '@/stores/auth'
-import type { SimpleUser, UserProfile } from '@/types/user/user'
-import { createClient } from '@/lib/supabase/client'
-
 /**
- * AuthProvider Props 接口
- * @interface AuthProviderProps
+ * 认证提供者组件（简化版）
+ * @module components/providers/AuthProvider
+ * @description 仅用于监听认证状态变化，无需额外状态管理
  */
+
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
+import type { SimpleUserProfile } from '@/types'
+
 interface AuthProviderProps {
-  /** 子组件 */
   children: React.ReactNode
-  /** 初始用户数据（从服务端获取） */
-  initialUser?: SimpleUser | null
-  /** 初始用户资料（从服务端获取） */
-  initialProfile?: UserProfile | null
 }
 
-/**
- * 认证状态提供者组件
- *
- * @description
- * 该组件负责将服务端获取的初始认证状态同步到客户端 Store。
- * 使用 useRef 确保只初始化一次，避免重复设置。
- *
- * @param props - 组件属性
- * @returns 子组件
- *
- * @example
- * ```tsx
- * // 在 layout.tsx 中使用
- * <AuthProvider initialUser={user} initialProfile={profile}>
- *   {children}
- * </AuthProvider>
- * ```
- */
-export function AuthProvider({ 
-  children, 
-  initialUser = null, 
-  initialProfile = null 
-}: AuthProviderProps) {
-  const initialize = useAuthStore((state) => state.initialize)
-  const refreshUser = useAuthStore((state) => state.refreshUser)
-  const clearUser = useAuthStore((state) => state.clearUser)
-  const isInitialized = useAuthStore((state) => state.isInitialized)
-  const hasInitialized = useRef(false)
+interface AuthContextValue {
+  user: User | null
+  profile: SimpleUserProfile | null
+  isLoading: boolean
+  isAuthenticated: boolean
+}
 
-  useEffect(() => {
-    // 确保只初始化一次
-    if (!hasInitialized.current && !isInitialized) {
-      initialize(initialUser, initialProfile)
-      hasInitialized.current = true
-    }
-  }, [initialize, initialUser, initialProfile, isInitialized])
+const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<SimpleUserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === 'SIGNED_OUT') {
-        clearUser()
-        return
-      }
 
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        await refreshUser()
+    const loadProfile = async (userId: string) => {
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .maybeSingle()
+
+        setProfile(
+          data
+            ? {
+                username: data.username || undefined,
+                avatar_url: data.avatar_url || undefined,
+              }
+            : null
+        )
+      } catch {
+        setProfile(null)
+      }
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const currentUser = session?.user ?? null
+      setUser(currentUser)
+      setIsLoading(false)
+      if (currentUser?.id) {
+        void loadProfile(currentUser.id)
+      } else {
+        setProfile(null)
       }
     })
 
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [clearUser, refreshUser])
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
+        setIsLoading(false)
+        if (currentUser?.id) {
+          void loadProfile(currentUser.id)
+        } else {
+          setProfile(null)
+        }
+      }
+    )
 
-  return <>{children}</>
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const contextValue = useMemo<AuthContextValue>(() => ({
+    user,
+    profile,
+    isLoading,
+    isAuthenticated: !!user,
+  }), [isLoading, profile, user])
+
+  if (isLoading) {
+    return null
+  }
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+}
+
+export function useAuthContext() {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuthContext must be used within AuthProvider')
+  }
+  return context
 }

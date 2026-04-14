@@ -2,11 +2,6 @@
  * 类型定义统一导出
  * @module types/index
  * @description 统一导出所有类型定义，方便外部引用
- *
- * 使用方式：
- * ```typescript
- * import { AuthResult, Article, DraftData } from '@/types';
- * ```
  */
 
 // ============================================
@@ -14,15 +9,11 @@
 // ============================================
 export type {
   AuthResult,
+  AuthSessionResult,
+  AuthSessionCallback,
   AuthErrorType,
-  RegisterFormData,
-  RegisterFormErrors,
-  UseRegisterFormReturn,
   LoginFormData,
   LoginResult,
-  LogoutResult,
-  UseLogoutOptions,
-  UseLogoutReturn,
   PasswordValidationResult,
   UpdateEmailResult,
   DeleteAccountResult,
@@ -88,7 +79,6 @@ export type {
   ReportMdlProps,
   RwMdProps,
   PtRwProps,
-  TabBtnProps,
   ReadingProgressProps,
   CommentCardActionsProps,
 } from './article';
@@ -101,28 +91,15 @@ export type {
   DraftData,
   DraftFilter,
   DraftAction,
+  ViewMode,
   DraftSelection,
+  DeleteMode,
+  DeleteModalState,
+  ToastOptions,
+  BatchResult,
+  UseDraftsToastReturn,
+  UseDraftsReturn,
 } from './drafts';
-
-// ============================================
-// 反馈模块
-// ============================================
-export type {
-  FeedbackStatus,
-  FeedbackType,
-  Reply,
-  Attachment,
-  FeedbackItem,
-  HotFeedbackItem,
-  FAQItem,
-  FeedbackInput,
-  FeedbackSubmitResult,
-  FeedbackQueryResult,
-  ReplyQueryResult,
-  ReplySubmitResult,
-  FileUploadStatus,
-  UploadedFile,
-} from './user/feedback';
 
 // ============================================
 // 通知模块

@@ -10,7 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import { genNonce, verNonce } from '@/lib/security/nonce'
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer'
 import type { SignInResponse, SignInRecord } from '@/types/rewards'
@@ -65,7 +65,6 @@ export async function getTodaySignInStatus(): Promise<{
  * @returns {Promise<{nonce: string | null}>} 令牌
  */
 export async function getSignInNonce(): Promise<{ nonce: string | null }> {
-  const supabase = await createClient()
   // 使用统一认证入口获取当前用户
   const user = await getCurrentUser()
   if (!user) return { nonce: null }

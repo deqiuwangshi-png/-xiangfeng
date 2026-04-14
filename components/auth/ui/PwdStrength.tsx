@@ -79,35 +79,9 @@ export function PwdStrength({
           密码强度: {STRENGTH_LABELS[validation.strength] || '未知'}
         </span>
         <span className="text-xf-primary">
-          得分: {validation.score}/4
+          得分: {validation.score}/100
         </span>
       </div>
-
-      {/* 验证要求清单 */}
-      {validation.requirements && (
-        <ul className="text-xs space-y-1 mt-2">
-          <li className={`flex items-center gap-1 ${validation.requirements.minLength ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{validation.requirements.minLength ? '✓' : '○'}</span>
-            <span>至少8个字符</span>
-          </li>
-          <li className={`flex items-center gap-1 ${validation.requirements.hasUppercase ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{validation.requirements.hasUppercase ? '✓' : '○'}</span>
-            <span>包含大写字母</span>
-          </li>
-          <li className={`flex items-center gap-1 ${validation.requirements.hasLowercase ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{validation.requirements.hasLowercase ? '✓' : '○'}</span>
-            <span>包含小写字母</span>
-          </li>
-          <li className={`flex items-center gap-1 ${validation.requirements.hasNumber ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{validation.requirements.hasNumber ? '✓' : '○'}</span>
-            <span>包含数字</span>
-          </li>
-          <li className={`flex items-center gap-1 ${validation.requirements.hasSpecialChar ? 'text-green-600' : 'text-gray-400'}`}>
-            <span>{validation.requirements.hasSpecialChar ? '✓' : '○'}</span>
-            <span>包含特殊字符</span>
-          </li>
-        </ul>
-      )}
 
       {/* 验证失败提示 */}
       {!validation.valid && validation.message && (

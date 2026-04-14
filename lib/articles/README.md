@@ -17,6 +17,7 @@
 
 ```
 lib/articles/
+├── dto.ts                      # DTO 映射（DB Row -> 前端模型）
 ├── schema.ts                   # Zod 数据验证 Schema
 ├── actions/                    # Server Actions 目录
 │   ├── index.ts               # Actions 统一导出
@@ -184,6 +185,8 @@ const result = await batchDeleteArticles(['id1', 'id2', 'id3'])
 **使用示例**:
 ```typescript
 const articles = await getArticles('published')
+// 返回字段（统一 camelCase）
+// { id, title, summary, status, createdAt, updatedAt, publishedAt? }
 ```
 
 ---
@@ -199,6 +202,8 @@ const articles = await getArticles('published')
 **使用示例**:
 ```typescript
 const drafts = await fetchDrafts()
+// 返回 DraftData[]
+// { id, title, summary, status, createdAt, updatedAt }
 ```
 
 ### 3. 评论功能
@@ -255,50 +260,59 @@ const result = await deleteComment('comment-id')
 
 ### 4. 点赞功能
 
-#### 文章点赞 (toggleArticleLike)
+#### 文章点赞（推荐 setArticleLike）
 
 **位置**: `actions/like.ts`
 
 **功能**:
-- 点赞/取消点赞
+- 幂等点赞状态设置（推荐）
+- 兼容切换点赞/取消点赞
 - 使用数据库唯一约束防重
 - 触发器自动维护 like_count
 - 使用 `withAuth` 权限控制
 
 **使用示例**:
 ```typescript
-const result = await toggleArticleLike('article-id')
+const result = await setArticleLike('article-id', true) // 设为已点赞
+// 或兼容调用：
+// const result = await toggleArticleLike('article-id')
 ```
 
 ---
 
-#### 评论点赞 (toggleCommentLike)
+#### 评论点赞（推荐 setCommentLike）
 
 **位置**: `actions/like.ts`
 
 **功能**:
-- 评论点赞/取消点赞
+- 幂等评论点赞状态设置（推荐）
+- 兼容切换点赞/取消点赞
 
 **使用示例**:
 ```typescript
-const result = await toggleCommentLike('comment-id')
+const result = await setCommentLike('comment-id', true)
+// 或兼容调用：
+// const result = await toggleCommentLike('comment-id')
 ```
 
 ### 5. 收藏功能
 
-#### 文章收藏 (toggleArticleBookmark)
+#### 文章收藏（推荐 setArticleBookmark）
 
 **位置**: `actions/bookmark.ts`
 
 **功能**:
-- 收藏/取消收藏
+- 幂等收藏状态设置（推荐）
+- 兼容切换收藏/取消收藏
 - 使用插入-冲突模式减少查询
 - 触发器自动维护 favorite_count
 - 使用 `withAuth` 权限控制
 
 **使用示例**:
 ```typescript
-const result = await toggleArticleBookmark('article-id')
+const result = await setArticleBookmark('article-id', true)
+// 或兼容调用：
+// const result = await toggleArticleBookmark('article-id')
 ```
 
 ### 6. 浏览统计

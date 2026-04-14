@@ -1,68 +1,59 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { SettingsSection } from '../_layout/SettingsSection'
-import { SettingItem } from '../_layout/SettingItem'
-import { LoginHistoryDialog } from '../_dialogs/LoginHistoryDialog'
-import { PRIVACY_VISIBILITY_OPTIONS } from '@/types/user/settings'
-import { updatePrivacySettings } from '@/lib/settings/actions/privacy'
-import { useSettings } from '../_layout/SettingsLayout'
-import { toast } from 'sonner'
-
 /**
  * 隐私与安全设置区块（Client Component）
  *
- * 作用: 显示隐私与安全设置相关选项，支持从服务端获取和保存设置
- *
- * @returns {JSX.Element} 隐私与安全设置区块
+ * @module components/settings/PrivacySection
+ * @description 显示隐私与安全设置相关选项，支持从服务端获取和保存设置
+ * @version 2.0.0
+ * @更新说明 使用统一的 useOptimisticMutation 进行乐观更新
  *
  * 性能优化:
  *   - 从 Context 获取服务端预取的数据，避免重复请求
- *   - 本地状态优先响应，异步保存到服务端
- *   - 保存失败时回滚状态
+ *   - 使用统一的乐观更新 Hook，自动处理回滚
+ *   - 防止重复提交
  *
  * 架构说明:
  *   - 使用'use client'指令
  *   - 使用Server Actions进行数据修改
  *   - 数据通过 Context 从 Server Component 传递
- * 更新时间: 2026-03-28
  */
 
+import { useState } from 'react'
+import {
+  SettingsSection,
+  SettingItem,
+  LoginHistoryDialog,
+  useSettings,
+} from '@/components/settings'
+import { PRIVACY_VISIBILITY_OPTIONS, PrivacyVisibility } from '@/types/user/settings'
+import { usePrivacySettings } from '@/hooks/settings/usePrivacySettings'
+
+/**
+ * 隐私与安全设置区块
+ *
+ * @returns {JSX.Element} 隐私与安全设置区块
+ */
 export function PrivacySection() {
   const { userSettings } = useSettings()
   const [showLoginHistory, setShowLoginHistory] = useState(false)
-  const [profileVisibility, setProfileVisibility] = useState(
-    userSettings.privacy.profile_visibility
-  )
-  const [isSaving, setIsSaving] = useState(false)
+
+  // ==========================================
+  // 使用统一的隐私设置 Hook
+  // ==========================================
+  const { settings, isSaving, updateProfileVisibility } = usePrivacySettings({
+    initialSettings: {
+      profile_visibility: userSettings.privacy.profile_visibility as PrivacyVisibility,
+    },
+  })
 
   /**
    * 处理个人资料可见性变更
-   * @param value - 新值
+   * 使用统一的乐观更新 Hook
    */
-  const handleVisibilityChange = useCallback(async (value: string) => {
-    const oldValue = profileVisibility
-    setProfileVisibility(value)
-
-    setIsSaving(true)
-    try {
-      const formData = new FormData()
-      formData.append('key', 'profile_visible')
-      formData.append('value', value)
-
-      const result = await updatePrivacySettings(formData)
-
-      if (!result.success) {
-        setProfileVisibility(oldValue)
-        toast.error('保存失败: ' + (result.error || '未知错误'))
-      }
-    } catch {
-      setProfileVisibility(oldValue)
-      toast.error('保存失败，请稍后重试')
-    } finally {
-      setIsSaving(false)
-    }
-  }, [profileVisibility])
+  const handleVisibilityChange = async (value: string) => {
+    await updateProfileVisibility(value as PrivacyVisibility)
+  }
 
   return (
     <SettingsSection id="settings-privacy-section" title="隐私与安全">
@@ -73,7 +64,7 @@ export function PrivacySection() {
           controlType="select"
           control={
             <select
-              value={profileVisibility}
+              value={settings.profile_visibility}
               onChange={(e) => handleVisibilityChange(e.target.value)}
               disabled={isSaving}
               className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl disabled:opacity-50"

@@ -37,7 +37,7 @@ import {
   HeatMap,
   HeatMapSkeleton,
 } from '@/components/profile'
-import { getCurrentUser } from '@/lib/auth/server'
+import { requireAuth } from '@/lib/auth/server'
 import { createClient } from '@/lib/supabase/server'
 import { getUserStats } from '@/lib/user/stats'
 import type { UserStats, UserDisplayInfo } from '@/types'
@@ -50,35 +50,53 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * @param supabase - Supabase 客户端实例（复用，避免重复创建）
  */
 async function ProfileHeaderData({ userId, supabase }: { userId: string; supabase: SupabaseClient }) {
-  // 并行获取用户资料和统计数据
-  const [profileResult, statsResult] = await Promise.all([
-    supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
-    getUserStats()
-  ])
+  try {
+    // 并行获取用户资料和统计数据，带超时控制
+    const [profileResult, statsResult] = await Promise.all([
+      supabase.from('profiles').select('*, level:user_level_records(level)').eq('id', userId).single(),
+      getUserStats()
+    ])
 
-  const profile = profileResult.data
+    const profile = profileResult.data
 
-  // 构造用户显示信息
-  const userData: UserDisplayInfo = {
-    id: userId,
-    username: profile?.username || '用户',
-    email: profile?.email || '',
-    avatarUrl: profile?.avatar_url ?? null,
-    bio: profile?.bio ?? null,
-    location: profile?.location ?? null,
-    joinDate: profile?.created_at
-      ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
-      : '未知时间',
-    domain: profile?.domain ?? null,
-    role: profile?.role || 'user',
-    level: profile?.level?.[0]?.level || 1,
+    // 构造用户显示信息
+    const userData: UserDisplayInfo = {
+      id: userId,
+      username: profile?.username || '用户',
+      email: profile?.email || '',
+      avatarUrl: profile?.avatar_url ?? null,
+      bio: profile?.bio ?? null,
+      location: profile?.location ?? null,
+      joinDate: profile?.created_at
+        ? new Date(profile.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
+        : '未知时间',
+      domain: profile?.domain ?? null,
+      role: profile?.role || 'user',
+      level: profile?.level?.[0]?.level || 1,
+    }
+
+    const stats: UserStats = statsResult.success && statsResult.data
+      ? statsResult.data
+      : { articles: 0, followers: 0, likes: 0, favorites: 0 }
+
+    return <ProfileHeader user={userData} stats={stats} />
+  } catch (error) {
+    console.error('[Profile] 获取用户数据失败:', error)
+    // 返回降级数据
+    const fallbackData: UserDisplayInfo = {
+      id: userId,
+      username: '用户',
+      email: '',
+      avatarUrl: null,
+      bio: null,
+      location: null,
+      joinDate: '未知时间',
+      domain: null,
+      role: 'user',
+      level: 1,
+    }
+    return <ProfileHeader user={fallbackData} stats={{ articles: 0, followers: 0, likes: 0, favorites: 0 }} />
   }
-
-  const stats: UserStats = statsResult.success && statsResult.data
-    ? statsResult.data
-    : { articles: 0, followers: 0, likes: 0, nodes: 0 }
-
-  return <ProfileHeader user={userData} stats={stats} />
 }
 
 /**
@@ -91,14 +109,7 @@ async function ProfileHeaderData({ userId, supabase }: { userId: string; supabas
  * 4. 避免级联数据获取阻塞
  */
 export default async function ProfilePage() {
-  // 获取当前登录用户 - 使用统一入口（与布局共享）
-  const user = await getCurrentUser()
-
-  // 未登录状态：显示登录引导（与其他页面保持一致）
-  // Layout 层已拦截未登录用户，此处 user 理论上不会为 null
-  if (!user) {
-    throw new Error('用户未登录')
-  }
+  const user = await requireAuth()
 
   // 创建一次 supabase 客户端供后续复用
   const supabase = await createClient()

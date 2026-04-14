@@ -86,11 +86,16 @@ export const SignCard = memo(function SignCard({
    */
   const getCellStyle = useMemo(() => {
     return (index: number) => {
+      // 已签到的日期（包括今天）
       if (index < todayIndex) return 'bg-xf-primary text-white opacity-60'
+      // 今天已签到
+      if (index === todayIndex && isSigned) return 'bg-xf-success text-white'
+      // 今天未签到
       if (index === todayIndex) return 'bg-xf-accent text-white'
+      // 未来的日期
       return 'bg-white border-1.5 border-xf-primary text-xf-primary'
     }
-  }, [todayIndex])
+  }, [todayIndex, isSigned])
 
   /**
    * 获取今日奖励积分

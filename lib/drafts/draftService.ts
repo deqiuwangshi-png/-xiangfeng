@@ -1,17 +1,13 @@
 import { DraftData, DraftStatus, DraftFilter } from '@/types/drafts'
-import type { Article } from '@/types'
-
-export type { Article } from '@/types'
 
 /**
  * 草稿服务类
  *
  * @class DraftService
  * @description
- * 提供草稿数据的转换、筛选、搜索、分页等纯数据处理功能
+ * 提供草稿数据的筛选、搜索、分页等纯数据处理功能
  *
  * @methods
- * - convertToDraftData: 将数据库文章转换为草稿数据格式
  * - filterDraftsByStatus: 根据状态筛选草稿
  * - searchDraftsByQuery: 根据搜索查询筛选草稿
  * - filterDrafts: 综合筛选和搜索
@@ -21,23 +17,6 @@ export type { Article } from '@/types'
  * - removeDrafts: 批量删除草稿
  */
 export class DraftService {
-  /**
-   * 将数据库文章转换为草稿数据格式
-   *
-   * @param article - 数据库文章数据
-   * @returns 草稿数据格式
-   */
-  static convertToDraftData(article: Article): DraftData {
-    return {
-      id: article.id,
-      title: article.title,
-      summary: article.summary || article.content.slice(0, 100) + '...',
-      status: article.status,
-      createdAt: article.created_at,
-      updatedAt: article.updated_at,
-    }
-  }
-
   /**
    * 根据状态筛选草稿
    *

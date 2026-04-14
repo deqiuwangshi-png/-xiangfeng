@@ -11,7 +11,7 @@
  * @module PublishPageClient
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { EditorSkeleton } from '@/components/publish/_skeleton/EditorSkeleton'
@@ -21,11 +21,6 @@ import { safeParseJSON, createEmptyDocument } from '@/lib/utils/json'
 
 /**
  * 动态导入编辑器组件
- *
- * 优化策略：
- * - ssr: false 避免服务端渲染 TipTap（它依赖浏览器 API）
- * - loading 显示骨架屏，优化感知性能
- * - 将 100KB+ 的编辑器代码分割到单独的 chunk
  */
 const DynamicEditor = dynamic(
   () => import('@/components/publish/_core/DynamicEditor'),
@@ -37,8 +32,6 @@ const DynamicEditor = dynamic(
 
 /**
  * 发布页客户端组件
- *
- * @returns 发布页JSX
  */
 export default function PublishPageClient() {
   const searchParams = useSearchParams()
@@ -53,27 +46,39 @@ export default function PublishPageClient() {
 
   const [isLoading, setIsLoading] = useState(!!editId)
   const [error, setError] = useState<string | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // 加载草稿数据
   useEffect(() => {
+    // 创建新的 AbortController
+    abortControllerRef.current = new AbortController()
+    const { signal } = abortControllerRef.current
+
     async function loadDraft() {
       // 新建模式：直接使用空文档
       if (!editId) {
-        setInitialData({
-          initialTitle: '',
-          initialContent: JSON.stringify(createEmptyDocument()),
-          draftId: null,
-          isPublished: false,
-        })
-        setIsLoading(false)
+        if (!signal.aborted) {
+          setInitialData({
+            initialTitle: '',
+            initialContent: JSON.stringify(createEmptyDocument()),
+            draftId: null,
+            isPublished: false,
+          })
+          setIsLoading(false)
+        }
         return
       }
 
       // 编辑模式：从 Supabase 获取数据
       try {
-        setIsLoading(true)
-        setError(null)
+        if (!signal.aborted) {
+          setIsLoading(true)
+          setError(null)
+        }
+
         const article = await getArticleById(editId)
+
+        if (signal.aborted) return
 
         if (article) {
           // 优先使用 content_json，兼容旧数据的 content 字段
@@ -96,15 +101,23 @@ export default function PublishPageClient() {
           toast.error('草稿不存在或无权访问')
         }
       } catch (err) {
+        if (signal.aborted) return
         console.error('加载草稿失败:', err)
         setError('加载草稿失败，请刷新页面重试')
         toast.error('加载草稿失败')
       } finally {
-        setIsLoading(false)
+        if (!signal.aborted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    loadDraft()
+    void loadDraft()
+
+    // 清理函数：取消未完成的请求
+    return () => {
+      abortControllerRef.current?.abort()
+    }
   }, [editId])
 
   // 加载中状态

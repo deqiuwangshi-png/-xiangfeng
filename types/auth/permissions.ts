@@ -25,7 +25,6 @@ export type WriteOperation =
   | 'upload'   // 上传文件
   | 'task'     // 接取任务
   | 'report'   // 举报
-  | 'feedback' // 提交反馈
   | 'reply';   // 回复
 
 /**

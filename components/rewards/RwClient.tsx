@@ -36,7 +36,8 @@ export function SignCardSection() {
     if (signResult?.success) {
       refreshRecords()
     }
-  }, [signResult, refreshRecords])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signResult])
 
   return (
     <SignCard
@@ -67,7 +68,7 @@ export function TaskBoardSection({ }: { userPoints: number }) {
  * @returns {JSX.Element} 兑换商城区域
  * @deprecated 使用服务端组件 ShopGridServer 代替
  */
-export function ShopGridSection({ userPoints }: { userPoints: number }) {
+export function ShopGridSection({ }: { userPoints: number }) {
   return null
 }
 

@@ -10,7 +10,7 @@ import {
   TasksServerList,
   CategoryNavClient,
 } from '@/components/rewards'
-import { MobileBackButton } from '@/components/mobile/MobileBackButton'
+import Link from 'next/link'
 import { getUserPointsOverview } from '@/lib/rewards/points'
 import { getUserTaskProgress } from '@/lib/rewards/tasks'
 import type { TaskCategory } from '@/types/rewards'
@@ -39,7 +39,9 @@ export default async function TasksPage({
 
   return (
     <div className="px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-24">
-      <MobileBackButton href="/rewards" title="任务中心" />
+      <Link href="/rewards" className="inline-flex items-center text-sm text-xf-primary hover:text-xf-accent transition-colors">
+        ← 返回福利中心
+      </Link>
 
       <div className="max-w-5xl mx-auto fade-in-up px-6 md:px-10 pt-8 pb-12">
         {/* 静态头部 - Server Component渲染 */}

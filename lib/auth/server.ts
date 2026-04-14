@@ -18,6 +18,7 @@
 // ==================== 服务端用户获取 ====================
 export {
   getCurrentUser,
+  getCurrentUserId,
   isAuthenticated,
   getCurrentUserWithProfile,
 } from './core/user';
@@ -33,8 +34,7 @@ export { resetPassword } from './actions/reset-password';
 export { changePassword } from './actions/change-password';
 
 // ==================== 类型定义 ====================
-export type { AuthResult } from './actions/types';
-export type { LogoutResult } from '@/types';
+export type { AuthResult } from '@/types';
 
 // ==================== 消息常量 ====================
 export {
@@ -46,9 +46,41 @@ export {
   mapSupabaseError,
 } from '@/lib/messages';
 
-// ==================== 权限类型 ====================
+// ==================== 权限控制 ====================
+export { requireAuth } from './core/permissions';
+export { withAuth } from './core/withPermission';
+export { verifyAuthSession, withAuthSession } from './core/sessionContext';
 export type {
   UserRole,
   WriteOperation,
   PermissionCheckResult,
 } from '@/types/auth/permissions';
+
+export type { AuthSessionResult, AuthSessionCallback } from '@/types/auth/auth';
+
+// ==================== 登录历史 ====================
+export { getLoginHistory, recordLoginHistory } from './core/loginHistory';
+
+// ==================== Cookie 配置 ====================
+export {
+  AUTH_COOKIE_SAME_SITE,
+  allowInsecureCookieTransport,
+  cookieSecureDefault,
+  cookieSecureForRequest,
+  getAuthCookieConfig,
+  getAuthCookieExpireOptions,
+  getDevAuthCookieConfig,
+  getFeatureCookieConfig,
+} from './utils/cookieConfig';
+export type { CookieTransportRequest } from './utils/cookieConfig';
+
+// ==================== 工具函数 ====================
+export {
+  isAllowedEmail,
+  getAllowedEmailHint,
+  validatePasswordMatch,
+  isNetworkError,
+} from './utils/helpers';
+
+// ==================== 重定向安全 ====================
+export { sanitizeRedirect } from './utils/redir';

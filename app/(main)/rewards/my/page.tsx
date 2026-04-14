@@ -11,7 +11,7 @@ import {
   RwRecordServer,
   MyRewardsTabNav,
 } from '@/components/rewards'
-import { MobileBackButton } from '@/components/mobile/MobileBackButton'
+import Link from 'next/link'
 import type { ExchangeStatus } from '@/types/rewards'
 
 /**
@@ -40,7 +40,9 @@ export default async function MyRewardsPage({
 
   return (
     <div className="px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-24">
-      <MobileBackButton href="/rewards" title="我的灵感币" />
+      <Link href="/rewards" className="inline-flex items-center text-sm text-xf-primary hover:text-xf-accent transition-colors">
+        ← 返回福利中心
+      </Link>
 
       <div className="max-w-6xl mx-auto fade-in-up px-6 md:px-10 pt-8 pb-12">
         {/* 静态头部 - Server Component渲染 */}

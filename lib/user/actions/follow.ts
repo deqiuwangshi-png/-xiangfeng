@@ -21,9 +21,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/core/user';
-import { requireAuth } from '@/lib/auth/core/permissions';
-import { withAuth } from '@/lib/auth/core/withPermission';
+import { getCurrentUser, withAuth } from '@/lib/auth/server';
 import { checkFollowUserTask } from '@/lib/rewards/tasks';
 import { FOLLOW_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
@@ -61,8 +59,7 @@ export interface FollowStatusResult {
  * @returns 操作结果
  */
 export const toggleFollow = withAuth(
-  async (targetUserId: string): Promise<ToggleFollowResult> => {
-    const user = await requireAuth();
+  async (user, targetUserId: string): Promise<ToggleFollowResult> => {
     const supabase = await createClient();
 
     try {

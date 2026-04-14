@@ -9,7 +9,6 @@
 
 import Link from 'next/link'
 import { Logo } from '@/components/icons'
-import { MobileNav } from '@/components/mobile/MobileNav'
 
 /**
  * 导航项配置
@@ -50,10 +49,10 @@ function DesktopNav() {
 
         <div className="flex items-center gap-4">
           <Link
-            href="/login"
+            href="/home"
             className="px-6 py-2.5 bg-xf-primary hover:bg-xf-accent text-white rounded-xl font-medium text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"
           >
-            登录
+            去使用
           </Link>
         </div>
       </div>
@@ -66,16 +65,6 @@ function DesktopNav() {
  */
 export default function Navbar() {
   return (
-    <>
-      {/* 桌面端导航 - lg以上显示 */}
-      <div className="hidden lg:block">
-        <DesktopNav />
-      </div>
-
-      {/* 移动端导航 - lg以下显示 */}
-      <div className="lg:hidden">
-        <MobileNav />
-      </div>
-    </>
+    <DesktopNav />
   )
 }

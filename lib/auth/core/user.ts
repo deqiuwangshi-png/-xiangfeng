@@ -12,17 +12,14 @@
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { User } from '@supabase/supabase-js'
+import type { UserProfile } from '@/types/user/user'
+import { getSafeDisplayName, normalizeAvatarUrl } from '@/lib/user/avatar'
 
 /**
- * 用户资料接口
- * @interface UserProfile
+ * 重新导出 UserProfile 类型
+ * @description 统一从 types/user/user.ts 导入，避免重复定义
  */
-export interface UserProfile {
-  id: string
-  email: string
-  username: string
-  avatar_url: string
-}
+export type { UserProfile }
 
 /**
  * 判断是否为匿名用户访问的正常错误
@@ -137,7 +134,7 @@ export const getCurrentUserWithProfile = cache(async (): Promise<UserProfile | n
   return {
     id: user.id,
     email: user.email || '',
-    username: profile?.username || user.email?.split('@')[0] || '用户',
-    avatar_url: profile?.avatar_url || '',
+    username: getSafeDisplayName(profile?.username || user.email?.split('@')[0], '用户'),
+    avatar_url: normalizeAvatarUrl(profile?.avatar_url) || '',
   }
 })

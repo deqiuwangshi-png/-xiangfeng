@@ -15,7 +15,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-import { getFeatureCookieConfig } from '@/lib/auth/utils/cookieConfig';
+import { getFeatureCookieConfig } from '@/lib/auth/server';
 import { isValidUUID } from '../helpers/utils';
 
 /**

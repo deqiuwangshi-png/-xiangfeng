@@ -22,14 +22,17 @@ export { logout } from './actions/logout';
 export { forgotPassword } from './actions/forgot-password';
 export { resetPassword } from './actions/reset-password';
 export { changePassword } from './actions/change-password';
+export { oauthLogin, getOAuthProvidersStatus } from './actions/oauth';
+export { getLoginHistory } from './core/loginHistory';
+
+// ==================== 上传相关 Server Actions ====================
+export { uploadAvatarAction, deleteAvatarAction } from '@/lib/upload/actions';
 
 // ==================== 类型定义 ====================
-export type { AuthResult } from './actions/types';
-export type { LogoutResult } from '@/types';
-export type { UseLogoutOptions, UseLogoutReturn } from '@/hooks/auth/useLogout';
+export type { AuthResult } from '@/types';
 
-// ==================== Hooks ====================
-export { useLogout } from '@/hooks/auth/useLogout';
+// ==================== 工具 ====================
+export { isNetworkError } from './utils/helpers';
 
 // ==================== 消息常量 ====================
 export {
@@ -47,3 +50,6 @@ export type {
   WriteOperation,
   PermissionCheckResult,
 } from '@/types/auth/permissions';
+
+// ==================== 使用约束 ====================
+// 认证 UI 侧统一从该文件导入动作，避免在组件内直接调用 supabase.auth.*

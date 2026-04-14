@@ -19,13 +19,10 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { requireAuth } from '@/lib/auth/core/permissions';
-import { withAuth } from '@/lib/auth/core/withPermission';
+import { withAuth } from '@/lib/auth/server';
 import { checkLikeArticleTask } from '@/lib/rewards/tasks';
 import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
-
-export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
 /**
  * 文章点赞/取消点赞
@@ -41,112 +38,89 @@ export type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
  * @returns 点赞结果
  */
 export const toggleArticleLike = withAuth(
-  async (articleId: string): Promise<ToggleLikeResult> => {
-    console.log('[点赞 Server] toggleArticleLike 被调用:', articleId);
+  async (user, articleId: string): Promise<ToggleLikeResult> => {
+    const current = await createClient();
+    return setArticleLikeInternal(current, user.id, articleId, null)
+  }
+);
 
-    const user = await requireAuth();
-    const supabase = await createClient();
+async function setArticleLikeInternal(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  articleId: string,
+  desiredLiked: boolean | null
+): Promise<ToggleLikeResult> {
+  try {
+    let liked = false
 
-    try {
-      console.log('[点赞 Server] 当前用户:', user.id);
-      let liked = false;
-
-      // 1. 先查询当前文章的点赞数
-      console.log('[点赞 Server] 查询当前文章点赞数...');
-      const { data: beforeData } = await supabase
-        .from('articles')
-        .select('like_count')
-        .eq('id', articleId)
-        .single();
-      console.log('[点赞 Server] 当前点赞数:', beforeData?.like_count || 0);
-
-      // 2. 尝试插入点赞 - 利用唯一约束防重
-      console.log('[点赞 Server] 尝试插入点赞记录:', { article_id: articleId, user_id: user.id });
-      const { data: insertData, error: insertError } = await supabase
+    if (desiredLiked === true) {
+      const { error } = await supabase
         .from('article_likes')
-        .insert({
-          article_id: articleId,
-          user_id: user.id,
-        })
-        .select();
-
-      console.log('[点赞 Server] 插入结果:', { data: insertData, error: insertError?.message, code: insertError?.code });
+        .insert({ article_id: articleId, user_id: userId })
+      if (error && error.code !== '23505') {
+        return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.LIKE_ERROR }
+      }
+      liked = true
+    } else if (desiredLiked === false) {
+      const { error } = await supabase
+        .from('article_likes')
+        .delete()
+        .eq('article_id', articleId)
+        .eq('user_id', userId)
+      if (error) {
+        return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.UNLIKE_ERROR }
+      }
+      liked = false
+    } else {
+      const { error: insertError } = await supabase
+        .from('article_likes')
+        .insert({ article_id: articleId, user_id: userId })
 
       if (insertError) {
-        console.log('[点赞 Server] 插入失败:', insertError.code, insertError.message, insertError.details);
-
-        // 唯一约束冲突 (23505) = 已点赞，取消点赞
         if (insertError.code === '23505') {
-          console.log('[点赞 Server] 检测到已点赞，执行取消点赞...');
           const { error: deleteError } = await supabase
             .from('article_likes')
             .delete()
             .eq('article_id', articleId)
-            .eq('user_id', user.id);
-
+            .eq('user_id', userId)
           if (deleteError) {
-            console.error('[点赞 Server] 取消点赞失败:', deleteError);
-            return { success: false, liked: false, likes: 0, error: '取消点赞失败' };
+            return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.UNLIKE_ERROR }
           }
-          liked = false;
-          console.log('[点赞 Server] 取消点赞成功');
-
-          // 手动更新 like_count -1
-          console.log('[点赞 Server] 手动更新 like_count -1');
-          const { error: updateError } = await supabase.rpc('decrement_article_like', {
-            article_id: articleId
-          });
-          if (updateError) {
-            console.error('[点赞 Server] 更新 like_count 失败:', updateError);
-          }
+          liked = false
         } else {
-          console.error('[点赞 Server] 点赞插入失败:', insertError);
-          return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.LIKE_ERROR };
+          return { success: false, liked: false, likes: 0, error: ARTICLE_INTERACTION_MESSAGES.LIKE_ERROR }
         }
       } else {
-        liked = true;
-        console.log('[点赞 Server] 点赞成功');
-
-        // 手动更新 like_count（触发器可能因 RLS 失效）
-        console.log('[点赞 Server] 手动更新 like_count +1');
-        const { error: updateError } = await supabase.rpc('increment_article_like', {
-          article_id: articleId
-        });
-        if (updateError) {
-          console.error('[点赞 Server] 更新 like_count 失败:', updateError);
-        }
-
-        Promise.resolve().then(async () => {
-          const taskSuccess = await checkLikeArticleTask()
-          if (!taskSuccess) {
-            console.warn('[任务系统] 点赞文章任务进度更新失败，不影响点赞操作')
-          }
-        })
+        liked = true
       }
-
-      // 查询最新的点赞数量
-      console.log('[点赞 Server] 查询最新点赞数量...');
-      const { data: articleData, error: articleError } = await supabase
-        .from('articles')
-        .select('like_count')
-        .eq('id', articleId)
-        .single();
-
-      const latestLikeCount = articleData?.like_count || 0;
-      console.log('[点赞 Server] 最新点赞数量:', latestLikeCount, articleError ? `错误: ${articleError.message}` : '');
-
-      console.log('[点赞 Server] 返回结果:', { success: true, liked, likes: latestLikeCount });
-      return {
-        success: true,
-        liked,
-        likes: latestLikeCount,
-      };
-    } catch (error) {
-      console.error('[点赞 Server] 点赞操作失败:', error);
-      return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
+
+    if (liked) {
+      Promise.resolve().then(async () => {
+        const ok = await checkLikeArticleTask()
+        if (!ok) console.warn('[任务系统] 点赞文章任务进度更新失败，不影响点赞操作')
+      })
+    }
+
+    const { data: articleData } = await supabase
+      .from('articles')
+      .select('like_count')
+      .eq('id', articleId)
+      .single()
+
+    return { success: true, liked, likes: articleData?.like_count || 0 }
+  } catch (error) {
+    console.error('[点赞 Server] 点赞操作失败:', error)
+    return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR }
   }
-);
+}
+
+export const setArticleLike = withAuth(
+  async (user, articleId: string, liked: boolean): Promise<ToggleLikeResult> => {
+    const supabase = await createClient()
+    return setArticleLikeInternal(supabase, user.id, articleId, liked)
+  }
+)
 
 /**
  * 评论点赞/取消点赞
@@ -161,63 +135,71 @@ export const toggleArticleLike = withAuth(
  * @returns 点赞结果
  */
 export const toggleCommentLike = withAuth(
-  async (commentId: string): Promise<ToggleCommentLikeResult> => {
-    console.log('[点赞 Server] toggleCommentLike 被调用:', commentId);
-
-    const user = await requireAuth();
+  async (user, commentId: string): Promise<ToggleCommentLikeResult> => {
     const supabase = await createClient();
+    return setCommentLikeInternal(supabase, user.id, commentId, null)
+  }
+);
 
-    try {
-      console.log('[点赞 Server] 当前用户:', user.id);
-      let liked = false;
-
-      // 1. 尝试插入点赞 - 利用唯一约束防重
-      console.log('[点赞 Server] 尝试插入评论点赞记录:', { comment_id: commentId, user_id: user.id });
+async function setCommentLikeInternal(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  commentId: string,
+  desiredLiked: boolean | null
+): Promise<ToggleCommentLikeResult> {
+  try {
+    let liked = false
+    if (desiredLiked === true) {
+      const { error } = await supabase
+        .from('comment_likes')
+        .insert({ comment_id: commentId, user_id: userId })
+      if (error && error.code !== '23505') {
+        return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.LIKE_ERROR }
+      }
+      liked = true
+    } else if (desiredLiked === false) {
+      const { error } = await supabase
+        .from('comment_likes')
+        .delete()
+        .eq('comment_id', commentId)
+        .eq('user_id', userId)
+      if (error) {
+        return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.UNLIKE_ERROR }
+      }
+      liked = false
+    } else {
       const { error: insertError } = await supabase
         .from('comment_likes')
-        .insert({
-          comment_id: commentId,
-          user_id: user.id,
-        });
-
+        .insert({ comment_id: commentId, user_id: userId })
       if (insertError) {
-        console.log('[点赞 Server] 插入失败:', insertError.code, insertError.message);
-
-        // 唯一约束冲突 (23505) = 已点赞，取消点赞
         if (insertError.code === '23505') {
-          console.log('[点赞 Server] 检测到已点赞，执行取消点赞...');
           const { error: deleteError } = await supabase
             .from('comment_likes')
             .delete()
             .eq('comment_id', commentId)
-            .eq('user_id', user.id);
-
+            .eq('user_id', userId)
           if (deleteError) {
-            console.error('[点赞 Server] 取消评论点赞失败:', deleteError);
-            return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.UNLIKE_ERROR };
+            return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.UNLIKE_ERROR }
           }
-          liked = false;
-          console.log('[点赞 Server] 取消评论点赞成功');
+          liked = false
         } else {
-          console.error('[点赞 Server] 评论点赞插入失败:', insertError);
-          return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.LIKE_ERROR };
+          return { success: false, liked: false, likes: 0, error: COMMENT_INTERACTION_MESSAGES.LIKE_ERROR }
         }
       } else {
-        // 插入成功 = 新点赞
-        liked = true;
-        console.log('[点赞 Server] 评论点赞成功');
-        // 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql
+        liked = true
       }
-
-      console.log('[点赞 Server] 返回结果:', { success: true, liked });
-      return {
-        success: true,
-        liked,
-        likes: 0, // 前端不使用此值
-      };
-    } catch (error) {
-      console.error('[点赞 Server] 评论点赞操作失败:', error);
-      return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR };
     }
+
+    return { success: true, liked, likes: 0 }
+  } catch (error) {
+    console.error('[点赞 Server] 评论点赞操作失败:', error)
+    return { success: false, liked: false, likes: 0, error: COMMON_ERRORS.UNKNOWN_ERROR }
   }
-);
+}
+
+export const setCommentLike = withAuth(
+  async (user, commentId: string, liked: boolean): Promise<ToggleCommentLikeResult> => {
+    const supabase = await createClient()
+    return setCommentLikeInternal(supabase, user.id, commentId, liked)
+  }
+)

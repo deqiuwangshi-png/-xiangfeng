@@ -7,15 +7,15 @@
  */
 
 import { lazy, Suspense } from 'react'
+import { AccountList } from '@/components/settings'
 import { useAccountView } from './useAccountView'
-import { AccountList } from './AccountList'
 import { UserData } from '@/types/user/settings'
 
 {/* 表单组件懒加载 - 减少首屏 JS 体积 */}
 const EditProfileForm = lazy(() => import('../_forms/EditProfileForm'))
 const SecuritySettingsForm = lazy(() => import('../_forms/SecuritySettingsForm'))
 const ChangeEmailForm = lazy(() => import('../_forms/ChangeEmailForm'))
-const LinkedAccountsForm = lazy(() => import('../_forms/LinkedAccountsForm').then(module => ({ default: module.LinkedAccountsForm })))
+const LinkedAccountsForm = lazy(() => import('../_forms/LinkedAccountsForm'))
 
 {/* 表单加载骨架屏 */}
 function FormSkeleton() {

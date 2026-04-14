@@ -9,8 +9,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
 import { mapSupabaseError, RESET_PASSWORD_MESSAGES } from '@/lib/messages';
-import { validatePasswordMatch, getCurrentUser } from '../utils';
-import type { AuthResult } from './types';
+import { validatePasswordMatch } from '../utils/helpers';
+import { getCurrentUser } from '@/lib/auth/server';
+import type { AuthResult } from '@/types';
 
 /**
  * 重置密码（已登录用户）

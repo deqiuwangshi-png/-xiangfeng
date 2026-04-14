@@ -2,12 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
-import { isAllowedEmail } from '@/lib/auth/utils/helpers'
+import { getCurrentUser, isAllowedEmail } from '@/lib/auth/server'
 import { LOGIN_MESSAGES, REGISTER_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateEmailResult } from '@/types'
-
-export type { UpdateEmailResult } from '@/types'
 
 /**
  * 发起邮箱更换请求

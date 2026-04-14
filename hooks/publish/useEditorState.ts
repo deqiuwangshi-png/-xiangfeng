@@ -1,53 +1,20 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { extractTextFromJSON, isContentEmpty } from '@/lib/utils/json'
-
-export interface EditorState {
-  title: string
-  content: string
-  titleLength: number
-  contentLength: number
-  isFullscreen: boolean
-  isToolbarCollapsed: boolean
-  draftId: string | null
-  isSaving: boolean
-  isPublishing: boolean
-  /**
-   * 文章是否已发布
-   * @逻辑说明 true = 已发布文章，不再保存草稿；false = 草稿/未发布，可以保存草稿
-   */
-  isPublished: boolean
-  /**
-   * 最后保存时间
-   */
-  lastSavedAt: Date | null
-  /**
-   * 是否有未保存的变更
-   */
-  hasUnsavedChanges: boolean
-}
-
-/** localStorage Key for fullscreen mode */
-const FULLSCREEN_STORAGE_KEY = 'editor/fullscreen'
-
 /**
- * 获取内容长度（字符数）
- * @param jsonString - JSON 字符串
- * @returns 字符数
+ * @fileoverview 编辑器状态管理 Hook
+ * @module hooks/publish/useEditorState
  */
+
+import { useState, useCallback } from 'react'
+import { extractTextFromJSON } from '@/lib/utils/json'
+import type { EditorState, UseEditorStateReturn } from '@/types/publish/editor'
+
+const FULLSCREEN_STORAGE_KEY = 'editor:fullscreen'
+
 function getContentLength(jsonString: string): number {
   return extractTextFromJSON(jsonString).length
 }
 
-// 重新导出 isContentEmpty 以便向后兼容
-export { isContentEmpty }
-
-/**
- * 从 localStorage 获取专注模式初始状态
- *
- * @returns {boolean} 是否启用专注模式
- */
 const getInitialFullscreen = (): boolean => {
   try {
     const savedFullscreen = localStorage.getItem(FULLSCREEN_STORAGE_KEY)
@@ -57,168 +24,135 @@ const getInitialFullscreen = (): boolean => {
   }
 }
 
-/**
- * 编辑器状态管理 Hook
- *
- * @param initialTitle - 初始标题
- * @param initialContent - 初始内容（JSON 字符串）
- * @param initialDraftId - 初始草稿ID
- * @param initialIsPublished - 初始发布状态
- * @returns 编辑器状态和方法
- */
 export const useEditorState = (
   initialTitle: string = '',
   initialContent: string = '',
   initialDraftId: string | null = null,
-  initialIsPublished: boolean = false
-) => {
-  const [editorState, setEditorState] = useState<EditorState>({
+  initialPublished: boolean = false
+): UseEditorStateReturn => {
+  const [state, setState] = useState<EditorState>({
     title: initialTitle,
     content: initialContent,
+    draftId: initialDraftId,
+    isPublished: initialPublished,
+    hasUnsavedChanges: false,
+    lastSavedAt: null,
     titleLength: initialTitle.length,
     contentLength: getContentLength(initialContent),
     isFullscreen: getInitialFullscreen(),
-    isToolbarCollapsed: false,
-    draftId: initialDraftId,
-    isSaving: false,
-    isPublishing: false,
-    isPublished: initialIsPublished,
-    lastSavedAt: null,
-    hasUnsavedChanges: false,
+    isPreview: false,
+    isFocusMode: false,
+    isToolbarSticky: true,
+    canUndo: false,
+    canRedo: false,
   })
 
-  /**
-   * 更新标题
-   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
-   */
-  const updateTitle = useCallback((title: string) => {
-    setEditorState(prev => ({
+  const setTitle = useCallback((title: string) => {
+    setState(prev => ({
       ...prev,
       title,
       titleLength: title.length,
-      hasUnsavedChanges: true,
     }))
   }, [])
 
-  /**
-   * 更新内容
-   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
-   */
-  const updateContent = useCallback((content: string) => {
-    setEditorState(prev => ({
+  const setContent = useCallback((content: string) => {
+    setState(prev => ({
       ...prev,
       content,
       contentLength: getContentLength(content),
-      hasUnsavedChanges: true,
     }))
   }, [])
 
-  /**
-   * 切换专注模式并持久化到 localStorage
-   */
-  const toggleFullscreen = useCallback(() => {
-    setEditorState(prev => {
-      const newFullscreen = !prev.isFullscreen
+  const setDraftId = useCallback((draftId: string | null) => {
+    setState(prev => ({ ...prev, draftId }))
+  }, [])
+
+  const setPublished = useCallback((isPublished: boolean) => {
+    setState(prev => ({ ...prev, isPublished }))
+  }, [])
+
+  const setUnsavedChanges = useCallback((hasUnsavedChanges: boolean) => {
+    setState(prev => ({ ...prev, hasUnsavedChanges }))
+  }, [])
+
+  const setLastSavedAt = useCallback((lastSavedAt: Date | null) => {
+    setState(prev => ({ ...prev, lastSavedAt }))
+  }, [])
+
+  const setFullscreen = useCallback((value: boolean) => {
+    setState(prev => {
       try {
-        localStorage.setItem(FULLSCREEN_STORAGE_KEY, String(newFullscreen))
-      } catch {
-        // localStorage 不可用时的静默处理
-      }
-      return { ...prev, isFullscreen: newFullscreen }
+        localStorage.setItem(FULLSCREEN_STORAGE_KEY, String(value))
+      } catch {}
+      return { ...prev, isFullscreen: value }
     })
   }, [])
 
-  /**
-   * 切换工具栏折叠状态
-   * @性能优化 使用 useCallback 避免每次渲染创建新函数引用
-   */
-  const toggleToolbar = useCallback(() => {
-    setEditorState(prev => ({ ...prev, isToolbarCollapsed: !prev.isToolbarCollapsed }))
+  const setPreview = useCallback((value: boolean) => {
+    setState(prev => ({ ...prev, isPreview: value }))
   }, [])
 
-  /**
-   * 标记保存成功
-   */
-  const markSaved = useCallback(() => {
-    setEditorState(prev => ({
-      ...prev,
+  const setFocusMode = useCallback((value: boolean) => {
+    setState(prev => ({ ...prev, isFocusMode: value }))
+  }, [])
+
+  const toggleFullscreen = useCallback(() => {
+    setFullscreen(!state.isFullscreen)
+  }, [state.isFullscreen, setFullscreen])
+
+  const togglePreview = useCallback(() => {
+    setPreview(!state.isPreview)
+  }, [state.isPreview, setPreview])
+
+  const toggleFocusMode = useCallback(() => {
+    setFocusMode(!state.isFocusMode)
+  }, [state.isFocusMode, setFocusMode])
+
+  const undo = useCallback(() => {
+    // 实现撤销逻辑
+  }, [])
+
+  const redo = useCallback(() => {
+    // 实现重做逻辑
+  }, [])
+
+  const reset = useCallback(() => {
+    setState({
+      title: '',
+      content: '',
+      draftId: null,
+      isPublished: false,
       hasUnsavedChanges: false,
-      lastSavedAt: new Date(),
-    }))
+      lastSavedAt: null,
+      titleLength: 0,
+      contentLength: 0,
+      isFullscreen: getInitialFullscreen(),
+      isPreview: false,
+      isFocusMode: false,
+      isToolbarSticky: true,
+      canUndo: false,
+      canRedo: false,
+    })
   }, [])
-
-  /**
-   * 标记保存中状态
-   */
-  const setSaving = useCallback((isSaving: boolean) => {
-    setEditorState(prev => ({ ...prev, isSaving }))
-  }, [])
-
-  /**
-   * 标记发布中状态
-   */
-  const setPublishing = useCallback((isPublishing: boolean) => {
-    setEditorState(prev => ({ ...prev, isPublishing }))
-  }, [])
-
-  /**
-   * 验证内容是否可保存
-   * @returns 验证结果和错误信息
-   */
-  const validateForSave = useCallback((): { valid: boolean; error?: string } => {
-    // 标题验证
-    const trimmedTitle = editorState.title.trim()
-    if (!trimmedTitle) {
-      return { valid: false, error: '标题不能为空' }
-    }
-    
-    if (trimmedTitle.length > 100) {
-      return { valid: false, error: '标题不能超过100个字符' }
-    }
-
-    // 内容验证 - 检查是否为空
-    if (isContentEmpty(editorState.content)) {
-      return { valid: false, error: '内容不能为空' }
-    }
-
-    // 内容长度验证
-    if (editorState.contentLength > 50000) {
-      return { valid: false, error: '内容不能超过50000个字符' }
-    }
-
-    return { valid: true }
-  }, [editorState.title, editorState.content, editorState.contentLength])
-
-  /**
-   * 验证内容是否可发布
-   * 发布时验证更严格
-   */
-  const validateForPublish = useCallback((): { valid: boolean; error?: string } => {
-    // 复用保存验证
-    const saveValidation = validateForSave()
-    if (!saveValidation.valid) {
-      return saveValidation
-    }
-
-    // 发布时额外验证：内容不能太短
-    if (editorState.contentLength < 10) {
-      return { valid: false, error: '发布内容不能少于10个字符' }
-    }
-
-    return { valid: true }
-  }, [validateForSave, editorState.contentLength])
 
   return {
-    editorState,
-    updateTitle,
-    updateContent,
+    ...state,
+    setTitle,
+    setContent,
+    setDraftId,
+    setPublished,
+    setUnsavedChanges,
+    setLastSavedAt,
+    setFullscreen,
+    setPreview,
+    setFocusMode,
     toggleFullscreen,
-    toggleToolbar,
-    markSaved,
-    setSaving,
-    setPublishing,
-    validateForSave,
-    validateForPublish,
-    setEditorState,
+    togglePreview,
+    toggleFocusMode,
+    undo,
+    redo,
+    reset,
   }
 }
+
+export { isContentEmpty } from '@/lib/utils/json'

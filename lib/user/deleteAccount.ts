@@ -11,10 +11,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import type { DeleteAccountResult } from '@/types'
-
-export type { DeleteAccountResult } from '@/types'
 
 /**
  * 硬删除用户账户
@@ -121,7 +119,7 @@ export async function deleteAccount(password: string): Promise<DeleteAccountResu
     }
 
     // 6. 使用 Admin API 彻底删除 Auth 用户（方案 4A）
-    const adminClient = createAdminClient()
+    const adminClient = await createAdminClient()
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
 
     if (deleteError) {

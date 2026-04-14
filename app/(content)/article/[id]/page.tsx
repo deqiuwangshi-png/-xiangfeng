@@ -34,6 +34,19 @@ const getCachedComments = cache(async (articleId: string, page: number, limit: n
   return getArticleCommentsPaginated(articleId, page, limit);
 });
 
+function buildSafePreviewContent(content: string, maxLength: number = 1200): string {
+  const plainText = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+  const clipped = plainText.slice(0, maxLength)
+  const escaped = clipped
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+  return `<p>${escaped}</p>`
+}
+
 /**
  * 生成页面元数据
  * @param {ArticlePageProps} params - 页面参数
@@ -110,7 +123,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           ) : (
             /* 匿名用户：显示预览墙（嵌入式渐变引导，智能文案） */
             <ArticlePaywall
-              content={article.content}
+              previewContent={buildSafePreviewContent(article.content)}
               articleTitle={article.title}
               tags={article.tags}
             />

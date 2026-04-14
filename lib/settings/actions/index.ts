@@ -38,9 +38,9 @@ export {
 } from './appearance'
 export type { AppearanceSettingsResult } from './appearance'
 
-// 工具函数
-export { withAuth, verifyAuth } from '../utils/auth'
-export type { AuthResultWithSupabase as AuthResult, AuthCallback } from '../utils/auth'
+// 工具（兼容旧名：设置模块历史导入）
+export { withAuthSession as withAuth, verifyAuthSession as verifyAuth } from '@/lib/auth/server'
+export type { AuthSessionResult as AuthResult, AuthSessionCallback as AuthCallback } from '@/types/auth/auth'
 
 // 常量
 export {

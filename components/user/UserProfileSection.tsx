@@ -11,7 +11,8 @@ import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvt } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
-import type { SimpleUser, SimpleUserProfile } from '@/types'
+import type { SimpleUser, SimpleUserProfile, UserProfile } from '@/types'
+import { getSafeDisplayName, resolveAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 用户资料区域组件属性接口
@@ -20,8 +21,8 @@ import type { SimpleUser, SimpleUserProfile } from '@/types'
 interface UserProfileSectionProps {
   /** 当前用户（支持SupabaseUser或简化用户对象） */
   user?: SupabaseUser | SimpleUser | null
-  /** 用户资料（从profiles表获取，优先级高于user.user_metadata） */
-  profile?: SimpleUserProfile | null
+  /** 用户资料（支持SimpleUserProfile或完整UserProfile） */
+  profile?: SimpleUserProfile | UserProfile | null
   /** 额外的CSS类名 */
   className?: string
 }
@@ -71,10 +72,13 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
   const userId = user?.id || 'guest'
   const userEmail = user?.email || ''
   const userName = isAuthenticated
-    ? (profile?.username || user?.user_metadata?.username || userEmail.split('@')[0] || '用户')
+    ? getSafeDisplayName(
+        profile?.username || user?.user_metadata?.username || userEmail.split('@')[0],
+        '用户'
+      )
     : '访客'
   const avatarUrl = isAuthenticated
-    ? (profile?.avatar_url ?? user?.user_metadata?.avatar_url)
+    ? resolveAvatarUrl(profile?.avatar_url, user?.user_metadata?.avatar_url)
     : undefined
 
   return (

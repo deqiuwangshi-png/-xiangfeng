@@ -8,7 +8,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { withAuth } from '../utils/auth'
+import { withAuthSession } from '@/lib/auth/server'
 import { APPEARANCE_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateSettingResult } from '@/types/user/settings'
@@ -30,7 +30,7 @@ export interface AppearanceSettingsResult {
  * @returns 外观设置结果
  */
 export async function getAppearanceSettings(): Promise<AppearanceSettingsResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { data, error } = await supabase
       .from('user_settings')
       .select('theme_mode, theme_background')
@@ -72,7 +72,7 @@ export async function updateAppearanceSettings(formData: FormData): Promise<Upda
     return { success: false, error: '无效的外观设置项' }
   }
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { error } = await supabase
       .from('user_settings')
       .upsert(

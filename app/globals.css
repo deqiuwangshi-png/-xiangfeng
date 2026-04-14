@@ -2,7 +2,7 @@
 @import "../styles/content.css";
 
 @theme inline {
-  --color-xf-bg: #E1E4EA;
+  --color-xf-bg: #FFFFFF;
   --color-xf-surface: #D2C3D5;
   --color-xf-primary: #6A5B8A;
   --color-xf-accent: #3A3C6E;
@@ -245,6 +245,25 @@ body {
 
 .logo-text {
   color: #3A3C6E;
+}
+
+/*
+ * 密码输入框：禁用浏览器默认的显示密码按钮
+ * 防止与自定义的小眼睛图标重复显示
+ */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}
+
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
 }
 
 /**

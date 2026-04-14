@@ -14,7 +14,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/auth/core/user';
+import { getCurrentUser } from '@/lib/auth/server';
 
 /**
  * 热力图数据项

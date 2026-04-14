@@ -1,7 +1,21 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/utils/redir'
-import { getAuthCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import { getAuthCookieConfig, getAuthCookieExpireOptions } from '@/lib/auth/utils/cookieConfig'
+import { mergeResponseCacheHeaders } from '@/lib/supabase/authCookieBridge'
+
+/**
+ * 生产环境：检测到明文 HTTP（常见于反向代理未传 HTTPS）时强制跳转 HTTPS
+ */
+function redirectToHttpsIfNeeded(request: NextRequest): NextResponse | null {
+  if (process.env.NODE_ENV !== 'production') return null
+  if (process.env.DISABLE_FORCE_HTTPS_REDIRECT === '1') return null
+  if (request.headers.get('x-forwarded-proto') !== 'http') return null
+
+  const u = request.nextUrl.clone()
+  u.protocol = 'https:'
+  return NextResponse.redirect(u, 308)
+}
 
 /**
  * 认证相关路由列表 - 已登录用户访问时重定向
@@ -16,14 +30,29 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
 }
 
 /**
+ * 将当前路径注入请求头，供 Server Layout 等读取（Next 不直接提供 pathname）
+ */
+function withPathnameHeader(request: NextRequest): Headers {
+  const h = new Headers(request.headers)
+  h.set('x-pathname', request.nextUrl.pathname)
+  return h
+}
+
+function nextWithPathname(request: NextRequest) {
+  return NextResponse.next({
+    request: { headers: withPathnameHeader(request) },
+  })
+}
+
+/**
  * 更新用户会话
  *
  * @param request - Next.js 请求对象
  * @returns Next.js 响应对象
  *
- * @统一认证 2026-03-30
- * - 中间件仅负责：
- *   1. 刷新 Supabase 会话（Cookie 同步）
+ * @统一认证 2026-04-08
+ * - 中间件负责：
+ *   1. 刷新 Supabase 会话（Cookie 同步）- 关键！每次请求都刷新
  *   2. 已登录用户访问登录页时重定向
  * - 不再负责：
  *   1. 未登录用户的路由拦截（已移至 Layout 层）
@@ -36,22 +65,24 @@ function isMatchingRoute(path: string, routes: string[]): boolean {
  * @安全特性：
  * - Cookie 安全属性（HttpOnly, Secure, SameSite）
  * - 刷新令牌轮换
+ * - 每次请求自动刷新 access_token
+ * - 防止竞态条件的响应对象管理
  */
 export async function updateSession(request: NextRequest) {
+  const httpsRedirect = redirectToHttpsIfNeeded(request)
+  if (httpsRedirect) return httpsRedirect
+
   const path = request.nextUrl.pathname
   const isAuthRoute = isMatchingRoute(path, AUTH_ROUTES)
 
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  // 创建基础响应对象（附带 x-pathname，供 (main)/layout 等做路由级鉴权）
+  let supabaseResponse = nextWithPathname(request)
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing Supabase environment variables')
+    console.error('[Middleware] Missing Supabase environment variables')
     return supabaseResponse
   }
 
@@ -60,10 +91,10 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll()
       },
-      setAll(cookiesToSet) {
-        {/* 批量设置Cookie，减少响应对象重建 */}
-        const secureOptions: CookieOptions = getAuthCookieConfig()
+      setAll(cookiesToSet, cacheHeaders) {
+        const secureOptions = getAuthCookieConfig(request)
 
+        // 批量设置到 request cookies
         cookiesToSet.forEach(({ name, value, options }) => {
           request.cookies.set({
             name,
@@ -73,10 +104,20 @@ export async function updateSession(request: NextRequest) {
           })
         })
 
-        supabaseResponse = NextResponse.next({
-          request: { headers: request.headers },
+        // 创建新的响应对象，但保留已设置的 cookies
+        const currentCookies = supabaseResponse.cookies.getAll()
+        supabaseResponse = nextWithPathname(request)
+        
+        // 恢复之前设置的 cookies（必须带齐安全属性，否则仅 name/value 会丢失 HttpOnly/Secure）
+        currentCookies.forEach(({ name, value }) => {
+          supabaseResponse.cookies.set({
+            name,
+            value,
+            ...secureOptions,
+          })
         })
 
+        // 设置新的 cookies
         cookiesToSet.forEach(({ name, value, options }) => {
           supabaseResponse.cookies.set({
             name,
@@ -85,41 +126,72 @@ export async function updateSession(request: NextRequest) {
             ...secureOptions,
           })
         })
+
+        mergeResponseCacheHeaders(supabaseResponse, cacheHeaders)
       },
     },
   })
 
-  {/*
-    获取当前用户 - 用于会话刷新和登录页重定向
-
-    @统一认证 2026-03-30
-    注意：中间件中直接使用 supabase.auth.getUser() 是合理的，因为：
-    1. 中间件不能使用 React cache()（服务端组件专用）
-    2. 中间件需要直接操作请求/响应对象
-    3. 这是认证流程的入口点，其他模块通过 lib/auth/user.ts 统一获取
-  */}
+  /**
+   * 获取当前用户 - 用于会话刷新和登录页重定向
+   * 
+   * @关键说明 2026-04-08
+   * supabase.auth.getUser() 会自动：
+   * 1. 验证 access_token 是否过期
+   * 2. 如果过期，使用 refresh_token 获取新的 access_token
+   * 3. 将新的令牌写入 Cookie（通过 setAll）
+   * 
+   * 这是保持用户长期登录的关键！
+   */
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  // 常见的"本地残留 refresh token"错误：用户未登录/已清库/切换项目后会出现。
-  // 这类错误不影响路由保护逻辑（当作未登录处理即可），避免在开发期刷屏。
-  const isIgnorableAuthError =
-    userError?.message === 'Auth session missing!'
-    // supabase-js 会把 code 挂在 error 对象上（不同版本字段可能不完全一致）
-    || (userError as unknown as { code?: string } | null | undefined)?.code === 'refresh_token_not_found'
+  // 处理刷新令牌错误
+  if (userError) {
+    const errorCode = (userError as unknown as { code?: string })?.code
+    const errorMessage = userError.message?.toLowerCase() || ''
 
-  if (userError && !isIgnorableAuthError) {
-    console.error('Auth error in middleware:', userError.message)
+    // 刷新令牌过期或无效 - 用户需要重新登录
+    if (errorCode === 'refresh_token_not_found' ||
+        errorCode === 'refresh_token_expired' ||
+        errorMessage.includes('refresh token')) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Middleware] Auth session cleared (invalid or expired refresh)')
+      }
+
+      // 清除所有 Supabase 认证 Cookie
+      const expireOpts = getAuthCookieExpireOptions(request)
+      const cookieNames = request.cookies
+        .getAll()
+        .map((c) => c.name)
+        .filter((name) => name.includes('auth-token') || name.startsWith('sb-'))
+
+      cookieNames.forEach((name) => {
+        supabaseResponse.cookies.set({
+          name,
+          value: '',
+          ...expireOpts,
+        })
+      })
+    }
+    // 会话缺失 - 用户未登录（正常情况）
+    else if (errorMessage.includes('auth session missing')) {
+      // 正常情况，无需处理
+    }
+    // 其他错误
+    else {
+      console.error('[Middleware] Auth error', { code: errorCode ?? 'unknown' })
+    }
   }
 
-  {/*
-    路由保护逻辑 - 仅处理已登录用户访问登录页的情况
-
-    @统一认证 2026-03-30
-    - 未登录用户访问受保护路由的拦截已移至 (main)/layout.tsx
-    - 中间件不再处理未登录用户的路由拦截
-  */}
+  /**
+   * 路由保护逻辑 - 仅处理已登录用户访问登录页的情况
+   * 
+   * @统一认证 2026-04-08
+   * - 未登录用户访问受保护路由的拦截已移至各 Layout
+   * - 中间件不再处理未登录用户的路由拦截
+   */
   if (user && isAuthRoute) {
-    {/* 已登录用户访问认证页面，重定向到首页或安全路径 */}
+    // 已登录用户访问认证页面，重定向到首页或安全路径
     const redirectParam = request.nextUrl.searchParams.get('redirect')
     let targetPath = sanitizeRedirect(redirectParam, '/home')
 

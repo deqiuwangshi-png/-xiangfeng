@@ -1,95 +1,42 @@
 'use client'
 
 /**
- * 侧边栏组件
+ * 侧边栏组件（简化版）
  * @module components/ui/Sidebar
- * @description 应用主导航侧边栏，只负责导航和布局
- *
- * @优化说明
- * - 使用全局认证状态管理（Zustand）
- * - 从 Store 获取用户信息，无需 props 传递
- * - 支持服务端状态水合
  */
 
+import { useState } from 'react'
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UserProfileSection } from '@/components/user'
-import { useInboxCache, useAuthUser } from '@/hooks'
+import { useInboxCache } from '@/hooks'
+import type { SimpleUser, SimpleUserProfile } from '@/types'
+import { MAIN_NAVIGATION_ITEMS, PRELOAD_ROUTES, type NavigationItem } from '@/config/navigation'
 
-/**
- * 导航项接口
- * @interface NavItem
- */
-interface NavItem {
-  id: string
-  label: string
-  icon: React.ElementType
-  href: string
+const NAV_ICONS = {
+  home: Home,
+  publish: Edit3,
+  drafts: FolderOpen,
+  inbox: BellRing,
+  rewards: Gift,
+} as const
+
+interface SidebarProps {
+  user?: { id: string; email?: string | null } | null
+  profile?: SimpleUserProfile | null
 }
 
-/**
- * 主导航配置
- * @constant navItems
- */
-const navItems: NavItem[] = [
-  { id: 'home', label: '首页', icon: Home, href: '/home' },
-  { id: 'publish', label: '发布', icon: Edit3, href: '/publish' },
-  { id: 'draft', label: '文章', icon: FolderOpen, href: '/drafts' },
-  { id: 'inbox', label: '通知', icon: BellRing, href: '/inbox' },
-  { id: 'rewards', label: '福利', icon: Gift, href: '/rewards' },
-]
-
-/**
- * 预加载路由配置 - 优化后预加载核心常用路由
- * @constant PRELOAD_ROUTES
- * @description
- * - 预加载用户最可能访问的核心页面
- * - 包含个人主页，优化LCP性能
- * - 平衡资源消耗和预加载效果
- * - 其他路由通过鼠标悬停按需预加载
- */
-const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
-
-/**
- * 侧边栏组件
- * @function Sidebar
- * @returns {JSX.Element} 侧边栏组件
- *
- * @description
- * 职责：
- * - 显示用户资料区域（头像、下拉菜单）
- * - 显示主导航菜单
- * - 显示版权信息
- * - 路由预加载优化
- *
- * @优化说明
- * - 使用 useAuthUser Hook 从全局 Store 获取用户信息
- * - 无需通过 props 传递用户数据
- * - 自动响应登录/登出状态变化
- *
- * @example
- * <Sidebar />
- */
-export function Sidebar() {
+export function Sidebar({ user, profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [showLoginTooltip, setShowLoginTooltip] = useState<string | null>(null)
+  
+  const isAuthenticated = !!user
 
-  {/* 从全局 Store 获取用户信息 */}
-  const { user, profile } = useAuthUser()
-
-  {/* 使用客户端缓存获取未读消息数量 */}
   const { unreadCount } = useInboxCache(user?.id || '')
 
-  /**
-   * 智能预加载关键路由
-   * @description
-   * - 使用 requestIdleCallback 在浏览器空闲时预加载
-   * - 预加载用户最可能访问的核心页面
-   * - 其他路由通过鼠标悬停按需预加载，避免资源浪费
-   * - 减少延迟时间，确保用户快速切换时能享受到预加载的好处
-   */
   useEffect(() => {
     const preloadRoutes = () => {
       PRELOAD_ROUTES.forEach(route => {
@@ -99,7 +46,6 @@ export function Sidebar() {
       })
     }
 
-    {/* 减少延迟时间，确保关键资源优先加载的同时，用户能快速享受到预加载的好处 */}
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
         window.requestIdleCallback(preloadRoutes, { timeout: 1000 })
@@ -111,76 +57,87 @@ export function Sidebar() {
     return () => clearTimeout(timer)
   }, [router, pathname])
 
-  /**
-   * 计算当前激活的导航项
-   */
   const activeNav = useMemo(() => {
-    if (pathname === '/home') return 'home'
-    if (pathname === '/publish') return 'publish'
-    if (pathname === '/drafts') return 'draft'
-    if (pathname === '/inbox') return 'inbox'
-    if (pathname === '/rewards' || pathname.startsWith('/rewards/')) return 'rewards'
-    return 'home'
+    const normalizedPath = pathname === '/' ? '/home' : pathname
+    const matched = MAIN_NAVIGATION_ITEMS.find((item) => {
+      if (item.href === '/home') {
+        return normalizedPath === '/home'
+      }
+      return normalizedPath === item.href || normalizedPath.startsWith(`${item.href}/`)
+    })
+    return matched?.id ?? null
   }, [pathname])
 
+  // 转换 user 类型以匹配 UserProfileSection 期望的 SimpleUser
+  const simpleUser: SimpleUser | null = user ? {
+    id: user.id,
+    email: user.email || '',
+  } : null
+
+  // 处理导航项点击
+  const handleNavClick = (e: React.MouseEvent, item: NavigationItem) => {
+    // 如果未登录且需要认证，显示提示但不跳转
+    if (!isAuthenticated && item.requireAuth) {
+      e.preventDefault()
+      setShowLoginTooltip(item.id)
+      // 3秒后自动隐藏提示
+      setTimeout(() => setShowLoginTooltip(null), 3000)
+    }
+  }
+
   return (
-    <aside className="w-[80px] xl:w-[220px] shrink-0 flex flex-col h-full pt-8 pb-8 px-2 xl:px-6 bg-xf-light border-r border-xf-surface/30 transition-all duration-300">
+    <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-64 bg-white border-r border-xf-surface/30 z-40">
       {/* 用户资料区域 */}
-      <div className="mb-8 pl-2">
-        <UserProfileSection user={user} profile={profile} />
+      <div className="p-4 border-b border-xf-surface/30">
+        <UserProfileSection user={simpleUser} profile={profile} />
       </div>
 
-      {/* 主导航菜单 */}
-      <nav className="flex-1 space-y-1 flex flex-col justify-start pl-0 xl:pl-2">
-        {navItems.map((item) => {
+      {/* 主导航 */}
+      <nav className="flex-1 p-4 space-y-1">
+        {MAIN_NAVIGATION_ITEMS.filter((item) => item.showOnDesktop !== false).map((item) => {
+          const ItemIcon = NAV_ICONS[item.icon]
           const isActive = activeNav === item.id
-          
-          const handleMouseEnter = () => {
-            if (item.href !== pathname) {
-              router.prefetch(item.href)
-            }
-          }
-          
           const showBadge = item.id === 'inbox' && unreadCount > 0
+          const showTooltip = showLoginTooltip === item.id
 
           return (
-            <Link
-              key={item.id}
-              href={item.href}
-              onMouseEnter={handleMouseEnter}
-              className={`
-                nav-item flex items-center justify-center xl:justify-start 
-                gap-3 xl:gap-5 py-3 transition-all relative group
-                ${isActive ? 'text-xf-accent font-semibold' : 'text-xf-primary hover:text-xf-accent'}
-              `}
-            >
-              <div
+            <div key={item.id} className="relative">
+              <Link
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item)}
                 className={`
-                  nav-active-indicator absolute left-0 h-[60%] w-1 bg-xf-accent rounded-r 
-                  transition-all duration-300
-                  ${isActive ? 'opacity-100 h-[80%]' : 'opacity-0'}
+                  flex items-center gap-3 px-4 py-3 rounded-xl
+                  transition-all duration-200
+                  ${isActive 
+                    ? 'bg-xf-primary/10 text-xf-primary font-medium' 
+                    : 'text-xf-dark hover:bg-xf-light hover:text-xf-primary'
+                  }
                 `}
-              />
-              <div className="relative">
-                <item.icon className="w-5 h-5 transition-transform group-hover:scale-110" />
-                {/* 未读消息红点徽章 */}
+              >
+                <ItemIcon className="w-5 h-5" />
+                <span className="flex-1">{item.label}</span>
                 {showBadge && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center px-1.5 text-[10px] font-medium bg-red-500 text-white rounded-full">
+                  <span className="min-w-[18px] h-[18px] px-1 text-xs font-medium bg-red-500 text-white rounded-full flex items-center justify-center">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
-              </div>
-              <span className="text-lg tracking-wider hidden xl:inline">{item.label}</span>
-            </Link>
+              </Link>
+              
+              {/* 登录提示 */}
+              {showTooltip && (
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-xf-dark text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
+                  请登录后使用此功能
+                  <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-xf-dark"></div>
+                </div>
+              )}
+            </div>
           )
         })}
       </nav>
 
-      {/* 版权信息 */}
-      <div className="mt-auto pt-6 border-t border-xf-bg/40 text-center">
-        <div className="text-xs text-xf-primary font-medium tracking-wider hidden xl:block">
-          ©2026 相逢
-        </div>
+      {/* 底部版权 */}
+      <div className="p-4 border-t border-xf-surface/30 text-xs text-xf-medium text-center">
+        © 2026 相逢
       </div>
     </aside>
   )

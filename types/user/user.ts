@@ -101,8 +101,10 @@ export interface DropdownItem {
   label: string
   /** 菜单项图标组件 */
   icon: React.ElementType
-  /** 链接地址（可选） */
+  /** 站内路由（可选） */
   href?: string
+  /** 站外链接（可选，如新标签打开飞书表单） */
+  externalUrl?: string
   /** 是否为危险操作 */
   isDanger?: boolean
   /** 点击回调（可选） */
@@ -153,6 +155,6 @@ export interface UserStats {
   followers: number
   /** 获赞数量 */
   likes: number
-  /** 社群数量 */
-  nodes: number
+  /** 收藏数量 */
+  favorites: number
 }

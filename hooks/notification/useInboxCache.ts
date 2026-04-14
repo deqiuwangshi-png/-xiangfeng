@@ -133,7 +133,6 @@ async function fetchNotificationsFetcher(userId: string): Promise<(NotificationD
   if (!userId) return []
 
   const rows = await fetchNotificationsPage({
-    userId,
     page: 1,
     pageSize: PAGE_SIZE,
   })
@@ -148,7 +147,7 @@ async function fetchNotificationsFetcher(userId: string): Promise<(NotificationD
  */
 async function fetchUnreadCountFetcher(userId: string): Promise<number> {
   if (!userId) return 0
-  return fetchUnreadCountAction({ userId })
+  return fetchUnreadCountAction()
 }
 
 /**
@@ -261,7 +260,6 @@ export function useInboxCache(userId: string): UseInboxCacheReturn {
 
     try {
       const rows = await fetchNotificationsPage({
-        userId,
         page: nextPage,
         pageSize: PAGE_SIZE,
       })
@@ -291,8 +289,8 @@ export function useInboxCache(userId: string): UseInboxCacheReturn {
     try {
       // P0-2: 重新获取第一页数据，同步所有通知的最新状态（包括已读变更）
       const [rows, newUnreadCount] = await Promise.all([
-        fetchNotificationsPage({ userId, page: 1, pageSize: PAGE_SIZE * currentPage }),
-        fetchUnreadCountAction({ userId }),
+        fetchNotificationsPage({ page: 1, pageSize: PAGE_SIZE * currentPage }),
+        fetchUnreadCountAction(),
       ])
 
       const refreshedNotifications = rows.map(formatNotification)
@@ -318,7 +316,7 @@ export function useInboxCache(userId: string): UseInboxCacheReturn {
 
     // P0-1: 调用后端持久化
     try {
-      await markAllAsReadAction({ userId })
+      await markAllAsReadAction()
     } catch (err) {
       console.error('标记全部已读失败:', err)
       // 失败时刷新数据恢复状态

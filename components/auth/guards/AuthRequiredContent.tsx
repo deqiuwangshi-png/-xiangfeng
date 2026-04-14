@@ -29,9 +29,6 @@ interface AuthRequiredContentProps {
 
 /**
  * 需要认证内容组件
- *
- * @param {AuthRequiredContentProps} props - 组件属性
- * @returns {JSX.Element} 未登录引导界面
  */
 export function AuthRequiredContent({
   title = '需要登录',

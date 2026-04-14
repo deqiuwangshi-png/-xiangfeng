@@ -14,8 +14,8 @@ import { checkServerRateLimit, resetServerRateLimit, getClientIp } from '@/lib/s
 import { LOGIN_MESSAGES, mapSupabaseError } from '@/lib/messages';
 import { sanitizeRedirect } from '../utils/redir';
 import { activateAccount } from '@/lib/user/deactivateAccount';
-import { recordLoginHistory } from '@/lib/auth/core/loginHistory';
-import type { AuthResult } from './types';
+import { recordLoginHistory } from '@/lib/auth/server';
+import type { AuthResult } from '@/types';
 
 /**
  * 登录输入验证

@@ -15,10 +15,33 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { getCurrentUserId } from '@/lib/auth/core/user';
+import { getCurrentUserId } from '@/lib/auth/server';
 import type { CommentWithAuthor } from '@/types';
+import { mapCommentDto } from '../dto';
 
-export type { CommentWithAuthor } from '@/types';
+async function canViewArticleComments(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  articleId: string,
+  currentUserId: string | null
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('articles')
+    .select('status, author_id, author:profiles!author_id(is_active)')
+    .eq('id', articleId)
+    .single()
+
+  if (error || !data) {
+    return false
+  }
+
+  const isAuthor = !!currentUserId && data.author_id === currentUserId
+  const isPublished = data.status === 'published'
+  const authorActive = Array.isArray(data.author)
+    ? data.author?.[0]?.is_active !== false
+    : data.author?.is_active !== false
+
+  return authorActive && (isPublished || isAuthor)
+}
 
 /**
  * 获取文章评论列表（安全优化版）
@@ -37,6 +60,11 @@ export async function getArticleComments(
 
   // 从服务端获取当前用户ID，不依赖客户端传入
   const currentUserId = await getCurrentUserId();
+
+  const allowed = await canViewArticleComments(supabase, articleId, currentUserId)
+  if (!allowed) {
+    return []
+  }
 
   // 安全查询：不获取 comment_likes 的所有 user_id
   // 仅通过子查询判断当前用户是否点赞
@@ -66,17 +94,7 @@ export async function getArticleComments(
     );
   }
 
-  return data.map(comment => ({
-    ...comment,
-    author: {
-      id: comment.user_id,
-      name: comment.author?.username || '匿名',
-      avatar: comment.author?.avatar_url || undefined,
-      role: comment.author?.role || 'user',
-    },
-    // 安全：仅返回布尔值，不暴露点赞用户ID
-    liked: likedMap.get(comment.id) ?? false,
-  }));
+  return data.map((comment) => mapCommentDto(comment, likedMap.get(comment.id) ?? false));
 }
 
 /**
@@ -109,6 +127,11 @@ export async function getArticleCommentsPaginated(
 
   // 从服务端获取当前用户ID，不依赖客户端传入
   const currentUserId = await getCurrentUserId();
+
+  const allowed = await canViewArticleComments(supabase, articleId, currentUserId)
+  if (!allowed) {
+    return { comments: [], totalCount: 0, hasMore: false }
+  }
 
   /**
    * @性能优化 P-03: 限制分页参数范围
@@ -158,17 +181,7 @@ export async function getArticleCommentsPaginated(
     );
   }
 
-  const comments = data.map(comment => ({
-    ...comment,
-    author: {
-      id: comment.user_id,
-      name: comment.author?.username || '匿名',
-      avatar: comment.author?.avatar_url || undefined,
-      role: comment.author?.role || 'user',
-    },
-    // 安全：仅返回布尔值，不暴露点赞用户ID
-    liked: likedMap.get(comment.id) ?? false,
-  }));
+  const comments = data.map((comment) => mapCommentDto(comment, likedMap.get(comment.id) ?? false));
 
   return {
     comments,

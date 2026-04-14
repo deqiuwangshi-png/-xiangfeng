@@ -1,20 +1,21 @@
 /**
  * 认证工具模块
  * @module lib/auth/utils
- * @description 提供认证相关的通用工具函数，消除重复代码
- *
- * @统一认证 2026-03-30
- * - 此文件保留向后兼容，getCurrentUser 和 requireCurrentUser 函数
- *   已改为从 lib/auth/user.ts 重新导出，避免重复定义
- * - 新代码应直接使用 lib/auth/user.ts 中的函数
+ * @description 提供认证相关的通用工具函数
  */
 
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser, getCurrentUserId, isAuthenticated } from '@/lib/auth/core/user';
 import { validatePassword } from '@/lib/security/passwordPolicy';
-import { REGISTER_MESSAGES, LOGIN_MESSAGES } from '@/lib/messages';
-import type { AuthResult } from '../actions/types';
-import type { User } from '@supabase/supabase-js';
+import { REGISTER_MESSAGES } from '@/lib/messages';
+import type { AuthResult } from '@/types';
+
+/**
+ * 判断是否为网络类错误（登录/会话刷新等可重试场景）
+ */
+export function isNetworkError(error: unknown): boolean {
+  const messages = ['网络错误', 'Network error', 'Connection failed', 'Timeout', 'fetch failed', '请求失败']
+  const message = error instanceof Error ? error.message : String(error)
+  return messages.some((msg) => message.includes(msg))
+}
 
 /**
  * 允许的邮箱域名白名单
@@ -64,40 +65,4 @@ export function validatePasswordMatch(
   return null;
 }
 
-/**
- * 获取当前登录用户（认证模块专用）
- *
- * @统一认证 2026-03-30
- * - 从 lib/auth/user.ts 重新导出，避免重复定义
- * - 新代码应直接使用 import { getCurrentUser } from '@/lib/auth/user'
- *
- * @returns 用户对象，失败时返回 null
- */
-export { getCurrentUser, getCurrentUserId, isAuthenticated };
 
-/**
- * 获取当前用户（带错误返回）
- *
- * @统一认证 2026-03-30
- * - 使用 lib/auth/user.ts 的统一入口获取用户信息
- *
- * @returns 用户对象，失败时返回错误结果
- */
-export async function requireCurrentUser(): Promise<{ user: User } | AuthResult> {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return { success: false, error: LOGIN_MESSAGES.NOT_AUTHENTICATED };
-  }
-
-  return { user };
-}
-
-/**
- * 创建 Supabase 客户端
- *
- * @returns Supabase 客户端实例
- */
-export async function createAuthClient() {
-  return await createClient();
-}

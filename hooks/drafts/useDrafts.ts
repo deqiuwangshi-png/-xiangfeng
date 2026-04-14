@@ -1,49 +1,32 @@
 'use client'
 
+/**
+ * @fileoverview 草稿管理 Hook
+ * @module hooks/drafts/useDrafts
+ * @description 提供草稿列表管理、筛选、分页、批量操作等功能
+ *
+ * @类型依赖
+ * - 类型定义位于: types/drafts.ts
+ * - 导入: DraftData, DraftFilter, DraftSelection, ViewMode, UseDraftsReturn
+ */
+
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
-import { DraftService, Article } from '@/lib/drafts/draftService'
+
+import { DraftService } from '@/lib/drafts/draftService'
 import { deleteArticle, updateArticleStatus } from '@/lib/articles/actions/mutate'
 import { batchDeleteArticles } from '@/lib/articles/actions/batch'
 import { fetchDrafts } from '@/lib/articles/actions/query'
 import { useDraftsToast } from './useDraftsToast'
-import type { DraftData, DraftFilter, DraftSelection, ViewMode } from '@/types/drafts'
+
+import type { DraftData, DraftFilter, DraftSelection, ViewMode, UseDraftsReturn } from '@/types/drafts'
 
 /** SWR 缓存 Key */
 const DRAFTS_CACHE_KEY = 'drafts/list'
 
 /** localStorage Key for view mode */
 const VIEW_MODE_STORAGE_KEY = 'drafts/viewMode'
-
-/**
- * useDrafts Hook 返回值接口
- */
-export interface UseDraftsReturn {
-  drafts: DraftData[]
-  filteredDrafts: DraftData[]
-  paginatedDrafts: DraftData[]
-  totalPages: number
-  selectedIds: Set<string>
-  selection: DraftSelection
-  activeFilter: DraftFilter
-  searchQuery: string
-  currentPage: number
-  viewMode: ViewMode
-  isLoading: boolean
-  setActiveFilter: (filter: DraftFilter) => void
-  setSearchQuery: (query: string) => void
-  setCurrentPage: (page: number) => void
-  setViewMode: (mode: ViewMode) => void
-  handleSelectDraft: (id: string) => void
-  handleSelectAll: () => void
-  handleEditDraft: (id: string) => void
-  executeDeleteDrafts: (ids: string[], shouldRefresh?: boolean) => Promise<void>
-  handleBatchPublish: () => Promise<void>
-  handleBatchArchive: () => Promise<void>
-  handleCancelSelection: () => void
-  handleClearAllDrafts: () => Promise<void>
-}
 
 /**
  * useDrafts Hook
@@ -53,7 +36,7 @@ export interface UseDraftsReturn {
  * @returns 草稿管理相关的状态和方法
  */
 export function useDrafts(
-  initialArticles: Article[],
+  initialArticles: DraftData[],
   itemsPerPage = 6
 ): UseDraftsReturn {
   const router = useRouter()
@@ -86,12 +69,12 @@ export function useDrafts(
     DRAFTS_CACHE_KEY,
     fetchDrafts,
     {
-      fallbackData: initialArticles.map(DraftService.convertToDraftData),
+      fallbackData: initialArticles,
       revalidateOnMount: false,
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      dedupingInterval: Infinity, // 页面级别缓存，不重复获取
+      // 注意：不设置 dedupingInterval 为 Infinity，以允许乐观更新正常工作
       keepPreviousData: true,
     }
   )
@@ -263,156 +246,117 @@ export function useDrafts(
       if (ids.length === 0) return
 
       setIsLoading(true)
-      try {
-        // 先计算删除后的数据（乐观更新）
-        const remainingDrafts = DraftService.removeDrafts(drafts, new Set(ids))
 
+      // ========== 乐观更新：立即更新 UI，让用户立即看到效果 ==========
+      const remainingDrafts = DraftService.removeDrafts(drafts, new Set(ids))
+      const previousDrafts = [...drafts] // 保存原始数据用于回滚
+
+      // 立即更新本地数据
+      mutateDrafts(remainingDrafts, { revalidate: false })
+      setSelectedIds((prev) => {
+        const newSet = new Set(prev)
+        ids.forEach((id) => newSet.delete(id))
+        return newSet
+      })
+      // 删除后校准分页状态
+      calibratePage(remainingDrafts)
+
+      try {
         if (ids.length === 1) {
           // 单条删除：使用原有方法
           await deleteArticle(ids[0])
 
-          if (isMountedRef.current) {
-            // 乐观更新：立即更新本地数据，无需重新验证
-            mutateDrafts(remainingDrafts, { revalidate: false })
-            setSelectedIds((prev) => {
-              const newSet = new Set(prev)
-              ids.forEach((id) => newSet.delete(id))
-              return newSet
-            })
-            // 删除后校准分页状态
-            calibratePage(remainingDrafts)
+          if (!shouldRefresh) {
+            showDeleteSuccess()
           }
         } else {
           // 批量删除：使用安全增强版，批量验证所有权
           const result = await batchDeleteArticles(ids)
 
-          // 批量删除后，从服务器重新获取数据以确保准确性
-          if (isMountedRef.current) {
-            // 乐观更新：先更新本地数据，让用户立即看到效果
-            mutateDrafts(remainingDrafts, { revalidate: false })
-            setSelectedIds((prev) => {
-              const newSet = new Set(prev)
-              ids.forEach((id) => newSet.delete(id))
-              return newSet
-            })
-            // 删除后校准分页状态
-            calibratePage(remainingDrafts)
+          // 显示批量删除结果提示
+          if (result.successCount === ids.length) {
+            showDeleteSuccess({ message: `成功删除 ${result.successCount} 篇草稿` })
+          } else if (result.successCount > 0) {
+            // 部分成功：需要重新获取数据以同步实际状态
+            showBatchDeletePartialSuccess(result.successCount, result.failedCount)
+            await mutateDrafts()
+          } else {
+            // 全部失败：回滚到原始数据
+            showDeleteError('删除失败，请检查权限或稍后重试')
+            mutateDrafts(previousDrafts, { revalidate: false })
           }
-
-          // 显示结果提示
-          if (result.failedCount > 0 && isMountedRef.current) {
-            showBatchDeletePartialSuccess(result.deletedCount, result.failedCount)
-            setIsLoading(false)
-            return
-          }
-        }
-
-        if (shouldRefresh && isMountedRef.current) {
-          router.refresh()
-        }
-
-        // 显示删除成功提示
-        if (isMountedRef.current) {
-          showDeleteSuccess()
         }
       } catch (error) {
-        if (isMountedRef.current) {
-          showDeleteError(error instanceof Error ? error : '删除失败')
-        }
-        throw error
+        console.error('删除草稿失败:', error)
+        showDeleteError(error instanceof Error ? error : undefined)
+        // 出错时回滚到原始数据
+        mutateDrafts(previousDrafts, { revalidate: false })
       } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false)
-        }
+        setIsLoading(false)
       }
     },
-    [router, drafts, mutateDrafts, calibratePage, showBatchDeletePartialSuccess, showDeleteError, showDeleteSuccess]
+    [drafts, mutateDrafts, calibratePage, showDeleteSuccess, showDeleteError, showBatchDeletePartialSuccess]
   )
 
-
-
   /**
-   * 执行批量状态更新
-   *
-   * @description 并行执行所有状态更新，提升性能
+   * 批量更新文章状态
    * @param status - 目标状态
    * @param successMessage - 成功提示消息
-   *
-   * @优化说明
-   * - 使用 Promise.allSettled 并行执行，避免串行等待
-   * - 成功和失败分别统计，部分失败不影响其他操作
-   * - 只更新成功的项目状态，失败的项目保持原状态
    */
   const executeBatchStatusUpdate = useCallback(
     async (status: 'published' | 'archived', successMessage: string) => {
       if (selectedIds.size === 0) return
 
       setIsLoading(true)
-      const idsArray = Array.from(selectedIds)
+      const ids = Array.from(selectedIds)
+      const totalCount = ids.length
 
       try {
-        // 并行执行所有状态更新
+        // 并行执行所有更新
         const results = await Promise.allSettled(
-          idsArray.map((id) => updateArticleStatus(id, status))
+          ids.map((id) => updateArticleStatus(id, status))
         )
 
-        // 统计成功和失败
-        const successIds: string[] = []
-        const failedIds: string[] = []
+        const successCount = results.filter((r) => r.status === 'fulfilled').length
+        const failedCount = totalCount - successCount
 
-        results.forEach((result, index) => {
-          if (result.status === 'fulfilled') {
-            successIds.push(idsArray[index])
-          } else {
-            failedIds.push(idsArray[index])
-          }
-        })
-
-        // 更新本地状态（只更新成功的）
-        if (successIds.length > 0 && isMountedRef.current) {
-          mutateDrafts(
-            (prev) => DraftService.updateDraftsStatus(prev || [], new Set(successIds), status),
-            { revalidate: false }
-          )
-          setSelectedIds((prev) => {
-            const newSet = new Set(prev)
-            successIds.forEach((id) => newSet.delete(id))
-            return newSet
-          })
-        }
-
-        // 显示结果提示
         if (isMountedRef.current) {
-          if (failedIds.length === 0) {
-            showBatchSuccess(successMessage)
-          } else if (successIds.length === 0) {
+          if (successCount === totalCount) {
+            // 全部成功
+            showBatchSuccess(successMessage, successCount)
+            // 刷新数据
+            await mutateDrafts()
+            setSelectedIds(new Set())
+          } else if (successCount === 0) {
+            // 全部失败
             showBatchAllFailed()
           } else {
-            showBatchPartialSuccess(successIds.length, failedIds.length)
+            // 部分成功
+            showBatchPartialSuccess(successCount, failedCount)
+            // 刷新数据
+            await mutateDrafts()
+            setSelectedIds(new Set())
           }
         }
       } catch (error) {
-        if (isMountedRef.current) {
-          showDeleteError(error instanceof Error ? error : '操作失败')
-        }
+        console.error('批量更新状态失败:', error)
+        showBatchAllFailed()
       } finally {
-        if (isMountedRef.current) {
-          setIsLoading(false)
-        }
+        setIsLoading(false)
       }
     },
-    [selectedIds, mutateDrafts, showBatchAllFailed, showBatchPartialSuccess, showBatchSuccess, showDeleteError]
+    [selectedIds, mutateDrafts, showBatchSuccess, showBatchAllFailed, showBatchPartialSuccess]
   )
 
   /**
-   * 处理批量发布
+   * 批量发布草稿
    */
   const handleBatchPublish = useCallback(() => {
     return executeBatchStatusUpdate('published', '发布成功')
   }, [executeBatchStatusUpdate])
 
   /**
-   * 处理批量归档
+   * 批量归档草稿
    */
   const handleBatchArchive = useCallback(() => {
     return executeBatchStatusUpdate('archived', '归档成功')

@@ -459,7 +459,6 @@ AuthLayout
 │
 AuthGuard (布局守卫)
 ├── Sidebar (已登录)
-├── MobileBottomNav (已登录)
 └── Main Content
     └── AuthRequiredContent (未登录时显示)
         └── ProtectedAction (需要认证的操作)

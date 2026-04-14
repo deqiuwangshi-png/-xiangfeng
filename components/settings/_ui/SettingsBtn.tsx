@@ -1,13 +1,5 @@
 /**
  * 设置页面通用按钮组件
- *
- * @module components/settings/_ui/SettingsBtn
- * @description 统一账户设置页面的按钮样式
- *
- * @example
- * ```tsx
- * <SettingsBtn onClick={handleEdit}>编辑个人资料</SettingsBtn>
- * ```
  */
 
 interface SettingsBtnProps {

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { FEISHU_FEEDBACK_FORM_URL } from "./constants/feedback";
 
 /**
  * CSP (Content Security Policy) 配置
@@ -86,6 +87,14 @@ const nextConfig: NextConfig = {
             key: 'X-Frame-Options',
             value: 'DENY',
           },
+          ...(process.env.NODE_ENV === 'production'
+            ? [
+                {
+                  key: 'Strict-Transport-Security',
+                  value: 'max-age=63072000; includeSubDomains',
+                },
+              ]
+            : []),
         ],
       },
     ]
@@ -167,6 +176,12 @@ const nextConfig: NextConfig = {
    */
   async redirects() {
     return [
+      // 旧「产品反馈」站内页 → 飞书表单
+      {
+        source: '/feedback',
+        destination: FEISHU_FEEDBACK_FORM_URL,
+        permanent: false,
+      },
       // 强制HTTPS
       {
         source: '/:path*',

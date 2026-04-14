@@ -6,9 +6,9 @@
  * @description 管理用户积分总览和积分流水，使用 SWR 缓存优化性能
  */
 
-import useSWR from 'swr'
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { useSWRQuery } from '@/hooks/useSWRQuery'
 import {
   getUserPointsOverview,
   getPointTransactions,
@@ -55,41 +55,27 @@ const fetchTransactions = async (): Promise<PointTransaction[]> => {
  * @returns {UsePointsReturn} 积分状态和操作
  */
 export function usePoints(): UsePointsReturn {
-  const isMountedRef = useRef(true)
-
-  // 组件卸载时设置标记
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
-
-  // 使用 SWR 获取积分总览 - 5分钟去重，挂载时不自动重新验证
+  // 使用通用 SWR Query 获取积分总览
   const {
     data: overview,
     isLoading: isOverviewLoading,
     isValidating: isOverviewValidating,
-    mutate: mutateOverview,
-  } = useSWR('user-points-overview', fetchPointsOverview, {
-    dedupingInterval: 300000,
-    keepPreviousData: true,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
+    refresh: refreshOverview,
+  } = useSWRQuery('user-points-overview', fetchPointsOverview, {
+    preset: 'default',
+    revalidateOnMount: false, // 服务端已提供初始数据
   })
 
-  // 使用 SWR 获取积分流水 - 30秒去重，挂载时不自动重新验证
+  // 使用通用 SWR Query 获取积分流水
   const {
     data: transactions = [],
     isLoading: isTransactionsLoading,
     isValidating: isTransactionsValidating,
+    refresh: refreshTransactions,
     mutate: mutateTransactions,
-  } = useSWR('user-points-transactions', fetchTransactions, {
-    dedupingInterval: 30000,
-    keepPreviousData: true,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateOnMount: false, // 服务端已提供初始数据，挂载时不重新验证
+  } = useSWRQuery('user-points-transactions', fetchTransactions, {
+    preset: 'short',
+    revalidateOnMount: false, // 服务端已提供初始数据
   })
 
   // 加载更多流水的偏移量
@@ -100,12 +86,8 @@ export function usePoints(): UsePointsReturn {
    * @returns {Promise<void>}
    */
   const refreshPoints = useCallback(async () => {
-    if (!isMountedRef.current) return
-    await Promise.all([
-      mutateOverview(),
-      mutateTransactions(),
-    ])
-  }, [mutateOverview, mutateTransactions])
+    await Promise.all([refreshOverview(), refreshTransactions()])
+  }, [refreshOverview, refreshTransactions])
 
   /**
    * 加载更多流水
@@ -118,23 +100,20 @@ export function usePoints(): UsePointsReturn {
         offset,
       })
 
-      if (newTransactions.length > 0 && isMountedRef.current) {
+      if (newTransactions.length > 0) {
         await mutateTransactions(
           (currentData) => {
             if (!currentData) return newTransactions
             return [...currentData, ...newTransactions]
           },
-          { revalidate: false }
+          false
         )
         setOffset((prev) => prev + 20)
       }
     } catch {
-      // 加载失败时保持现有数据
       toast.error('加载更多记录失败')
     }
   }, [offset, mutateTransactions])
-
-  // 错误处理：已在SWR配置中处理
 
   return {
     overview: overview || null,

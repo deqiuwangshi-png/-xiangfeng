@@ -10,7 +10,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { withAuth } from '../utils/auth'
+import { withAuthSession } from '@/lib/auth/server'
 import { PRIVACY_FIELD_MAP } from '../constants/field-maps'
 import { COMMON_ERRORS } from '@/lib/messages'
 import type { UpdateSettingResult } from '@/types/user/settings'
@@ -32,7 +32,7 @@ export interface PrivacySettingsResult {
  * @returns 隐私设置结果
  */
 export async function getPrivacySettings(): Promise<PrivacySettingsResult> {
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('visibility')
@@ -71,7 +71,7 @@ export async function updatePrivacySettings(formData: FormData): Promise<UpdateS
     return { success: false, error: '无效的设置项' }
   }
 
-  return withAuth(async (user, supabase) => {
+  return withAuthSession(async (user, supabase) => {
     const { error } = await supabase
       .from('profiles')
       .update({ [dbField]: value, updated_at: new Date().toISOString() })

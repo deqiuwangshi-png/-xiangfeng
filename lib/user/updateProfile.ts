@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/core/user'
+import { getCurrentUser } from '@/lib/auth/server'
 import { UpdateProfileParams, UpdateProfileResult } from '@/types/user/settings'
 import { validateProfileInput } from '@/lib/security/inputValidator'
 import { PROFILE_MESSAGES, COMMON_ERRORS } from '@/lib/messages'

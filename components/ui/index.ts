@@ -7,9 +7,7 @@
  *   - Sidebar: 侧边栏组件
  *   - IconBox: 图标容器组件
  *   - PrimaryButton: 主按钮组件
- *   - UserAvt: 用户头像组件（推荐使用）
- *   - UserAvatar: 用户头像组件（UserAvt 的别名）
- *   - AvatarPlaceholder: 向后兼容别名（已弃用，请使用 UserAvt）
+ *   - UserAvt: 用户头像组件
  *
  * 更新时间: 2026-03-21
  */
@@ -17,5 +15,5 @@
 export { Sidebar } from './Sidebar'
 export { IconBox } from './IconBox'
 export { PrimaryButton } from './PrimaryButton'
-export { UserAvt, UserAvatar, AvatarPlaceholder } from './UserAvt'
+export { UserAvt } from './UserAvt'
 export { FormActions } from './FormActions'

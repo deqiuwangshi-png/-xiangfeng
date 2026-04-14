@@ -68,3 +68,72 @@ export function formatDate(
   const targetDate = typeof date === 'string' ? new Date(date) : date
   return targetDate.toLocaleDateString('zh-CN', options)
 }
+
+/**
+ * 格式化日期为ISO格式 (yyyy-MM-dd)
+ * 
+ * @param date - 日期字符串或Date对象
+ * @returns ISO格式日期字符串
+ * 
+ * @example
+ * formatDateISO('2026-03-03T10:00:00Z') // '2026-03-03'
+ */
+export function formatDateISO(date: string | Date): string {
+  const targetDate = typeof date === 'string' ? new Date(date) : date
+  const year = targetDate.getFullYear()
+  const month = String(targetDate.getMonth() + 1).padStart(2, '0')
+  const day = String(targetDate.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
+ * 格式化日期为点分隔格式 (yyyy.MM.dd)
+ * 
+ * @param date - 日期字符串或Date对象
+ * @returns 点分隔格式日期字符串
+ * 
+ * @example
+ * formatDateDot('2026-03-03T10:00:00Z') // '2026.03.03'
+ */
+export function formatDateDot(date: string | Date): string {
+  const targetDate = typeof date === 'string' ? new Date(date) : date
+  return targetDate.toLocaleDateString('zh-CN', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit' 
+  }).replace(/\//g, '.')
+}
+
+/**
+ * 格式化日期为短格式 (M月d日)
+ * 
+ * @param date - 日期字符串或Date对象
+ * @returns 短格式日期字符串
+ * 
+ * @example
+ * formatDateShort('2026-03-03T10:00:00Z') // '3月3日'
+ */
+export function formatDateShort(date: string | Date): string {
+  const targetDate = typeof date === 'string' ? new Date(date) : date
+  return targetDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
+
+/**
+ * 格式化日期时间
+ * 
+ * @param date - 日期字符串或Date对象
+ * @returns 日期时间字符串
+ * 
+ * @example
+ * formatDateTime('2026-03-03T10:00:00Z') // '2026/03/03 10:00'
+ */
+export function formatDateTime(date: string | Date): string {
+  const targetDate = typeof date === 'string' ? new Date(date) : date
+  return targetDate.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}

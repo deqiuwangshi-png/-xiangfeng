@@ -8,7 +8,7 @@
 
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
-import { useOptimisticNavigation } from '@/hooks/navigation/useOptimisticNavigation'
+import { useFastNav } from '@/hooks/navigation/useFastNav'
 
 interface SafeLinkProps {
   /** 链接地址 */
@@ -35,7 +35,7 @@ export function SafeLink({
   prefetch = true,
   onClick,
 }: SafeLinkProps) {
-  const { isPending, pendingUrl } = useOptimisticNavigation()
+  const { isPending, pendingUrl } = useFastNav()
   const [isNavigating, setIsNavigating] = useState(false)
   const [, setIsHovered] = useState(false)
 

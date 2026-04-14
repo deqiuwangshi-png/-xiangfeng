@@ -2,11 +2,6 @@
  * 发布页面组件索引 - JSON 版本
  *
  * 作用: 统一导出发布页面的所有组件
- *
- * 使用说明:
- *   从此文件导入发布页面的所有组件
- *   示例: import { EditorHeader, EditorCard, EditorToolbar } from '@/components/publish'
- *
  * 性能优化说明:
  *   - DynamicEditor 使用动态导入，减少首屏加载时间
  *   - EditorSkeleton 提供加载状态，优化感知性能

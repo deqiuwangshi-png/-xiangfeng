@@ -2,33 +2,6 @@
  * 全局状态管理统一导出
  * @module stores
  * @description 所有 Zustand Store 的集中导出入口
- *
- * 使用方式：
- * ```typescript
- * import { useAuthStore, selectUser } from '@/stores';
- * ```
  */
 
-// ============================================
-// 认证 Store
-// ============================================
-
-export {
-  useAuthStore,
-  selectUser,
-  selectStatus,
-  selectUserId,
-  selectIsAuthenticated,
-} from './auth'
-
-export type {
-  AuthStore,
-  AuthState,
-  AuthStatus,
-  AuthError,
-  AuthActions,
-  LoginParams,
-  LoginResult,
-  UserSelectorResult,
-  StatusSelectorResult,
-} from './auth'
+// 认证状态已移除，直接使用 Supabase 的 onAuthStateChange

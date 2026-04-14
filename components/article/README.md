@@ -46,9 +46,7 @@ components/article/
 │   └── LoginPrompt.tsx         # 登录提示
 ├── rw/                         # 打赏组件
 │   ├── RwMd.tsx                # 打赏弹窗
-│   ├── PtRw.tsx                # 积分打赏面板
-│   ├── AdRw.tsx                # 广告打赏面板
-│   └── TabBtn.tsx              # 选项卡按钮
+│   └── PtRw.tsx                # 积分打赏面板
 ├── index.ts                    # 统一导出入口
 └── README.md                   # 组件文档
 ```
@@ -428,12 +426,10 @@ components/article/
 
 **位置**: `rw/RwMd.tsx`
 
-**职责**: 文章打赏功能弹窗
+**职责**: 文章积分打赏功能弹窗
 
 **功能**:
 - 积分打赏
-- 广告打赏（预留）
-- 选项卡切换
 
 **使用示例**:
 ```tsx
@@ -549,8 +545,7 @@ ArticlePage (Server Component)
 ├── ArtAct (Client)
 │   ├── AuthorAvatar
 │   ├── RwMd
-│   │   ├── PtRw
-│   │   └── AdRw
+│   │   └── PtRw
 │   └── MoreActions
 │       └── ReportMdl
 └── CommentPanel (Client)

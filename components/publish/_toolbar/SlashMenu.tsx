@@ -2,7 +2,6 @@
 
 /**
  * 斜杠命令菜单组件
- *
  * @module SlashMenu
  */
 
@@ -10,15 +9,11 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Editor } from '@tiptap/react'
 import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
-  List, ListOrdered, Minus, Image
+  List, ListOrdered, Minus
 } from '@/components/icons'
-import { selectImageFile, uploadImage } from '@/lib/upload/img'
-import { useEditorToast } from '@/hooks/publish/useEditorToast'
 
 interface SlashMenuProps {
   editor: Editor | null
-  onUploadStart?: () => void
-  onUploadEnd?: () => void
 }
 
 interface CommandItem {
@@ -31,20 +26,14 @@ interface CommandItem {
 
 /**
  * 斜杠命令菜单组件
- *
- * @param props - 组件属性
- * @returns 命令菜单JSX
  */
-export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps) {
+export function SlashMenu({ editor }: SlashMenuProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0, containerTop: 0, containerBottom: 0 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [query, setQuery] = useState('')
   const [showAbove, setShowAbove] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  // 使用统一的 toast 提示 hook
-  const { showImageUploadSuccess, showImageUploadError } = useEditorToast()
 
   /**
    * 获取命令列表
@@ -122,81 +111,38 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
         shortcut: '---',
         action: () => editor.chain().focus().setHorizontalRule().run(),
       },
-      {
-        id: 'image',
-        label: '图片',
-        icon: Image,
-        shortcut: '/img',
-        action: async () => {
-          const file = await selectImageFile()
-          if (!file || !editor) return
-
-          onUploadStart?.()
-          try {
-            const url = await uploadImage(file)
-            console.log('SlashMenu uploaded image URL:', url)
-
-            // 使用 insertContent 插入图片节点，支持自定义属性
-            editor.chain().focus().insertContent({
-              type: 'image',
-              attrs: {
-                src: url,
-                alt: file.name,
-                'data-align': 'center',
-              },
-            }).run()
-
-            showImageUploadSuccess()
-          } catch (error) {
-            showImageUploadError(error instanceof Error ? error : '图片上传失败')
-            console.error('SlashMenu image upload error:', error)
-          } finally {
-            onUploadEnd?.()
-          }
-        },
-      },
     ]
 
-    // 根据输入过滤命令
     if (!query) return allCommands
     return allCommands.filter(cmd =>
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.id.toLowerCase().includes(query.toLowerCase())
     )
-  }, [editor, query, onUploadStart, onUploadEnd, showImageUploadSuccess, showImageUploadError])
+  }, [editor, query])
 
   const commands = getCommands()
 
   /**
    * 更新菜单位置
-   * 紧跟光标位置，实时跟随输入
-   * @param forceShow - 是否强制显示菜单（首次唤起时使用）
    */
   const updateMenuPosition = useCallback((forceShow = false) => {
     if (!editor) return
 
     const { from } = editor.state.selection
-    // coordsAtPos 返回相对于视口的坐标，紧跟光标位置
     const coords = editor.view.coordsAtPos(from)
-
-    // 获取编辑器容器的位置信息，用于计算边界
     const editorElement = editor.view.dom as HTMLElement
     const editorRect = editorElement.getBoundingClientRect()
 
-    // 估算菜单高度（基于命令数量）
     const commandCount = getCommands().length
     const estimatedMenuHeight = Math.min(400, 40 + commandCount * 40)
 
-    // 计算视口和编辑器容器内的可用空间
     const viewportHeight = window.innerHeight
     const spaceBelow = Math.min(viewportHeight - coords.bottom, editorRect.bottom - coords.bottom)
     const spaceAbove = Math.max(coords.top - editorRect.top, coords.top)
 
-    // 如果下方空间不足，菜单向上弹出
     const shouldShowAbove = spaceBelow < estimatedMenuHeight && spaceAbove > estimatedMenuHeight
     setShowAbove(shouldShowAbove)
 
-    // 菜单紧跟光标位置，x坐标与光标对齐，y坐标在光标下方或上方
     setPosition({
       x: coords.left,
       y: shouldShowAbove ? coords.top - 8 : coords.bottom + 8,
@@ -211,17 +157,10 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
     }
   }, [editor, getCommands])
 
-  /**
-   * 显示菜单
-   * 自动检测屏幕边界，避免菜单被遮挡
-   */
   const showMenu = useCallback(() => {
     updateMenuPosition(true)
   }, [updateMenuPosition])
 
-  /**
-   * 隐藏菜单
-   */
   const hideMenu = useCallback(() => {
     setIsVisible(false)
     setQuery('')
@@ -230,16 +169,15 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
   /**
    * 执行命令
    */
-  const executeCommand = useCallback((index: number) => {
+  const executeCommand = useCallback(async (index: number) => {
     const command = commands[index]
     if (command) {
-      // 删除 / 字符
       editor?.chain().focus().deleteRange({
         from: editor.state.selection.from - query.length - 1,
         to: editor.state.selection.from,
       }).run()
 
-      command.action()
+      await command.action()
       hideMenu()
     }
   }, [commands, editor, hideMenu, query.length])
@@ -250,10 +188,8 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isVisible) {
-        // 检测 / 键
         if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey) {
           const { empty, from } = editor.state.selection
-          // 只在空段落或行首允许唤起
           const $pos = editor.state.doc.resolve(from)
           const isAtStart = $pos.parentOffset === 0
 
@@ -265,7 +201,6 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
         return
       }
 
-      // 菜单显示时的键盘导航
       switch (event.key) {
         case 'Escape':
           event.preventDefault()
@@ -286,103 +221,54 @@ export function SlashMenu({ editor, onUploadStart, onUploadEnd }: SlashMenuProps
       }
     }
 
-    const handleUpdate = () => {
+    const handleInput = () => {
       if (!isVisible) return
 
       const { from } = editor.state.selection
-      const textBefore = editor.state.doc.textBetween(
-        Math.max(0, from - 20),
-        from,
-        ' '
-      )
+      const textBefore = editor.state.doc.textBetween(from - query.length - 1, from, ' ')
 
-      // 检查是否还在 / 命令模式
-      const match = textBefore.match(/\/(\w*)$/)
-      if (match) {
-        setQuery(match[1])
-        // 输入过程中实时更新菜单位置，紧跟光标
-        updateMenuPosition(false)
-      } else {
+      if (!textBefore.startsWith('/')) {
         hideMenu()
+        return
       }
+
+      const newQuery = textBefore.slice(1)
+      setQuery(newQuery)
+      setSelectedIndex(0)
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    editor.on('update', handleUpdate)
-    editor.on('selectionUpdate', handleUpdate)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      editor.off('update', handleUpdate)
-      editor.off('selectionUpdate', handleUpdate)
-    }
-  }, [editor, isVisible, commands.length, selectedIndex, showMenu, hideMenu, executeCommand, updateMenuPosition])
-
-  // 点击外部隐藏
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         hideMenu()
       }
     }
 
-    if (isVisible) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+    editor.view.dom.addEventListener('keydown', handleKeyDown)
+    editor.view.dom.addEventListener('input', handleInput)
+    document.addEventListener('click', handleClickOutside)
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      editor.view.dom.removeEventListener('keydown', handleKeyDown)
+      editor.view.dom.removeEventListener('input', handleInput)
+      document.removeEventListener('click', handleClickOutside)
     }
-  }, [isVisible, hideMenu])
+  }, [editor, isVisible, query.length, commands.length, selectedIndex, showMenu, hideMenu, executeCommand])
 
-  if (!isVisible || commands.length === 0) return null
+  if (!isVisible || commands.length === 0) {
+    return null
+  }
 
   return (
     <>
-      {/* 滚动条样式 */}
-      <style jsx>{`
-        /* WebKit 滚动条样式 */
-        .slash-menu::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .slash-menu::-webkit-scrollbar-track {
-          background: #f8fafc;
-          border-radius: 3px;
-        }
-        
-        .slash-menu::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 3px;
-        }
-        
-        .slash-menu::-webkit-scrollbar-thumb:hover {
-          background: #cbd5e1;
-        }
-      `}</style>
-      
       <div
         ref={menuRef}
-        className={`fixed z-50 bg-white shadow-xl rounded-xl border border-xf-light/50 py-2 min-w-[200px] max-w-[280px] animate-in fade-in duration-150 slash-menu ${
-          showAbove ? 'slide-in-from-bottom-2' : 'slide-in-from-top-2'
-        }`}
+        className="fixed z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[200px] max-h-[400px] overflow-y-auto"
         style={{
           left: position.x,
           top: showAbove ? 'auto' : position.y,
-          bottom: showAbove ? position.containerBottom - position.y : 'auto',
-          maxHeight: showAbove 
-            ? position.y - position.containerTop - 16 
-            : position.containerBottom - position.y - 16,
-          overflowY: 'auto',
-          boxShadow: '0 8px 30px rgba(106, 91, 138, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          // 优化滚动条样式
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#e2e8f0 #f8fafc',
+          bottom: showAbove ? window.innerHeight - position.y : 'auto',
         }}
       >
-        <div className="px-3 py-1.5 text-xs text-xf-medium border-b border-xf-light/30 mb-1">
-          基本格式
-        </div>
         {commands.map((command, index) => {
           const Icon = command.icon
           return (
