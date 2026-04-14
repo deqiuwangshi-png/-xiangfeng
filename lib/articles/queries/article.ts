@@ -41,11 +41,11 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
     .from('articles')
     .select(`
       *,
-      author:profiles!inner(username, avatar_url, bio, is_active)
+      author:profiles!inner(username, avatar_url, bio, account_status)
     `)
     .eq('id', id)
     .eq('status', 'published')
-    .eq('author.is_active', true)
+    .eq('author.account_status', 'active')
     .single();
 
   if (error || !data) return null;
@@ -106,12 +106,12 @@ export async function getRelatedArticles(articleId: string, limit = 5) {
     .from('articles')
     .select(`
       id, title, summary, created_at, author_id,
-      author:profiles!inner(is_active)
+      author:profiles!inner(account_status)
     `)
     .contains('tags', article.tags.slice(0, 1))
     .neq('id', articleId)
     .eq('status', 'published')
-    .eq('author.is_active', true)
+    .eq('author.account_status', 'active')
     .limit(safeLimit);
 
   return data || [];

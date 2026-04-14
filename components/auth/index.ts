@@ -1,13 +1,14 @@
 /**
  * 认证组件统一导出
- * @module components/auth
- * @description 认证模块所有组件的集中导出入口
+
  */
 
 // Guards - 认证守卫组件
 export { AuthGuard } from './guards/AuthGuard';
-export { AuthRequiredContent } from './guards/AuthRequiredContent';
-export { UnauthenticatedPrompt } from './guards/UnauthenticatedPrompt';
+
+// Prompts - 认证提示组件
+export { AuthRequiredContent } from './prompts/AuthRequiredContent';
+export { UnauthenticatedPrompt } from './prompts/UnauthenticatedPrompt';
 
 // Forms - 表单组件
 export { LoginForm } from './forms/LoginForm';

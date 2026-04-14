@@ -27,8 +27,10 @@ app/(auth)/
 components/auth/
 ├── guards/                     # 认证守卫组件
 │   ├── AuthGuard.tsx           # 认证守卫组件
-│   ├── AuthRequiredContent.tsx # 需要认证内容组件
 │   └── ProtectedAction.tsx     # 受保护操作组件
+├── prompts/                    # 认证提示组件
+│   ├── AuthRequiredContent.tsx # 需要认证内容组件
+│   └── UnauthenticatedPrompt.tsx # 未认证提示组件
 ├── forms/                      # 表单组件
 │   ├── LoginForm.tsx           # 登录表单组件
 │   ├── RegisterForm.tsx        # 注册表单组件
@@ -92,7 +94,7 @@ lib/auth/
 
 #### 2. AuthRequiredContent（需要认证内容组件）
 
-**位置**: `guards/AuthRequiredContent.tsx`
+**位置**: `prompts/AuthRequiredContent.tsx`
 
 **职责**: 通用未登录占位组件，居中显示登录引导
 
@@ -560,7 +562,7 @@ import {
 ```tsx
 // Guards
 import { AuthGuard } from '@/components/auth/guards/AuthGuard';
-import { AuthRequiredContent } from '@/components/auth/guards/AuthRequiredContent';
+import { AuthRequiredContent } from '@/components/auth/prompts/AuthRequiredContent';
 
 // Forms
 import { LoginForm } from '@/components/auth/forms/LoginForm';

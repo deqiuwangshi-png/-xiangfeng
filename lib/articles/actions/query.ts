@@ -173,10 +173,10 @@ export async function getPublishedArticles() {
         like_count,
         comment_count,
         view_count,
-        author:profiles!inner(username, avatar_url, is_active)
+        author:profiles!inner(username, avatar_url, account_status)
       `)
       .eq('status', 'published')
-      .eq('author.is_active', true)
+      .eq('author.account_status', 'active')
       .order('published_at', { ascending: false });
 
     if (error) {
@@ -230,10 +230,10 @@ export async function searchPublishedArticles(query: string) {
         like_count,
         comment_count,
         view_count,
-        author:profiles!inner(username, avatar_url, is_active)
+        author:profiles!inner(username, avatar_url, account_status)
       `)
       .eq('status', 'published')
-      .eq('author.is_active', true)
+      .eq('author.account_status', 'active')
       .or(`title.ilike.%${sanitizedQuery}%,excerpt.ilike.%${sanitizedQuery}%`)
       .order('published_at', { ascending: false })
       .limit(10);
@@ -276,11 +276,11 @@ export async function getPublicArticleById(id: string) {
       .from('articles')
       .select(`
         *,
-        author:profiles!inner(username, avatar_url, bio, is_active)
+        author:profiles!inner(username, avatar_url, bio, account_status)
       `)
       .eq('id', id)
       .eq('status', 'published')
-      .eq('author.is_active', true)
+      .eq('author.account_status', 'active')
       .single();
 
     if (error || !data) return null;
