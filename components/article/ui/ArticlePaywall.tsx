@@ -123,69 +123,112 @@ function calculatePreviewLength(content: string, ratio: number): number {
 }
 
 /**
- * 智能截断HTML内容，保留标签结构
+ * 智能截断HTML内容，保留完整标签结构
  * @param {string} html - HTML格式的文章内容
  * @param {number} maxLength - 最大文本长度
  * @returns {string} 保留HTML标签的预览内容
  */
 function truncateHtml(html: string, maxLength: number): string {
-  // 解析HTML，提取带标签的段落
-  const paragraphs: string[] = [];
-  const tagRegex = /<(p|h[1-6]|blockquote|li)[^>]*>([\s\S]*?)<\/\1>/gi;
-  let match;
-
-  while ((match = tagRegex.exec(html)) !== null) {
-    const tagName = match[1];
-    const content = match[2];
-    paragraphs.push({ tag: tagName, content, fullMatch: match[0] } as unknown as string);
-  }
-
-  // 如果没有匹配到标准标签，尝试按段落分割
-  if (paragraphs.length === 0) {
-    const simpleParagraphs = html.split(/\n{2,}/);
-    return simpleParagraphs
-      .slice(0, 3)
-      .map((p) => `<p>${p.trim()}</p>`)
-      .join('');
-  }
-
-  // 累积文本直到达到预览长度
   let currentLength = 0;
-  const result: string[] = [];
+  let result = '';
+  let inTag = false;
+  let tagBuffer = '';
+  let textBuffer = '';
+  const tagStack: string[] = [];
 
-  for (const para of paragraphs) {
-    const p = para as unknown as { tag: string; content: string; fullMatch: string };
-    const textContent = p.content.replace(/<[^>]*>/g, '');
+  for (let i = 0; i < html.length; i++) {
+    const char = html[i];
 
-    if (currentLength + textContent.length <= maxLength) {
-      // 完整保留这个段落
-      result.push(p.fullMatch);
-      currentLength += textContent.length;
-    } else {
-      // 需要截断这个段落
-      const remaining = maxLength - currentLength;
-      if (remaining > 20) {
-        // 如果剩余空间足够，截断并保留部分
-        let truncatedText = textContent.slice(0, remaining);
+    // 处理标签
+    if (char === '<') {
+      // 先处理累积的文本
+      if (textBuffer) {
+        const remaining = maxLength - currentLength;
+        if (remaining <= 0) break;
 
-        // 在语义边界截断
-        const lastPeriod = truncatedText.lastIndexOf('。');
-        const lastComma = truncatedText.lastIndexOf('，');
-        const boundaryIndex = Math.max(lastPeriod, lastComma);
+        if (textBuffer.length <= remaining) {
+          result += textBuffer;
+          currentLength += textBuffer.length;
+        } else {
+          // 需要截断文本
+          let truncatedText = textBuffer.slice(0, remaining);
 
-        if (boundaryIndex > remaining * 0.7) {
-          truncatedText = truncatedText.slice(0, boundaryIndex + 1);
+          // 在语义边界截断（句号、逗号）
+          const lastPeriod = truncatedText.lastIndexOf('。');
+          const lastComma = truncatedText.lastIndexOf('，');
+          const boundaryIndex = Math.max(lastPeriod, lastComma);
+
+          if (boundaryIndex > remaining * 0.5) {
+            truncatedText = truncatedText.slice(0, boundaryIndex + 1);
+          }
+
+          result += truncatedText;
+          currentLength += truncatedText.length;
+
+          // 关闭所有未闭合的标签
+          while (tagStack.length > 0) {
+            const tag = tagStack.pop();
+            if (tag && !tag.includes('/')) {
+              result += `</${tag}>`;
+            }
+          }
+          break;
+        }
+        textBuffer = '';
+      }
+
+      inTag = true;
+      tagBuffer = char;
+      continue;
+    }
+
+    if (inTag) {
+      tagBuffer += char;
+
+      if (char === '>') {
+        inTag = false;
+        result += tagBuffer;
+
+        // 处理标签栈
+        const tagMatch = tagBuffer.match(/<\/?([a-z0-9]+)[^>]*>/i);
+        if (tagMatch) {
+          const tagName = tagMatch[1].toLowerCase();
+          if (tagBuffer.startsWith('</')) {
+            // 结束标签
+            const lastIndex = tagStack.lastIndexOf(tagName);
+            if (lastIndex !== -1) {
+              tagStack.splice(lastIndex, 1);
+            }
+          } else if (!tagBuffer.endsWith('/>')) {
+            // 开始标签（非自闭合）
+            tagStack.push(tagName);
+          }
         }
 
-        // 重建HTML标签
-        const truncatedHtml = `<${p.tag}>${truncatedText}</${p.tag}>`;
-        result.push(truncatedHtml);
+        tagBuffer = '';
       }
-      break;
+      continue;
+    }
+
+    // 累积文本
+    textBuffer += char;
+  }
+
+  // 处理剩余的文本
+  if (textBuffer && currentLength < maxLength) {
+    const remaining = maxLength - currentLength;
+    result += textBuffer.slice(0, remaining);
+  }
+
+  // 关闭所有未闭合的标签
+  while (tagStack.length > 0) {
+    const tag = tagStack.pop();
+    if (tag && !tag.includes('/')) {
+      result += `</${tag}>`;
     }
   }
 
-  return result.join('');
+  return result;
 }
 
 /**
@@ -282,13 +325,6 @@ export function ArticlePaywall({
                 >
                   {finalCtaText}
                   <ArrowRight className="w-4 h-4" />
-                </Link>
-
-                <Link
-                  href={`/register?redirect=${redirectUrl}`}
-                  className="flex-1 flex items-center justify-center px-5 py-2.5 text-xf-primary bg-white border border-xf-primary/20 rounded-xl font-medium hover:bg-xf-primary/5 transition-colors"
-                >
-                  免费注册
                 </Link>
               </div>
             </div>
