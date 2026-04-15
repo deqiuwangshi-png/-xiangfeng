@@ -15,7 +15,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-import { getFeatureCookieConfig } from '@/lib/auth/server';
+import { getCookieConfig } from '@/lib/auth/server';
 import { isValidUUID } from '../helpers/utils';
 
 /**
@@ -91,7 +91,7 @@ export async function incrementArticleView(articleId: string): Promise<{
     }
 
     {/* 设置 cookie 标记已浏览，24小时内不再计数 */}
-    cookieStore.set(viewKey, '1', getFeatureCookieConfig(24 * 60 * 60)); // 24小时
+    cookieStore.set(viewKey, '1', getCookieConfig(24 * 60 * 60)); // 24小时
 
     return { success: true };
   } catch {

@@ -66,6 +66,5 @@ export type {
   AuthorAvatarProps,
   ReportMdlProps,
   RwMdProps,
-  PtRwProps,
   LoginPromptProps,
 } from './components';

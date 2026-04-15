@@ -26,12 +26,14 @@ export type { UserProfile } from './core/user';
 
 // ==================== Server Actions ====================
 // 服务端可以直接使用这些 Server Actions
-export { login } from './actions/login';
-export { register } from './actions/register';
-export { logout } from './actions/logout';
-export { forgotPassword } from './actions/forgot-password';
-export { resetPassword } from './actions/reset-password';
-export { changePassword } from './actions/change-password';
+export {
+  login,
+  register,
+  logout,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+} from './actions';
 
 // ==================== 类型定义 ====================
 export type { AuthResult } from '@/types';
@@ -62,17 +64,7 @@ export type { AuthSessionResult, AuthSessionCallback } from '@/types/auth/auth';
 export { getLoginHistory, recordLoginHistory } from './core/loginHistory';
 
 // ==================== Cookie 配置 ====================
-export {
-  AUTH_COOKIE_SAME_SITE,
-  allowInsecureCookieTransport,
-  cookieSecureDefault,
-  cookieSecureForRequest,
-  getAuthCookieConfig,
-  getAuthCookieExpireOptions,
-  getDevAuthCookieConfig,
-  getFeatureCookieConfig,
-} from './utils/cookieConfig';
-export type { CookieTransportRequest } from './utils/cookieConfig';
+export { getCookieConfig } from './utils/cookieConfig';
 
 // ==================== 工具函数 ====================
 export {

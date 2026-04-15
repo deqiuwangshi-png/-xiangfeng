@@ -8,7 +8,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import type { ReadingProgressProps } from '@/types';
-import { checkReadArticleTask } from '@/lib/rewards/tasks';
 
 /**
  * 阅读进度组件
@@ -54,11 +53,9 @@ export default function ReadingProgress(_props: ReadingProgressProps) {
           return diff > 1 ? newProgress : prev;
         });
 
-        // 检测阅读任务：滚动超过50%且未触发过
+        // 阅读进度达到50%标记（原任务系统已移除）
         if (newProgress >= 50 && !hasTriggeredRef.current) {
           hasTriggeredRef.current = true
-          // 异步触发阅读任务检测
-          checkReadArticleTask()
         }
       });
     };

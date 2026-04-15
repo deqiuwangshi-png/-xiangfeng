@@ -10,9 +10,8 @@
  */
 
 import { useState } from 'react'
-import { Heart, MessageCircle, Sparkles } from '@/components/icons'
+import { Heart, MessageCircle } from '@/components/icons'
 import type { ArtActProps } from '@/types'
-import { RwMd } from '../rw/RwMd'
 import { AuthorAvatar } from '../ui/AuthorAvatar'
 import { MoreActions } from './MoreActions'
 import { useArticleToast } from '@/hooks/article/useArticleToast'
@@ -52,7 +51,6 @@ export default function ArtAct({
     initialBookmarked,
   })
 
-  const [showRewardModal, setShowRewardModal] = useState(false)
   const [commentCount] = useState(() => initialCommentCount)
   const { showAuthRequired } = useArticleToast()
 
@@ -104,17 +102,6 @@ export default function ArtAct({
         currentUser={currentUser}
       />
 
-      {/* 鼓励/打赏按钮 - 未登录时禁用 */}
-      <div
-        className={`douyin-action-btn reward-btn ${!currentUser ? 'disabled' : ''}`}
-        onClick={currentUser ? () => setShowRewardModal(true) : undefined}
-        title={currentUser ? '鼓励作者' : '请先登录'}
-        style={!currentUser ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
-      >
-        <Sparkles className="douyin-icon" />
-        <span className="douyin-count">鼓励</span>
-      </div>
-
       {/* 点赞按钮 */}
       <div
         className={`douyin-action-btn ${likeData.liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
@@ -143,16 +130,6 @@ export default function ArtAct({
         onBookmark={handleBookmark}
         isBookmarkLoading={isBookmarkLoading}
       />
-
-      {/* 打赏弹窗 */}
-      {showRewardModal && (
-        <RwMd
-          articleId={articleId}
-          authorId={authorId}
-          onClose={() => setShowRewardModal(false)}
-          currentUser={null}
-        />
-      )}
     </div>
   )
 }

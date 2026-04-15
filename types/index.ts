@@ -78,7 +78,6 @@ export type {
   AuthorAvatarProps,
   ReportMdlProps,
   RwMdProps,
-  PtRwProps,
   ReadingProgressProps,
   CommentCardActionsProps,
 } from './article';
@@ -112,42 +111,6 @@ export type {
   NotificationGroup,
 } from './notification';
 export { notificationIconMap, notificationTypeLabels } from './notification';
-
-// ============================================
-// 福利中心模块
-// ============================================
-export type {
-  PointTransactionType,
-  PointSourceType,
-  TaskCategory,
-  TaskType,
-  TaskStatus,
-  ShopItemCategory,
-  ExchangeStatus,
-  UserPoints,
-  PointExpiration,
-  PointTransaction,
-  SignInRecord,
-  SignInReward,
-  Task,
-  UserTaskRecord,
-  PointLevel,
-  UserLevelRecord,
-  ShopItem,
-  ExchangeRecord,
-  UserPointsOverview,
-  SignInResponse,
-  TaskProgressResponse,
-  ExchangeRequest,
-  ExchangeResponse,
-  RewardsHomeData,
-  TaskCenterData,
-  ShopData,
-  LevelConfig,
-  TaskCategoryConfig,
-  ShopCategoryConfig,
-  ShopCategoryType,
-} from './rewards';
 
 // ============================================
 // 设置模块

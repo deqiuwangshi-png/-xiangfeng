@@ -1,8 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/utils/redir'
-import { getAuthCookieConfig, getAuthCookieExpireOptions } from '@/lib/auth/utils/cookieConfig'
-import { mergeResponseCacheHeaders } from '@/lib/supabase/authCookieBridge'
+import { getCookieConfig } from '@/lib/auth/utils/cookieConfig'
 
 /**
  * 生产环境：检测到明文 HTTP（常见于反向代理未传 HTTPS）时强制跳转 HTTPS
@@ -92,7 +91,7 @@ export async function updateSession(request: NextRequest) {
         return request.cookies.getAll()
       },
       setAll(cookiesToSet, cacheHeaders) {
-        const secureOptions = getAuthCookieConfig(request)
+        const secureOptions = getCookieConfig()
 
         // 批量设置到 request cookies
         cookiesToSet.forEach(({ name, value, options }) => {
@@ -127,7 +126,12 @@ export async function updateSession(request: NextRequest) {
           })
         })
 
-        mergeResponseCacheHeaders(supabaseResponse, cacheHeaders)
+        // 合并缓存头部
+        if (cacheHeaders) {
+          for (const [key, value] of Object.entries(cacheHeaders)) {
+            supabaseResponse.headers.set(key, value)
+          }
+        }
       },
     },
   })
@@ -159,7 +163,7 @@ export async function updateSession(request: NextRequest) {
       }
 
       // 清除所有 Supabase 认证 Cookie
-      const expireOpts = getAuthCookieExpireOptions(request)
+      const expireOpts = { ...getCookieConfig(0), maxAge: 0 }
       const cookieNames = request.cookies
         .getAll()
         .map((c) => c.name)

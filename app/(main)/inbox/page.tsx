@@ -1,4 +1,4 @@
-import { InboxClient } from '@/components/inbox/_client/InboxClient'
+import { InboxClient } from '@/components/inbox/InboxClient'
 import { requireAuth } from '@/lib/auth/server'
 
 /**

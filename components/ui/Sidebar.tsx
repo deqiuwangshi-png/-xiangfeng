@@ -135,6 +135,18 @@ export function Sidebar({ user, profile }: SidebarProps) {
         })}
       </nav>
 
+      {/* 积分 - 简化版 */}
+      <div className="px-4 pb-2">
+        <Link
+          href="/rewards"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-xf-medium hover:bg-xf-light hover:text-xf-dark transition-colors"
+        >
+          <Gift className="w-4 h-4" />
+          <span>积分</span>
+          <span className="ml-auto text-xs text-xf-primary">1,107</span>
+        </Link>
+      </div>
+
       {/* 底部版权 */}
       <div className="p-4 border-t border-xf-surface/30 text-xs text-xf-medium text-center">
         © 2026 相逢

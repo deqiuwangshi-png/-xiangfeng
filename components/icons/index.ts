@@ -22,7 +22,6 @@ export * from './navigation'
 export * from './article'
 export * from './settings'
 export * from './profile'
-export * from './rewards'
 export * from './Logo'
 
 export type { LucideIcon } from 'lucide-react'

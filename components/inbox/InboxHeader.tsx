@@ -1,43 +1,18 @@
 'use client'
 
-/**
- * 消息页头部组件 (Client Component)
- * @module components/inbox/_header/InboxHeader
- * @description 包含操作按钮：全部已读、批量删除等功能
- * @优化说明 标题部分提取为InboxTitle Server Component
- */
+import { CheckCheck, Trash2, X, CheckSquare, Loader2, Bell } from '@/components/icons'
 
-import { CheckCheck, Trash2, X, CheckSquare, Loader2 } from '@/components/icons'
-import { InboxTitle } from './InboxTitle'
-
-/**
- * 消息页头部组件属性接口
- * @interface InboxHeaderProps
- */
 interface InboxHeaderProps {
-  /** 全部已读回调 */
   onMarkAllAsRead: () => void
-  /** 批量删除回调 */
   onBatchDelete?: () => void
-  /** 是否处于批量模式 */
   isBatchMode?: boolean
-  /** 切换批量模式回调 */
   onToggleBatchMode?: () => void
-  /** 选中的消息数量 */
   selectedCount?: number
-  /** 取消批量模式回调 */
   onCancelBatch?: () => void
-  /** 未读消息数量 */
   unreadCount?: number
-  /** 是否正在验证（后台更新中） */
   isValidating?: boolean
 }
 
-/**
- * 消息页头部组件
- * @param {InboxHeaderProps} props - 组件属性
- * @returns {JSX.Element} 头部组件JSX
- */
 export function InboxHeader({
   onMarkAllAsRead,
   onBatchDelete,
@@ -51,10 +26,18 @@ export function InboxHeader({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Server Component 标题 */}
-        <InboxTitle unreadCount={unreadCount} />
-        
-        {/* 后台更新指示器 */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <h1 className="text-xl sm:text-2xl font-serif text-xf-dark font-medium flex items-center gap-2">
+            <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-xf-primary" />
+            消息通知
+          </h1>
+          {unreadCount > 0 && (
+            <span className="px-2 py-0.5 text-xs bg-xf-primary text-white rounded-full">
+              {unreadCount}
+            </span>
+          )}
+        </div>
+
         {isValidating && (
           <span className="flex items-center gap-1 text-xs text-gray-400">
             <Loader2 className="w-3 h-3 animate-spin" />
@@ -64,7 +47,6 @@ export function InboxHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        {/* 批量模式下的操作按钮 */}
         {isBatchMode ? (
           <>
             <span className="text-sm text-gray-500">
@@ -92,7 +74,6 @@ export function InboxHeader({
           </>
         ) : (
           <>
-            {/* 批量模式入口 */}
             <button
               className="px-3 py-2 text-sm bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-lg transition flex items-center gap-1"
               onClick={onToggleBatchMode}
@@ -100,10 +81,8 @@ export function InboxHeader({
               <CheckSquare className="w-4 h-4" />
               批量
             </button>
-
-            {/* 全部已读按钮 */}
             <button
-              className="px-4 py-2 text-sm bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-lg transition flex items-center gap-1"
+              className="px-3 py-2 text-sm bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 rounded-lg transition flex items-center gap-1"
               onClick={onMarkAllAsRead}
             >
               <CheckCheck className="w-4 h-4" />

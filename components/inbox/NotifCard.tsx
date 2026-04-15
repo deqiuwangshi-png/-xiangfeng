@@ -1,21 +1,11 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { MoreVertical, Trash2 } from 'lucide-react'
 import { type NotificationWithIcon } from '@/types/notification'
-import { BatchSelectBox } from '../_actions/BatchSelectBox'
-import { NotificationActions } from '../_actions/NotifActions'
+import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 
-/**
- * 通知卡片组件属性接口
- * @interface NotifCardProps
- * @property {NotificationWithIcon} notification - 通知数据（包含图标）
- * @property {(id: string) => void} onMarkAsRead - 标记已读回调函数
- * @property {(id: string) => void} onDelete - 删除回调函数
- * @property {boolean} isSelected - 是否被选中（批量模式）
- * @property {(id: string, selected: boolean) => void} onSelect - 选择回调函数
- * @property {boolean} isBatchMode - 是否处于批量模式
- */
 interface NotifCardProps {
   notification: NotificationWithIcon
   onMarkAsRead: (id: string) => void
@@ -25,12 +15,97 @@ interface NotifCardProps {
   isBatchMode?: boolean
 }
 
-/**
- * 通知卡片组件
- * @description 显示单条通知信息，使用memo优化避免不必要的重渲染
- * @param {NotifCardProps} props - 组件属性
- * @returns {JSX.Element} 通知卡片JSX
- */
+function BatchSelectBox({
+  isSelected,
+  onSelect,
+}: {
+  isSelected: boolean
+  onSelect: (selected: boolean) => void
+}) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSelect(e.target.checked)
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
+  return (
+    <div className="shrink-0 flex items-center w-10 h-10 sm:w-auto sm:h-auto -ml-2 sm:ml-0 justify-center">
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={handleChange}
+        onClick={handleClick}
+        className="w-5 h-5 sm:w-4 sm:h-4 rounded border-gray-300 text-xf-primary focus:ring-xf-primary"
+      />
+    </div>
+  )
+}
+
+function DeleteButton({ onDelete }: { onDelete: () => void }) {
+  const [showDialog, setShowDialog] = useState(false)
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowDialog(true)
+  }
+
+  const handleConfirm = () => {
+    onDelete()
+    setShowDialog(false)
+  }
+
+  return (
+    <>
+      <button
+        className="hover:bg-red-100 p-1.5 rounded text-gray-400 hover:text-red-500 transition"
+        onClick={handleClick}
+        title="删除"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+
+      <DeleteConfirmDialog
+        isOpen={showDialog}
+        onClose={() => setShowDialog(false)}
+        onConfirm={handleConfirm}
+        count={1}
+      />
+    </>
+  )
+}
+
+function NotificationActions({
+  canDelete,
+  isBatchMode,
+  isUnread,
+  onDelete,
+}: {
+  canDelete: boolean
+  isBatchMode: boolean
+  isUnread: boolean
+  onDelete?: () => void
+}) {
+  const showDelete = canDelete && !isBatchMode
+  const showMore = isUnread || isBatchMode
+
+  if (!showDelete && !showMore) {
+    return null
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {showDelete && onDelete && <DeleteButton onDelete={onDelete} />}
+      {showMore && (
+        <button className="hover:bg-gray-100 p-1 rounded">
+          <MoreVertical className="w-4 h-4 text-gray-400" />
+        </button>
+      )}
+    </div>
+  )
+}
+
 export const NotifCard = memo(function NotifCard({
   notification,
   onMarkAsRead,
@@ -49,12 +124,10 @@ export const NotifCard = memo(function NotifCard({
       return
     }
 
-    // 标记已读
     if (notification.unread) {
       onMarkAsRead(notification.id)
     }
 
-    // 跳转到关联页面
     if (notification.articleId) {
       router.push(`/article/${notification.articleId}`)
     }
@@ -68,7 +141,6 @@ export const NotifCard = memo(function NotifCard({
     onDelete?.(notification.id)
   }
 
-  // 判断是否可以跳转（有关联内容）
   const canNavigate = Boolean(notification.articleId || notification.commentId)
 
   return (
@@ -82,7 +154,6 @@ export const NotifCard = memo(function NotifCard({
       role={canNavigate && !isBatchMode ? 'button' : undefined}
       tabIndex={canNavigate && !isBatchMode ? 0 : undefined}
     >
-      {/* 批量选择框 */}
       {isBatchMode && (
         <BatchSelectBox isSelected={isSelected} onSelect={handleSelect} />
       )}
@@ -91,7 +162,6 @@ export const NotifCard = memo(function NotifCard({
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
-        {/* LCP关键元素：通知消息文本，优化渲染性能 */}
         <p
           className="text-sm text-gray-800"
           style={{ contain: 'layout style paint' }}
@@ -110,7 +180,6 @@ export const NotifCard = memo(function NotifCard({
         </div>
       </div>
 
-      {/* 操作按钮区域 */}
       <NotificationActions
         canDelete={canDelete}
         isBatchMode={isBatchMode}

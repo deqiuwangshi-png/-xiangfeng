@@ -17,7 +17,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { withAuth } from '@/lib/auth/server';
 import { getArticleCommentsPaginated } from '../queries/comment';
-import { checkCommentArticleTask } from '@/lib/rewards/tasks';
 import { CommentSchema, CommentIdSchema } from '../schema';
 import { verifyCommentOwnership } from './_secure';
 import { checkServerRateLimit } from '@/lib/security/rateLimitServer';
@@ -169,16 +168,6 @@ export const submitArticleComment = withAuth(
         console.error('插入评论失败:', error);
         return { success: false, error: COMMENT_ERROR_MESSAGES.CREATE_ERROR };
       }
-
-      {/* 注意：通知由数据库触发器自动发送，详见 15通知触发器.sql */}
-
-      {/* 检测评论文章任务 - 异步执行不阻塞 */}
-      Promise.resolve().then(async () => {
-        const taskSuccess = await checkCommentArticleTask()
-        if (!taskSuccess) {
-          console.warn('[任务系统] 评论任务进度更新失败，不影响评论提交')
-        }
-      })
 
       return {
         success: true,

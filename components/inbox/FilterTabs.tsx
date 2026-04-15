@@ -2,10 +2,6 @@
 
 import { type FilterType } from '@/types/notification'
 
-/**
- * 筛选标签配置
- * @description 定义筛选标签的显示文本和对应值
- */
 const filterTabs: { key: FilterType; label: string }[] = [
   { key: 'all', label: '全部' },
   { key: 'unread', label: '未读' },
@@ -13,23 +9,11 @@ const filterTabs: { key: FilterType; label: string }[] = [
   { key: 'system', label: '系统' },
 ]
 
-/**
- * 筛选标签组件属性接口
- * @interface FilterTabsProps
- * @property {FilterType} activeFilter - 当前激活的筛选类型
- * @property {(filter: FilterType) => void} onFilterChange - 筛选变化回调函数
- */
 interface FilterTabsProps {
   activeFilter: FilterType
   onFilterChange: (filter: FilterType) => void
 }
 
-/**
- * 筛选标签组件 (Client Component)
- * @description 消息页面筛选标签栏，需要处理点击交互
- * @param {FilterTabsProps} props - 组件属性
- * @returns {JSX.Element} 筛选标签JSX
- */
 export function FilterTabs({
   activeFilter,
   onFilterChange,

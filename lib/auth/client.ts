@@ -16,13 +16,16 @@
 
 // ==================== Server Actions ====================
 // Server Actions 可以在客户端调用，但它们在服务端执行
-export { login } from './actions/login';
-export { register } from './actions/register';
-export { logout } from './actions/logout';
-export { forgotPassword } from './actions/forgot-password';
-export { resetPassword } from './actions/reset-password';
-export { changePassword } from './actions/change-password';
-export { oauthLogin, getOAuthProvidersStatus } from './actions/oauth';
+export {
+  login,
+  register,
+  logout,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+  oauthLogin,
+  getOAuthProvidersStatus,
+} from './actions';
 export { getLoginHistory } from './core/loginHistory';
 
 // ==================== 上传相关 Server Actions ====================
