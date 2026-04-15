@@ -9,14 +9,16 @@
  * - 使用简单布局流，相对于内容区域居中定位
  */
 
+'use client'
+
 import { Editor } from '@tiptap/react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Bold, Italic, Underline, Quote, Code,
-  List, ListOrdered, Minus, Eraser, Undo, Redo,
-  ArrowUpToLine, ChevronDown
+  List, ListOrdered, Minus, Eraser, Undo, Redo, Heading, ArrowUpToLine, ChevronDown
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
-import { HeadingSelect } from './HeadingSelect'
+import { runEditorCommand } from './editorCommands'
 
 interface EditorToolbarProps {
   editor: Editor | null
@@ -32,51 +34,6 @@ export function EditorToolbar({
   onToggleToolbar,
   isCollapsed,
 }: EditorToolbarProps) {
-
-  // 格式化文本
-  const handleFormatText = (format: string) => {
-    if (!editor) return
-
-    switch (format) {
-      case 'bold':
-        editor.chain().focus().toggleBold().run()
-        break
-      case 'italic':
-        editor.chain().focus().toggleItalic().run()
-        break
-      case 'underline':
-        editor.chain().focus().toggleUnderline().run()
-        break
-
-      case 'quote':
-        editor.chain().focus().toggleBlockquote().run()
-        break
-      case 'code':
-        editor.chain().focus().toggleCode().run()
-        break
-      case 'hr':
-        editor.chain().focus().setHorizontalRule().run()
-        break
-    }
-  }
-
-
-
-  // 插入列表
-  const handleInsertList = (type: 'ul' | 'ol') => {
-    if (!editor) return
-    if (type === 'ul') {
-      editor.chain().focus().toggleBulletList().run()
-    } else {
-      editor.chain().focus().toggleOrderedList().run()
-    }
-  }
-
-  // 清除格式
-  const handleClearFormatting = () => {
-    if (!editor) return
-    editor.chain().focus().clearNodes().unsetAllMarks().run()
-  }
 
   // 撤销
   const handleUndo = () => {
@@ -103,19 +60,19 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Bold}
           tooltip="加粗"
-          onClick={() => handleFormatText('bold')}
+          onClick={() => runEditorCommand(editor, 'bold')}
           title="加粗 (Ctrl+B)"
         />
         <ToolbarButton
           icon={Italic}
           tooltip="斜体"
-          onClick={() => handleFormatText('italic')}
+          onClick={() => runEditorCommand(editor, 'italic')}
           title="斜体 (Ctrl+I)"
         />
         <ToolbarButton
           icon={Underline}
           tooltip="下划线"
-          onClick={() => handleFormatText('underline')}
+          onClick={() => runEditorCommand(editor, 'underline')}
           title="下划线"
         />
       </div>
@@ -129,13 +86,13 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Quote}
           tooltip="引用"
-          onClick={() => handleFormatText('quote')}
+          onClick={() => runEditorCommand(editor, 'quote')}
           title="引用"
         />
         <ToolbarButton
           icon={Code}
           tooltip="行内代码"
-          onClick={() => handleFormatText('code')}
+          onClick={() => runEditorCommand(editor, 'code')}
           title="行内代码"
         />
       </div>
@@ -148,13 +105,13 @@ export function EditorToolbar({
         <ToolbarButton
           icon={List}
           tooltip="列表"
-          onClick={() => handleInsertList('ul')}
+          onClick={() => runEditorCommand(editor, 'bulletList')}
           title="无序列表"
         />
         <ToolbarButton
           icon={ListOrdered}
           tooltip="有序列表"
-          onClick={() => handleInsertList('ol')}
+          onClick={() => runEditorCommand(editor, 'orderedList')}
           title="有序列表"
         />
       </div>
@@ -167,13 +124,13 @@ export function EditorToolbar({
         <ToolbarButton
           icon={Minus}
           tooltip="分割线"
-          onClick={() => handleFormatText('hr')}
+          onClick={() => runEditorCommand(editor, 'hr')}
           title="分割线"
         />
         <ToolbarButton
           icon={Eraser}
           tooltip="清除格式"
-          onClick={handleClearFormatting}
+          onClick={() => runEditorCommand(editor, 'clearFormatting')}
           title="清除格式"
         />
         <ToolbarButton
@@ -210,6 +167,77 @@ export function EditorToolbar({
           title={isCollapsed ? '展开工具栏' : '收起工具栏'}
         />
       </div>
+    </div>
+  )
+}
+
+const headingLevels = [
+  { level: 1, label: 'H1', text: '一级标题' },
+  { level: 2, label: 'H2', text: '二级标题' },
+  { level: 3, label: 'H3', text: '三级标题' },
+  { level: 4, label: 'H4', text: '四级标题' },
+  { level: 5, label: 'H5', text: '五级标题' },
+] as const
+
+function HeadingSelect({ editor }: { editor: Editor | null }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const getActiveLevel = () => {
+    if (!editor) return null
+    for (let i = 1; i <= 5; i++) {
+      if (editor.isActive('heading', { level: i })) return i
+    }
+    return null
+  }
+
+  const activeLevel = getActiveLevel()
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleSelect = (level: 1 | 2 | 3 | 4 | 5) => {
+    if (!editor) return
+    runEditorCommand(editor, `heading${level}` as const)
+    setIsOpen(false)
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        title="标题"
+        className={`relative py-2.5 px-2.5 rounded-xl text-xf-primary bg-xf-primary/5 border border-transparent cursor-pointer transition-all flex items-center justify-center gap-1 hover:bg-xf-primary/12 hover:border-xf-primary/20 hover:-translate-y-px hover:shadow-md ${
+          activeLevel ? 'bg-xf-primary/15 text-xf-accent border-xf-primary/30' : ''
+        }`}
+      >
+        <Heading className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white rounded-lg shadow-lg border border-xf-light py-1 min-w-[80px] z-50">
+          {headingLevels.map(({ level, label, text }) => (
+            <button
+              key={level}
+              onClick={() => handleSelect(level)}
+              className={`w-full px-3 py-2 text-sm text-left hover:bg-xf-primary/5 transition-colors flex items-center gap-2 ${
+                activeLevel === level ? 'bg-xf-primary/10 text-xf-accent font-medium' : 'text-xf-dark'
+              }`}
+            >
+              <span className="w-6 text-center font-bold">{label}</span>
+              <span className="text-xs opacity-60">{text}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

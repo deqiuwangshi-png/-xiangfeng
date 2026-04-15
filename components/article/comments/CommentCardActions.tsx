@@ -1,7 +1,6 @@
 'use client'
 
 import { Heart, Trash2 } from '@/components/icons'
-import { useArticleToast } from '@/hooks/article/useArticleToast'
 import type { CommentCardActionsProps } from '@/types'
 
 /**
@@ -15,7 +14,6 @@ export function CommentCardActions({
   onDelete,
 }: CommentCardActionsProps) {
   const canDelete = currentUser?.id === comment.author.id
-  const { showAuthRequired } = useArticleToast()
 
   /**
    * 处理点赞点击
@@ -24,7 +22,6 @@ export function CommentCardActions({
    */
   const handleLikeClick = () => {
     if (!currentUser) {
-      showAuthRequired('点赞评论')
       return
     }
     onLike(comment.id)

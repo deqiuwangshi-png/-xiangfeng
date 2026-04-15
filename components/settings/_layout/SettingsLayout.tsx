@@ -2,16 +2,14 @@
 
 import { createContext, useContext, Suspense, useCallback } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
-import {
-  SettingsNav,
-  AccountSection,
-  PrivacySection,
-  NotificationsSection,
-  AppearanceSection,
-  ContentSection,
-  AdvancedSection,
-} from '@/components/settings'
-import { UserData, UserSettings } from '@/types/user/settings'
+import { SettingsNav } from './SettingsNav'
+import { AccountSection } from '../account/AccountSection'
+import { PrivacySection } from '../sections/PrivacySection'
+import { NotificationsSection } from '../sections/NotificationsSection'
+import { AppearanceSection } from '../sections/AppearanceSection'
+import { ContentSection } from '../content/ContentSection'
+import { AdvancedSection } from '../sections/AdvancedSection'
+import { AccountViewMode, UserData, UserSettings } from '@/types/user/settings'
 
 /**
  * 设置页面上下文
@@ -51,6 +49,25 @@ const getTabFromSearchParams = (searchParams: URLSearchParams | null): string =>
   return tab && VALID_TABS.includes(tab) ? tab : 'account'
 }
 
+const VALID_ACCOUNT_VIEWS: AccountViewMode[] = [
+  'list',
+  'editProfile',
+  'security',
+  'changeEmail',
+  'linkedAccounts',
+]
+
+const getAccountViewFromSearchParams = (
+  searchParams: URLSearchParams | null,
+  activeTab: string
+): AccountViewMode => {
+  if (activeTab !== 'account') return 'list'
+  const view = searchParams?.get('view')
+  return view && VALID_ACCOUNT_VIEWS.includes(view as AccountViewMode)
+    ? (view as AccountViewMode)
+    : 'list'
+}
+
 {/* 内部内容组件 - 配合 Suspense 使用 */}
 function SettingsLayoutContent({ userData, userSettings }: SettingsLayoutProps) {
   const router = useRouter()
@@ -59,11 +76,28 @@ function SettingsLayoutContent({ userData, userSettings }: SettingsLayoutProps) 
 
   {/* 从 URL 计算当前标签页 - 避免使用 state 导致级联渲染 */}
   const activeTab = getTabFromSearchParams(searchParams)
+  const accountView = getAccountViewFromSearchParams(searchParams, activeTab)
 
   {/* 处理标签页切换 - 直接更新 URL，状态从 URL 计算得出 */}
   const handleTabChange = useCallback((tabId: string) => {
     const params = new URLSearchParams(searchParams?.toString())
     params.set('tab', tabId)
+    if (tabId !== 'account') {
+      params.delete('view')
+    } else if (!params.get('view')) {
+      params.set('view', 'list')
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [pathname, router, searchParams])
+
+  const handleAccountViewChange = useCallback((view: AccountViewMode) => {
+    const params = new URLSearchParams(searchParams?.toString())
+    params.set('tab', 'account')
+    if (view === 'list') {
+      params.delete('view')
+    } else {
+      params.set('view', view)
+    }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }, [pathname, router, searchParams])
 
@@ -95,7 +129,11 @@ function SettingsLayoutContent({ userData, userSettings }: SettingsLayoutProps) 
           <div className="lg:col-span-9 max-w-3xl">
             {/* 使用 hidden 代替条件渲染，避免组件重新挂载，提升性能 */}
             <div className={activeTab === 'account' ? 'block' : 'hidden'}>
-              <AccountSection userData={userData} />
+              <AccountSection
+                userData={userData}
+                viewMode={accountView}
+                onViewChange={handleAccountViewChange}
+              />
             </div>
             <div className={activeTab === 'privacy' ? 'block' : 'hidden'}>
               <PrivacySection />

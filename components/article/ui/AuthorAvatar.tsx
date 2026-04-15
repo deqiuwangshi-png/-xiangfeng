@@ -40,7 +40,7 @@ export function AuthorAvatar({
 }: AuthorAvatarProps) {
   const [isFollowing, setIsFollowing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { showSuccess, showError, showAuthRequired } = useArticleToast()
+  const { showSuccess, showError } = useArticleToast()
 
   /**
    * 获取初始关注状态
@@ -78,7 +78,6 @@ export function AuthorAvatar({
 
     // 未登录提示
     if (!currentUser) {
-      showAuthRequired('关注作者')
       return
     }
 
@@ -113,7 +112,6 @@ export function AuthorAvatar({
   const handleAvatarClick = (e: React.MouseEvent) => {
     if (!currentUser) {
       e.preventDefault()
-      showAuthRequired('查看作者主页')
     }
   }
 

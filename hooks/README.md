@@ -1,571 +1,183 @@
-# React Hooks 目录
+# Hooks 目录说明（按现状）
 
-## 目录结构
+本文件描述 `hooks/` 当前真实结构、导入方式与分层边界。  
+口径与 `HOOKS_LIB_BOUNDARY_CHECKLIST.md` 保持一致。
 
-```
+---
+
+## 目录结构（当前）
+
+```text
 hooks/
-├── README.md                   # 本文档
-├── index.ts                    # 统一导出入口
-├── auth/                       # 认证相关 Hooks
-│   ├── useAuth.ts              # 认证状态与动作（单一入口）
-│   └── index.ts                # 统一导出
-├── article/                    # 文章相关 Hooks
-│   ├── useArticleToast.ts      # 文章模块 Toast 提示
-│   ├── useArticleView.ts       # 文章浏览量统计
-│   ├── useComments.ts          # 评论管理
-│   ├── useCommentSub.ts        # 评论提交
-│   └── useContentProtection.ts # 内容保护（防复制）
-├── navigation/                 # 导航相关 Hooks
-│   ├── useDebouncedNavigation.ts   # 防抖导航
-│   └── useOptimisticNavigation.ts  # 乐观导航
-├── notification/               # 通知相关 Hooks
-│   └── useInboxCache.ts        # 消息通知缓存
-├── updates/                    # 更新日志 Hooks
-│   └── useUpdates.ts           # 更新日志管理
-├── drafts/                     # 草稿管理 Hooks
-│   └── useDrafts.ts            # 草稿管理
-├── feedback/                   # 反馈中心 Hooks
-│   ├── useFeedbackForm.ts      # 反馈表单
-│   └── useFeedbackReplies.ts   # 反馈回复
-├── publish/                    # 文章发布 Hooks
-│   ├── useAutoSave.ts          # 自动保存
-│   ├── useEditorActions.ts     # 编辑器操作
-│   ├── useEditorState.ts       # 编辑器状态
-│   └── useTipTapEditor.ts      # TipTap 编辑器
-└── rewards/                    # 福利中心 Hooks
-    ├── useExchangeRecords.ts   # 兑换记录
-    ├── usePoints.ts            # 积分管理
-    ├── useShop.ts              # 商城数据
-    ├── useSignIn.ts            # 签到功能
-    └── useTasks.ts             # 任务数据
+├── README.md
+├── index.ts
+├── auth/
+│   ├── index.ts
+│   └── useAuth.ts
+├── article/
+│   ├── useArticleActions.ts
+│   ├── useArticleToast.ts
+│   ├── useArticleView.ts
+│   ├── useComments.ts
+│   ├── useCommentSub.ts
+│   └── useContentProtection.ts
+├── drafts/
+│   ├── useDrafts.ts
+│   └── useDraftsToast.ts
+├── navigation/
+│   ├── useDelayNav.ts
+│   └── useFastNav.ts
+├── notification/
+│   └── useInboxCache.ts
+├── publish/
+│   ├── useAutoSave.ts
+│   ├── useEditorActions.ts
+│   ├── useEditorState.ts
+│   ├── useEditorToast.ts
+│   └── useTipTapEditor.ts
+├── settings/
+│   ├── useNotificationSettings.ts
+│   ├── usePrivacySettings.ts
+│   └── useProfileForm.ts
+├── updates/
+│   └── useUpdates.ts
+├── useDebounce.ts
+├── useOptimisticMutation.ts
+└── useSWRQuery.ts
 ```
 
-## 概述
+---
 
-本目录包含项目所有的自定义 React Hooks，按功能分类组织到不同子目录中。所有 Hooks 都遵循 React 最佳实践，支持 TypeScript 类型安全。
+## 这层放什么
 
-## 导入方式
+`hooks` 是 **UI/交互编排层**，负责：
 
-### 方式一：统一入口导入（推荐）
+- React 状态管理（`useState`/`useMemo`/`useEffect`）
+- 页面交互流程（按钮动作、表单流程、导航与 toast）
+- SWR 调用编排、乐观更新
+- 调用 `lib/*` 暴露的领域能力
 
-```typescript
-import { useArticleToast, useComments, useAuth } from '@/hooks';
+不负责：
+
+- 核心业务规则定义
+- 数据库读写规则定义
+- 权限与安全策略定义
+
+这些应放在 `lib/*`。
+
+---
+
+## 导入规范
+
+### 推荐：统一入口导入
+
+```ts
+import { useAuth, useDrafts, useUpdates } from '@/hooks'
 ```
 
-### 方式二：分类路径导入
+### 可选：按子目录导入
 
-```typescript
-// Auth
-import { useAuth, useUser, useIsAuthenticated } from '@/hooks/auth/useAuth';
-
-// Article
-import { useArticleToast } from '@/hooks/article/useArticleToast';
-import { useComments } from '@/hooks/article/useComments';
-
-// Navigation
-import { useDebouncedNavigation } from '@/hooks/navigation/useDebouncedNavigation';
-
-// Notification
-import { useInboxCache } from '@/hooks/notification/useInboxCache';
-
-// Updates
-import { useUpdates } from '@/hooks/updates/useUpdates';
-
-// Drafts
-import { useDrafts } from '@/hooks/drafts/useDrafts';
-
-// Feedback
-import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
-import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
-
-// Publish
-import { useAutoSave } from '@/hooks/publish/useAutoSave';
-import { useEditorActions } from '@/hooks/publish/useEditorActions';
-import { useEditorState } from '@/hooks/publish/useEditorState';
-import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
-
-// Rewards
-import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords';
-import { usePoints } from '@/hooks/rewards/usePoints';
-import { useShop } from '@/hooks/rewards/useShop';
-import { useSignIn } from '@/hooks/rewards/useSignIn';
-import { useTasks } from '@/hooks/rewards/useTasks';
+```ts
+import { useAuth } from '@/hooks/auth'
+import { useComments } from '@/hooks/article/useComments'
+import { usePrivacySettings } from '@/hooks/settings/usePrivacySettings'
 ```
 
-## Hooks 分类
+### 不推荐：深层相对路径
 
-### 1. Auth 认证相关
-
-#### useAuth / useUser / useIsAuthenticated
-
-认证模块已收敛为单一会话源（`AuthProvider`），这三个 Hook 均从统一上下文派生，避免重复订阅 `onAuthStateChange`。
-
-```typescript
-import { useAuth, useUser, useIsAuthenticated } from '@/hooks';
+```ts
+import { useAuth } from '../../../hooks/auth/useAuth'
 ```
 
-### 2. Article 文章相关
+---
 
-#### useArticleToast
+## 各子目录职责
 
-文章模块统一的 Toast 提示规范。
+### `auth/`
 
-```typescript
-import { useArticleToast } from '@/hooks/article/useArticleToast';
+- `useAuth`：消费 `AuthProvider` 上下文，封装登录/退出/刷新用户动作
+- 依赖：`@/lib/auth/client`、`@/lib/supabase/client`
 
-function ArticleActions() {
-  const { showSuccess, showError, showAuthRequired } = useArticleToast();
-  // ...
-}
-```
+### `article/`
 
-#### useArticleView
+- `useArticleActions`：点赞/收藏的乐观更新编排
+- `useComments`：评论列表加载、删除、点赞交互
+- `useCommentSub`：评论提交流程
+- `useArticleView`：文章浏览量交互
+- `useContentProtection`：前端内容保护行为
+- `useArticleToast`：文章模块消息提示
 
-文章浏览量统计和显示。
+### `drafts/`
 
-```typescript
-import { useArticleView } from '@/hooks/article/useArticleView';
+- `useDrafts`：草稿列表筛选、分页、选择、批量操作编排
+- `useDraftsToast`：草稿模块提示
+- 依赖：`@/lib/drafts/draftService` 与 `@/lib/articles/actions/*`
 
-function ArticlePage({ articleId }: { articleId: string }) {
-  useArticleView({ articleId });
-  // ...
-}
-```
+### `navigation/`
 
-#### useComments
+- `useFastNav`：快速导航交互
+- `useDelayNav`：延迟/防抖导航交互
 
-评论数据管理 Hook。
+### `notification/`
 
-```typescript
-import { useComments } from '@/hooks/article/useComments';
+- `useInboxCache`：通知缓存与同步编排
+- 依赖：`@/lib/notifications/actions`
 
-function CommentPanel({ articleId, initialComments, initialTotalCount }) {
-  const { comments, loadMore, toggleLike } = useComments(
-    articleId,
-    initialComments,
-    initialTotalCount
-  );
-  // ...
-}
-```
+### `publish/`
 
-#### useCommentSubmit
+- `useEditorState`：编辑器页面状态
+- `useEditorActions`：保存/发布动作编排
+- `useAutoSave`：自动保存流程
+- `useTipTapEditor`：TipTap 编辑器集成
+- `useEditorToast`：发布模块提示
 
-评论提交 Hook。
+### `settings/`
 
-```typescript
-import { useCommentSubmit } from '@/hooks/article/useCommentSub';
+- `useProfileForm`：资料编辑表单与头像处理编排
+- `usePrivacySettings`：隐私设置乐观更新
+- `useNotificationSettings`：通知设置乐观更新
+- 建议：优先通过 `@/lib/settings/actions` 聚合入口导入设置动作
 
-function CommentForm({ articleId, onCommentAdded }) {
-  const { submit, sending, submitError } = useCommentSubmit(articleId, onCommentAdded);
-  // ...
-}
-```
+### `updates/`
 
-#### useContentProtection
+- `useUpdates`：更新日志筛选与搜索状态编排
+- 依赖：`@/lib/updates/updateService`
 
-文章内容防复制保护。
+### 根级通用 hooks
 
-```typescript
-import { useContentProtection } from '@/hooks/article/useContentProtection';
+- `useDebounce`：通用防抖
+- `useOptimisticMutation`：乐观更新通用模板
+- `useSWRQuery`：SWR 查询封装
 
-function ArticleContent({ content }) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  useContentProtection(contentRef, { enabled: true });
-  // ...
-}
-```
+---
 
-### 3. Navigation 导航相关
+## 与 lib 的边界约定
 
-#### useDebouncedNavigation
+### 允许
 
-防抖导航，防止用户快速连续点击导致的多次导航。
+- hooks 调用 `lib/actions`、`lib/queries`、`lib/services`
+- hooks 使用 `lib/cache/keys`、`lib/utils/*`
 
-```typescript
-import { useDebouncedNavigation } from '@/hooks/navigation/useDebouncedNavigation';
+### 禁止
 
-function ArticleCard({ article }) {
-  const { navigate, isNavigating } = useDebouncedNavigation({ delay: 300 });
-  // ...
-}
-```
+- 在 hooks 中新增可复用的领域规则（应下沉到 `lib`）
+- 在 `lib` 中引入 React 生命周期或依赖 `@/hooks/*`
 
-#### useOptimisticNavigation
+---
 
-乐观导航，使用 useTransition 实现非阻塞导航。
+## 维护清单（新增 hook 时）
 
-```typescript
-import { useOptimisticNavigation } from '@/hooks/navigation/useOptimisticNavigation';
+1. 文件名必须 `useXxx.ts`，并与导出函数同名。  
+2. 明确它是“UI 编排”还是“领域逻辑”；若是后者放 `lib`。  
+3. 将可复用纯函数下沉到 `lib/*`。  
+4. 在 `hooks/index.ts`（或对应子目录 `index.ts`）补导出。  
+5. 同步更新本文档，保证“现状即文档”。  
 
-function NavigationLink({ href, children }) {
-  const { navigate, isPending } = useOptimisticNavigation();
-  // ...
-}
-```
+---
 
-### 4. Notification 通知相关
-
-#### useInboxCache
+## 相关文档
 
-消息通知的 SWR 全局缓存管理。
-
-```typescript
-import { useInboxCache } from '@/hooks/notification/useInboxCache';
-
-function InboxPage({ userId }: { userId: string }) {
-  const { groupedNotifications, unreadCount } = useInboxCache(userId);
-  // ...
-}
-```
-
-### 5. Updates 更新日志
-
-#### useUpdates
-
-更新日志页面的状态管理。
-
-```typescript
-import { useUpdates } from '@/hooks/updates/useUpdates';
-
-function UpdatesPage({ initialUpdates }) {
-  const { filteredUpdates, activeFilter, handleFilterChange } = useUpdates(initialUpdates);
-  // ...
-}
-```
-
-### 6. Drafts 草稿管理
-
-#### useDrafts
-
-草稿管理 Hook，支持列表、筛选、分页、批量操作。
-
-```typescript
-import { useDrafts } from '@/hooks/drafts/useDrafts';
-
-function DraftsPage({ initialArticles }) {
-  const {
-    drafts,
-    filteredDrafts,
-    paginatedDrafts,
-    selectedIds,
-    activeFilter,
-    searchQuery,
-    currentPage,
-    viewMode,
-    setActiveFilter,
-    setSearchQuery,
-    handleSelectDraft,
-    executeDeleteDrafts,
-  } = useDrafts(initialArticles, 6);
-  // ...
-}
-```
-
-**功能：**
-
-- 草稿列表管理（SWR 缓存）
-- 筛选和搜索
-- 分页
-- 批量选择和操作
-- 批量发布/归档/删除
-
-### 7. Feedback 反馈中心
-
-#### useFeedbackForm
-
-反馈表单逻辑 Hook，管理表单状态、验证和提交。
-
-```typescript
-import { useFeedbackForm } from '@/hooks/feedback/useFeedbackForm';
-
-function FeedbackForm({ onSubmitSuccess }) {
-  const {
-    selectedType,
-    setSelectedType,
-    description,
-    setDescription,
-    uploadedFiles,
-    setUploadedFiles,
-    isSubmitting,
-    submitError,
-    handleSubmit,
-  } = useFeedbackForm({ onSubmitSuccess });
-  // ...
-}
-```
-
-**功能：**
-
-- 表单状态管理（类型、描述、文件）
-- 表单验证
-- 文件上传（延迟到提交时）
-- 提交状态管理
-
-#### useFeedbackReplies
-
-反馈回复管理 Hook，管理评论列表的加载和提交。
-
-```typescript
-import { useFeedbackReplies } from '@/hooks/feedback/useFeedbackReplies';
-
-function ReplySection({ pageId }) {
-  const {
-    replies,
-    isLoading,
-    isSubmitting,
-    submitError,
-    loadReplies,
-    submitNewReply,
-  } = useFeedbackReplies({ pageId });
-  // ...
-}
-```
-
-**功能：**
-
-- 评论列表加载
-- 新评论提交
-- 加载和提交状态管理
-
-### 8. Publish 文章发布
-
-#### useAutoSave
-
-自动保存 Hook，定时自动保存草稿内容。
-
-```typescript
-import { useAutoSave } from '@/hooks/publish/useAutoSave';
-
-function Editor({ editorState, saveDraft }) {
-  useAutoSave(editorState, saveDraft);
-  // ...
-}
-```
-
-**功能：**
-
-- 防抖自动保存（默认 3 秒）
-- 静默保存模式
-- 离开页面前保存提示
-
-#### useEditorActions
-
-编辑器操作 Hook，提供保存草稿、发布文章等功能。
-
-```typescript
-import { useEditorActions } from '@/hooks/publish/useEditorActions';
-
-function Editor({ editorState, setEditorState }) {
-  const { saveDraft, publishArticle, titleRef } = useEditorActions(
-    editorState,
-    setEditorState
-  );
-  // ...
-}
-```
-
-**功能：**
-
-- 保存草稿
-- 发布文章
-- 更新媒体状态
-- 路由导航
-
-#### useEditorState
-
-编辑器状态管理 Hook，管理编辑器所有状态。
-
-```typescript
-import { useEditorState } from '@/hooks/publish/useEditorState';
-
-function Editor({ initialTitle, initialContent, draftId }) {
-  const [editorState, setEditorState] = useEditorState(
-    initialTitle,
-    initialContent,
-    draftId
-  );
-  // ...
-}
-```
-
-**功能：**
-
-- 标题和内容状态
-- 字数统计
-- 全屏模式
-- 工具栏折叠状态
-- 保存/发布状态
-
-#### useTipTapEditor
-
-TipTap 编辑器 Hook，封装 TipTap 编辑器实例创建。
-
-```typescript
-import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor';
-
-function Editor({ content, onChange }) {
-  const { editor, isMounted } = useTipTapEditor({
-    content,
-    onChange,
-    placeholder: '开始书写...',
-  });
-  // ...
-}
-```
-
-**功能：**
-
-- TipTap 编辑器实例创建
-- 图片上传处理
-- 粘贴图片支持
-- 自定义节点视图
-
-### 9. Rewards 福利中心
-
-#### useExchangeRecords
-
-兑换记录 Hook，管理用户兑换记录。
-
-```typescript
-import { useExchangeRecords } from '@/hooks/rewards/useExchangeRecords';
-
-function ExchangeHistory() {
-  const { records, isLoading, refreshRecords } = useExchangeRecords({ limit: 50 });
-  // ...
-}
-```
-
-**功能：**
-
-- 兑换记录列表获取
-- SWR 缓存优化
-- 分页支持
-- 数据刷新
-
-#### usePoints
-
-积分功能 Hook，管理用户积分总览和积分流水。
-
-```typescript
-import { usePoints } from '@/hooks/rewards/usePoints';
-
-function PointsPage() {
-  const { overview, transactions, isLoading, loadMoreTransactions } = usePoints();
-  // ...
-}
-```
-
-**功能：**
-
-- 积分总览获取
-- 积分流水查询
-- 加载更多
-- SWR 缓存
-
-#### useShop
-
-商城数据 Hook，管理商城商品数据和兑换操作。
-
-```typescript
-import { useShop } from '@/hooks/rewards/useShop';
-
-function ShopPage({ category }) {
-  const { items, isLoading, exchange, isExchanging } = useShop(category);
-  // ...
-}
-```
-
-**功能：**
-
-- 商品列表获取
-- 商品兑换
-- 分类筛选
-- 兑换状态管理
-
-#### useSignIn
-
-签到功能 Hook，管理签到状态和奖励。
-
-```typescript
-import { useSignIn } from '@/hooks/rewards/useSignIn';
-
-function SignInCard() {
-  const { isSigned, consecutiveDays, handleSignIn, isSigning } = useSignIn();
-  // ...
-}
-```
-
-**功能：**
-
-- 签到状态查询
-- 执行签到
-- 连续签到天数
-- 奖励配置获取
-
-#### useTasks
-
-任务数据 Hook，管理用户任务数据。
-
-```typescript
-import { useTasks } from '@/hooks/rewards/useTasks';
-
-function TaskPage({ category }) {
-  const { tasks, isLoading, claimReward, accept } = useTasks(category);
-  // ...
-}
-```
-
-**功能：**
-
-- 任务列表获取
-- 领取任务奖励
-- 接取任务
-- 任务状态管理
-
-## 使用规范
-
-### 1. 命名规范
-
-- 所有 Hooks 以 `use` 开头
-- 使用大驼峰命名法：`useArticleToast`
-- 文件名与 Hook 名称一致
-
-### 2. 目录组织
-
-- 按功能分类到不同子目录
-- 每个 Hook 一个文件
-- 子目录名使用小写
-
-### 3. 导入规范
-
-```typescript
-// ✅ 推荐：从统一入口导入
-import { useArticleToast, useComments } from '@/hooks';
-
-// ✅ 可选：从分类路径导入
-import { useArticleToast } from '@/hooks/article/useArticleToast';
-
-// ❌ 不推荐：过深的相对路径
-import { useArticleToast } from '../../../hooks/article/useArticleToast';
-```
-
-### 4. 类型定义
-
-- 所有 Hooks 都包含完整的 TypeScript 类型定义
-- 参数和返回值都有详细的 JSDoc 注释
-
-### 5. 性能优化
-
-- 使用 `useCallback` 缓存函数
-- 使用 `useMemo` 缓存计算结果
-- 使用 `useRef` 避免重复创建
-- 合理使用依赖数组
-
-## 依赖模块
-
-- [认证库](../lib/auth/README.md) - 认证相关 Hooks
-- [文章库](../lib/articles/README.md) - 文章相关 Hooks
-- [Supabase库](../lib/supabase/README.md) - 数据库操作
-- [类型定义](../types/README.md) - Hooks 类型定义
-
+- `HOOKS_LIB_BOUNDARY_CHECKLIST.md`
+- `lib/auth/README.md`
+- `lib/articles/README.md`
+- `lib/settings/README.md`

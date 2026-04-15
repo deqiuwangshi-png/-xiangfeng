@@ -19,12 +19,10 @@
  *   - 数据通过 Context 从 Server Component 传递
  */
 
-import {
-  SettingsSection,
-  SettingItem,
-  ToggleSwitch,
-  useSettings,
-} from '@/components/settings'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { ToggleSwitch } from '../_ui/ToggleSwitch'
+import { useSettings } from '../_layout/SettingsLayout'
 import { useNotificationSettings } from '@/hooks/settings/useNotificationSettings'
 
 /**

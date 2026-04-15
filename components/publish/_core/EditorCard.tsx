@@ -12,7 +12,6 @@
 
 import { Editor } from '@tiptap/react'
 import { TitleInput } from '../_inputs/TitleInput'
-import { CharacterCounter } from './CharacterCounter'
 import { EditorContent } from '@tiptap/react'
 
 interface EditorCardProps {
@@ -92,6 +91,42 @@ export function EditorCard({
       {!isFocusMode && (
         <CharacterCounter titleLength={titleLength} contentLength={contentLength} />
       )}
+    </div>
+  )
+}
+
+interface CharacterCounterProps {
+  titleLength: number
+  contentLength: number
+}
+
+function CharacterCounter({ titleLength, contentLength }: CharacterCounterProps) {
+  const totalLength = titleLength + contentLength
+
+  const getCounterClass = () => {
+    if (totalLength > 20000) return 'text-red-500 font-medium'
+    if (totalLength > 15000) return 'text-red-500 font-medium'
+    if (totalLength > 10000) return 'text-xf-warning'
+    if (totalLength > 5000) return 'text-xf-warning'
+    if (totalLength < 500) return 'text-xf-warning'
+    return ''
+  }
+
+  const getHint = () => {
+    if (totalLength === 0) return '建议字数：500-5000字'
+    if (totalLength > 20000) return '已超过最大字数限制'
+    if (totalLength > 15000) return '接近字数上限'
+    if (totalLength > 10000) return '字数较多，建议精简'
+    if (totalLength > 5000) return '字数适中'
+    if (totalLength < 500) return '内容较短，建议充实'
+    return '字数合适'
+  }
+
+  return (
+    <div className={`text-xf-medium text-sm py-4 px-6 flex items-center justify-between border-t border-xf-light mt-6 ${getCounterClass()}`}>
+      <span id="char-count">{totalLength}</span>
+      <span>字</span>
+      <span className="text-xs opacity-70" id="content-hint">{getHint()}</span>
     </div>
   )
 }

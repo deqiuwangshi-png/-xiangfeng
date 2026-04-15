@@ -14,8 +14,8 @@ import { Heart, MessageCircle } from '@/components/icons'
 import type { ArtActProps } from '@/types'
 import { AuthorAvatar } from '../ui/AuthorAvatar'
 import { MoreActions } from './MoreActions'
-import { useArticleToast } from '@/hooks/article/useArticleToast'
 import { useArticleActions } from '@/hooks/article/useArticleActions'
+import { useAuthContext } from '@/components/providers/AuthProvider'
 
 /**
  * 文章操作按钮组件
@@ -34,6 +34,9 @@ export default function ArtAct({
   initialLiked = false,
   initialBookmarked = false,
 }: ArtActProps) {
+  const { canRunAuthenticatedActions } = useAuthContext()
+  const effectiveUser = canRunAuthenticatedActions ? currentUser : null
+
   // ==========================================
   // 使用统一的文章操作 Hook
   // ==========================================
@@ -52,14 +55,12 @@ export default function ArtAct({
   })
 
   const [commentCount] = useState(() => initialCommentCount)
-  const { showAuthRequired } = useArticleToast()
 
   /**
    * 检查用户是否登录
    */
   const checkAuth = () => {
-    if (!currentUser) {
-      showAuthRequired('进行此操作')
+    if (!effectiveUser) {
       return false
     }
     return true
@@ -99,14 +100,14 @@ export default function ArtAct({
         authorId={authorId}
         authorName={authorName}
         authorAvatar={authorAvatar}
-        currentUser={currentUser}
+        currentUser={effectiveUser}
       />
 
       {/* 点赞按钮 */}
       <div
-        className={`douyin-action-btn ${likeData.liked ? 'liked' : ''} ${!currentUser || isLikeLoading ? 'opacity-50' : ''}`}
+        className={`douyin-action-btn ${likeData.liked ? 'liked' : ''} ${!effectiveUser || isLikeLoading ? 'opacity-50' : ''}`}
         onClick={!isLikeLoading ? handleLike : undefined}
-        title={currentUser ? (isLikeLoading ? '处理中...' : '点赞') : '请先登录'}
+        title={effectiveUser ? (isLikeLoading ? '处理中...' : '点赞') : '请先登录'}
       >
         <Heart className={`douyin-icon ${isLikeLoading ? 'animate-pulse' : ''}`} />
         <span className="douyin-count">{likeData.likeCount}</span>
@@ -125,7 +126,7 @@ export default function ArtAct({
       <MoreActions
         articleId={articleId}
         authorId={authorId}
-        currentUser={currentUser}
+        currentUser={effectiveUser}
         initialBookmarked={bookmarkData.bookmarked}
         onBookmark={handleBookmark}
         isBookmarkLoading={isBookmarkLoading}

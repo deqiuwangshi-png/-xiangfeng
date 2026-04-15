@@ -18,6 +18,7 @@ import {
 } from '@/components/icons'
 import { ToolbarButton } from './ToolbarButton'
 import { Heading4, Heading5, Type } from 'lucide-react'
+import { runEditorCommand } from './editorCommands'
 
 /**
  * 预设颜色列表
@@ -201,70 +202,6 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
 
   if (!editor || !isVisible) return null
 
-  /**
-   * 处理文本格式化
-   *
-   * @param format - 格式化类型
-   */
-  const handleFormatText = (format: string) => {
-    if (!editor) return
-
-    switch (format) {
-      case 'bold':
-        editor.chain().focus().toggleBold().run()
-        break
-      case 'italic':
-        editor.chain().focus().toggleItalic().run()
-        break
-      case 'underline':
-        editor.chain().focus().toggleUnderline().run()
-        break
-      case 'quote':
-        editor.chain().focus().toggleBlockquote().run()
-        break
-      case 'code':
-        editor.chain().focus().toggleCode().run()
-        break
-    }
-  }
-
-  /**
-   * 切换标题级别
-   *
-   * @param level - 标题级别 1-5
-   */
-  const handleToggleHeading = (level: 1 | 2 | 3 | 4 | 5) => {
-    if (!editor) return
-    // 如果当前已经是该级别标题，则转换为普通段落
-    if (editor.isActive('heading', { level })) {
-      editor.chain().focus().setParagraph().run()
-    } else {
-      editor.chain().focus().toggleHeading({ level }).run()
-    }
-  }
-
-  /**
-   * 插入列表
-   *
-   * @param type - 列表类型
-   */
-  const handleInsertList = (type: 'ul' | 'ol') => {
-    if (!editor) return
-    if (type === 'ul') {
-      editor.chain().focus().toggleBulletList().run()
-    } else {
-      editor.chain().focus().toggleOrderedList().run()
-    }
-  }
-
-  /**
-   * 清除格式
-   */
-  const handleClearFormatting = () => {
-    if (!editor) return
-    editor.chain().focus().clearNodes().unsetAllMarks().run()
-  }
-
   // 计算菜单位置，确保不超出视口
   const menuWidth = 280 // 预估菜单宽度
   const menuHeight = 44 // 预估菜单高度
@@ -299,7 +236,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Bold}
         tooltip="加粗"
-        onClick={() => handleFormatText('bold')}
+        onClick={() => runEditorCommand(editor, 'bold')}
         title="加粗 (Ctrl+B)"
         isActive={editor.isActive('bold')}
         size="sm"
@@ -307,7 +244,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Italic}
         tooltip="斜体"
-        onClick={() => handleFormatText('italic')}
+        onClick={() => runEditorCommand(editor, 'italic')}
         title="斜体 (Ctrl+I)"
         isActive={editor.isActive('italic')}
         size="sm"
@@ -315,7 +252,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Underline}
         tooltip="下划线"
-        onClick={() => handleFormatText('underline')}
+        onClick={() => runEditorCommand(editor, 'underline')}
         title="下划线"
         isActive={editor.isActive('underline')}
         size="sm"
@@ -328,7 +265,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Heading1}
         tooltip="标题1"
-        onClick={() => handleToggleHeading(1)}
+        onClick={() => runEditorCommand(editor, 'heading1')}
         title="H1"
         isActive={editor.isActive('heading', { level: 1 })}
         size="sm"
@@ -336,7 +273,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Heading2}
         tooltip="标题2"
-        onClick={() => handleToggleHeading(2)}
+        onClick={() => runEditorCommand(editor, 'heading2')}
         title="H2"
         isActive={editor.isActive('heading', { level: 2 })}
         size="sm"
@@ -344,7 +281,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
          <ToolbarButton
         icon={Heading3}
         tooltip="标题3"
-        onClick={() => handleToggleHeading(3)}
+        onClick={() => runEditorCommand(editor, 'heading3')}
         title="H3"
         isActive={editor.isActive('heading', { level: 3 })}
         size="sm"
@@ -352,7 +289,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Heading4}
         tooltip="标题4"
-        onClick={() => handleToggleHeading(4)}
+        onClick={() => runEditorCommand(editor, 'heading4')}
         title="H4"
         isActive={editor.isActive('heading', { level: 4 })}
         size="sm"
@@ -360,7 +297,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Heading5}
         tooltip="标题5"
-        onClick={() => handleToggleHeading(5)}
+        onClick={() => runEditorCommand(editor, 'heading5')}
         title="H5"
         isActive={editor.isActive('heading', { level: 5 })}
         size="sm"
@@ -373,7 +310,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Quote}
         tooltip="引用"
-        onClick={() => handleFormatText('quote')}
+        onClick={() => runEditorCommand(editor, 'quote')}
         title="引用"
         isActive={editor.isActive('blockquote')}
         size="sm"
@@ -381,7 +318,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Code}
         tooltip="行内代码"
-        onClick={() => handleFormatText('code')}
+        onClick={() => runEditorCommand(editor, 'code')}
         title="行内代码"
         isActive={editor.isActive('code')}
         size="sm"
@@ -400,7 +337,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={List}
         tooltip="无序列表"
-        onClick={() => handleInsertList('ul')}
+        onClick={() => runEditorCommand(editor, 'bulletList')}
         title="无序列表"
         isActive={editor.isActive('bulletList')}
         size="sm"
@@ -408,7 +345,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={ListOrdered}
         tooltip="有序列表"
-        onClick={() => handleInsertList('ol')}
+        onClick={() => runEditorCommand(editor, 'orderedList')}
         title="有序列表"
         isActive={editor.isActive('orderedList')}
         size="sm"
@@ -421,7 +358,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
       <ToolbarButton
         icon={Eraser}
         tooltip="清除格式"
-        onClick={handleClearFormatting}
+        onClick={() => runEditorCommand(editor, 'clearFormatting')}
         title="清除格式"
         size="sm"
       />

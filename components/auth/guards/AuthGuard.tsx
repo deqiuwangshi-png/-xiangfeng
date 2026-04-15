@@ -5,8 +5,7 @@
  * @module components/auth/AuthGuard
  */
 
-import { ReactNode, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { ReactNode } from 'react';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { useAuthContext } from '@/components/providers/AuthProvider';
 
@@ -15,20 +14,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const router = useRouter();
-  const { user, profile, isLoading } = useAuthContext()
-
-  // 拦截浏览器返回按钮
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!user) {
-        router.push('/login');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [user, router]);
+  const { user, profile, authState, isLoading } = useAuthContext()
 
   if (isLoading) {
     return (
@@ -40,7 +26,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return (
     <div className="flex min-h-screen bg-xf-bg">
-      <Sidebar user={user} profile={profile} />
+      <Sidebar user={user} profile={profile} authState={authState} />
       <main className="flex-1 lg:ml-64">
         {children}
       </main>

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:readme-sync": "node scripts/check-readme-sync.cjs",
+    "check:readme-sync:publish": "node scripts/check-readme-sync.cjs components/publish/README.md"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

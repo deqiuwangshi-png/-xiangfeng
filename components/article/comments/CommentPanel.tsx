@@ -17,6 +17,7 @@ import { LoginPrompt } from './LoginPrompt'
 import { CommentForm } from './CommentForm'
 import { MAX_COMMENTS_WITHOUT_LOGIN } from '@/types'
 import type { CommentPanelProps } from '@/types'
+import { useAuthContext } from '@/components/providers/AuthProvider'
 
 /**
  * 评论面板容器组件
@@ -31,6 +32,8 @@ export function CommentPanel({
   initialTotalCount = initialComments.length,
   currentUser,
 }: CommentPanelProps) {
+  const { canRunAuthenticatedActions } = useAuthContext()
+  const effectiveUser = canRunAuthenticatedActions ? currentUser : null
   const commentsListRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -52,13 +55,13 @@ export function CommentPanel({
   )
 
   {/* 根据登录状态决定显示哪些评论 */}
-  const visibleComments = currentUser
+  const visibleComments = effectiveUser
     ? comments
     : comments.slice(0, MAX_COMMENTS_WITHOUT_LOGIN)
 
   {/* 未登录时是否有更多评论被隐藏 */}
   const hasHiddenComments =
-    !currentUser && comments.length > MAX_COMMENTS_WITHOUT_LOGIN
+    !effectiveUser && comments.length > MAX_COMMENTS_WITHOUT_LOGIN
 
   /**
    * 打开评论面板
@@ -107,12 +110,12 @@ export function CommentPanel({
         <div className="comments-list" ref={commentsListRef}>
           <CommentList
             comments={visibleComments}
-            hasMore={currentUser ? hasMore : false}
+            hasMore={effectiveUser ? hasMore : false}
             loadingMore={loadingMore}
             onLoadMore={loadMore}
             onLike={toggleLike}
             onDelete={deleteComment}
-            currentUser={currentUser}
+            currentUser={effectiveUser}
           />
 
           {/* 未登录时显示登录提示 */}
@@ -136,7 +139,7 @@ export function CommentPanel({
             const success = await submit(content)
             return success
           }}
-          currentUser={currentUser}
+          currentUser={effectiveUser}
           disabled={sending}
         />
       </div>

@@ -5,13 +5,14 @@
  * @module components/ui/Sidebar
  */
 
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UserProfileSection } from '@/components/user'
 import { useInboxCache } from '@/hooks'
+import { createClient } from '@/lib/supabase/client'
 import type { SimpleUser, SimpleUserProfile } from '@/types'
 import { MAIN_NAVIGATION_ITEMS, PRELOAD_ROUTES, type NavigationItem } from '@/config/navigation'
 
@@ -26,24 +27,50 @@ const NAV_ICONS = {
 interface SidebarProps {
   user?: { id: string; email?: string | null } | null
   profile?: SimpleUserProfile | null
+  authState?: 'anonymous' | 'syncing' | 'authenticated'
 }
 
-export function Sidebar({ user, profile }: SidebarProps) {
+export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [showLoginTooltip, setShowLoginTooltip] = useState<string | null>(null)
+  const [currentPoints, setCurrentPoints] = useState<number | null>(null)
+  const hasPrefetchedRef = useRef(false)
   
-  const isAuthenticated = !!user
+  const isAuthenticated = authState === 'authenticated'
+  const pointsDisplay = isAuthenticated
+    ? (currentPoints ?? 0).toLocaleString('en-US')
+    : '--'
 
   const { unreadCount } = useInboxCache(user?.id || '')
 
+  const loadPoints = useCallback(async (userId: string) => {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('user_points')
+      .select('current_points')
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (error) {
+      // 登录用户兜底显示 0，避免出现空态影响稳定性
+      setCurrentPoints(0)
+      return
+    }
+
+    setCurrentPoints(typeof data?.current_points === 'number' ? data.current_points : 0)
+  }, [])
+
   useEffect(() => {
+    if (hasPrefetchedRef.current) return
+
     const preloadRoutes = () => {
       PRELOAD_ROUTES.forEach(route => {
         if (route !== pathname) {
           router.prefetch(route)
         }
       })
+      hasPrefetchedRef.current = true
     }
 
     const timer = setTimeout(() => {
@@ -56,6 +83,29 @@ export function Sidebar({ user, profile }: SidebarProps) {
 
     return () => clearTimeout(timer)
   }, [router, pathname])
+
+  useEffect(() => {
+    if (!user?.id) {
+      setCurrentPoints(null)
+      return
+    }
+
+    void loadPoints(user.id)
+    // 不做固定二次请求；登录后的积分刷新由全局事件驱动。
+  }, [loadPoints, user?.id])
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    const handlePointsUpdated = () => {
+      void loadPoints(user.id)
+    }
+
+    window.addEventListener('user-points-updated', handlePointsUpdated)
+    return () => {
+      window.removeEventListener('user-points-updated', handlePointsUpdated)
+    }
+  }, [loadPoints, user?.id])
 
   const activeNav = useMemo(() => {
     const normalizedPath = pathname === '/' ? '/home' : pathname
@@ -77,7 +127,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
   // 处理导航项点击
   const handleNavClick = (e: React.MouseEvent, item: NavigationItem) => {
     // 如果未登录且需要认证，显示提示但不跳转
-    if (!isAuthenticated && item.requireAuth) {
+    if (authState !== 'authenticated' && item.requireAuth) {
       e.preventDefault()
       setShowLoginTooltip(item.id)
       // 3秒后自动隐藏提示
@@ -89,7 +139,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
     <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-64 bg-white border-r border-xf-surface/30 z-40">
       {/* 用户资料区域 */}
       <div className="p-4 border-b border-xf-surface/30">
-        <UserProfileSection user={simpleUser} profile={profile} />
+        <UserProfileSection user={simpleUser} profile={profile} authState={authState} />
       </div>
 
       {/* 主导航 */}
@@ -126,7 +176,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
               {/* 登录提示 */}
               {showTooltip && (
                 <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-xf-dark text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
-                  请登录后使用此功能
+                  {authState === 'anonymous' ? '请登录后使用此功能' : '会话同步中，请稍候'}
                   <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-xf-dark"></div>
                 </div>
               )}
@@ -143,7 +193,7 @@ export function Sidebar({ user, profile }: SidebarProps) {
         >
           <Gift className="w-4 h-4" />
           <span>积分</span>
-          <span className="ml-auto text-xs text-xf-primary">1,107</span>
+          <span className="ml-auto text-xs text-xf-primary">{pointsDisplay}</span>
         </Link>
       </div>
 

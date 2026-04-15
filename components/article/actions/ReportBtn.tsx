@@ -10,7 +10,6 @@ import { Flag } from 'lucide-react'
 import { useState } from 'react'
 import type { ReportBtnProps } from '@/types'
 import { ReportMdl } from './ReportMdl'
-import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 举报按钮组件
@@ -27,14 +26,12 @@ import { useArticleToast } from '@/hooks/article/useArticleToast'
  */
 export function ReportBtn({ articleId, authorId, currentUser }: ReportBtnProps) {
   const [showModal, setShowModal] = useState(false)
-  const { showAuthRequired } = useArticleToast()
 
   /**
    * 处理点击举报
    */
   const handleClick = () => {
     if (!currentUser) {
-      showAuthRequired('举报违规内容')
       return
     }
     setShowModal(true)

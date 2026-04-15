@@ -20,12 +20,10 @@
  */
 
 import { useState } from 'react'
-import {
-  SettingsSection,
-  SettingItem,
-  LoginHistoryDialog,
-  useSettings,
-} from '@/components/settings'
+import { SettingsSection } from '../_layout/SettingsSection'
+import { SettingItem } from '../_layout/SettingItem'
+import { LoginHistoryDialog } from '../_dialogs/LoginHistoryDialog'
+import { useSettings } from '../_layout/SettingsLayout'
 import { PRIVACY_VISIBILITY_OPTIONS, PrivacyVisibility } from '@/types/user/settings'
 import { usePrivacySettings } from '@/hooks/settings/usePrivacySettings'
 

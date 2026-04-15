@@ -14,7 +14,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { NodeViewWrapper, NodeViewContent, NodeViewProps } from '@tiptap/react'
-import { DragHandle } from '../_core/DragHandle'
+import { GripVertical } from 'lucide-react'
 
 /**
  * 段落节点视图
@@ -89,5 +89,31 @@ export function ParaNodeView(props: NodeViewProps) {
         <NodeViewContent className="prose-p:my-0" />
       </div>
     </NodeViewWrapper>
+  )
+}
+
+function DragHandle({
+  visible,
+  onDragStart,
+  onDragEnd,
+}: {
+  visible: boolean
+  onDragStart: (e: React.DragEvent) => void
+  onDragEnd?: (e: React.DragEvent) => void
+}) {
+  return (
+    <div
+      className={`absolute -left-8 top-1/2 -translate-y-1/2 flex items-center justify-center
+                 w-6 h-8 rounded cursor-grab active:cursor-grabbing
+                 transition-all duration-200 z-10
+                 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      data-drag-handle
+      title="拖拽移动"
+    >
+      <GripVertical className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+    </div>
   )
 }

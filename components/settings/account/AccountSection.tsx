@@ -7,9 +7,8 @@
  */
 
 import { lazy, Suspense } from 'react'
-import { AccountList } from '@/components/settings'
-import { useAccountView } from './useAccountView'
-import { UserData } from '@/types/user/settings'
+import { AccountList } from './AccountList'
+import { AccountViewMode, UserData } from '@/types/user/settings'
 
 {/* 表单组件懒加载 - 减少首屏 JS 体积 */}
 const EditProfileForm = lazy(() => import('../_forms/EditProfileForm'))
@@ -37,6 +36,8 @@ function FormSkeleton() {
 
 interface AccountSectionProps {
   userData: UserData | null
+  viewMode: AccountViewMode
+  onViewChange: (view: AccountViewMode) => void
 }
 
 /**
@@ -44,9 +45,8 @@ interface AccountSectionProps {
  * @param props 组件属性
  * @returns 当前视图对应的组件
  */
-export function AccountSection({ userData }: AccountSectionProps) {
-  const { viewMode, toEditProfile, toSecurity, toChangeEmail, toLinkedAccounts, toList } =
-    useAccountView()
+export function AccountSection({ userData, viewMode, onViewChange }: AccountSectionProps) {
+  const toList = () => onViewChange('list')
 
   // 编辑个人资料视图
   if (viewMode === 'editProfile') {
@@ -96,10 +96,10 @@ export function AccountSection({ userData }: AccountSectionProps) {
   return (
     <AccountList
       email={userData?.email}
-      onEditProfile={toEditProfile}
-      onSecurity={toSecurity}
-      onChangeEmail={toChangeEmail}
-      onLinkedAccounts={toLinkedAccounts}
+      onEditProfile={() => onViewChange('editProfile')}
+      onSecurity={() => onViewChange('security')}
+      onChangeEmail={() => onViewChange('changeEmail')}
+      onLinkedAccounts={() => onViewChange('linkedAccounts')}
     />
   )
 }

@@ -21,6 +21,13 @@ import { getSafeDisplayName, normalizeAvatarUrl } from '@/lib/user/avatar'
  */
 export type { UserProfile }
 
+export interface CurrentProfileDetails {
+  username: string | null
+  avatar_url: string | null
+  bio: string | null
+  location: string | null
+}
+
 /**
  * 判断是否为匿名用户访问的正常错误
  * 这些错误不应输出到控制台
@@ -101,6 +108,32 @@ export const getCurrentUserId = cache(async (): Promise<string | null> => {
 })
 
 /**
+ * 获取当前用户的资料详情（profiles 表）
+ *
+ * @description
+ * - 统一 profile 数据源，供 layout / page 复用
+ * - 使用 cache() 避免同请求内重复查询 profiles
+ */
+export const getCurrentProfileDetails = cache(async (): Promise<CurrentProfileDetails | null> => {
+  const user = await getCurrentUser()
+  if (!user) return null
+
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('username, avatar_url, bio, location')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  return {
+    username: data?.username ?? null,
+    avatar_url: data?.avatar_url ?? null,
+    bio: data?.bio ?? null,
+    location: data?.location ?? null,
+  }
+})
+
+/**
  * 获取当前用户及资料信息（包含profiles表数据）
  *
  * @description 同时获取auth用户信息和profiles表资料
@@ -121,15 +154,7 @@ export const getCurrentUserWithProfile = cache(async (): Promise<UserProfile | n
   if (!user) {
     return null
   }
-
-  const supabase = await createClient()
-
-  // 从profiles表获取用户资料
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, avatar_url')
-    .eq('id', user.id)
-    .single()
+  const profile = await getCurrentProfileDetails()
 
   return {
     id: user.id,

@@ -74,5 +74,14 @@ npm install
 # 配置环境变量
 # 复制 .env.local.example 为 .env.local，并填入 Supabase 凭据
 
+# 必填变量（见 .env.local.example）
+# NEXT_PUBLIC_SUPABASE_URL=
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=
+# NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# 可选变量
+# NEXT_PUBLIC_ENABLE_CONTENT_PROTECTION=true
+# DISABLE_FORCE_HTTPS_REDIRECT=0
+
 # 启动开发服务器
 npm run dev

@@ -3,7 +3,6 @@
 import { useRef } from 'react'
 import { Send, Loader2 } from '@/components/icons'
 import type { CommentFormProps } from '@/types'
-import { useArticleToast } from '@/hooks/article/useArticleToast'
 
 /**
  * 评论表单组件
@@ -19,12 +18,10 @@ export function CommentForm({
   disabled = false,
 }: CommentFormProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { showAuthRequired } = useArticleToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!currentUser) {
-      showAuthRequired('发表评论')
       return
     }
 
@@ -43,7 +40,7 @@ export function CommentForm({
         <textarea
           ref={textareaRef}
           className="comment-input"
-          placeholder={currentUser ? '写下你的评论...' : '请先登录后评论'}
+          placeholder="写下你的评论..."
           rows={1}
           maxLength={500}
           disabled={!currentUser || disabled}

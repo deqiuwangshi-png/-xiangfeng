@@ -40,7 +40,6 @@ components/settings/
 ├── account/                    # 账户设置
 │   ├── AccountSection.tsx      # 账户设置区块（视图路由）
 │   ├── AccountList.tsx         # 账户设置列表
-│   └── useAccountView.ts       # 账户视图状态管理
 ├── sections/                   # 其他设置区块
 │   ├── PrivacySection.tsx      # 隐私与安全设置
 │   ├── NotificationsSection.tsx # 通知设置
@@ -63,7 +62,7 @@ components/settings/
 
 **功能**:
 - 标签页状态管理（account, privacy, notifications, appearance, content, advanced）
-- URL 查询参数同步
+- URL 查询参数同步（主视图 `tab` + 账户子视图 `view`）
 - 浏览器前进/后退支持
 - SettingsContext 数据共享
 
@@ -226,10 +225,11 @@ components/settings/
 
 **位置**: `account/AccountSection.tsx`
 
-**职责**: 账户设置页面的视图路由器，负责视图切换
+**职责**: 账户设置页面的视图路由器，负责基于 URL 的视图切换
 
 **功能**:
 - 视图状态管理（list, editProfile, security, changeEmail, linkedAccounts）
+- 通过 URL `?tab=account&view=...` 驱动视图
 - 表单组件懒加载
 - 骨架屏加载状态
 
@@ -242,7 +242,11 @@ components/settings/
 
 **使用示例**:
 ```tsx
-<AccountSection userData={userData} />
+<AccountSection
+  userData={userData}
+  viewMode={accountView}
+  onViewChange={handleAccountViewChange}
+/>
 ```
 
 #### 10. AccountList（账户设置列表）
@@ -266,22 +270,6 @@ components/settings/
   onChangeEmail={toChangeEmail}
   onLinkedAccounts={toLinkedAccounts}
 />
-```
-
-#### 11. useAccountView（账户视图状态管理）
-
-**位置**: `account/useAccountView.ts`
-
-**职责**: 管理账户设置的视图状态
-
-**功能**:
-- 视图状态切换
-- URL 参数同步
-- 历史记录管理
-
-**使用示例**:
-```tsx
-const { viewMode, toEditProfile, toSecurity, toList } = useAccountView()
 ```
 
 ### 设置区块组件
@@ -534,9 +522,14 @@ SettingsPage (Server Component)
 
 ### 3. 状态管理
 - 使用 Context 共享服务端数据
-- 本地状态优先响应
+- 页面视图以 URL 查询参数为唯一真源（`tab` / `view`）
 - 保存失败时回滚状态
 - 使用 useTransition 处理异步操作
+
+### 5. 导入规范（防冗余）
+- `components/settings` 目录**内部**禁止 `@/components/settings` 桶文件自引用导入
+- 目录内部统一使用相对路径导入（如 `../_layout/SettingsSection`）
+- `components/settings/index.ts` 仅供目录**外部**使用
 
 ### 4. 用户体验
 - 即时反馈
@@ -600,4 +593,4 @@ Server Action 调用
 
 ## 更新时间
 
-2026-03-29
+2026-04-15

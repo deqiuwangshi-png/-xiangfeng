@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { getCurrentUserWithProfile } from '@/lib/auth/server'
 import { AppShell } from '@/components/app'
+import { AuthRequiredContent } from '@/components/auth'
 import { routeRequiresAuth } from '@/config/navigation'
 import '@/styles/app.css'
 import '@/styles/user.css'
@@ -21,7 +21,14 @@ export default async function MainLayout({
   const isAuthRequired = routeRequiresAuth(pathname)
 
   if (isAuthRequired && !profile) {
-    redirect('/')
+    return (
+      <AppShell>
+        <AuthRequiredContent
+          title="需要登录"
+          description="登录后即可访问此页面"
+        />
+      </AppShell>
+    )
   }
 
   return (

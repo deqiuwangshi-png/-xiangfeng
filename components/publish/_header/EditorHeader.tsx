@@ -2,7 +2,8 @@
 
 import { Save, Send, Loader2, Maximize, Minimize } from '@/components/icons'
 import { cn } from '@/lib/utils/utils'
-import type { ReactNode } from 'react'
+import type { SaveStatus as SaveStatusType } from '@/types/publish/editor'
+import { Check, AlertCircle } from 'lucide-react'
 
 interface EditorHeaderProps {
   onSaveDraft: () => void
@@ -12,7 +13,9 @@ interface EditorHeaderProps {
   isFullscreen?: boolean
   onToggleFullscreen?: () => void
   className?: string
-  saveStatusComponent?: ReactNode
+  saveStatus?: SaveStatusType
+  lastSavedAt?: Date | null
+  errorMessage?: string | null
 }
 
 export function EditorHeader({
@@ -23,7 +26,9 @@ export function EditorHeader({
   isFullscreen = false,
   onToggleFullscreen,
   className,
-  saveStatusComponent
+  saveStatus = 'idle',
+  lastSavedAt = null,
+  errorMessage = null,
 }: EditorHeaderProps) {
   return (
     <header className={cn("sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shrink-0", className)}>
@@ -43,12 +48,13 @@ export function EditorHeader({
               <span className="hidden sm:inline">{isSaving ? '保存中...' : '保存文章'}</span>
             </button>
 
-            {/* 保存状态指示器 */}
-            {saveStatusComponent && (
-              <div className="hidden sm:block">
-                {saveStatusComponent}
-              </div>
-            )}
+            <div className="hidden sm:block">
+              <SaveStatusChip
+                status={saveStatus}
+                lastSavedAt={lastSavedAt}
+                errorMessage={errorMessage}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -84,5 +90,82 @@ export function EditorHeader({
         </div>
       </div>
     </header>
+  )
+}
+
+function formatSavedTime(date: Date | null): string {
+  if (!date) return ''
+
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+
+  if (diff < 60000) return '刚刚'
+  if (diff < 3600000) {
+    const minutes = Math.floor(diff / 60000)
+    return `${minutes}分钟前`
+  }
+  const hours = Math.floor(diff / 3600000)
+  return `${hours}小时前`
+}
+
+function SaveStatusChip({
+  status,
+  lastSavedAt,
+  errorMessage,
+}: {
+  status: SaveStatusType
+  lastSavedAt: Date | null
+  errorMessage?: string | null
+}) {
+  if (status === 'idle' && !lastSavedAt) {
+    return null
+  }
+
+  const config = {
+    idle: {
+      icon: Check,
+      text: lastSavedAt ? `已保存 ${formatSavedTime(lastSavedAt)}` : '',
+      className: 'text-green-600 bg-green-50',
+      show: !!lastSavedAt,
+    },
+    saving: {
+      icon: Save,
+      text: '保存中...',
+      className: 'text-blue-600 bg-blue-50 animate-pulse',
+      show: true,
+    },
+    saved: {
+      icon: Check,
+      text: `已保存 ${formatSavedTime(lastSavedAt)}`,
+      className: 'text-green-600 bg-green-50',
+      show: true,
+    },
+    error: {
+      icon: AlertCircle,
+      text: errorMessage || '保存失败',
+      className: 'text-red-600 bg-red-50',
+      show: true,
+    },
+  } as const
+
+  const current = config[status]
+  if (!current.show) {
+    return null
+  }
+
+  const Icon = current.icon
+  return (
+    <div
+      className={`
+        flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+        transition-all duration-300 ease-in-out
+        ${current.className}
+      `}
+      role="status"
+      aria-live="polite"
+    >
+      <Icon className={`w-3.5 h-3.5 ${status === 'saving' ? 'animate-spin' : ''}`} />
+      <span>{current.text}</span>
+    </div>
   )
 }

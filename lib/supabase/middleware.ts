@@ -77,6 +77,12 @@ export async function updateSession(request: NextRequest) {
   // 创建基础响应对象（附带 x-pathname，供 (main)/layout 等做路由级鉴权）
   let supabaseResponse = nextWithPathname(request)
 
+  // 路由分级：仅认证页面需要中间件级 getUser() 以处理“已登录访问登录页”的重定向
+  // 其他路径交由页面层鉴权，减少每请求都触发 getUser() 的强依赖
+  if (!isAuthRoute) {
+    return supabaseResponse
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
