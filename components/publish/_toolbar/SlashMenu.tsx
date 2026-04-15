@@ -11,6 +11,7 @@ import {
   Bold, Italic, Underline, Heading1, Heading2, Quote, Code,
   List, ListOrdered, Minus
 } from '@/components/icons'
+import { runEditorCommand, type EditorCommandId } from './editorCommands'
 
 interface SlashMenuProps {
   editor: Editor | null
@@ -21,7 +22,7 @@ interface CommandItem {
   label: string
   icon: React.ElementType
   shortcut?: string
-  action: () => void
+  command: EditorCommandId
 }
 
 /**
@@ -47,69 +48,69 @@ export function SlashMenu({ editor }: SlashMenuProps) {
         label: '大标题',
         icon: Heading1,
         shortcut: '#',
-        action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+        command: 'heading1',
       },
       {
         id: 'heading2',
         label: '小标题',
         icon: Heading2,
         shortcut: '##',
-        action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+        command: 'heading2',
       },
       {
         id: 'bold',
         label: '加粗',
         icon: Bold,
         shortcut: 'Ctrl+B',
-        action: () => editor.chain().focus().toggleBold().run(),
+        command: 'bold',
       },
       {
         id: 'italic',
         label: '斜体',
         icon: Italic,
         shortcut: 'Ctrl+I',
-        action: () => editor.chain().focus().toggleItalic().run(),
+        command: 'italic',
       },
       {
         id: 'underline',
         label: '下划线',
         icon: Underline,
-        action: () => editor.chain().focus().toggleUnderline().run(),
+        command: 'underline',
       },
       {
         id: 'bulletList',
         label: '无序列表',
         icon: List,
         shortcut: '-',
-        action: () => editor.chain().focus().toggleBulletList().run(),
+        command: 'bulletList',
       },
       {
         id: 'orderedList',
         label: '有序列表',
         icon: ListOrdered,
         shortcut: '1.',
-        action: () => editor.chain().focus().toggleOrderedList().run(),
+        command: 'orderedList',
       },
       {
         id: 'blockquote',
         label: '引用',
         icon: Quote,
         shortcut: '>',
-        action: () => editor.chain().focus().toggleBlockquote().run(),
+        command: 'quote',
       },
       {
         id: 'code',
         label: '行内代码',
         icon: Code,
         shortcut: '`',
-        action: () => editor.chain().focus().toggleCode().run(),
+        command: 'code',
       },
       {
         id: 'horizontalRule',
         label: '分割线',
         icon: Minus,
         shortcut: '---',
-        action: () => editor.chain().focus().setHorizontalRule().run(),
+        command: 'hr',
       },
     ]
 
@@ -169,7 +170,7 @@ export function SlashMenu({ editor }: SlashMenuProps) {
   /**
    * 执行命令
    */
-  const executeCommand = useCallback(async (index: number) => {
+  const executeCommand = useCallback((index: number) => {
     const command = commands[index]
     if (command) {
       editor?.chain().focus().deleteRange({
@@ -177,7 +178,7 @@ export function SlashMenu({ editor }: SlashMenuProps) {
         to: editor.state.selection.from,
       }).run()
 
-      await command.action()
+      runEditorCommand(editor, command.command)
       hideMenu()
     }
   }, [commands, editor, hideMenu, query.length])

@@ -20,7 +20,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { withAuth } from '@/lib/auth/server';
-import { checkLikeArticleTask } from '@/lib/rewards/tasks';
 import { ARTICLE_INTERACTION_MESSAGES, COMMENT_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 import type { ToggleLikeResult, ToggleCommentLikeResult } from '@/types';
 
@@ -93,13 +92,6 @@ async function setArticleLikeInternal(
       } else {
         liked = true
       }
-    }
-
-    if (liked) {
-      Promise.resolve().then(async () => {
-        const ok = await checkLikeArticleTask()
-        if (!ok) console.warn('[任务系统] 点赞文章任务进度更新失败，不影响点赞操作')
-      })
     }
 
     const { data: articleData } = await supabase

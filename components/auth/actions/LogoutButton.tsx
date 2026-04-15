@@ -35,7 +35,7 @@ export function LogoutButton({
     try {
       await logout()
       onSuccess?.()
-      router.push('/login')
+      router.refresh()
     } finally {
       setIsLoading(false)
     }

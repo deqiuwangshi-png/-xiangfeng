@@ -28,7 +28,7 @@ export function MoreActions({
   const [showReportModal, setShowReportModal] = useState(false)
   const [shared, setShared] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const { showCopySuccess, showAuthRequired } = useArticleToast()
+  const { showCopySuccess } = useArticleToast()
 
   /**
    * 点击外部关闭菜单
@@ -74,7 +74,6 @@ export function MoreActions({
    */
   const handleBookmark = () => {
     if (!currentUser) {
-      showAuthRequired('收藏文章')
       setIsOpen(false)
       return
     }
@@ -87,7 +86,6 @@ export function MoreActions({
    */
   const handleReport = () => {
     if (!currentUser) {
-      showAuthRequired('举报')
       setIsOpen(false)
       return
     }

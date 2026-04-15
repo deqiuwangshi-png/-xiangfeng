@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvt } from '@/components/ui'
@@ -23,6 +23,8 @@ interface UserProfileSectionProps {
   user?: SupabaseUser | SimpleUser | null
   /** 用户资料（支持SimpleUserProfile或完整UserProfile） */
   profile?: SimpleUserProfile | UserProfile | null
+  /** 认证状态 */
+  authState?: 'anonymous' | 'syncing' | 'authenticated'
   /** 额外的CSS类名 */
   className?: string
 }
@@ -36,9 +38,15 @@ interface UserProfileSectionProps {
  * @example
  * <UserProfileSection user={currentUser} />
  */
-export function UserProfileSection({ user, profile, className = '' }: UserProfileSectionProps) {
+export function UserProfileSection({
+  user,
+  profile,
+  authState = 'anonymous',
+  className = '',
+}: UserProfileSectionProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const router = useRouter()
+  const avatarButtonRef = useRef<HTMLButtonElement | null>(null)
 
   /**
    * 切换下拉菜单
@@ -68,7 +76,8 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
    * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
    * 匿名用户显示访客信息
    */
-  const isAuthenticated = !!user && !!user.id
+  const isAuthenticated = authState === 'authenticated' && !!user && !!user.id
+  const isSyncing = authState === 'syncing'
   const userId = user?.id || 'guest'
   const userEmail = user?.email || ''
   const userName = isAuthenticated
@@ -76,7 +85,9 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
         profile?.username || user?.user_metadata?.username || (userEmail ? userEmail.split('@')[0] : undefined),
         '用户'
       )
-    : '访客'
+    : isSyncing
+      ? '同步中'
+      : '访客'
   const avatarUrl = isAuthenticated
     ? resolveAvatarUrl(profile?.avatar_url, user?.user_metadata?.avatar_url)
     : undefined
@@ -89,7 +100,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
         onMouseEnter={handleMouseEnter}
       >
         <button
-          id="user-avatar-button"
+          ref={avatarButtonRef}
           onClick={toggleDropdown}
           className="relative cursor-pointer"
           aria-label="用户菜单"
@@ -114,7 +125,7 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
             {userName}
           </div>
           <div className="text-xs text-xf-primary">
-            {isAuthenticated ? '免费版' : '点击登录'}
+            {isAuthenticated ? '免费版' : isSyncing ? '会话同步中' : '点击登录'}
           </div>
         </div>
       </div>
@@ -122,8 +133,10 @@ export function UserProfileSection({ user, profile, className = '' }: UserProfil
       {/* 下拉菜单 */}
       <UserDropdownMenu
         user={user}
+        authState={authState}
         isOpen={isDropdownOpen}
         onClose={closeDropdown}
+        triggerRef={avatarButtonRef}
       />
     </div>
   )

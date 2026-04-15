@@ -1,57 +1,14 @@
-/**
- * 福利中心 Actions 统一导出
- * @module lib/rewards/actions
- */
-
-// 积分系统
 export {
-  getUserPointsOverview,
+  getActivePlans,
+  getActiveSubscription,
   getPointTransactions,
-  getExpiringPoints,
-  addPoints,
-} from './points'
+  getPointsOverview,
+  grantDailySubscriptionPoints,
+  type SubscriptionPlan,
+  type PointTransactionItem,
+  type PointsOverview,
+  type DailyGrantResult,
+} from './queries'
 
-// 签到系统
-export {
-  getTodaySignInStatus,
-  performSignIn,
-  getSignInHistory,
-  getSignInRewardsConfig,
-  getSignInNonce,
-} from './signin'
+export { claimDailySubscriptionPointsAction } from './actions'
 
-// 任务系统
-export {
-  getTasks,
-  getUserTaskProgress,
-  updateTaskProgress,
-  claimTaskReward,
-  acceptTask,
-  getTaskCenterData,
-  checkReadArticleTask,
-  checkPublishArticleTask,
-  checkPublishIdeaTask,
-  checkLikeArticleTask,
-  checkCommentArticleTask,
-  checkFollowUserTask,
-  checkCollectArticleTask,
-} from './tasks'
-
-// 商城系统
-export {
-  getShopItems,
-  getShopItemDetail,
-  exchangeItem,
-  getExchangeRecords,
-  getExchangeDetail,
-  useCoupon,
-  checkCanExchange,
-} from './shop'
-
-// ExchangeRecordWithItem 类型已从 types/rewards 导出
-
-// 打赏系统
-export {
-  rewardArticle,
-  getRewardNonce,
-} from './reward'

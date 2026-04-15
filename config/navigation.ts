@@ -1,6 +1,6 @@
 import type { OAuthProvider } from '@/types/auth/oauth'
 
-export type NavigationIconKey = 'home' | 'publish' | 'drafts' | 'inbox' | 'rewards'
+export type NavigationIconKey = 'home' | 'publish' | 'drafts' | 'inbox'
 
 export interface NavigationItem {
   id: string
@@ -17,24 +17,32 @@ export const MAIN_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'publish', label: '发布', href: '/publish', icon: 'publish', requireAuth: true, showOnDesktop: true, showOnMobile: true },
   { id: 'drafts', label: '文章', href: '/drafts', icon: 'drafts', requireAuth: true, showOnDesktop: true, showOnMobile: true },
   { id: 'inbox', label: '通知', href: '/inbox', icon: 'inbox', requireAuth: true, showOnDesktop: true, showOnMobile: true },
-  { id: 'rewards', label: '福利', href: '/rewards', icon: 'rewards', requireAuth: true, showOnDesktop: true, showOnMobile: true },
 ]
 
-export const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
+export const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile', '/rewards']
 
-const EXTRA_PROTECTED_ROUTES = ['/settings', '/updates', '/profile']
+const EXTRA_PROTECTED_PREFIX_ROUTES = ['/settings', '/updates', '/rewards']
+const EXTRA_PROTECTED_EXACT_ROUTES = ['/profile']
 
 export const AUTH_REQUIRED_ROUTE_PREFIXES = Array.from(
   new Set([
     ...MAIN_NAVIGATION_ITEMS
       .filter((item) => item.requireAuth)
       .map((item) => item.href),
-    ...EXTRA_PROTECTED_ROUTES,
+    ...EXTRA_PROTECTED_PREFIX_ROUTES,
   ])
+)
+
+export const AUTH_REQUIRED_EXACT_ROUTES = Array.from(
+  new Set(EXTRA_PROTECTED_EXACT_ROUTES)
 )
 
 export function routeRequiresAuth(pathname: string): boolean {
   const normalizedPath = pathname.replace(/\/$/, '') || '/'
+  if (AUTH_REQUIRED_EXACT_ROUTES.includes(normalizedPath)) {
+    return true
+  }
+
   return AUTH_REQUIRED_ROUTE_PREFIXES.some((route) =>
     normalizedPath === route || normalizedPath.startsWith(`${route}/`)
   )

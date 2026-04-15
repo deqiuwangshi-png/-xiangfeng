@@ -84,7 +84,7 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
   const safeBio = escapeHtml(user.bio)
 
   return (
-    <div className="bg-white border border-xf-bg/60 rounded-xl p-4 sm:p-5 mb-4">
+    <div className="bg-white border border-xf-surface/55 rounded-xl p-4 sm:p-5 mb-4 shadow-sm">
       {/* 横向窄条：头像+用户名+操作按钮 */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">

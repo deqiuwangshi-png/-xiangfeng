@@ -17,6 +17,7 @@ export interface UseAuthReturn {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
+  canRunAuthenticatedActions: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
@@ -28,7 +29,7 @@ export interface UseAuthReturn {
  */
 export function useAuth(): UseAuthReturn {
   const router = useRouter()
-  const { user, isLoading } = useAuthContext()
+  const { user, isLoading, canRunAuthenticatedActions } = useAuthContext()
 
   /**
    * 用户登录
@@ -56,7 +57,7 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(async () => {
     try {
       await logoutAction()
-      router.push('/login')
+      router.refresh()
     } catch (error) {
       console.error('logout failed', error)
     }
@@ -74,6 +75,7 @@ export function useAuth(): UseAuthReturn {
     user,
     isLoading,
     isAuthenticated: !!user,
+    canRunAuthenticatedActions,
     login,
     logout,
     refreshUser,

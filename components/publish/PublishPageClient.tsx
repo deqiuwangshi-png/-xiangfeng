@@ -121,9 +121,7 @@ export default function PublishPageClient() {
   }, [editId])
 
   // 加载中状态
-  if (isLoading) {
-    return <EditorSkeleton />
-  }
+  const shouldShowSkeleton = isLoading || !initialData
 
   // 错误状态
   if (error) {
@@ -144,8 +142,7 @@ export default function PublishPageClient() {
     )
   }
 
-  // 数据未准备好
-  if (!initialData) {
+  if (shouldShowSkeleton) {
     return <EditorSkeleton />
   }
 

@@ -19,7 +19,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { withAuth } from '@/lib/auth/server';
-import { checkCollectArticleTask } from '@/lib/rewards/tasks';
 import { isValidUUID } from '../helpers/utils';
 import { ARTICLE_ERROR_MESSAGES, ARTICLE_INTERACTION_MESSAGES, COMMON_ERRORS } from '@/lib/messages';
 
@@ -111,19 +110,6 @@ async function setArticleBookmarkInternal(
       } else {
         favorited = true
       }
-    }
-
-    if (favorited) {
-      setImmediate(async () => {
-        try {
-          const taskSuccess = await checkCollectArticleTask();
-          if (!taskSuccess) {
-            console.warn('[任务系统] 收藏文章任务进度更新失败，不影响收藏操作');
-          }
-        } catch (taskError) {
-          console.warn('[任务系统] 任务检测异常:', taskError);
-        }
-      });
     }
 
     const { data: articleData } = await supabase

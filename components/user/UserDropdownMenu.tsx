@@ -7,7 +7,7 @@
 'use client'
 
 import { User, Newspaper, MessageSquare, Settings, LogOut, LogIn } from 'lucide-react'
-import { useMemo, useEffect, useCallback, useState } from 'react'
+import { useMemo, useEffect, useCallback, useState, type RefObject, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -17,21 +17,31 @@ import type { SimpleUser, DropdownItem } from '@/types'
 
 interface UserDropdownMenuProps {
   user?: SupabaseUser | SimpleUser | null
+  authState?: 'anonymous' | 'syncing' | 'authenticated'
   isOpen: boolean
   onClose: () => void
   className?: string
+  triggerRef?: RefObject<HTMLElement | null>
 }
 
-export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: UserDropdownMenuProps) {
+export function UserDropdownMenu({
+  user,
+  authState = 'anonymous',
+  isOpen,
+  onClose,
+  className = '',
+  triggerRef,
+}: UserDropdownMenuProps) {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const isAuthenticated = !!user
+  const isAuthenticated = authState === 'authenticated' && !!user
+  const menuRef = useRef<HTMLDivElement | null>(null)
 
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true)
     try {
       await logout()
-      router.push('/login')
+      router.refresh()
     } finally {
       setIsLoggingOut(false)
     }
@@ -43,6 +53,12 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
   }, [handleLogout, onClose])
 
   const menuItems: DropdownItem[] = useMemo(() => {
+    if (authState === 'syncing') {
+      return [
+        { label: '会话同步中...', icon: User },
+      ]
+    }
+
     // 匿名用户只显示去登录
     if (!isAuthenticated) {
       return [
@@ -62,16 +78,16 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
         onClick: handleLogoutWithClose
       },
     ]
-  }, [isAuthenticated, isLoggingOut, handleLogoutWithClose])
+  }, [authState, isAuthenticated, isLoggingOut, handleLogoutWithClose])
 
   useEffect(() => {
     if (!isOpen) return
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
-      const dropdown = document.getElementById('user-dropdown-menu')
-      const avatarButton = document.getElementById('user-avatar-button')
-      
+      const dropdown = menuRef.current
+      const avatarButton = triggerRef?.current
+
       if (dropdown && !dropdown.contains(target) && !avatarButton?.contains(target)) {
         onClose()
       }
@@ -85,7 +101,7 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
 
   return (
     <div
-      id="user-dropdown-menu"
+      ref={menuRef}
       className={`absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-lg z-50 ${className}`}
     >
       <div className="py-1">
@@ -123,11 +139,23 @@ export function UserDropdownMenu({ user, isOpen, onClose, className = '' }: User
               </button>
             )
           }
+
+          if (!item.href) {
+            return (
+              <div
+                key={index}
+                className="flex items-center px-4 py-2 text-sm text-gray-500 cursor-default"
+              >
+                <Icon className="mr-3 h-4 w-4" />
+                {item.label}
+              </div>
+            )
+          }
           
           return (
             <Link
               key={index}
-              href={item.href || '#'}
+              href={item.href}
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={onClose}
             >

@@ -52,6 +52,6 @@ export type {
 } from '@/types';
 export { MAX_COMMENTS_WITHOUT_LOGIN } from '@/types';
 
-// RW - 打赏组件
-export { RwMd } from './rw/RwMd';
-export { PtRw } from './rw/PtRw';
+// RW - 打赏组件（已移除积分系统）
+// export { RwMd } from './rw/RwMd';
+// export { PtRw } from './rw/PtRw';

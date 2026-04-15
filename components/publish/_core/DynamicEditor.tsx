@@ -13,7 +13,6 @@ import { useAutoSave } from '@/hooks/publish/useAutoSave'
 import { useTipTapEditor } from '@/hooks/publish/useTipTapEditor'
 import { EditorHeader } from '../_header/EditorHeader'
 import { EditorCard } from '../_core/EditorCard'
-import { SaveStatus } from '../_core/SaveStatus'
 import { BubbleMenu } from '../_toolbar/BubbleMenu'
 import { SlashMenu } from '../_toolbar/SlashMenu'
 
@@ -136,13 +135,9 @@ export default function DynamicEditor({
         isPublishing={isPublishing}
         isFullscreen={baseState.isFullscreen}
         onToggleFullscreen={baseState.toggleFullscreen}
-        saveStatusComponent={(
-          <SaveStatus
-            status={autoSave.saveStatus}
-            lastSavedAt={autoSave.lastSavedAt || baseState.lastSavedAt}
-            errorMessage={autoSave.errorMessage}
-          />
-        )}
+        saveStatus={autoSave.saveStatus}
+        lastSavedAt={autoSave.lastSavedAt || baseState.lastSavedAt}
+        errorMessage={autoSave.errorMessage}
       />
 
       <div className={`flex-1 overflow-auto mx-auto w-full py-6 sm:py-8 md:py-12 pb-24 sm:pb-32 fade-in ${

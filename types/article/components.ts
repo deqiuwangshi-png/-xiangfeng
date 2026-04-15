@@ -253,20 +253,6 @@ export interface RwMdProps extends ArticleActionBaseProps {
 }
 
 /**
- * 积分打赏面板 Props 接口
- * @interface PtRwProps
- * @description 积分打赏面板组件(PtRw)的属性
- */
-export interface PtRwProps {
-  /** 文章ID */
-  articleId: string;
-  /** 作者ID */
-  authorId: string;
-  /** 打赏成功回调 */
-  onSuccess?: () => void;
-}
-
-/**
  * 登录提示 Props 接口
  * @interface LoginPromptProps
  * @description 登录提示组件的属性
