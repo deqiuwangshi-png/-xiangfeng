@@ -153,6 +153,8 @@ export function useProfileForm({
       }
 
       tempAvatarUrl.current = result.url
+      // 立即同步到表单态，确保前端可见最新头像预览
+      setFormData(prev => ({ ...prev, avatar_url: result.url! }))
       toast.success('头像已上传，点击保存后生效', { id: toastId })
     } catch (err) {
       const message = err instanceof Error ? err.message : '头像上传失败，请稍后重试'
@@ -208,6 +210,16 @@ export function useProfileForm({
 
         originalAvatarUrl.current = finalAvatarUrl
         tempAvatarUrl.current = null
+
+        // 通知全局资料消费者（如 Sidebar/AuthProvider）刷新头像与用户名
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('user-profile-updated', {
+            detail: {
+              username: formData.username,
+              avatar_url: finalAvatarUrl || '',
+            },
+          }))
+        }
 
         onSave?.()
         return true

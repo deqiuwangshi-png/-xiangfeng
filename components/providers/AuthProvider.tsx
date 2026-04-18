@@ -26,6 +26,11 @@ interface AuthContextValue {
   canRunAuthenticatedActions: boolean
 }
 
+interface UserProfileUpdatedDetail {
+  username?: string
+  avatar_url?: string
+}
+
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -141,7 +146,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    const handleProfileUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<UserProfileUpdatedDetail>
+      const detail = customEvent.detail || {}
+
+      setProfile((prev) => ({
+        username: detail.username || prev?.username || undefined,
+        avatar_url: detail.avatar_url || prev?.avatar_url || undefined,
+      }))
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('user-profile-updated', handleProfileUpdated as EventListener)
+    }
+
+    return () => {
+      subscription.unsubscribe()
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('user-profile-updated', handleProfileUpdated as EventListener)
+      }
+    }
   }, [])
 
   const contextValue = useMemo<AuthContextValue>(() => ({
