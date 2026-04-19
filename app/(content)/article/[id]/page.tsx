@@ -35,16 +35,107 @@ const getCachedComments = cache(async (articleId: string, page: number, limit: n
 });
 
 function buildSafePreviewContent(content: string, maxLength: number = 1200): string {
-  const plainText = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-  const clipped = plainText.slice(0, maxLength)
-  const escaped = clipped
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+  // 保留HTML标签，只截断文本内容
+  let currentLength = 0;
+  let result = '';
+  let inTag = false;
+  let tagBuffer = '';
+  let textBuffer = '';
+  const tagStack: string[] = [];
 
-  return `<p>${escaped}</p>`
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+
+    // 处理标签
+    if (char === '<') {
+      // 先处理累积的文本
+      if (textBuffer) {
+        const remaining = maxLength - currentLength;
+        if (remaining <= 0) break;
+
+        if (textBuffer.length <= remaining) {
+          result += textBuffer;
+          currentLength += textBuffer.length;
+        } else {
+          // 需要截断文本
+          let truncatedText = textBuffer.slice(0, remaining);
+
+          // 在语义边界截断（句号、逗号）
+          const lastPeriod = truncatedText.lastIndexOf('。');
+          const lastComma = truncatedText.lastIndexOf('，');
+          const boundaryIndex = Math.max(lastPeriod, lastComma);
+
+          if (boundaryIndex > remaining * 0.5) {
+            truncatedText = truncatedText.slice(0, boundaryIndex + 1);
+          }
+
+          result += truncatedText;
+          currentLength += truncatedText.length;
+
+          // 关闭所有未闭合的标签
+          while (tagStack.length > 0) {
+            const tag = tagStack.pop();
+            if (tag && !tag.includes('/')) {
+              result += `</${tag}>`;
+            }
+          }
+          break;
+        }
+        textBuffer = '';
+      }
+
+      inTag = true;
+      tagBuffer = char;
+      continue;
+    }
+
+    if (inTag) {
+      tagBuffer += char;
+
+      if (char === '>') {
+        inTag = false;
+        result += tagBuffer;
+
+        // 处理标签栈
+        const tagMatch = tagBuffer.match(/<\/?([a-z0-9]+)[^>]*>/i);
+        if (tagMatch) {
+          const tagName = tagMatch[1].toLowerCase();
+          if (tagBuffer.startsWith('</')) {
+            // 结束标签
+            const lastIndex = tagStack.lastIndexOf(tagName);
+            if (lastIndex !== -1) {
+              tagStack.splice(lastIndex, 1);
+            }
+          } else if (!tagBuffer.endsWith('/>') && !tagBuffer.includes('br')) {
+            // 开始标签（非自闭合）
+            tagStack.push(tagName);
+          }
+        }
+
+        tagBuffer = '';
+      }
+      continue;
+    }
+
+    // 累积文本
+    textBuffer += char;
+  }
+
+  // 处理剩余的文本
+  if (textBuffer && currentLength < maxLength) {
+    const remaining = maxLength - currentLength;
+    result += textBuffer.slice(0, remaining);
+  }
+
+  // 关闭所有未闭合的标签
+  while (tagStack.length > 0) {
+    const tag = tagStack.pop();
+    if (tag && !tag.includes('/')) {
+      result += `</${tag}>`;
+    }
+  }
+
+  return result;
 }
 
 /**

@@ -10,9 +10,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { register } from '@/lib/auth/client';
 import { PasswordInput } from '@/components/auth/ui/PasswordInput';
-import { PwdStrength } from '@/components/auth/ui/PwdStrength';
 import { OAuthButtons } from '@/components/auth/ui/OAuthButtons';
-import { validatePassword } from '@/lib/security/passwordPolicy';
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,16 +18,6 @@ export function RegisterForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  const passwordValidation = validatePassword(password);
-
-  const getPasswordStrengthColor = () => {
-    const { score } = passwordValidation;
-    if (score >= 4) return 'bg-green-500';
-    if (score >= 3) return 'bg-yellow-500';
-    if (score >= 2) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,8 +27,8 @@ export function RegisterForm() {
       return;
     }
 
-    if (!passwordValidation.valid) {
-      toast.error(passwordValidation.message || '密码不符合安全要求');
+    if (password.length < 8) {
+      toast.error('密码长度至少8位');
       return;
     }
 
@@ -122,10 +110,6 @@ export function RegisterForm() {
             required
             disabled={isLoading}
             minLength={8}
-          />
-          <PwdStrength
-            validation={passwordValidation}
-            strengthColor={getPasswordStrengthColor()}
           />
         </div>
 

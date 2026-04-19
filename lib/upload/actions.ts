@@ -129,6 +129,13 @@ export async function uploadAvatarAction(formData: FormData): Promise<AuthResult
       return { success: false, error: '未找到上传的文件' }
     }
 
+    // 🔍 打印文件信息到控制台（调试用）
+    console.log('=== 文件调试信息 ===')
+    console.log('file.name:', file.name)
+    console.log('file.type:', file.type)
+    console.log('file.size:', file.size, `(${Math.round(file.size / 1024)} KB)`)
+    console.log('====================')
+
     // 验证文件
     await validateAvatarFile(file)
 
@@ -172,6 +179,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<AuthResult
     return { success: false, error: message }
   }
 }
+
 
 /**
  * 删除旧头像（Server Action）

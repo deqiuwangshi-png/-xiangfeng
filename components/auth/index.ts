@@ -7,8 +7,7 @@
 export { AuthGuard } from './guards/AuthGuard';
 
 // Prompts - 认证提示组件
-export { AuthRequiredContent } from './prompts/AuthRequiredContent';
-export { UnauthenticatedPrompt } from './prompts/UnauthenticatedPrompt';
+export { AuthRequiredContent, UnauthenticatedPrompt } from './prompts/AuthRequiredContent';
 
 // Forms - 表单组件
 export { LoginForm } from './forms/LoginForm';
@@ -21,7 +20,6 @@ export { BrandSection } from './ui/BrandSection';
 export { MobileBrandTitle } from './ui/MobileBrandTitle';
 export { FormCard } from './ui/FormCard';
 export { PasswordInput } from './ui/PasswordInput';
-export { PwdStrength } from './ui/PwdStrength';
 export { OAuthButtons } from './ui/OAuthButtons';
 
 // Actions - 操作按钮组件

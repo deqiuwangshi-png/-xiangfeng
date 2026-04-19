@@ -186,15 +186,30 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
       </nav>
 
       {/* 积分 - 简化版 */}
-      <div className="px-4 pb-2">
+      <div className="px-4 pb-2 relative">
         <Link
           href="/rewards"
+          onClick={(e) => {
+            if (authState !== 'authenticated') {
+              e.preventDefault()
+              setShowLoginTooltip('rewards')
+              setTimeout(() => setShowLoginTooltip(null), 3000)
+            }
+          }}
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-xf-medium hover:bg-xf-light hover:text-xf-dark transition-colors"
         >
           <Gift className="w-4 h-4" />
           <span>积分</span>
           <span className="ml-auto text-xs text-xf-primary">{pointsDisplay}</span>
         </Link>
+        
+        {/* 登录提示 */}
+        {showLoginTooltip === 'rewards' && (
+          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-xf-dark text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
+            {authState === 'anonymous' ? '请登录后查看积分' : '会话同步中，请稍候'}
+            <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-xf-dark"></div>
+          </div>
+        )}
       </div>
 
       {/* 底部版权 */}
