@@ -33,17 +33,23 @@ interface SuggestedArticleRow {
   title: string;
   content: string | null;
   published_at: string | null;
-  author: {
-    username: string | null;
-  } | null;
+  author:
+    | {
+        username: string | null;
+      }
+    | Array<{
+        username: string | null;
+      }>
+    | null;
 }
 
 function mapSuggestedArticle(row: SuggestedArticleRow): SuggestedArticle {
+  const author = Array.isArray(row.author) ? row.author[0] : row.author;
   const textLength = (row.content || '').length;
   return {
     id: row.id,
     title: row.title,
-    authorName: row.author?.username || '匿名作者',
+    authorName: author?.username || '匿名作者',
     publishedAt: row.published_at,
     readTime: Math.max(1, Math.ceil(textLength / 500)),
   };
@@ -214,7 +220,7 @@ export async function getNextAndRandomArticles(
     .order('published_at', { ascending: false })
     .limit(RANDOM_POOL_LIMIT);
 
-  const availableRandom = ((randomPool || []) as SuggestedArticleRow[]).filter(
+  const availableRandom = ((randomPool || []) as unknown as SuggestedArticleRow[]).filter(
     (item) => !randomExclude.has(item.id)
   );
 
