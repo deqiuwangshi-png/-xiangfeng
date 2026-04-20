@@ -36,6 +36,31 @@ interface MarkdownFrontMatter {
   categories: string
 }
 
+function parseDateParts(dateStr: string): { year: number; month: number; day: number } {
+  const match = dateStr.trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!match) {
+    throw new Error(`日期格式无效: ${dateStr}，期望 YYYY-M-D 或 YYYY-MM-DD`);
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  return { year, month, day };
+}
+
+function toDisplayDate(dateStr: string): string {
+  const { year, month, day } = parseDateParts(dateStr);
+  return `${year}年${month}月${day}日`;
+}
+
+function toSortableTime(displayDate: string): number {
+  const match = displayDate.match(/^(\d{4})年(\d{1,2})月(\d{1,2})日$/);
+  if (!match) return 0;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  return new Date(year, month - 1, day).getTime();
+}
+
 /**
  * 解析Markdown文件内容
  * 
@@ -62,8 +87,7 @@ function parseMarkdownFile(content: string): VersionInfo {
     throw new Error(`Markdown文件缺少必需的front matter字段: version, title, date`)
   }
   
-  const dateObj = new Date(frontMatter.date)
-  const formattedDate = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`
+  const formattedDate = toDisplayDate(frontMatter.date)
   
   const categories: UpdateType[] = frontMatter.categories
     ? frontMatter.categories.split(',').map((c: string) => c.trim() as UpdateType)
@@ -150,7 +174,7 @@ function parseMarkdownUpdates(markdownBody: string): UpdateItem[] {
  * const updates = loadUpdatesFromMarkdown()
  */
 export function loadUpdatesFromMarkdown(): MonthlyUpdate[] {
-  const updatesDir = path.join(process.cwd(), 'content', 'updates')
+  const updatesDir = path.join(process.cwd(), 'content')
   
   if (!fs.existsSync(updatesDir)) {
     return []
@@ -174,9 +198,7 @@ export function loadUpdatesFromMarkdown(): MonthlyUpdate[] {
   }
   
   versions.sort((a, b) => {
-    const dateA = new Date(a.date.replace(/年/g, '-').replace(/月/g, '-').replace(/日/g, ''))
-    const dateB = new Date(b.date.replace(/年/g, '-').replace(/月/g, '-').replace(/日/g, ''))
-    return dateB.getTime() - dateA.getTime()
+    return toSortableTime(b.date) - toSortableTime(a.date)
   })
   
   const monthlyUpdates = groupUpdatesByMonth(versions)
@@ -203,9 +225,9 @@ function groupUpdatesByMonth(versions: VersionInfo[]): MonthlyUpdate[] {
   const monthMap = new Map<string, VersionInfo[]>()
   
   for (const version of versions) {
-    const dateObj = new Date(version.date.replace(/年/g, '-').replace(/月/g, '-').replace(/日/g, ''))
-    const year = dateObj.getFullYear()
-    const month = dateObj.getMonth() + 1
+    const match = version.date.match(/^(\d{4})年(\d{1,2})月(\d{1,2})日$/)
+    const year = match ? Number(match[1]) : 0
+    const month = match ? Number(match[2]) : 0
     
     const key = `${year}-${month}`
     
