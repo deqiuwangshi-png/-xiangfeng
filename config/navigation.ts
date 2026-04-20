@@ -19,9 +19,9 @@ export const MAIN_NAVIGATION_ITEMS: NavigationItem[] = [
   { id: 'inbox', label: '通知', href: '/inbox', icon: 'inbox', requireAuth: true, showOnDesktop: true, showOnMobile: true },
 ]
 
-export const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile', '/rewards']
+export const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
 
-const EXTRA_PROTECTED_PREFIX_ROUTES = ['/settings', '/updates', '/rewards']
+const EXTRA_PROTECTED_PREFIX_ROUTES = ['/settings', '/updates']
 const EXTRA_PROTECTED_EXACT_ROUTES = ['/profile']
 
 export const AUTH_REQUIRED_ROUTE_PREFIXES = Array.from(

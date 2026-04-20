@@ -67,15 +67,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     }
 
-    const grantDailyPointsOnLogin = async (userId: string) => {
-      await supabase.rpc('safe_grant_daily_subscription_points', {
-        p_user_id: userId,
-      })
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('user-points-updated'))
-      }
-    }
-
     const loadProfile = async (userId: string) => {
       try {
         const { data } = await supabase
@@ -137,9 +128,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false)
         if (currentUser?.id) {
           void loadProfile(currentUser.id)
-          if (event === 'SIGNED_IN') {
-            void grantDailyPointsOnLogin(currentUser.id)
-          }
         } else {
           setProfile(null)
         }

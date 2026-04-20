@@ -139,7 +139,7 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
         {/* 提示信息 */}
         <div className="bg-gray-50 rounded-lg p-3 mb-5">
           <p className="text-xs text-gray-600">
-            <span className="text-amber-600 font-medium">注意：</span>恶意举报将被扣除100积分。举报成功可获得100积分奖励。
+            <span className="text-amber-600 font-medium">注意：</span>请确保举报内容真实有效，恶意举报将受到处理。
           </p>
         </div>
 

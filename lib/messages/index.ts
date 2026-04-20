@@ -249,10 +249,8 @@ export const CONFIRM_MESSAGES = {
 export const ARTICLE_PAYWALL_MESSAGES = {
   PREMIUM_CONTENT: '此内容为付费内容',
   PURCHASE_PROMPT: '购买后即可阅读全文',
-  PRICE_DISPLAY: '价格：{price} 积分',
   PURCHASE_SUCCESS: '购买成功，现在可以阅读全文了',
   PURCHASE_ERROR: '购买失败，请稍后重试',
-  INSUFFICIENT_BALANCE: '积分余额不足',
 } as const;
 
 // ==================== 评论列表消息 ====================
