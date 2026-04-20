@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
 import { logout } from '@/lib/auth/client'
+import { finalizeSessionEndClientRedirect } from '@/lib/auth/finalizeSessionEndClient'
 
 interface LogoutButtonProps {
   variant?: 'default' | 'danger' | 'ghost'
@@ -33,8 +34,9 @@ export function LogoutButton({
   const handleLogout = async () => {
     setIsLoading(true)
     try {
-      await logout()
+      const result = await logout()
       onSuccess?.()
+      if (finalizeSessionEndClientRedirect(result)) return
       router.refresh()
     } finally {
       setIsLoading(false)

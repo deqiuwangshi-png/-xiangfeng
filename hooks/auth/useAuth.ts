@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import { useAuthContext } from '@/components/providers/AuthProvider'
 import { login as loginAction, logout as logoutAction } from '@/lib/auth/client'
+import { finalizeSessionEndClientRedirect } from '@/lib/auth/finalizeSessionEndClient'
 
 export interface UseAuthReturn {
   user: User | null
@@ -56,7 +57,8 @@ export function useAuth(): UseAuthReturn {
    */
   const logout = useCallback(async () => {
     try {
-      await logoutAction()
+      const result = await logoutAction()
+      if (finalizeSessionEndClientRedirect(result)) return
       router.refresh()
     } catch (error) {
       console.error('logout failed', error)

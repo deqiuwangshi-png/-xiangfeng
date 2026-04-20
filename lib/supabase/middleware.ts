@@ -1,7 +1,19 @@
 import { createServerClient } from '@supabase/ssr'
+import type { CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/utils/redir'
-import { getCookieConfig } from '@/lib/auth/utils/cookieConfig'
+import {
+  getCookieConfig,
+  getSupabaseServerCookieOptions,
+  getSupabaseSessionCookieConfig,
+} from '@/lib/auth/utils/cookieConfig'
+
+function isHttpsRequest(request: NextRequest): boolean {
+  if (request.nextUrl.protocol === 'https:') return true
+  const xf = request.headers.get('x-forwarded-proto')
+  if (xf?.split(',')[0]?.trim() === 'https') return true
+  return false
+}
 
 /**
  * 生产环境：检测到明文 HTTP（常见于反向代理未传 HTTPS）时强制跳转 HTTPS
@@ -91,51 +103,29 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  const requestIsHttps = isHttpsRequest(request)
+
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
+    cookieOptions: getSupabaseServerCookieOptions({
+      requestTlsTerminatedAsHttps: requestIsHttps,
+    }),
     cookies: {
       getAll() {
         return request.cookies.getAll()
       },
       setAll(cookiesToSet, cacheHeaders) {
-        const secureOptions = getCookieConfig()
-
-        // 批量设置到 request cookies
         cookiesToSet.forEach(({ name, value, options }) => {
-          request.cookies.set({
+          supabaseResponse.cookies.set(
             name,
             value,
-            ...options,
-            ...secureOptions,
-          })
+            getSupabaseSessionCookieConfig(name, options as CookieOptions, {
+              requestTlsTerminatedAsHttps: requestIsHttps,
+            })
+          )
         })
-
-        // 创建新的响应对象，但保留已设置的 cookies
-        const currentCookies = supabaseResponse.cookies.getAll()
-        supabaseResponse = nextWithPathname(request)
-        
-        // 恢复之前设置的 cookies（必须带齐安全属性，否则仅 name/value 会丢失 HttpOnly/Secure）
-        currentCookies.forEach(({ name, value }) => {
-          supabaseResponse.cookies.set({
-            name,
-            value,
-            ...secureOptions,
-          })
-        })
-
-        // 设置新的 cookies
-        cookiesToSet.forEach(({ name, value, options }) => {
-          supabaseResponse.cookies.set({
-            name,
-            value,
-            ...options,
-            ...secureOptions,
-          })
-        })
-
-        // 合并缓存头部
         if (cacheHeaders) {
-          for (const [key, value] of Object.entries(cacheHeaders)) {
-            supabaseResponse.headers.set(key, value)
+          for (const [key, val] of Object.entries(cacheHeaders)) {
+            supabaseResponse.headers.set(key, val)
           }
         }
       },
@@ -176,11 +166,13 @@ export async function updateSession(request: NextRequest) {
         .filter((name) => name.includes('auth-token') || name.startsWith('sb-'))
 
       cookieNames.forEach((name) => {
-        supabaseResponse.cookies.set({
+        supabaseResponse.cookies.set(
           name,
-          value: '',
-          ...expireOpts,
-        })
+          '',
+          getSupabaseSessionCookieConfig(name, { ...expireOpts } as CookieOptions, {
+            requestTlsTerminatedAsHttps: isHttpsRequest(request),
+          })
+        )
       })
     }
     // 会话缺失 - 用户未登录（正常情况）

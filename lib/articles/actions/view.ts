@@ -90,8 +90,16 @@ export async function incrementArticleView(articleId: string): Promise<{
       return { success: false, error: '操作失败，请稍后重试' };
     }
 
-    {/* 设置 cookie 标记已浏览，24小时内不再计数 */}
-    cookieStore.set(viewKey, '1', getCookieConfig(24 * 60 * 60)); // 24小时
+    {/* 设置最小权限路径的浏览标记，12小时内不再计数 */}
+    cookieStore.set(
+      viewKey,
+      '1',
+      getCookieConfig({
+        profile: 'marker',
+        maxAge: 12 * 60 * 60,
+        path: `/article/${articleId}`,
+      })
+    );
 
     return { success: true };
   } catch {

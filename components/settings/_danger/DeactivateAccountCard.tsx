@@ -2,7 +2,8 @@
 import { useState } from 'react'
 import { AlertTriangle, Power, X } from '@/components/icons'
 import { deactivateAccount } from '@/lib/user/deactivateAccount'
-import { useRouter } from 'next/navigation'
+import { clearClientAuthStorage } from '@/lib/auth/clearClientAuthStorage'
+import { getMarketingHomeUrl } from '@/lib/seo'
 
 /**
  * 停用账户卡片组件
@@ -20,7 +21,6 @@ import { useRouter } from 'next/navigation'
  * - 重新登录自动激活账户
  */
 export function DeactivateAccountCard() {
-  const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -40,8 +40,8 @@ export function DeactivateAccountCard() {
     const result = await deactivateAccount()
 
     if (result.success) {
-      router.push('/')
-      router.refresh()
+      clearClientAuthStorage()
+      window.location.assign(getMarketingHomeUrl())
     } else {
       setError(result.error || '停用失败')
       setIsLoading(false)

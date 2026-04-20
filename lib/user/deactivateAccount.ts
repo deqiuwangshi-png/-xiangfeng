@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { clearSupabaseSessionCookies } from '@/lib/auth/clearSupabaseSessionCookies'
 import { getCurrentUser } from '@/lib/auth/server'
 import { LOGIN_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 import type { DeactivateAccountResult } from '@/types'
@@ -33,8 +34,8 @@ export async function deactivateAccount(): Promise<DeactivateAccountResult> {
       return { success: false, error: COMMON_ERRORS.DEFAULT }
     }
 
-    {/* 退出登录 */}
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'global' })
+    await clearSupabaseSessionCookies()
 
     return {
       success: true,

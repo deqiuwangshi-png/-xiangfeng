@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { logout } from '@/lib/auth/client'
+import { finalizeSessionEndClientRedirect } from '@/lib/auth/finalizeSessionEndClient'
 import { FEISHU_FEEDBACK_FORM_URL } from '@/constants/feedback'
 import type { SimpleUser, DropdownItem } from '@/types'
 
@@ -40,7 +41,8 @@ export function UserDropdownMenu({
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true)
     try {
-      await logout()
+      const result = await logout()
+      if (finalizeSessionEndClientRedirect(result)) return
       router.refresh()
     } finally {
       setIsLoggingOut(false)

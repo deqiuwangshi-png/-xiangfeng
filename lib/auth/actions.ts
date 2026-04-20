@@ -10,7 +10,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import { siteUrl } from '@/lib/seo';
+import { siteUrl, getMarketingHomeUrl } from '@/lib/seo';
+import { clearSupabaseSessionCookies } from '@/lib/auth/clearSupabaseSessionCookies';
 import { checkServerRateLimit, resetServerRateLimit, getClientIp } from '@/lib/security/rateLimitServer';
 import {
   LOGIN_MESSAGES,
@@ -144,13 +145,14 @@ export async function register(formData: FormData): Promise<AuthResult> {
 
 // ==================== 退出登录 ====================
 
-export async function logout(): Promise<AuthResult> {
+export async function logout(): Promise<AuthResult & { redirectTo?: string }> {
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.signOut({ scope: 'global' });
     if (error) return { success: false, error: error.message };
+    await clearSupabaseSessionCookies();
     revalidatePath('/', 'layout');
-    return { success: true };
+    return { success: true, redirectTo: getMarketingHomeUrl() };
   } catch (err) {
     console.error('退出登录失败:', err);
     return { success: false, error: LOGOUT_MESSAGES.DEFAULT_ERROR };
@@ -233,7 +235,8 @@ export async function changePassword(formData: FormData): Promise<AuthResult> {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) return { success: false, error: error.message };
 
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'global' });
+    await clearSupabaseSessionCookies();
     revalidatePath('/', 'layout');
     return { success: true, message: CHANGE_PASSWORD_MESSAGES.SUCCESS };
   } catch (err) {

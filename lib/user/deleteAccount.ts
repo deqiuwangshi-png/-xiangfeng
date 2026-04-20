@@ -10,6 +10,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { clearSupabaseSessionCookies } from '@/lib/auth/clearSupabaseSessionCookies'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentUser } from '@/lib/auth/server'
 import type { DeleteAccountResult } from '@/types'
@@ -127,8 +128,8 @@ export async function deleteAccount(password: string): Promise<DeleteAccountResu
       return { success: false, error: '删除账户失败，请稍后重试' }
     }
 
-    // 7. 退出登录（清除会话）
-    await supabase.auth.signOut()
+    await supabase.auth.signOut({ scope: 'global' })
+    await clearSupabaseSessionCookies()
 
     return { success: true }
   } catch (error) {

@@ -35,6 +35,7 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
   const hasPrefetchedRef = useRef(false)
 
   const { unreadCount } = useInboxCache(user?.id || '')
+  const isSuperAdmin = profile?.role === 'super_admin'
 
   useEffect(() => {
     if (hasPrefetchedRef.current) return
@@ -135,6 +136,22 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
             </div>
           )
         })}
+
+        {isSuperAdmin && (
+          <Link
+            href="/admin/reports"
+            className={`
+              mt-3 flex items-center gap-3 px-4 py-3 rounded-xl border
+              transition-all duration-200
+              ${pathname?.startsWith('/admin')
+                ? 'bg-xf-primary/10 border-xf-primary/30 text-xf-primary font-medium'
+                : 'border-xf-bg/60 text-xf-dark hover:bg-xf-light hover:text-xf-primary'
+              }
+            `}
+          >
+            <span className="text-sm">举报管理</span>
+          </Link>
+        )}
       </nav>
 
       {/* 底部版权 */}

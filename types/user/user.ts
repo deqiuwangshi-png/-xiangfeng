@@ -55,6 +55,8 @@ export interface SimpleUserProfile {
   username?: string
   /** 头像URL（主展示源，来自 profiles.avatar_url） */
   avatar_url?: string
+  /** 用户角色（用于权限入口展示） */
+  role?: 'user' | 'admin' | 'super_admin'
 }
 
 // ============================================

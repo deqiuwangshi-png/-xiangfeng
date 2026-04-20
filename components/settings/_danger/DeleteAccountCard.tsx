@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { AlertTriangle, Trash2, X } from '@/components/icons'
 import { deleteAccount } from '@/lib/user/deleteAccount'
-import { useRouter } from 'next/navigation'
+import { clearClientAuthStorage } from '@/lib/auth/clearClientAuthStorage'
+import { getMarketingHomeUrl } from '@/lib/seo'
 
 /**
  * 删除账户卡片组件
  */
 export function DeleteAccountCard() {
-  const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [confirmText, setConfirmText] = useState('')
   const [password, setPassword] = useState('')
@@ -24,8 +24,8 @@ export function DeleteAccountCard() {
     const result = await deleteAccount(password)
 
     if (result.success) {
-      router.push('/')
-      router.refresh()
+      clearClientAuthStorage()
+      window.location.assign(getMarketingHomeUrl())
     } else {
       setError(result.error || '删除失败')
       setIsLoading(false)

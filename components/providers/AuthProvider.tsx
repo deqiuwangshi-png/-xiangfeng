@@ -71,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const { data } = await supabase
           .from('profiles')
-          .select('username, avatar_url')
+          .select('username, avatar_url, role')
           .eq('id', userId)
           .maybeSingle()
 
@@ -80,6 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             ? {
                 username: data.username || undefined,
                 avatar_url: data.avatar_url || undefined,
+                role: (data.role as 'user' | 'admin' | 'super_admin' | null) || undefined,
               }
             : null
         )
@@ -150,6 +151,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return {
           username: nextUsername,
           avatar_url: nextAvatar,
+          role: prev?.role,
         }
       })
     }

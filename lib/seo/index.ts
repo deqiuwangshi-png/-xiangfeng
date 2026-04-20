@@ -32,5 +32,7 @@ export {
   createStructuredData,
 } from './metadata';
 
+export { getMarketingHomeUrl } from './marketingHome';
+
 // 类型导出
 export type { Metadata } from 'next';

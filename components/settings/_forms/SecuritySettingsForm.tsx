@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Key, Eye, EyeOff } from '@/components/icons'
 import { IconBox, FormActions } from '@/components/ui'
 import { changePassword } from '@/lib/auth/client'
+import { clearClientAuthStorage } from '@/lib/auth/clearClientAuthStorage'
 import { validatePassword } from '@/lib/security/passwordPolicy'
 
 /**
@@ -96,7 +97,8 @@ export function SecuritySettingsForm({ onCancel, onSave }: SecuritySettingsFormP
         return
       }
 
-      // 密码修改成功，会话已失效，跳转到登录页
+      // 密码修改成功，会话已失效，清理本地残留后跳转登录页
+      clearClientAuthStorage()
       onSave()
       router.push('/login?message=password_changed')
     } catch {
