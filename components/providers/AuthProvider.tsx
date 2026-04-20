@@ -67,15 +67,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     }
 
-    const grantDailyPointsOnLogin = async (userId: string) => {
-      await supabase.rpc('safe_grant_daily_subscription_points', {
-        p_user_id: userId,
-      })
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('user-points-updated'))
-      }
-    }
-
     const loadProfile = async (userId: string) => {
       try {
         const { data } = await supabase
@@ -137,9 +128,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false)
         if (currentUser?.id) {
           void loadProfile(currentUser.id)
-          if (event === 'SIGNED_IN') {
-            void grantDailyPointsOnLogin(currentUser.id)
-          }
         } else {
           setProfile(null)
         }
@@ -150,10 +138,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const customEvent = event as CustomEvent<UserProfileUpdatedDetail>
       const detail = customEvent.detail || {}
 
-      setProfile((prev) => ({
-        username: detail.username || prev?.username || undefined,
-        avatar_url: detail.avatar_url || prev?.avatar_url || undefined,
-      }))
+      setProfile((prev) => {
+        const nextUsername = Object.prototype.hasOwnProperty.call(detail, 'username')
+          ? detail.username || undefined
+          : prev?.username || undefined
+
+        const nextAvatar = Object.prototype.hasOwnProperty.call(detail, 'avatar_url')
+          ? detail.avatar_url || undefined
+          : prev?.avatar_url || undefined
+
+        return {
+          username: nextUsername,
+          avatar_url: nextAvatar,
+        }
+      })
     }
 
     if (typeof window !== 'undefined') {

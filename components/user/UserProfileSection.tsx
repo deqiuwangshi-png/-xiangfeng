@@ -12,7 +12,7 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 import { UserAvt } from '@/components/ui'
 import { UserDropdownMenu } from './UserDropdownMenu'
 import type { SimpleUser, SimpleUserProfile, UserProfile } from '@/types'
-import { getSafeDisplayName, resolveAvatarUrl } from '@/lib/user/avatar'
+import { getSafeDisplayName, normalizeAvatarUrl, resolveAvatarUrl } from '@/lib/user/avatar'
 
 /**
  * 用户资料区域组件属性接口
@@ -72,7 +72,7 @@ export function UserProfileSection({
 
   /**
    * 获取用户显示信息
-   * 头像URL优先级：profile.avatar_url > user_metadata.avatar_url
+   * 头像URL策略：profiles 为唯一展示源；仅在 profile 缺失时回退 user_metadata
    * 注意：传入userId确保头像一致性，无头像时自动生成默认头像
    * 匿名用户显示访客信息
    */
@@ -89,7 +89,12 @@ export function UserProfileSection({
       ? '同步中'
       : '访客'
   const avatarUrl = isAuthenticated
-    ? resolveAvatarUrl(profile?.avatar_url, user?.user_metadata?.avatar_url)
+    ? (
+        profile
+          // profiles 作为唯一展示源；仅当 profile 不可用时回退 metadata
+          ? normalizeAvatarUrl(profile.avatar_url)
+          : resolveAvatarUrl(user?.user_metadata?.avatar_url)
+      )
     : undefined
 
   return (

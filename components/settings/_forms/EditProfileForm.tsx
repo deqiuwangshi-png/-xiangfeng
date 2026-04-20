@@ -10,7 +10,7 @@
  */
 
 import { useRef } from 'react'
-import { ArrowLeft, Camera, User, Mail, FileText, MapPin, Filter } from '@/components/icons'
+import { ArrowLeft, Camera, User, Mail, FileText, MapPin } from '@/components/icons'
 import { UserAvt } from '@/components/ui'
 import { useProfileForm } from '@/hooks/settings/useProfileForm'
 import { UserData } from '@/types/user/settings'
@@ -224,25 +224,8 @@ export function EditProfileForm({ initialData, onCancel, onSave }: EditProfileFo
               </div>
             </div>
 
-            {/* 第二行：个性名签、所在地 */}
+            {/* 第二行：所在地 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* 个性名签 */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-xf-primary">
-                  <Filter className="w-4 h-4" />
-                  个性名签
-                </label>
-                <input
-                  type="text"
-                  value={formData.domain}
-                  onChange={(e) => handleChange('domain', e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-xf-bg/60 focus:border-xf-primary outline-none rounded-xl transition-colors"
-                  placeholder="设置你的专属名签"
-                  maxLength={50}
-                />
-              </div>
-
-              {/* 所在地 */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-xf-primary">
                   <MapPin className="w-4 h-4" />

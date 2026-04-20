@@ -163,9 +163,6 @@ export default function SeoPage() {
                 <strong>价值共创</strong> - 与思考者共建生态，实现知识变现
               </li>
               <li style={styles.listItem}>
-                <strong>积分奖励</strong> - 优质创作获得积分奖励，激励持续输出
-              </li>
-              <li style={styles.listItem}>
                 <strong>社区互动</strong> - 与志同道合者深度交流，碰撞思想火花
               </li>
               <li style={styles.listItem}>

@@ -210,27 +210,6 @@ getInitials('A') // 'A'
 
 使用 React `cache` 函数缓存服务端数据获取。
 
-#### getCachedShopItems
-
-缓存的商品列表获取。
-
-```typescript
-import { getCachedShopItems } from '@/lib/utils/cachedActions'
-
-// 同一请求周期内多次调用会复用缓存
-const items = await getCachedShopItems('digital')
-```
-
-#### getCachedUserPoints
-
-缓存的用户积分获取。
-
-```typescript
-import { getCachedUserPoints } from '@/lib/utils/cachedActions'
-
-const points = await getCachedUserPoints()
-```
-
 #### fetchWithRetry
 
 带重试的数据获取。
@@ -381,7 +360,6 @@ function useDataFetching() {
 
 - `@/lib/articles` - 使用 HTML 净化
 - `@/lib/user` - 使用日期格式化
-- `@/lib/rewards` - 使用缓存的数据获取
 
 ### 相关类型
 
@@ -413,10 +391,10 @@ const safeContent = sanitizeRichText(userInput)
 
 ```typescript
 // ✅ 正确 - 服务端组件中使用缓存
-const data = await getCachedShopItems()
+const data = await fetchWithTimeout(() => fetchData(), 5000)
 
-// ❌ 错误 - 客户端不需要使用这个缓存
-const data = await getCachedShopItems() // 在 Client Component 中
+// ❌ 错误 - 客户端不需要直接调用服务端缓存函数
+const data = await fetchWithTimeout(() => fetchData(), 5000) // 在 Client Component 中
 ```
 
 ### 4. 及时取消请求

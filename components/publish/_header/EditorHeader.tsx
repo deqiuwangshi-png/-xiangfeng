@@ -39,13 +39,13 @@ export function EditorHeader({
               onClick={onSaveDraft}
               disabled={isSaving || isPublishing}
               className="text-sm text-xf-medium hover:text-xf-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-xf-bg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={isSaving ? '保存中...' : '保存文章'}
             >
               {isSaving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              <span className="hidden sm:inline">{isSaving ? '保存中...' : '保存文章'}</span>
             </button>
 
             <div className="hidden sm:block">
@@ -93,21 +93,6 @@ export function EditorHeader({
   )
 }
 
-function formatSavedTime(date: Date | null): string {
-  if (!date) return ''
-
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) {
-    const minutes = Math.floor(diff / 60000)
-    return `${minutes}分钟前`
-  }
-  const hours = Math.floor(diff / 3600000)
-  return `${hours}小时前`
-}
-
 function SaveStatusChip({
   status,
   lastSavedAt,
@@ -117,32 +102,35 @@ function SaveStatusChip({
   lastSavedAt: Date | null
   errorMessage?: string | null
 }) {
-  if (status === 'idle' && !lastSavedAt) {
+  // 方案A：保存中状态只由保存按钮承担，避免双重反馈
+  if (status === 'saving') {
     return null
   }
 
+  if ((status === 'idle' || status === 'saved') && !lastSavedAt) {
+    return null
+  }
+
+  const savedConfig = {
+    icon: Check,
+    className: 'text-green-600 bg-green-50',
+    show: !!lastSavedAt,
+  } as const
+
   const config = {
     idle: {
-      icon: Check,
-      text: lastSavedAt ? `已保存 ${formatSavedTime(lastSavedAt)}` : '',
-      className: 'text-green-600 bg-green-50',
-      show: !!lastSavedAt,
+      ...savedConfig,
     },
     saving: {
-      icon: Save,
-      text: '保存中...',
-      className: 'text-blue-600 bg-blue-50 animate-pulse',
-      show: true,
+      icon: Check,
+      className: 'text-green-600 bg-green-50',
+      show: false,
     },
     saved: {
-      icon: Check,
-      text: `已保存 ${formatSavedTime(lastSavedAt)}`,
-      className: 'text-green-600 bg-green-50',
-      show: true,
+      ...savedConfig,
     },
     error: {
       icon: AlertCircle,
-      text: errorMessage || '保存失败',
       className: 'text-red-600 bg-red-50',
       show: true,
     },
@@ -157,15 +145,15 @@ function SaveStatusChip({
   return (
     <div
       className={`
-        flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+        flex items-center justify-center w-7 h-7 rounded-full
         transition-all duration-300 ease-in-out
         ${current.className}
       `}
       role="status"
       aria-live="polite"
+      title={status === 'error' ? (errorMessage || '保存失败') : undefined}
     >
-      <Icon className={`w-3.5 h-3.5 ${status === 'saving' ? 'animate-spin' : ''}`} />
-      <span>{current.text}</span>
+      <Icon className="w-3.5 h-3.5" />
     </div>
   )
 }

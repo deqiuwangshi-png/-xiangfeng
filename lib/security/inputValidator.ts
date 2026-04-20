@@ -17,7 +17,6 @@ export function validateProfileInput(data: {
   bio?: string;
   location?: string;
   avatar_url?: string;
-  domain?: string;
 }): { 
   valid: boolean; 
   success: boolean;
@@ -27,7 +26,6 @@ export function validateProfileInput(data: {
     bio?: string;
     location?: string;
     avatar_url?: string;
-    domain?: string;
   };
 } {
   if (data.username && data.username.length > 20) {
@@ -41,7 +39,6 @@ export function validateProfileInput(data: {
       bio: data.bio,
       location: data.location,
       avatar_url: data.avatar_url,
-      domain: data.domain,
     }
   };
 }

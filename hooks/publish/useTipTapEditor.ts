@@ -44,6 +44,53 @@ function parseContent(content: string): JSONContent {
   }
 }
 
+function shouldNormalizeMarkdownPaste(text: string): boolean {
+  const lines = text.split(/\r?\n/)
+  return lines.some((line) => {
+    const trimmed = line.trim()
+    return (
+      /^#{1,6}\s+/.test(trimmed) ||
+      /^[-*+]\s+/.test(trimmed) ||
+      /^\d+\.\s+/.test(trimmed) ||
+      /^>\s+/.test(trimmed) ||
+      /\*\*.+?\*\*/.test(trimmed) ||
+      /__.+?__/.test(trimmed) ||
+      /`.+?`/.test(trimmed)
+    )
+  })
+}
+
+function normalizeMarkdownToPlainText(text: string): string {
+  const normalizeInline = (line: string): string =>
+    line
+      // 粗体
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/__(.+?)__/g, '$1')
+      // 斜体
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/_(.+?)_/g, '$1')
+      // 行内代码
+      .replace(/`(.+?)`/g, '$1')
+      // 链接 [文本](url) -> 文本
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+
+  return text
+    .split(/\r?\n/)
+    .map((line) => {
+      const trimmed = line.trim()
+      if (!trimmed) return ''
+      return normalizeInline(
+        trimmed
+        .replace(/^#{1,6}\s+/, '')
+        .replace(/^[-*+]\s+/, '')
+        .replace(/^\d+\.\s+/, '')
+        .replace(/^>\s+/, '')
+      )
+    })
+    .join('\n')
+    .trim()
+}
+
 export function useTipTapEditor({
   content,
   onChange,
@@ -101,6 +148,25 @@ export function useTipTapEditor({
       editorProps: {
         attributes: {
           class: 'article-content article-content-editor max-w-none focus:outline-none',
+        },
+        handlePaste(view: EditorView, event: ClipboardEvent) {
+          const plainText = event.clipboardData?.getData('text/plain') || ''
+          const htmlText = event.clipboardData?.getData('text/html') || ''
+          if (!plainText) return false
+
+          // 仅处理纯文本粘贴；保留富文本粘贴默认行为
+          if (htmlText.trim()) return false
+
+          if (!shouldNormalizeMarkdownPaste(plainText)) return false
+
+          const normalized = normalizeMarkdownToPlainText(plainText)
+          if (!normalized || normalized === plainText.trim()) return false
+
+          event.preventDefault()
+          const { from, to } = view.state.selection
+          const tr = view.state.tr.insertText(normalized, from, to)
+          view.dispatch(tr)
+          return true
         },
         handleDrop(view: EditorView, event: DragEvent, _slice: Slice, moved: boolean) {
           const dragPos = event.dataTransfer?.getData('application/x-prosemirror-node')

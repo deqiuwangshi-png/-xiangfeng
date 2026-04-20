@@ -3,8 +3,8 @@
 > 在嘈杂的信息流中寻找深度连接。打破认知边界，构建属于你的思维网络，与志同道合者共创价值。  
 > **不止相遇，更是改变。**
 
-![Product Preview 1](https://github.com/user-attachments/assets/2d86f1a2-7766-47e9-a329-22d791eaeffb)
-![Product Preview 2](https://github.com/user-attachments/assets/b15e69ac-9b09-4ac9-b5b7-82cb7ea79f21)
+Product Preview 1
+Product Preview 2
 
 ---
 
@@ -31,14 +31,16 @@
 
 ## 🛠 技术栈
 
-| 类别         | 技术                               |
-| ------------ | ---------------------------------- |
-| 框架         | Next.js 16 (App Router, Turbopack) |
-| 后端数据库   | Supabase (PostgreSQL + Auth + RLS) |
-| 样式         | CSS Modules / Tailwind (按实际)     |
-| 辅助工具     | Trae (AI 辅助)                     |
-| 模型         | CLM-5、Kimi2.5                             |
-| 开发模式     | **文档驱动开发**                    |
+
+| 类别    | 技术                                 |
+| ----- | ---------------------------------- |
+| 框架    | Next.js 16 (App Router, Turbopack) |
+| 后端数据库 | Supabase (PostgreSQL + Auth + RLS) |
+| 样式    | CSS Modules / Tailwind (按实际)       |
+| 辅助工具  | Trae (AI 辅助)                       |
+| 模型    | CLM-5、Kimi2.5                      |
+| 开发模式  | **文档驱动开发**                         |
+
 
 ### 文档驱动开发包含以下规范
 
@@ -85,3 +87,5 @@ npm install
 
 # 启动开发服务器
 npm run dev
+```
+

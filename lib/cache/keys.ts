@@ -11,7 +11,6 @@
  *
  * @示例
  * - user/profile                    // 静态 Key
- * - user/points/overview            // 多层静态 Key
  * - ['articles', 'detail', id]      // 动态 Key (数组格式)
  */
 
@@ -31,18 +30,7 @@ export const AUTH_KEYS = {
 export const USER_KEYS = {
   /** 用户资料 (按用户ID) */
   profile: (userId: string): (string | number)[] => ['user', 'profile', userId],
-  
-  /** 积分总览 */
-  POINTS_OVERVIEW: 'user/points/overview',
-  
-  /** 积分流水 */
-  pointsTransactions: (limit: number, offset: number): (string | number)[] => 
-    ['user', 'points', 'transactions', limit, offset],
-  
-  /** 兑换记录 */
-  exchangeRecords: (limit: number, offset: number): (string | number)[] => 
-    ['user', 'exchange', 'records', limit, offset],
-  
+
   /** 用户统计信息 */
   stats: (userId: string): (string | number)[] => ['user', 'stats', userId],
 } as const
@@ -71,28 +59,6 @@ export const ARTICLE_KEYS = {
   
   /** 文章浏览量 */
   views: (articleId: string): (string | number)[] => ['articles', 'views', articleId],
-} as const
-
-// ============================================
-// 奖励系统
-// ============================================
-export const REWARDS_KEYS = {
-  /** 签到状态 */
-  SIGNIN_STATUS: 'rewards/signin/status',
-  
-  /** 签到奖励配置 */
-  SIGNIN_CONFIG: 'rewards/signin/config',
-  
-  /** 任务列表 */
-  tasks: (category?: string): (string | number)[] => 
-    category ? ['rewards', 'tasks', category] : ['rewards', 'tasks'],
-  
-  /** 商城商品 */
-  shopItems: (category?: string): (string | number)[] => 
-    category ? ['rewards', 'shop', category] : ['rewards', 'shop'],
-  
-  /** 等级信息 */
-  LEVEL_INFO: 'rewards/level/info',
 } as const
 
 // ============================================
@@ -130,7 +96,6 @@ export const CACHE_KEYS = {
   AUTH: AUTH_KEYS,
   USER: USER_KEYS,
   ARTICLE: ARTICLE_KEYS,
-  REWARDS: REWARDS_KEYS,
   NOTIFICATION: NOTIFICATION_KEYS,
   SETTINGS: SETTINGS_KEYS,
 } as const
@@ -166,15 +131,6 @@ export function getCacheKeyString(key: CacheKey): string {
  * 用于自动刷新关联缓存
  */
 export const CACHE_DEPENDENCIES: Record<string, string[]> = {
-  // 签到成功后刷新积分
-  [REWARDS_KEYS.SIGNIN_STATUS]: [USER_KEYS.POINTS_OVERVIEW],
-  
-  // 兑换成功后刷新积分和兑换记录
-  [getCacheKeyString(REWARDS_KEYS.shopItems())]: [
-    USER_KEYS.POINTS_OVERVIEW,
-    getCacheKeyString(USER_KEYS.exchangeRecords(4, 0)),
-  ],
-  
   // 发布草稿后刷新文章列表
   [ARTICLE_KEYS.DRAFTS]: [ARTICLE_KEYS.LIST],
 }

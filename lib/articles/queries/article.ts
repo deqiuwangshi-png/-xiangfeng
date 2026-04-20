@@ -18,6 +18,36 @@ import { mapArticleDetailDto } from '../dto';
 
 /** 相关文章最大返回数量 */
 const MAX_RELATED_ARTICLES = 20;
+const RANDOM_POOL_LIMIT = 30;
+
+export interface SuggestedArticle {
+  id: string;
+  title: string;
+  authorName: string;
+  publishedAt: string | null;
+  readTime: number;
+}
+
+interface SuggestedArticleRow {
+  id: string;
+  title: string;
+  content: string | null;
+  published_at: string | null;
+  author: {
+    username: string | null;
+  } | null;
+}
+
+function mapSuggestedArticle(row: SuggestedArticleRow): SuggestedArticle {
+  const textLength = (row.content || '').length;
+  return {
+    id: row.id,
+    title: row.title,
+    authorName: row.author?.username || '匿名作者',
+    publishedAt: row.published_at,
+    readTime: Math.max(1, Math.ceil(textLength / 500)),
+  };
+}
 
 /**
  * 获取文章完整详情（安全优化版）
@@ -115,4 +145,86 @@ export async function getRelatedArticles(articleId: string, limit = 5) {
     .limit(safeLimit);
 
   return data || [];
+}
+
+/**
+ * 获取“下一篇 + 随机一篇”推荐（详情页底部继续阅读）
+ */
+export async function getNextAndRandomArticles(
+  currentArticleId: string,
+  currentPublishedAt: string | null
+): Promise<{ next: SuggestedArticle | null; random: SuggestedArticle | null }> {
+  const supabase = await createClient();
+
+  const baseSelect = `
+    id,
+    title,
+    content,
+    published_at,
+    author:profiles!inner(username, account_status)
+  `;
+
+  let nextRow: SuggestedArticleRow | null = null;
+
+  if (currentPublishedAt) {
+    const { data } = await supabase
+      .from('articles')
+      .select(baseSelect)
+      .eq('status', 'published')
+      .eq('visibility', 'public')
+      .is('deleted_at', null)
+      .eq('author.account_status', 'active')
+      .gt('published_at', currentPublishedAt)
+      .order('published_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    nextRow = (data as SuggestedArticleRow | null) || null;
+  }
+
+  // 无“更晚”文章时，回到最早一篇（循环阅读）
+  if (!nextRow) {
+    const { data } = await supabase
+      .from('articles')
+      .select(baseSelect)
+      .eq('status', 'published')
+      .eq('visibility', 'public')
+      .is('deleted_at', null)
+      .eq('author.account_status', 'active')
+      .neq('id', currentArticleId)
+      .order('published_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    nextRow = (data as SuggestedArticleRow | null) || null;
+  }
+
+  // 从最近一批文章中随机选一篇，排除当前文章与 next 文章
+  const randomExclude = new Set<string>([currentArticleId]);
+  if (nextRow?.id) randomExclude.add(nextRow.id);
+
+  const { data: randomPool } = await supabase
+    .from('articles')
+    .select(baseSelect)
+    .eq('status', 'published')
+    .eq('visibility', 'public')
+    .is('deleted_at', null)
+    .eq('author.account_status', 'active')
+    .neq('id', currentArticleId)
+    .order('published_at', { ascending: false })
+    .limit(RANDOM_POOL_LIMIT);
+
+  const availableRandom = ((randomPool || []) as SuggestedArticleRow[]).filter(
+    (item) => !randomExclude.has(item.id)
+  );
+
+  const randomRow =
+    availableRandom.length > 0
+      ? availableRandom[Math.floor(Math.random() * availableRandom.length)]
+      : null;
+
+  return {
+    next: nextRow ? mapSuggestedArticle(nextRow) : null,
+    random: randomRow ? mapSuggestedArticle(randomRow) : null,
+  };
 }

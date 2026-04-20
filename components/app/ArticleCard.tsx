@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { Clock, Eye } from '@/components/icons'
 import { UserAvt } from '@/components/ui'
 import type { ArticleCardProps } from '@/types'
+import { ArticleCardPrefetchLink } from './ArticleCardPrefetchLink'
 
 export type { ArticleCardProps } from '@/types'
 
@@ -65,7 +65,7 @@ export function ArticleCard({
   }
 
   return (
-    <Link href={`/article/${id}`} className="block group h-full">
+    <ArticleCardPrefetchLink href={`/article/${id}`} className="block group h-full">
       <article className="bg-white rounded-xl p-4 sm:p-5 border border-xf-bg/50 hover:border-xf-primary/30 hover:shadow-sm transition-all duration-200 h-full flex flex-col">
         {/* 标题 - 放在最上方，增加信息优先级 */}
         <h3 className="text-lg sm:text-xl font-bold text-xf-dark mb-2 line-clamp-2 group-hover:text-xf-primary transition-colors duration-200">
@@ -103,6 +103,6 @@ export function ArticleCard({
           </div>
         </div>
       </article>
-    </Link>
+    </ArticleCardPrefetchLink>
   )
 }

@@ -5,14 +5,13 @@
  * @module components/ui/Sidebar
  */
 
-import { useCallback, useRef, useState } from 'react'
-import { Home, Edit3, FolderOpen, BellRing, Gift } from '@/components/icons'
+import { useRef, useState } from 'react'
+import { Home, Edit3, FolderOpen, BellRing } from '@/components/icons'
 import { useEffect, useMemo } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { UserProfileSection } from '@/components/user'
 import { useInboxCache } from '@/hooks'
-import { createClient } from '@/lib/supabase/client'
 import type { SimpleUser, SimpleUserProfile } from '@/types'
 import { MAIN_NAVIGATION_ITEMS, PRELOAD_ROUTES, type NavigationItem } from '@/config/navigation'
 
@@ -21,7 +20,6 @@ const NAV_ICONS = {
   publish: Edit3,
   drafts: FolderOpen,
   inbox: BellRing,
-  rewards: Gift,
 } as const
 
 interface SidebarProps {
@@ -34,32 +32,9 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
   const pathname = usePathname()
   const router = useRouter()
   const [showLoginTooltip, setShowLoginTooltip] = useState<string | null>(null)
-  const [currentPoints, setCurrentPoints] = useState<number | null>(null)
   const hasPrefetchedRef = useRef(false)
-  
-  const isAuthenticated = authState === 'authenticated'
-  const pointsDisplay = isAuthenticated
-    ? (currentPoints ?? 0).toLocaleString('en-US')
-    : '--'
 
   const { unreadCount } = useInboxCache(user?.id || '')
-
-  const loadPoints = useCallback(async (userId: string) => {
-    const supabase = createClient()
-    const { data, error } = await supabase
-      .from('user_points')
-      .select('current_points')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    if (error) {
-      // 登录用户兜底显示 0，避免出现空态影响稳定性
-      setCurrentPoints(0)
-      return
-    }
-
-    setCurrentPoints(typeof data?.current_points === 'number' ? data.current_points : 0)
-  }, [])
 
   useEffect(() => {
     if (hasPrefetchedRef.current) return
@@ -83,29 +58,6 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
 
     return () => clearTimeout(timer)
   }, [router, pathname])
-
-  useEffect(() => {
-    if (!user?.id) {
-      setCurrentPoints(null)
-      return
-    }
-
-    void loadPoints(user.id)
-    // 不做固定二次请求；登录后的积分刷新由全局事件驱动。
-  }, [loadPoints, user?.id])
-
-  useEffect(() => {
-    if (!user?.id) return
-
-    const handlePointsUpdated = () => {
-      void loadPoints(user.id)
-    }
-
-    window.addEventListener('user-points-updated', handlePointsUpdated)
-    return () => {
-      window.removeEventListener('user-points-updated', handlePointsUpdated)
-    }
-  }, [loadPoints, user?.id])
 
   const activeNav = useMemo(() => {
     const normalizedPath = pathname === '/' ? '/home' : pathname
@@ -184,33 +136,6 @@ export function Sidebar({ user, profile, authState = 'anonymous' }: SidebarProps
           )
         })}
       </nav>
-
-      {/* 积分 - 简化版 */}
-      <div className="px-4 pb-2 relative">
-        <Link
-          href="/rewards"
-          onClick={(e) => {
-            if (authState !== 'authenticated') {
-              e.preventDefault()
-              setShowLoginTooltip('rewards')
-              setTimeout(() => setShowLoginTooltip(null), 3000)
-            }
-          }}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-xf-medium hover:bg-xf-light hover:text-xf-dark transition-colors"
-        >
-          <Gift className="w-4 h-4" />
-          <span>积分</span>
-          <span className="ml-auto text-xs text-xf-primary">{pointsDisplay}</span>
-        </Link>
-        
-        {/* 登录提示 */}
-        {showLoginTooltip === 'rewards' && (
-          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-xf-dark text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
-            {authState === 'anonymous' ? '请登录后查看积分' : '会话同步中，请稍候'}
-            <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 border-4 border-transparent border-r-xf-dark"></div>
-          </div>
-        )}
-      </div>
 
       {/* 底部版权 */}
       <div className="p-4 border-t border-xf-surface/30 text-xs text-xf-medium text-center">

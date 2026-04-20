@@ -20,6 +20,26 @@ import { uploadAvatarAction, deleteAvatarAction } from '@/lib/auth/client'
 import { containsXss } from '@/lib/security/inputValidator'
 import type { UserData, UpdateProfileParams } from '@/types/user/settings'
 
+const IS_DEV = process.env.NODE_ENV !== 'production'
+
+function maskUserId(userId?: string): string {
+  if (!userId) return 'unknown'
+  if (userId.length <= 8) return '***'
+  return `${userId.slice(0, 4)}***${userId.slice(-4)}`
+}
+
+function maskFileName(fileName?: string): string {
+  if (!fileName) return 'unknown'
+  const lastDot = fileName.lastIndexOf('.')
+  const ext = lastDot >= 0 ? fileName.slice(lastDot + 1).toLowerCase() : 'unknown'
+  return `file.${ext}`
+}
+
+function debugLog(event: string, payload: Record<string, unknown>): void {
+  if (!IS_DEV) return
+  console.log(`[avatar-upload][${event}]`, payload)
+}
+
 /**
  * 个人资料表单数据
  */
@@ -29,7 +49,6 @@ export interface ProfileFormData {
   bio: string
   location: string
   avatar_url: string
-  domain: string
 }
 
 /**
@@ -99,7 +118,6 @@ export function useProfileForm({
     bio: initialData?.bio || '',
     location: initialData?.location || '',
     avatar_url: initialData?.avatar_url || '',
-    domain: initialData?.domain || '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -127,8 +145,16 @@ export function useProfileForm({
    * 上传头像
    */
   const uploadAvatar = useCallback(async (file: File) => {
+    debugLog('client-select', {
+      userId: maskUserId(initialData?.id),
+      fileName: maskFileName(file?.name),
+      fileType: file?.type,
+      fileSize: file?.size,
+    })
+
     if (!initialData?.id) {
       toast.error('用户未登录')
+      debugLog('client-no-user', { hasInitialData: !!initialData, userId: 'unknown' })
       return
     }
 
@@ -148,6 +174,12 @@ export function useProfileForm({
       formDataObj.append('file', file)
       const result = await uploadAvatarAction(formDataObj)
 
+      debugLog('client-action-result', {
+        success: result.success,
+        hasUrl: !!result.url,
+        error: result.error,
+      })
+
       if (!result.success || !result.url) {
         throw new Error(result.error || '上传失败')
       }
@@ -158,6 +190,9 @@ export function useProfileForm({
       toast.success('头像已上传，点击保存后生效', { id: toastId })
     } catch (err) {
       const message = err instanceof Error ? err.message : '头像上传失败，请稍后重试'
+      debugLog('client-exception', {
+        error: err instanceof Error ? err.message : 'unknown error',
+      })
       toast.error(message, { id: toastId })
     } finally {
       setIsUploading(false)
@@ -197,7 +232,6 @@ export function useProfileForm({
         bio: formData.bio,
         location: formData.location,
         avatar_url: finalAvatarUrl,
-        domain: formData.domain,
       }
 
       const result = await updateProfile(params)
@@ -253,7 +287,6 @@ export function useProfileForm({
       bio: initialData?.bio || '',
       location: initialData?.location || '',
       avatar_url: originalAvatarUrl.current,
-      domain: initialData?.domain || '',
     })
     tempAvatarUrl.current = null
     setError('')

@@ -10,10 +10,9 @@ export {
   AUTH_KEYS,
   USER_KEYS,
   ARTICLE_KEYS,
-  REWARDS_KEYS,
   NOTIFICATION_KEYS,
   SETTINGS_KEYS,
-  
+
   // 工具函数
   getCacheKeyString,
   getCacheDependencies,
