@@ -11,10 +11,10 @@
  * - 所有文件验证在服务端执行
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import type { AuthResult } from '@/types'
+import { getCurrentUser } from '@/lib/auth/server'
 
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -136,15 +136,12 @@ function generateAvatarFileName(userId: string, mimeType: string): string {
 export async function uploadAvatarAction(formData: FormData): Promise<AuthResult & { url?: string }> {
   const traceId = `avatar-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   try {
-    // 获取当前用户（服务端自动携带认证信息）
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // 统一认证入口：避免分散鉴权逻辑
+    const user = await getCurrentUser()
+    if (!user) {
       console.error('[avatar-upload][auth-failed]', {
         traceId,
-        authError,
-        hasUser: !!user,
+        hasUser: false,
       })
       return { success: false, error: '用户未登录或会话已过期' }
     }
@@ -252,10 +249,8 @@ export async function deleteAvatarAction(avatarUrl: string): Promise<boolean> {
       return true
     }
 
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const user = await getCurrentUser()
+    if (!user) {
       return false
     }
 

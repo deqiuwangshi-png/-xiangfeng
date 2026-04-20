@@ -5,7 +5,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getCurrentUser } from '@/lib/auth/server';
 
 /**
  * GET /api/auth
@@ -13,12 +13,11 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
 
     const noStore = { 'Cache-Control': 'private, no-store, max-age=0' } as const;
 
-    if (error || !user) {
+    if (!user) {
       return NextResponse.json(
         {
           authenticated: false,

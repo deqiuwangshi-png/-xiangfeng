@@ -477,6 +477,10 @@ interface OAuthLoginResult {
 
 ## 关联文档
 
+### 认证边界规范
+
+- [认证单入口硬约束](../../docs/AUTH_SINGLE_SOURCE_GUARDRAIL.md)
+
 ### 相关组件
 
 - [认证组件文档](../../components/auth/README.md) - 登录/注册表单组件
