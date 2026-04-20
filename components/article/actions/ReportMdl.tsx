@@ -10,6 +10,8 @@ import { useState } from 'react'
 import { X, Flag } from 'lucide-react'
 import type { ReportMdlProps } from '@/types'
 import { useArticleToast } from '@/hooks/article/useArticleToast'
+import { submitArticleReport } from '@/lib/articles/actions'
+import { COMMENT_INTERACTION_MESSAGES } from '@/lib/messages'
 
 /**
  * 举报类型配置
@@ -37,18 +39,15 @@ const REPORT_TYPES = [
  * - 提交举报请求
  * - 显示提交结果
  */
-export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose }: ReportMdlProps) {
-  void _articleId
-  void _authorId
+export function ReportMdl({ articleId, authorId, onClose }: ReportMdlProps) {
   const [selectedType, setSelectedType] = useState('')
   const [reason, setReason] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { showError, showInfo } = useArticleToast()
+  const { showError, showSuccess } = useArticleToast()
 
   /**
    * 处理提交举报
    *
-   * 后续接入真实API
    */
   const handleSubmit = async () => {
     if (!selectedType) {
@@ -57,14 +56,21 @@ export function ReportMdl({ articleId: _articleId, authorId: _authorId, onClose 
     }
 
     setIsSubmitting(true)
+    try {
+      const result = await submitArticleReport(articleId, authorId, selectedType, reason)
+      if (!result.success) {
+        showError(result.error || COMMENT_INTERACTION_MESSAGES.REPORT_ERROR)
+        return
+      }
 
-    // 【待实现】调用举报API
-    // 模拟提交延迟
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    showInfo('举报功能开发中', '敬请期待后续版本！')
-    setIsSubmitting(false)
-    onClose()
+      showSuccess('举报提交')
+      onClose()
+    } catch (error) {
+      console.error('[ReportMdl] 举报提交异常:', error)
+      showError(COMMENT_INTERACTION_MESSAGES.REPORT_ERROR)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

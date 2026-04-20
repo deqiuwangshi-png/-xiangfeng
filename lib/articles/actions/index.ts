@@ -9,3 +9,4 @@ export * from './crud';
 export * from './like';
 export * from './bookmark';
 export * from './comment';
+export * from './report';

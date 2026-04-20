@@ -21,7 +21,7 @@ export const MAIN_NAVIGATION_ITEMS: NavigationItem[] = [
 
 export const PRELOAD_ROUTES = ['/home', '/publish', '/drafts', '/inbox', '/profile']
 
-const EXTRA_PROTECTED_PREFIX_ROUTES = ['/settings', '/updates']
+const EXTRA_PROTECTED_PREFIX_ROUTES = ['/settings', '/updates', '/admin']
 const EXTRA_PROTECTED_EXACT_ROUTES = ['/profile']
 
 export const AUTH_REQUIRED_ROUTE_PREFIXES = Array.from(
