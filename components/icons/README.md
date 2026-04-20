@@ -50,7 +50,6 @@ components/icons/
 ├── feedback.ts       # 反馈页图标
 ├── settings.ts       # 设置页图标
 ├── profile.ts        # 个人中心图标
-├── rewards.ts        # 福利中心图标
 └── README.md         # 本文档
 ```
 
@@ -302,71 +301,6 @@ import {
 | Users | 粉丝数 | 关注者数量 |
 | ThumbsUp | 获赞数 | 总点赞数 |
 
-### 8. 福利中心图标 (rewards.ts)
-
-福利中心页面专用图标，包含大量图标。
-
-```typescript
-import {
-  Archive, ArrowLeft, ArrowRight, Award, Bookmark, BookOpen, Brain,
-  Calendar, CalendarCheck, Camera, Check, CheckCircle, CheckCircle2,
-  Clock, Coffee, Coins, Compass, Crown, CupSoda, Eye, Feather, Film,
-  Gift, Globe, GraduationCap, ListTodo, Map, MessageCircle, Minus,
-  Moon, Music, Palette, PenTool, Plus, Scroll, ShoppingBag, Smartphone,
-  Sparkles, Star, Sticker, Sun, Target, TrendingUp, Trophy, Users,
-  Wallet, Zap
-} from '@/components/icons'
-```
-
-**积分相关**：
-- Coins - 积分
-- Wallet - 钱包
-- TrendingUp - 积分趋势
-- Plus - 增加积分
-- Minus - 消耗积分
-
-**任务相关**：
-- CheckCircle - 已完成
-- CheckCircle2 - 已签到
-- Circle - 未完成
-- CalendarCheck - 每日签到
-- ListTodo - 任务列表
-- Target - 目标任务
-
-**徽章/成就**：
-- Award - 成就徽章
-- Trophy - 奖杯
-- Crown - 皇冠
-- Star - 星级
-- Sparkles - 闪光
-
-**商城相关**：
-- ShoppingBag - 商城
-- Gift - 兑换奖品
-- Bookmark - 收藏商品
-- BookOpen - 知识类商品
-
-**主题相关**：
-- Sun - 日间模式
-- Moon - 夜间模式
-- Palette - 主题色
-- Smartphone - 移动端主题
-
-**其他**：
-- Brain - 智力/学习
-- Coffee - 休闲/生活
-- Compass - 探索/发现
-- Feather - 写作/创作
-- Film - 影视/娱乐
-- Globe - 全球/语言
-- GraduationCap - 教育/学习
-- Map - 地图/位置
-- Music - 音乐
-- PenTool - 设计/工具
-- Scroll - 文档/历史
-- Sticker - 贴纸/表情
-- Zap - 闪电/能量
-
 ## Logo 组件
 
 ### 组件属性
@@ -494,7 +428,6 @@ import { Link as LinkIcon } from '@/components/icons'
 - 反馈页图标 → `feedback.ts`
 - 设置页图标 → `settings.ts`
 - 个人中心图标 → `profile.ts`
-- 福利中心图标 → `rewards.ts`
 
 ### 2. 添加图标到对应文件
 

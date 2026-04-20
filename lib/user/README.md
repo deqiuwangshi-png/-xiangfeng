@@ -6,7 +6,7 @@
 
 ## 核心特性
 
-- **资料管理**: 更新用户名、头像、简介、位置、专业领域
+- **资料管理**: 更新用户名、头像、简介、位置
 - **邮箱更换**: 安全的邮箱更换流程，带验证邮件
 - **账户操作**: 账户停用（软删除）和硬删除
 - **用户统计**: 文章数、粉丝数、点赞数、节点数统计
@@ -58,8 +58,7 @@ const result = await updateProfile({
   username: '新用户名',
   bio: '个人简介...',
   location: '北京',
-  avatar_url: 'https://example.com/avatar.jpg',
-  domain: '前端, React, TypeScript'
+  avatar_url: 'https://example.com/avatar.jpg'
 })
 
 if (result.success) {
@@ -71,15 +70,17 @@ if (result.success) {
 
 **支持的字段**:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `username` | string | 用户名 |
-| `bio` | string | 个人简介 |
-| `location` | string | 位置 |
-| `avatar_url` | string | 头像 URL |
-| `domain` | string | 专业领域（逗号分隔）|
+
+| 字段           | 类型     | 说明         |
+| ------------ | ------ | ---------- |
+| `username`   | string | 用户名        |
+| `bio`        | string | 个人简介       |
+| `location`   | string | 位置         |
+| `avatar_url` | string | 头像 URL     |
+
 
 **安全特性**:
+
 - Zod Schema 输入验证
 - XSS 防护
 - 数据净化
@@ -119,6 +120,7 @@ if (result.success) {
 ```
 
 **流程说明**:
+
 1. 检查新邮箱是否已被使用
 2. 验证邮箱域名白名单
 3. 调用 Supabase Auth 触发验证邮件
@@ -147,14 +149,17 @@ if (result.success) {
 
 **统计字段**:
 
-| 字段 | 说明 |
-|------|------|
-| `articles` | 发布的文章数量 |
-| `followers` | 粉丝数量 |
-| `likes` | 获得的总点赞数 |
-| `nodes` | 收藏的节点数量 |
+
+| 字段          | 说明      |
+| ----------- | ------- |
+| `articles`  | 发布的文章数量 |
+| `followers` | 粉丝数量    |
+| `likes`     | 获得的总点赞数 |
+| `nodes`     | 收藏的节点数量 |
+
 
 **性能优化**:
+
 - 使用 `profiles` 表缓存字段
 - React `cache()` 函数缓存结果
 - 单次查询替代多次查询
@@ -181,21 +186,24 @@ console.log('加入日期:', displayInfo.joinDate)
 ```
 
 **数据优先级**:
+
 1. `profiles` 表数据（优先）
 2. `user_metadata`（备用）
 3. 默认值
 
 **返回字段**:
 
-| 字段 | 说明 |
-|------|------|
-| `id` | 用户ID |
-| `email` | 邮箱 |
-| `username` | 用户名 |
-| `avatarUrl` | 头像URL |
-| `bio` | 个人简介 |
-| `location` | 位置 |
-| `joinDate` | 加入日期（格式化）|
+
+| 字段          | 说明        |
+| ----------- | --------- |
+| `id`        | 用户ID      |
+| `email`     | 邮箱        |
+| `username`  | 用户名       |
+| `avatarUrl` | 头像URL     |
+| `bio`       | 个人简介      |
+| `location`  | 位置        |
+| `joinDate`  | 加入日期（格式化） |
+
 
 ---
 
@@ -219,6 +227,7 @@ if (result.success) {
 ```
 
 **删除流程**:
+
 1. 验证密码（二次确认）
 2. 删除用户发布的所有文章
 3. 匿名化用户的评论（保留内容，显示"已删除用户"）
@@ -267,6 +276,7 @@ const isActive = await isAccountActive(userId)
 ```
 
 **停用效果**:
+
 - 设置 `profiles.is_active = false`
 - 文章对外不可见（通过查询过滤）
 - 所有数据保留
@@ -305,6 +315,7 @@ if (result.success) {
 ```
 
 **特性**:
+
 - 使用唯一约束防重
 - 触发器自动维护计数
 - 不能关注自己
@@ -320,7 +331,6 @@ interface UpdateProfileParams {
   bio?: string
   location?: string
   avatar_url?: string
-  domain?: string
 }
 ```
 
@@ -390,7 +400,6 @@ CREATE TABLE profiles (
   avatar_url TEXT,
   bio TEXT,
   location VARCHAR(100),
-  domain TEXT[], -- PostgreSQL 数组
   visibility VARCHAR(20) DEFAULT 'public',
   is_active BOOLEAN DEFAULT true,
   
@@ -424,6 +433,8 @@ CREATE TABLE follows (
 
 - [设置中心组件文档](../../components/settings/README.md) - 账户设置 UI
 - [个人主页组件文档](../../components/profile/README.md) - 用户资料展示
+- [头像链路规范](./AVATAR_FLOW.md) - 头像真源、兜底与事件同步规则
+- [头像维护手册](./AVATAR_MAINTENANCE.md) - 修改头像功能时的步骤与排查指南
 
 ### 相关类型
 
@@ -511,3 +522,4 @@ const handleFollow = async () => {
 - **数据库表**: 2个
 - **类型定义**: 8个
 - **最后更新**: 2026-03-29
+

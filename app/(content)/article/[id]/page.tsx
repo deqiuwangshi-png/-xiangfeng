@@ -12,9 +12,14 @@ import {
   ReadingProgress,
   CommentSkeleton,
   ViewTracker,
+  NextArticleDropdown,
 } from '@/components/article';
 import { getCurrentUser } from '@/lib/auth/server';
-import { getArticleDetailById, getArticleCommentsPaginated } from '@/lib/articles/queries';
+import {
+  getArticleDetailById,
+  getArticleCommentsPaginated,
+  getNextAndRandomArticles,
+} from '@/lib/articles/queries';
 import type { ArticlePageProps } from '@/types';
 import '@/styles/article.css';
 
@@ -33,6 +38,55 @@ const getCachedArticle = cache(async (id: string) => {
 const getCachedComments = cache(async (articleId: string, page: number, limit: number) => {
   return getArticleCommentsPaginated(articleId, page, limit);
 });
+
+const getCachedNextAndRandom = cache(async (articleId: string, publishedAt: string | null) => {
+  return getNextAndRandomArticles(articleId, publishedAt);
+});
+
+async function AsyncCommentSection({
+  articleId,
+  currentUser,
+}: {
+  articleId: string;
+  currentUser: Awaited<ReturnType<typeof getCurrentUser>>;
+}) {
+  const { comments, totalCount, hasMore } = await getCachedComments(articleId, 1, 10);
+
+  return (
+    <CommentPanel
+      articleId={articleId}
+      initialComments={comments}
+      initialTotalCount={totalCount}
+      initialHasMore={hasMore}
+      currentUser={currentUser}
+    />
+  );
+}
+
+async function AsyncNextArticleSection({
+  articleId,
+  publishedAt,
+}: {
+  articleId: string;
+  publishedAt: string | null;
+}) {
+  const { next: nextArticle, random: randomArticle } = await getCachedNextAndRandom(
+    articleId,
+    publishedAt
+  );
+
+  return <NextArticleDropdown nextArticle={nextArticle} randomArticle={randomArticle} />;
+}
+
+function NextArticleSkeleton() {
+  return (
+    <section className="max-w-[840px] mx-auto px-4 sm:px-6 mt-5 mb-10">
+      <div className="rounded-xl border border-xf-bg/60 bg-white px-4 py-3 animate-pulse">
+        <div className="h-4 w-20 bg-gray-200 rounded" />
+      </div>
+    </section>
+  );
+}
 
 function buildSafePreviewContent(content: string, maxLength: number = 1200): string {
   // 保留HTML标签，只截断文本内容
@@ -167,12 +221,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { id: articleId } = await params;
 
-  const user = await getCurrentUser();
-
-  const [article, { comments, totalCount, hasMore }] = await Promise.all([
-    getCachedArticle(articleId),
-    getCachedComments(articleId, 1, 10),
-  ]);
+  const [user, article] = await Promise.all([getCurrentUser(), getCachedArticle(articleId)]);
 
   if (!article) {
     notFound();
@@ -221,6 +270,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           )}
         </div>
       </div>
+
+      <Suspense fallback={<NextArticleSkeleton />}>
+        <AsyncNextArticleSection articleId={articleId} publishedAt={article.publishedAt || null} />
+      </Suspense>
       
       {/* ArticleActions 接收当前用户和文章统计数据 */}
       <ArtAct
@@ -230,20 +283,14 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         authorAvatar={article.author.avatar}
         currentUser={user}
         initialLikeCount={article.likesCount || 0}
-        initialCommentCount={totalCount || 0}
+        initialCommentCount={article.commentsCount || 0}
         initialLiked={article.isLiked || false}
         initialBookmarked={article.isBookmarked || false}
       />
       
-      {/* CommentPanel 接收初始评论数据（分页加载） */}
+      {/* 评论区改为流式，首屏先渲染正文 */}
       <Suspense fallback={<CommentSkeleton />}>
-        <CommentPanel
-          articleId={articleId}
-          initialComments={comments}
-          initialTotalCount={totalCount}
-          initialHasMore={hasMore}
-          currentUser={user}
-        />
+        <AsyncCommentSection articleId={articleId} currentUser={user} />
       </Suspense>
     </>
   );

@@ -191,9 +191,9 @@ lib/
 />
 ```
 
-### 7. 字符计数（已内联）
+### 7. 字符计数（实现位置）
 
-- 字符计数能力已内联到 `EditorCard.tsx`，不再维护独立文件。
+- 字符计数由 `EditorCard.tsx` 内部组件负责，作为编辑卡片的一部分统一维护。
 
 ### 8. EditorToolbar（编辑器工具栏组件）
 
@@ -215,7 +215,6 @@ lib/
 <EditorToolbar
   editor={editor}
   onFocusTitle={focusTitle}
-  onToggleFullscreen={toggleFullscreen}
   onToggleToolbar={toggleToolbar}
   isCollapsed={isToolbarCollapsed}
 />
@@ -247,9 +246,9 @@ lib/
 />
 ```
 
-### 10. 标题选择（已内联）
+### 10. 标题选择（实现位置）
 
-- 标题级别下拉选择已内联到 `EditorToolbar.tsx`，避免额外文件分散。
+- 标题级别下拉选择由 `EditorToolbar.tsx` 内部组件实现。
 
 ### 11. BubbleMenu（浮动气泡菜单组件）
 
@@ -260,7 +259,7 @@ lib/
 **功能**:
 
 - 加粗、斜体、下划线
-- 标题转换（H1-H3）
+- 标题转换（H1-H5）
 - 引用、代码
 - 列表（有序/无序）
 - 清除格式
@@ -282,17 +281,12 @@ lib/
 
 - 快速插入格式化命令
 - 支持键盘导航（上下箭头选择，回车确认）
-- 图片上传功能
 - 模糊搜索匹配
 
 **使用示例**:
 
 ```tsx
-<SlashMenu
-  editor={editor}
-  onUploadStart={() => setIsUploading(true)}
-  onUploadEnd={() => setIsUploading(false)}
-/>
+<SlashMenu editor={editor} />
 ```
 
 ### 13. DynamicEditor（动态编辑器组件）
@@ -337,9 +331,9 @@ lib/
 <EditorSkeleton />
 ```
 
-### 15. 拖拽手柄（已内联）
+### 15. 拖拽手柄（实现位置）
 
-- 拖拽手柄已内联到 `ParaNodeView.tsx`，保持节点拖拽能力不变。
+- 拖拽手柄由 `ParaNodeView.tsx` 内部组件实现，用于段落节点排序。
 
 ### 16. ParaNodeView（段落节点视图组件）
 
@@ -551,8 +545,7 @@ PublishPage (Server Component)
             │   └── EditorContent (TipTap 编辑器内容，含内联字符计数)
             ├── BubbleMenu (浮动气泡菜单)
             ├── SlashMenu (斜杠命令菜单)
-            └── EditorToolbar (编辑器工具栏)
-                └── ToolbarButton (工具栏按钮，含内联标题选择) × N
+            └── （当前未接入 EditorToolbar）
 ```
 
 ### TipTap 节点视图层次结构
@@ -621,8 +614,8 @@ EditorContent
 
 ### Tailwind CSS v4
 
-- 使用 `bg-linear-`* 替代 `bg-gradient-*`
-- 使用项目定义的颜色变量（`--color-xf-*`）
+- 使用 `bg-linear-`* 替代 `bg-gradient-`*
+- 使用项目定义的颜色变量（`--color-xf-`*）
 - 严禁自定义颜色值
 
 ### TypeScript
@@ -656,12 +649,12 @@ DynamicEditor (更新状态)
 
 ## 性能优化
 
-1. **动态导入**: DynamicEditor 使用动态导入，减少首屏加载时间
-2. **骨架屏**: EditorSkeleton 提供加载状态，优化感知性能
-3. **组件拆分**: 避免不必要的重渲染
-4. **状态管理**: 合理划分状态，减少不必要的更新
-5. **事件处理**: 使用 useCallback 优化事件处理函数
-6. **样式优化**: 使用 Tailwind CSS v4 工具类，避免自定义样式
+1. **按需加载**: `PublishPageClient` 通过动态导入加载 `DynamicEditor`，控制首屏体积
+2. **加载反馈**: `EditorSkeleton` 在编辑器加载期间提供结构化占位，降低布局抖动
+3. **状态边界**: 编辑状态集中在 `DynamicEditor` 与 hooks 层，子组件保持展示职责
+4. **命令去重**: 编辑命令统一收敛到 `editorCommands.ts`，避免多入口重复实现
+5. **交互稳定**: 浮层菜单采用视口坐标渲染策略（portal + fixed）以降低定位偏差
+6. **样式一致性**: 组件样式统一使用 Tailwind CSS v4 工具类
 
 ## 命令执行规范（去重）
 
@@ -669,6 +662,7 @@ DynamicEditor (更新状态)
 - `EditorToolbar`、`BubbleMenu`、`SlashMenu` 只负责 UI 入口，不重复维护命令执行逻辑。
 - 新增命令时先更新统一命令执行器，再按需接入菜单入口。
 
-## 更新时间
+## 文档维护
 
-2026-04-15
+- 本文档描述 `components/publish` 的当前实现与现行约束。
+

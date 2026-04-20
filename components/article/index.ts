@@ -20,6 +20,7 @@ export { ReportMdl } from './actions/ReportMdl';
 export { default as AuthorAvatar } from './ui/AuthorAvatar';
 export { default as ReadingProgress } from './ui/ReadingProgress';
 export { ArticlePaywall } from './ui/ArticlePaywall';
+export { default as NextArticleDropdown } from './ui/NextArticleDropdown';
 
 // Tracking - 追踪统计组件
 export { ViewTracker } from './tracking/ViewTracker';

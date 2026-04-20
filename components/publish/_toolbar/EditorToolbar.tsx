@@ -9,8 +9,6 @@
  * - 使用简单布局流，相对于内容区域居中定位
  */
 
-'use client'
-
 import { Editor } from '@tiptap/react'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -23,7 +21,6 @@ import { runEditorCommand } from './editorCommands'
 interface EditorToolbarProps {
   editor: Editor | null
   onFocusTitle: () => void
-  onToggleFullscreen: () => void
   onToggleToolbar: () => void
   isCollapsed: boolean
 }

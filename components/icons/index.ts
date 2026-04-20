@@ -13,7 +13,6 @@
  * - article: 文章页图标
  * - settings: 设置页图标
  * - profile: 个人中心图标
- * - rewards: 福利中心图标
  */
 
 export * from './common'

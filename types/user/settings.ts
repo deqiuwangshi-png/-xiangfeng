@@ -74,20 +74,18 @@ export interface UserSettings {
  * 用于设置页面各组件间传递用户数据
  */
 export interface UserData {
-  /** 用户唯一标识（同时作为头像seed，确保头像一致性） */
+  /** 用户唯一标识（profiles 主键） */
   id: string
   /** 用户邮箱 */
   email: string
   /** 用户名 */
   username: string
-  /** 头像URL（基于user.id生成，确保全局一致） */
+  /** 头像URL（来源于 profiles.avatar_url，空值使用空字符串） */
   avatar_url: string
   /** 个人简介 */
   bio: string
   /** 位置信息 */
   location: string
-  /** 个人领域 */
-  domain?: string
 }
 
 /**
@@ -163,10 +161,8 @@ export interface UpdateProfileParams {
   bio?: string
   /** 位置信息 */
   location?: string
-  /** 头像URL */
+  /** 头像URL（空字符串表示清空头像） */
   avatar_url?: string
-  /** 个人领域 */
-  domain?: string
 }
 
 /**
@@ -183,7 +179,6 @@ export interface UpdateProfileResult {
     bio: string
     location: string
     avatar_url: string
-    domain?: string
   }
 }
 

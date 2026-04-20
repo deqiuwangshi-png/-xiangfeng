@@ -24,7 +24,7 @@ export interface SimpleUser {
   user_metadata?: {
     /** 用户名 */
     username?: string
-    /** 头像URL */
+    /** 头像URL（兼容字段，不作为主展示源） */
     avatar_url?: string
   }
 }
@@ -41,7 +41,7 @@ export interface UserProfile {
   email: string
   /** 用户名 */
   username: string
-  /** 头像URL */
+  /** 头像URL（主展示源，来自 profiles.avatar_url） */
   avatar_url: string
 }
 
@@ -53,7 +53,7 @@ export interface UserProfile {
 export interface SimpleUserProfile {
   /** 用户名 */
   username?: string
-  /** 头像URL */
+  /** 头像URL（主展示源，来自 profiles.avatar_url） */
   avatar_url?: string
 }
 
@@ -125,7 +125,7 @@ export interface UserDisplayInfo {
   id: string
   /** 显示用的用户名 */
   username: string
-  /** 头像URL */
+  /** 头像URL（展示层字段；为空时由头像组件回退首字母） */
   avatarUrl: string | null
   /** 用户简介 */
   bio: string | null

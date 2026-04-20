@@ -23,7 +23,6 @@ export type WriteOperation =
   | 'follow'   // 关注
   | 'bookmark' // 收藏
   | 'upload'   // 上传文件
-  | 'task'     // 接取任务
   | 'report'   // 举报
   | 'reply';   // 回复
 

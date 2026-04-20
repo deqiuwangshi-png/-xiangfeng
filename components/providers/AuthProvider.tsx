@@ -138,10 +138,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const customEvent = event as CustomEvent<UserProfileUpdatedDetail>
       const detail = customEvent.detail || {}
 
-      setProfile((prev) => ({
-        username: detail.username || prev?.username || undefined,
-        avatar_url: detail.avatar_url || prev?.avatar_url || undefined,
-      }))
+      setProfile((prev) => {
+        const nextUsername = Object.prototype.hasOwnProperty.call(detail, 'username')
+          ? detail.username || undefined
+          : prev?.username || undefined
+
+        const nextAvatar = Object.prototype.hasOwnProperty.call(detail, 'avatar_url')
+          ? detail.avatar_url || undefined
+          : prev?.avatar_url || undefined
+
+        return {
+          username: nextUsername,
+          avatar_url: nextAvatar,
+        }
+      })
     }
 
     if (typeof window !== 'undefined') {

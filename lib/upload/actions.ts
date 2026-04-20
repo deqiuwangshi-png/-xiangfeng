@@ -12,8 +12,11 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import type { AuthResult } from '@/types'
+
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 /**
  * 上传配置常量
@@ -32,6 +35,24 @@ const IMAGE_MAGIC_BYTES: Record<string, number[]> = {
   'image/jpeg': [0xff, 0xd8, 0xff],
   'image/png': [0x89, 0x50, 0x4e, 0x47],
   'image/webp': [0x52, 0x49, 0x46, 0x46],
+}
+
+function maskUserId(userId?: string): string {
+  if (!userId) return 'unknown'
+  if (userId.length <= 8) return '***'
+  return `${userId.slice(0, 4)}***${userId.slice(-4)}`
+}
+
+function maskFileName(fileName?: string): string {
+  if (!fileName) return 'unknown'
+  const lastDot = fileName.lastIndexOf('.')
+  const ext = lastDot >= 0 ? fileName.slice(lastDot + 1).toLowerCase() : 'unknown'
+  return `file.${ext}`
+}
+
+function debugLog(event: string, payload: Record<string, unknown>): void {
+  if (!IS_DEV) return
+  console.log(`[avatar-upload][${event}]`, payload)
 }
 
 /**
@@ -113,41 +134,58 @@ function generateAvatarFileName(userId: string, mimeType: string): string {
  * - 自动刷新缓存
  */
 export async function uploadAvatarAction(formData: FormData): Promise<AuthResult & { url?: string }> {
+  const traceId = `avatar-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   try {
     // 获取当前用户（服务端自动携带认证信息）
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      console.error('认证失败:', authError)
+      console.error('[avatar-upload][auth-failed]', {
+        traceId,
+        authError,
+        hasUser: !!user,
+      })
       return { success: false, error: '用户未登录或会话已过期' }
     }
+
+    // 使用管理员客户端执行 Storage 操作，避免服务端会话上下文抖动导致的 RLS 误拒绝
+    // 安全边界：已通过上面的用户鉴权，且文件路径强绑定 user.id
+    const admin = await createAdminClient()
 
     // 获取文件
     const file = formData.get('file') as File
     if (!file) {
+      console.error('[avatar-upload][no-file]', { traceId, userId: maskUserId(user.id) })
       return { success: false, error: '未找到上传的文件' }
     }
 
-    // 🔍 打印文件信息到控制台（调试用）
-    console.log('=== 文件调试信息 ===')
-    console.log('file.name:', file.name)
-    console.log('file.type:', file.type)
-    console.log('file.size:', file.size, `(${Math.round(file.size / 1024)} KB)`)
-    console.log('====================')
+    debugLog('start', {
+      traceId,
+      userId: maskUserId(user.id),
+      fileName: maskFileName(file.name),
+      fileType: file.type,
+      fileSize: file.size,
+    })
 
     // 验证文件
     await validateAvatarFile(file)
 
     // 生成文件名
     const fileName = generateAvatarFileName(user.id, file.type)
+    debugLog('path-generated', {
+      traceId,
+      userId: maskUserId(user.id),
+      fileName: maskFileName(fileName),
+      firstFolder: fileName.split('/')[0],
+    })
 
     // 转换为 Buffer 上传
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
     // 上传到 Storage
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await admin.storage
       .from(UPLOAD_CONFIG.bucket)
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -156,25 +194,46 @@ export async function uploadAvatarAction(formData: FormData): Promise<AuthResult
       })
 
     if (uploadError) {
-      console.error('上传失败:', uploadError)
+      console.error('[avatar-upload][storage-upload-failed]', {
+        traceId,
+        userId: maskUserId(user.id),
+        fileName: maskFileName(fileName),
+        bucket: UPLOAD_CONFIG.bucket,
+        uploadError,
+      })
       return { success: false, error: '头像上传失败，请稍后重试' }
     }
 
     // 获取 Public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = admin.storage
       .from(UPLOAD_CONFIG.bucket)
       .getPublicUrl(fileName)
 
     if (!urlData?.publicUrl) {
+      console.error('[avatar-upload][no-public-url]', {
+        traceId,
+        userId: maskUserId(user.id),
+        fileName: maskFileName(fileName),
+      })
       return { success: false, error: '获取头像链接失败' }
     }
+
+    debugLog('success', {
+      traceId,
+      userId: maskUserId(user.id),
+      fileName: maskFileName(fileName),
+      hasPublicUrl: !!urlData.publicUrl,
+    })
 
     // 刷新缓存
     revalidatePath('/settings')
 
     return { success: true, url: urlData.publicUrl }
   } catch (err) {
-    console.error('上传出错:', err)
+    console.error('[avatar-upload][exception]', {
+      traceId,
+      error: err,
+    })
     const message = err instanceof Error ? err.message : '上传失败'
     return { success: false, error: message }
   }
@@ -194,6 +253,11 @@ export async function deleteAvatarAction(avatarUrl: string): Promise<boolean> {
     }
 
     const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return false
+    }
 
     // 从 URL 中提取文件路径
     const url = new URL(avatarUrl)
@@ -203,7 +267,15 @@ export async function deleteAvatarAction(avatarUrl: string): Promise<boolean> {
 
     const filePath = pathMatch[1]
 
-    const { error } = await supabase.storage
+    // 仅允许删除当前用户目录下的头像文件
+    const ownerFolder = filePath.split('/')[0]
+    if (ownerFolder !== user.id) {
+      return false
+    }
+
+    const admin = await createAdminClient()
+
+    const { error } = await admin.storage
       .from(UPLOAD_CONFIG.bucket)
       .remove([filePath])
 

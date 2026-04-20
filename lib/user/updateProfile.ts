@@ -7,28 +7,6 @@ import { UpdateProfileParams, UpdateProfileResult } from '@/types/user/settings'
 import { validateProfileInput } from '@/lib/security/inputValidator'
 import { PROFILE_MESSAGES, COMMON_ERRORS } from '@/lib/messages'
 
-/**
- * 将字符串转换为 PostgreSQL 数组格式
- *
- * @function stringToPostgresArray
- * @param {string} str - 输入字符串，多个值用逗号分隔
- * @returns {string} PostgreSQL 数组格式字符串，如 {前端, 后端}
- *
- * @description
- * 将用户输入的逗号分隔字符串转换为 PostgreSQL 数组文本格式
- * 例如："前端, 后端" -> "{前端, 后端}"
- */
-function stringToPostgresArray(str: string | undefined): string | null {
-  if (!str || str.trim() === '') return null
-  // 分割逗号分隔的值，去除空白，过滤空值
-  const values = str
-    .split(/[,，]/) // 支持中英文逗号
-    .map(v => v.trim())
-    .filter(v => v.length > 0)
-  if (values.length === 0) return null
-  // 转换为 PostgreSQL 数组格式: {value1, value2}
-  return `{${values.join(', ')}}`
-}
 
 /**
  * 更新用户资料 Server Action
@@ -88,9 +66,6 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
     const userId = user.id
     const now = new Date().toISOString()
 
-    // 将 domain 字符串转换为 PostgreSQL 数组格式
-    const domainArray = stringToPostgresArray(safeParams.domain)
-
     // 1. 更新 profiles 表（使用验证后的安全数据）- 关键路径，必须成功
     const { error: profileError } = await supabase
       .from('profiles')
@@ -100,7 +75,6 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
         bio: safeParams.bio,
         location: safeParams.location,
         avatar_url: safeParams.avatar_url,
-        domain: domainArray,
         updated_at: now,
       }, {
         onConflict: 'id'
@@ -121,7 +95,6 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
           bio: safeParams.bio,
           location: safeParams.location,
           avatar_url: safeParams.avatar_url,
-          domain: safeParams.domain,
         }
       }),
       // 刷新相关页面缓存
@@ -144,7 +117,6 @@ export async function updateProfile(params: UpdateProfileParams): Promise<Update
         bio: safeParams.bio || '',
         location: safeParams.location || '',
         avatar_url: safeParams.avatar_url || '',
-        domain: safeParams.domain || '',
       }
     }
 

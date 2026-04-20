@@ -11,6 +11,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Editor } from '@tiptap/react'
+import { createPortal } from 'react-dom'
 import {
   Bold, Italic, Underline, Quote, Code,
   List, ListOrdered, Eraser, Heading1, Heading2,
@@ -222,7 +223,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
     }
   }
 
-  return (
+  return createPortal(
     <div
       ref={menuRef}
       className="fixed z-50 bg-white/98 shadow-xl rounded-lg border border-xf-light/50 backdrop-blur-sm py-1.5 px-2 flex items-center gap-0.5 animate-in fade-in zoom-in-95 duration-150"
@@ -362,6 +363,7 @@ export function BubbleMenu({ editor }: BubbleMenuProps) {
         title="清除格式"
         size="sm"
       />
-    </div>
+    </div>,
+    document.body
   )
 }

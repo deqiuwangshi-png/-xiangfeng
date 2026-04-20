@@ -22,32 +22,22 @@ interface HeatMapViewProps {
   initialData: HeatMapData[]
 }
 
-/**
- * 思考深度对应的颜色
- * 使用暖色调渐变：从浅琥珀到深赭石
- * 避免程序员绿色系，营造人文/艺术氛围
- */
-const DEPTH_COLORS = [
-  'bg-stone-100',           // 0 - 无记录
-  'bg-amber-100',           // 1 - 浅思
-  'bg-amber-200',           // 2 - 沉思
-  'bg-orange-200',          // 3 - 深思
-  'bg-orange-300',          // 4 - 顿悟
-  'bg-amber-700',           // 5 - 灵感爆发
+const HEAT_COLORS = [
+  'bg-stone-100', // 无记录
+  'bg-amber-200', // 互动/轻度
+  'bg-orange-400', // 创作/深度
 ]
 
-/**
- * 思考深度描述
- */
-const DEPTH_LABELS = ['静', '浅', '沉', '深', '悟', '燃']
+const HEAT_LABELS = ['无记录', '互动', '创作']
 
-/**
- * 获取颜色等级
- * @param {number} count - 思考深度 (0-5)
- * @returns {string} Tailwind颜色类
- */
+function getHeatLevel(count: number): number {
+  if (count <= 0) return 0
+  if (count >= 3) return 2
+  return 1
+}
+
 function getColorLevel(count: number): string {
-  return DEPTH_COLORS[Math.min(count, 5)] || DEPTH_COLORS[0]
+  return HEAT_COLORS[getHeatLevel(count)] || HEAT_COLORS[0]
 }
 
 
@@ -128,26 +118,25 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
   )
 
   /**
-   * 计算统计信息 - 强调质而非量
+   * 计算统计信息
    */
   const stats = useMemo(() => {
     const activeDays = heatData.filter((item) => item.count > 0)
-    const deepThoughts = activeDays.filter((item) => item.count >= 3)
-    const sparkMoments = activeDays.filter((item) => item.count >= 4)
+    const articleDays = activeDays.filter((item) => item.count >= 3)
+    const interactionDays = activeDays.filter((item) => item.count > 0 && item.count < 3)
 
     // 计算有记录的不同领域数
     const domains = new Set(activeDays.map((item) => item.domain).filter(Boolean))
 
     return {
-      totalRecords: activeDays.length,
-      deepThoughts: deepThoughts.length,
-      sparkMoments: sparkMoments.length,
+      activeDays: activeDays.length,
+      articleDays: articleDays.length,
+      interactionDays: interactionDays.length,
       domains: domains.size,
     }
   }, [heatData])
 
-  // 星期标签 - 简化显示（只在关键位置显示）
-  const weekDays = ['日', '一', '', '三', '', '五', '']
+  const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
   // 计算月份标签位置
   const monthLabels = useMemo(() => {
@@ -165,29 +154,36 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
   }, [visibleWeeks])
 
   return (
-    <div className="space-y-6">
-      {/* 标题 */}
-      <h3 className="text-base font-medium text-xf-medium">
-        你所经历、所遇见、所感念的，都会成为你世界地图上的坐标
-      </h3>
+    <section className="rounded-xl border border-xf-bg/70 bg-white p-4 sm:p-5 space-y-5">
+      {/* 标题区 */}
+      <div className="space-y-1">
+        <h3 className="text-base sm:text-lg font-semibold text-xf-dark">思想轨迹</h3>
+        <p className="text-xs sm:text-sm text-xf-medium">
+          最近半年你的思考活跃分布（按周展示）
+        </p>
+      </div>
 
-      {/* 统计概览 - 强调质而非量 */}
-      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-light text-xf-dark">{stats.deepThoughts}</span>
-          <span className="text-xf-medium">次深度思考</span>
+      {/* 统计概览 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="rounded-lg bg-xf-bg/40 px-3 py-2">
+          <p className="text-[11px] text-xf-medium">活跃天数</p>
+          <p className="text-lg font-semibold text-xf-dark">{stats.activeDays}</p>
         </div>
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-light text-xf-dark">{stats.sparkMoments}</span>
-          <span className="text-xf-medium">个灵感时刻</span>
+        <div className="rounded-lg bg-xf-bg/40 px-3 py-2">
+          <p className="text-[11px] text-xf-medium">创作日</p>
+          <p className="text-lg font-semibold text-xf-dark">{stats.articleDays}</p>
         </div>
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-light text-xf-dark">{stats.domains}</span>
-          <span className="text-xf-medium">个思考维度</span>
+        <div className="rounded-lg bg-xf-bg/40 px-3 py-2">
+          <p className="text-[11px] text-xf-medium">互动日</p>
+          <p className="text-lg font-semibold text-xf-dark">{stats.interactionDays}</p>
+        </div>
+        <div className="rounded-lg bg-xf-bg/40 px-3 py-2">
+          <p className="text-[11px] text-xf-medium">思考维度</p>
+          <p className="text-lg font-semibold text-xf-dark">{stats.domains}</p>
         </div>
       </div>
 
-      {/* 热力图区域 - GitHub风格紧凑布局 */}
+      {/* 热力图 */}
       <div className="relative">
         {/* 月份标签 - 绝对定位，与格子精确对齐 */}
         <div className="relative h-4 mb-1">
@@ -196,7 +192,7 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
               key={`${label.month}-${label.index}`}
               className="absolute text-[10px] text-xf-light"
               style={{
-                left: `${28 + label.index * 16}px`, // 28px是星期标签宽度 + gap，16px是每周宽度(12px) + gap(4px)
+                left: `${32 + label.index * 20}px`,
               }}
             >
               {label.month}
@@ -207,11 +203,11 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
         {/* 热力图主体 */}
         <div className="flex gap-1">
           {/* 星期标签 */}
-          <div className="flex flex-col gap-[3px] mr-2">
+          <div className="flex flex-col gap-1 mr-2">
             {weekDays.map((day, i) => (
               <div
                 key={day || i}
-                className="text-[10px] text-xf-light w-5 h-3 flex items-center justify-center"
+                className="text-[11px] text-xf-light w-6 h-4 flex items-center justify-center"
               >
                 {day}
               </div>
@@ -220,16 +216,18 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
 
           {/* 热力格子 */}
           {visibleWeeks.map((item, weekIndex) => (
-            <div key={weekIndex} className="flex flex-col gap-[3px]">
+            <div key={weekIndex} className="flex flex-col gap-1">
               {item.week.map((day, dayIndex) => (
                 <div
                   key={`${weekIndex}-${dayIndex}`}
-                  className={`w-3 h-3 rounded-[2px] ${getColorLevel(
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-sm ${getColorLevel(
                     day.count
-                  )} transition-all duration-300 hover:scale-125 hover:shadow-sm cursor-pointer`}
+                  )} transition-all duration-150 hover:scale-110 hover:ring-1 hover:ring-xf-dark/20 cursor-pointer`}
                   title={
                     day.count > 0
-                      ? `${formatDateShort(day.date)} · ${DEPTH_LABELS[day.count]}思${
+                      ? `${formatDateShort(day.date)} · ${
+                          day.count >= 3 ? '创作' : '互动'
+                        }${
                           day.domain ? ` · ${day.domain}` : ''
                         }${day.insight ? `\n${day.insight}` : ''}`
                       : formatDateShort(day.date)
@@ -242,7 +240,7 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
 
         {/* 翻页控件 - 精致隐形设计 */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-xf-bg/40">
+          <div className="flex items-center justify-between mt-4 pt-3 border-t border-xf-bg/40">
             <button
               onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
               disabled={currentPage === 0}
@@ -252,7 +250,11 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
               <span>更早</span>
             </button>
 
-            <div className="flex items-center gap-1.5">
+            <div className="text-xs text-xf-medium">
+              第 {currentPage + 1} / {totalPages} 段
+            </div>
+
+            <div className="hidden sm:flex items-center gap-1.5">
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
@@ -278,27 +280,18 @@ export function HeatMapView({ initialData }: HeatMapViewProps) {
         )}
       </div>
 
-      {/* 图例 - 人文风格 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-xf-light">思考深度</span>
-          <div className="flex items-center gap-1">
-            {DEPTH_LABELS.map((label, i) => (
-              <div key={label} className="flex flex-col items-center gap-1">
-                <div
-                  className={`w-3 h-3 rounded-[2px] ${DEPTH_COLORS[i]}`}
-                />
-                <span className="text-[9px] text-xf-light">{label}</span>
-              </div>
-            ))}
-          </div>
+      {/* 图例 */}
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-xf-light">图例</span>
+        <div className="flex items-center gap-2">
+          {HEAT_LABELS.map((label, i) => (
+            <div key={label} className="flex items-center gap-1">
+              <div className={`w-3.5 h-3.5 rounded-sm ${HEAT_COLORS[i]}`} />
+              <span className="text-xs text-xf-medium">{label}</span>
+            </div>
+          ))}
         </div>
-
-        {/* 提示文字 */}
-        <p className="text-xs text-xf-light italic">
-          思想的痕迹，如墨入水，深浅自知
-        </p>
       </div>
-    </div>
+    </section>
   )
 }
