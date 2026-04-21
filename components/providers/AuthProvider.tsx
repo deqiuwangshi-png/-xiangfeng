@@ -10,7 +10,6 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { SimpleUserProfile } from '@/types'
-import { routeRequiresAuth } from '@/config/navigation'
 
 interface AuthProviderProps {
   children: React.ReactNode
@@ -97,19 +96,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (hasSession && currentUser) {
         setUser(currentUser)
         setHasValidClientSession(true)
-        // 严格单路径：初始化阶段不加载 profile，统一由 onAuthStateChange 负责
-        // 保持 syncing，直到监听器回调确认最终状态
-        setAuthState('syncing')
+        setAuthState('authenticated')
+        setIsLoading(false)
+        void loadProfile(currentUser.id)
         return
       }
 
-      // No client session: check server auth to distinguish true anonymous
-      // from temporary hydration/session restore drift.
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
-      const shouldCheckServerFallback = routeRequiresAuth(currentPath)
-      const serverUserId = shouldCheckServerFallback
-        ? await fetchServerAuthFallback()
-        : null
+      // getSession 可能在首屏恢复期短暂返回空，这里补一次 getUser() 主动同步。
+      const { data: { user: currentUserByGetUser } } = await supabase.auth.getUser()
+      if (currentUserByGetUser?.id) {
+        setUser(currentUserByGetUser)
+        setHasValidClientSession(true)
+        setAuthState('authenticated')
+        setIsLoading(false)
+        void loadProfile(currentUserByGetUser.id)
+        return
+      }
+
+      // 无客户端会话时始终做一次服务端兜底，避免在非保护路由误判为匿名用户。
+      const serverUserId = await fetchServerAuthFallback()
       setUser(null)
       setHasValidClientSession(false)
       setAuthState(serverUserId ? 'syncing' : 'anonymous')
