@@ -42,30 +42,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const supabase = createClient()
 
-    const fetchServerAuthFallback = async () => {
-      try {
-        const response = await fetch('/api/auth', {
-          method: 'GET',
-          cache: 'no-store',
-        })
-
-        if (!response.ok) return null
-
-        const result = (await response.json()) as {
-          authenticated?: boolean
-          user?: { id: string; email?: string | null } | null
-        }
-
-        if (!result.authenticated || !result.user?.id) {
-          return null
-        }
-
-        return result.user.id
-      } catch {
-        return null
-      }
-    }
-
     const loadProfile = async (userId: string) => {
       try {
         const { data } = await supabase
@@ -113,11 +89,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return
       }
 
-      // 无客户端会话时始终做一次服务端兜底，避免在非保护路由误判为匿名用户。
-      const serverUserId = await fetchServerAuthFallback()
       setUser(null)
       setHasValidClientSession(false)
-      setAuthState(serverUserId ? 'syncing' : 'anonymous')
+      setAuthState('anonymous')
       setProfile(null)
       setIsLoading(false)
     }

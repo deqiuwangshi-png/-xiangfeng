@@ -67,13 +67,14 @@ export function getSupabaseSessionCookieConfig(
   });
 
   const merged: CookieOptions = {
-    ...options,
     ...base,
+    ...options,
   };
 
-  // sb-* 为敏感会话：强制 HttpOnly；Secure 与 TLS/环境对齐（覆盖 Supabase 默认 httpOnly:false）
+  // Supabase 会话 Cookie 需保持可被浏览器端 SDK 读取，不能强制 HttpOnly（官方 SSR 实践）。
+  // 这里仅收敛 Secure / Max-Age，保留 SDK 默认的 httpOnly 行为。
   if (name.startsWith('sb-')) {
-    merged.httpOnly = true;
+    merged.httpOnly = false;
     merged.secure = resolveSecureCookieFlag(secureCtx);
     merged.maxAge = Math.min(merged.maxAge ?? SESSION_MAX_AGE_SECONDS, SESSION_MAX_AGE_SECONDS);
   }
@@ -90,7 +91,8 @@ export function getSupabaseServerCookieOptions(ctx?: {
   return {
     path: '/',
     sameSite: 'lax',
-    httpOnly: true,
+    // Supabase Browser Client 需要读取会话 Cookie，不能在服务端默认设为 HttpOnly。
+    httpOnly: false,
     secure: resolveSecureCookieFlag(ctx),
     maxAge: SESSION_MAX_AGE_SECONDS,
   };

@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import type { CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { sanitizeRedirect } from '@/lib/auth/utils/redir'
+import { routeRequiresAuth } from '@/config/navigation'
 import {
   getCookieConfig,
   getSupabaseServerCookieOptions,
@@ -85,13 +86,13 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname
   const isAuthRoute = isMatchingRoute(path, AUTH_ROUTES)
+  const isProtectedRoute = routeRequiresAuth(path)
 
   // 创建基础响应对象（附带 x-pathname，供 (main)/layout 等做路由级鉴权）
   let supabaseResponse = nextWithPathname(request)
 
-  // 路由分级：仅认证页面需要中间件级 getUser() 以处理“已登录访问登录页”的重定向
-  // 其他路径交由页面层鉴权，减少每请求都触发 getUser() 的强依赖
-  if (!isAuthRoute) {
+  // 仅在认证页或受保护页执行 getUser，避免不必要开销
+  if (!isAuthRoute && !isProtectedRoute) {
     return supabaseResponse
   }
 
@@ -185,12 +186,16 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  if (!user && isProtectedRoute) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    const redirectTarget = `${path}${request.nextUrl.search}`
+    loginUrl.searchParams.set('redirect', sanitizeRedirect(redirectTarget, '/home'))
+    return NextResponse.redirect(loginUrl)
+  }
+
   /**
-   * 路由保护逻辑 - 仅处理已登录用户访问登录页的情况
-   * 
-   * @统一认证 2026-04-08
-   * - 未登录用户访问受保护路由的拦截已移至各 Layout
-   * - 中间件不再处理未登录用户的路由拦截
+   * 路由保护逻辑 - 处理已登录用户访问认证页
    */
   if (user && isAuthRoute) {
     // 已登录用户访问认证页面，重定向到首页或安全路径
