@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/server';
 import { isValidUUID, handleQueryError } from '../helpers/utils';
 import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
+import type { TipTapJSON } from '@/lib/utils/json';
 import type { DraftData } from '@/types/drafts';
 import {
   mapArticleDetailDto,
@@ -287,7 +288,7 @@ export async function getPublicArticleById(id: string) {
     if (error || !data) return null;
 
     const contentFromJson = data.content_json
-      ? generateHTMLFromJSON(data.content_json as string | Record<string, unknown>)
+      ? generateHTMLFromJSON(data.content_json as TipTapJSON | string)
       : '';
     const resolvedContent = contentFromJson || String(data.content ?? '');
 
