@@ -6,6 +6,7 @@
  * 检查是否包含XSS（实际防护由 Supabase RLS 处理）
  */
 export function containsXss(input: string): boolean {
+  void input;
   return false;
 }
 

@@ -144,7 +144,6 @@ export function useArticleActions({
       }
     },
     optimisticUpdater: (current, desiredBookmarked) => {
-      const currentData = current || { bookmarked: initialBookmarked }
       return {
         bookmarked: desiredBookmarked,
       }

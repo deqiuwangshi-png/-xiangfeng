@@ -89,7 +89,7 @@ export async function updateSession(request: NextRequest) {
   const isProtectedRoute = routeRequiresAuth(path)
 
   // 创建基础响应对象（附带 x-pathname，供 (main)/layout 等做路由级鉴权）
-  let supabaseResponse = nextWithPathname(request)
+  const supabaseResponse = nextWithPathname(request)
 
   // 仅在认证页或受保护页执行 getUser，避免不必要开销
   if (!isAuthRoute && !isProtectedRoute) {
@@ -133,18 +133,8 @@ export async function updateSession(request: NextRequest) {
     },
   })
 
-  /**
-   * 获取当前用户 - 用于会话刷新和登录页重定向
-   * 
-   * @关键说明 2026-04-08
-   * supabase.auth.getUser() 会自动：
-   * 1. 验证 access_token 是否过期
-   * 2. 如果过期，使用 refresh_token 获取新的 access_token
-   * 3. 将新的令牌写入 Cookie（通过 setAll）
-   * 
-   * 这是保持用户长期登录的关键！
-   */
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  const { data: { session }, error: userError } = await supabase.auth.getSession()
+  const user = session?.user ?? null
 
   // 处理刷新令牌错误
   if (userError) {

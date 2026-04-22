@@ -154,7 +154,7 @@ export function useProfileForm({
 
     if (!initialData?.id) {
       toast.error('用户未登录')
-      debugLog('client-no-user', { hasInitialData: !!initialData, userId: 'unknown' })
+      debugLog('client-no-user', { hasInitialData: !!initialData?.id, userId: 'unknown' })
       return
     }
 
@@ -271,7 +271,7 @@ export function useProfileForm({
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, initialData, onSave, onError])
+  }, [formData, onSave, onError])
 
   /**
    * 重置表单

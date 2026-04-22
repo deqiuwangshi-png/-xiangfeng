@@ -47,7 +47,7 @@ export function useAuth(): UseAuthReturn {
       }
 
       return { success: true }
-    } catch (err) {
+    } catch {
       return { success: false, error: '登录失败，请重试' }
     }
   }, [])

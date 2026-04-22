@@ -97,7 +97,7 @@ export function UserDropdownMenu({
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, triggerRef])
 
   if (!isOpen) return null
 

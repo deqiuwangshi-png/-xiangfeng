@@ -7,7 +7,6 @@
 
 import { Metadata } from 'next';
 import {
-  SITE_CONFIG,
   TITLE_CONFIG,
   DESCRIPTION_CONFIG,
   KEYWORDS_CONFIG,

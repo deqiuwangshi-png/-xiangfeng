@@ -3,8 +3,6 @@
  * @module types/publish/editor
  */
 
-import { TipTapJSON } from '@/lib/utils/json'
-
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
 export type EditorContentFormat = 'json' | 'html' | 'markdown'

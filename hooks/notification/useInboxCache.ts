@@ -323,7 +323,7 @@ export function useInboxCache(userId: string): UseInboxCacheReturn {
       mutateNotifications()
       mutateUnreadCount()
     }
-  }, [userId, mutateNotifications, mutateUnreadCount])
+  }, [mutateNotifications, mutateUnreadCount])
 
   // 标记单个为已读（乐观更新 + 后端持久化）
   const markAsRead = useCallback(async (id: string) => {

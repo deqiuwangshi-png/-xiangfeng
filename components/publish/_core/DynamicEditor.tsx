@@ -5,7 +5,7 @@
  * @module DynamicEditor
  */
 
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useEditorState } from '@/hooks/publish/useEditorState'
 import { useEditorActions } from '@/hooks/publish/useEditorActions'
@@ -73,7 +73,7 @@ export default function DynamicEditor({
     placeholder: '输入 / 唤起命令菜单，或开始书写你的故事...',
   })
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = useCallback(async () => {
     flushPendingContent()
     try {
       await saveDraft()
@@ -82,7 +82,7 @@ export default function DynamicEditor({
     } catch {
       // 错误已在 useEditorActions 中处理
     }
-  }
+  }, [baseState, flushPendingContent, saveDraft])
 
   const handlePublish = async () => {
     flushPendingContent()
@@ -118,7 +118,7 @@ export default function DynamicEditor({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [baseState.isPublished])
+  }, [baseState.isPublished, handleSaveDraft])
 
   const handleTitleChange = (title: string) => {
     baseState.setTitle(title)

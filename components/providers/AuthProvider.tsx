@@ -78,17 +78,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return
       }
 
-      // getSession 可能在首屏恢复期短暂返回空，这里补一次 getUser() 主动同步。
-      const { data: { user: currentUserByGetUser } } = await supabase.auth.getUser()
-      if (currentUserByGetUser?.id) {
-        setUser(currentUserByGetUser)
-        setHasValidClientSession(true)
-        setAuthState('authenticated')
-        setIsLoading(false)
-        void loadProfile(currentUserByGetUser.id)
-        return
-      }
-
       setUser(null)
       setHasValidClientSession(false)
       setAuthState('anonymous')
