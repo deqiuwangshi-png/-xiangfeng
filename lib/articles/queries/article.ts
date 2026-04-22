@@ -14,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUserId } from '@/lib/auth/server';
 import { generateHTMLFromJSON } from '@/lib/utils/tiptap-html';
+import type { TipTapJSON } from '@/lib/utils/json';
 import type { ArticleWithAuthor } from '@/types';
 import { mapArticleDetailDto } from '../dto';
 
@@ -89,7 +90,7 @@ export async function getArticleDetailById(id: string): Promise<ArticleWithAutho
 
   // 优先使用 content_json 重新生成 HTML，避免历史 content 字段样式丢失
   const contentFromJson = data.content_json
-    ? generateHTMLFromJSON(data.content_json as string | Record<string, unknown>)
+    ? generateHTMLFromJSON(data.content_json as string | TipTapJSON)
     : '';
 
   if (contentFromJson) {
