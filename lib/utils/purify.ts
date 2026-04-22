@@ -19,6 +19,29 @@ interface SanitizeConfig {
   KEEP_CONTENT?: boolean;
 }
 
+function sanitizeInlineStyle(styleValue: string): string {
+  if (!styleValue) return '';
+
+  const safeColorValue =
+    /^(#[0-9a-fA-F]{3,8}|rgba?\(\s*\d{1,3}\s*(,\s*\d{1,3}\s*){2}(,\s*(0|1|0?\.\d+)\s*)?\)|hsla?\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(,\s*(0|1|0?\.\d+)\s*)?\)|[a-zA-Z]+)$/
+
+  const safeDeclarations = styleValue
+    .split(';')
+    .map((decl) => decl.trim())
+    .filter(Boolean)
+    .map((decl) => {
+      const separatorIndex = decl.indexOf(':')
+      if (separatorIndex <= 0) return ''
+      const property = decl.slice(0, separatorIndex).trim().toLowerCase()
+      const value = decl.slice(separatorIndex + 1).trim()
+      if (property !== 'color') return ''
+      return safeColorValue.test(value) ? `color: ${value}` : ''
+    })
+    .filter(Boolean)
+
+  return safeDeclarations.join('; ')
+}
+
 // 纯 JavaScript 实现的 HTML 净化函数
 const sanitizeHtml = (html: string, config: SanitizeConfig) => {
   if (!html || typeof html !== 'string') {
@@ -112,6 +135,21 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
       });
     }
 
+    // 仅保留安全的 color 内联样式，移除其他 style 内容
+    sanitized = sanitized.replace(/\sstyle\s*=\s*"([^"]*)"/gi, (_match, styleValue) => {
+      const safeStyle = sanitizeInlineStyle(styleValue);
+      return safeStyle ? ` style="${safeStyle}"` : '';
+    });
+    sanitized = sanitized.replace(/\sstyle\s*=\s*'([^']*)'/gi, (_match, styleValue) => {
+      const safeStyle = sanitizeInlineStyle(styleValue);
+      return safeStyle ? ` style="${safeStyle}"` : '';
+    });
+    // 仅处理真正的无引号 style 值，避免误匹配 style="color: #xxxxxx"
+    sanitized = sanitized.replace(/\sstyle\s*=\s*([^"'\s>][^\s>]*)/gi, (_match, styleValue) => {
+      const safeStyle = sanitizeInlineStyle(String(styleValue || ''));
+      return safeStyle ? ` style="${safeStyle}"` : '';
+    });
+
     return sanitized;
   }
 };
@@ -123,6 +161,7 @@ const sanitizeHtml = (html: string, config: SanitizeConfig) => {
 const RICH_TEXT_CONFIG = {
   ALLOWED_TAGS: [
     'p',
+    'span',
     'br',
     'strong',
     'b',
@@ -152,7 +191,7 @@ const RICH_TEXT_CONFIG = {
     'th',
     'td',
   ],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'title', 'data-align'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'title', 'data-align', 'style'],
   ALLOW_DATA_ATTR: false,
   // 强制所有链接在新标签页打开，并添加安全属性
   FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover'],

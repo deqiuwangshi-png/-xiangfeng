@@ -166,7 +166,7 @@
 /* ====== 行内样式 ====== */
 .article-content strong {
   font-weight: 700;
-  color: var(--color-xf-dark);
+  color: inherit;
 }
 
 .article-content em {

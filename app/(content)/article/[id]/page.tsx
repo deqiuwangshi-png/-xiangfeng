@@ -25,7 +25,7 @@ import '@/styles/article.css';
 
 export type { ArticlePageProps } from '@/types';
 
-export const revalidate = 6000;
+export const revalidate = 0;
 
 /**
  * @安全优化 S1: userId 由服务端内部获取，不依赖客户端传入

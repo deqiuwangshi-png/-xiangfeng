@@ -60,9 +60,21 @@ function ColorPicker({ editor }: { editor: Editor | null }) {
 
   const handleColorSelect = (color: string) => {
     if (color) {
-      editor.chain().focus().setColor(color).run()
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('bold')
+        .extendMarkRange('textStyle')
+        .setColor(color)
+        .run()
     } else {
-      editor.chain().focus().unsetColor().run()
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('bold')
+        .extendMarkRange('textStyle')
+        .unsetColor()
+        .run()
     }
     setIsOpen(false)
   }

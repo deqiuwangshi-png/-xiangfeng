@@ -23,7 +23,14 @@ export function runEditorCommand(editor: Editor | null, command: EditorCommandId
 
   switch (command) {
     case 'bold':
-      editor.chain().focus().toggleBold().run()
+      {
+        const currentColor = editor.getAttributes('textStyle').color
+        const chain = editor.chain().focus().toggleBold()
+        if (currentColor) {
+          chain.setColor(currentColor)
+        }
+        chain.run()
+      }
       return
     case 'italic':
       editor.chain().focus().toggleItalic().run()

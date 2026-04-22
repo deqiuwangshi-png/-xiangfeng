@@ -519,7 +519,7 @@ body {
 /* ====== 行内样式 ====== */
 .reading-mode strong {
   font-weight: 700;
-  color: var(--color-xf-dark);
+  color: inherit;
 }
 
 .reading-mode em {

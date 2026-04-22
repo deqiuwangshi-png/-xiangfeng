@@ -9,7 +9,7 @@
 import { generateHTML } from '@tiptap/html'
 import StarterKit from '@tiptap/starter-kit'
 import { TextStyle } from '@tiptap/extension-text-style'
-import { Color } from '@tiptap/extension-color'
+import Color from '@tiptap/extension-color'
 import type { TipTapJSON } from './json'
 
 // 用于服务端渲染的扩展配置
@@ -17,7 +17,7 @@ import type { TipTapJSON } from './json'
 const extensions = [
   StarterKit,
   TextStyle,
-  Color,
+  Color.configure({ types: ['textStyle'] }),
 ]
 
 /**
